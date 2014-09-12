@@ -95,7 +95,6 @@ class AxialVerification(QThread):
             self.verificationProgress.emit(80)
             # build the topology
             if has_igraph:
-                #pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True)
                 start_time = time.time()
                 graph_links = self.spatialiteBuildTopology(self.connection, axialname, geomname, unlinkname, linkname)
                 print "Building topology: %s"%str(time.time()-start_time)

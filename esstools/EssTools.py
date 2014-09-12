@@ -48,7 +48,7 @@ try:
 except ImportError, e:
     has_pydevd = False
 # set to False in release version
-is_debug = True
+is_debug = False
 
 # todo: add documentation notes to all functions
 # todo: place in GitHUB repository
@@ -109,12 +109,12 @@ class EssTools:
         icon = QIcon(os.path.dirname(__file__) + "/icons/explorer.png")
         self.explorer_action = QAction(icon, u"Attributes Explorer", self.iface.mainWindow())
         self.explorer_action.triggered.connect(self.showExplorer)
-        icon = QIcon(os.path.dirname(__file__) + "/icons/settings.png")
-        self.settings_action = QAction(icon, u"Settings", self.iface.mainWindow())
-        self.settings_action.triggered.connect(self.settings.showDialog)
-        icon = QIcon(os.path.dirname(__file__) + "/icons/help.png")
-        self.help_action = QAction(icon, u"Help", self.iface.mainWindow())
-        self.help_action.triggered.connect(self.showHelp)
+        #icon = QIcon(os.path.dirname(__file__) + "/icons/settings.png")
+        #self.settings_action = QAction(icon, u"Settings", self.iface.mainWindow())
+        #self.settings_action.triggered.connect(self.settings.showDialog)
+        #icon = QIcon(os.path.dirname(__file__) + "/icons/help.png")
+        #self.help_action = QAction(icon, u"Help", self.iface.mainWindow())
+        #self.help_action.triggered.connect(self.showHelp)
         icon = QIcon(os.path.dirname(__file__) + "/icons/about.png")
         self.about_action = QAction(icon, u"About", self.iface.mainWindow())
         self.about_action.triggered.connect(self.about.show)
@@ -125,8 +125,8 @@ class EssTools:
         self.iface.addPluginToMenu(u"&Space Syntax Toolkit", self.analysis_action)
         self.iface.addPluginToMenu(u"&Space Syntax Toolkit", self.explorer_action)
         self.iface.addPluginToMenu(u"&Space Syntax Toolkit", self.project_action)
-        self.iface.addPluginToMenu(u"&Space Syntax Toolkit", self.settings_action)
-        self.iface.addPluginToMenu(u"&Space Syntax Toolkit", self.help_action)
+        #self.iface.addPluginToMenu(u"&Space Syntax Toolkit", self.settings_action)
+        #self.iface.addPluginToMenu(u"&Space Syntax Toolkit", self.help_action)
         self.iface.addPluginToMenu(u"&Space Syntax Toolkit", self.about_action)
 
         self.iface.addDockWidget(Qt.RightDockWidgetArea, self.analysis.dlg)
@@ -155,9 +155,9 @@ class EssTools:
         self.iface.removePluginMenu(u"&Space Syntax Toolkit", self.analysis_action)
         self.iface.removePluginMenu(u"&Space Syntax Toolkit", self.explorer_action)
         self.iface.removePluginMenu(u"&Space Syntax Toolkit", self.project_action)
-        self.iface.removePluginMenu(u"&Space Syntax Toolkit", self.settings_action)
+        #self.iface.removePluginMenu(u"&Space Syntax Toolkit", self.settings_action)
         self.iface.removePluginMenu(u"&Space Syntax Toolkit", self.about_action)
-        self.iface.removePluginMenu(u"&Space Syntax Toolkit", self.help_action)
+        #self.iface.removePluginMenu(u"&Space Syntax Toolkit", self.help_action)
 
         # Remove the toolbar buttons
         self.iface.removeToolBarIcon(self.analysis_action)

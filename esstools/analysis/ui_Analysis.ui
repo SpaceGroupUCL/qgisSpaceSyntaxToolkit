@@ -439,7 +439,7 @@
            <string>https://varoudis.github.io/depthmapX/</string>
           </property>
           <property name="text">
-           <string>&lt;qt&gt;&lt;a href=&quot;https://varoudis.github.io/depthmapX/&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Download depthmapXnet...&lt;/a&gt;&lt;/qt&gt;</string>
+           <string>&lt;qt&gt;&lt;a href=&quot;http://archtech.gr/varoudis/depthmapX/?dir=depthmapXnet&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Download depthmapXnet...&lt;/a&gt;&lt;/qt&gt;</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>

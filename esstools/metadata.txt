@@ -11,7 +11,7 @@
 [general]
 name=Space Syntax Toolkit
 qgisMinimumVersion=2.0
-description=Set of tools for space syntax spatial network analysis and results exploration
+description=Set of tools for space syntax spatial network analysis and introduces new functionality for data exploration. The “Space Syntax Toolkit” consists currently of two modules: “Graph analysis” and “Attributes explorer”. It requires the installation of python igraph, pyqtgraph, and depthmapXnet.
 version=0.1
 author=Jorge Gil, UCL
 email=jorge.gil@ucl.ac.uk
@@ -21,14 +21,14 @@ email=jorge.gil@ucl.ac.uk
 # Optional items:
 
 # Uncomment the following line and add your changelog entries:
-# changelog=
+changelog=version 0.1: first beta release
 
 # tags are comma separated with spaces allowed
 tags= network analysis,spatial analysis,numeric attribute visualisation
 
-homepage=
+homepage=https://github.com/SpaceGroupUCL/qgisSpaceSyntaxToolkit
 tracker=
-repository=
+repository=https://github.com/SpaceGroupUCL/qgisSpaceSyntaxToolkit/tree/master/esstools
 icon=icons/logo.png
 # experimental flag
 experimental=True

@@ -473,4 +473,4 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
         if has_pyqtgraph:
             self.chartPlotWidget.clear()
         else:
-            self.chartPlotWidget.clear()
+            pass

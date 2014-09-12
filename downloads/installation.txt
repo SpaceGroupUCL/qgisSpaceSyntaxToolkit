@@ -1,0 +1,11 @@
+Instructions to install the 'Space Syntax Toolkit' plugin for QGIS
+
+At the moment the plug-in is not yet available through the QGIS plugins repository.
+To install it you need to unzip the esstools.zip file and copy it into the QGIS plugins directory.
+In MS Windows this is: C:/Users/[your user name]/.qgis2/python/plugins/
+In Mac OSX this is: ~/.qgis2/python/plugins/
+This folder is hidden and you must make hidden files and folders visible.
+
+Once you start QGIS, the 'Space Syntax Toolkit' plugin will be available in the plugin manager window.
+Check the box next to it to load the plugin and create the menu and toolbar buttons.
+To use any of the tools select the appropriate button in the plugins toolbar, or in the 'Space Syntax Toolkit' section of the 'Plugins' menu.

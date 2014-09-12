@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/Users/jorge/Dropbox/UCL/Development/C_Implementation/esstools/analysis/ui_Analysis.ui'
+# Form implementation generated from reading ui file '/Users/jorge/Dropbox/UCL/qgisSpaceSyntaxToolkit/esstools/analysis/ui_Analysis.ui'
 #
-# Created: Sat Aug 23 00:32:18 2014
+# Created: Fri Sep 12 10:59:58 2014
 #      by: PyQt4 UI code generator 4.10.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -291,7 +291,7 @@ class Ui_AnalysisDialog(object):
         self.axialDepthmapCalculateButton.setText(_translate("AnalysisDialog", "Calculate", None))
         self.axialDepthmapCancelButton.setText(_translate("AnalysisDialog", "Cancel", None))
         self.axialDepthmapDownload.setToolTip(_translate("AnalysisDialog", "https://varoudis.github.io/depthmapX/", None))
-        self.axialDepthmapDownload.setText(_translate("AnalysisDialog", "<qt><a href=\"https://varoudis.github.io/depthmapX/\"><span style=\" text-decoration: underline; color:#0000ff;\">Download depthmapXnet...</a></qt>", None))
+        self.axialDepthmapDownload.setText(_translate("AnalysisDialog", "<qt><a href=\"http://archtech.gr/varoudis/depthmapX/?dir=depthmapXnet\"><span style=\" text-decoration: underline; color:#0000ff;\">Download depthmapXnet...</a></qt>", None))
         self.axialAnalysisTabs.setTabText(self.axialAnalysisTabs.indexOf(self.axialDepthmapTab), _translate("AnalysisDialog", "depthmapX remote", None))
 
 import resources_rc
