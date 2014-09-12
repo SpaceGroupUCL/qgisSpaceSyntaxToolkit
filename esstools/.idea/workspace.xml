@@ -1,0 +1,1196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="d4ee610d-f2aa-449b-98a4-1fc9e376cfb8" name="Default" comment="" />
+    <ignored path="esstools.iws" />
+    <ignored path=".idea/workspace.xml" />
+    <option name="TRACKING_ENABLED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ChangesViewManager" flattened_view="true" show_ignored="false" />
+  <component name="CreatePatchCommitExecutor">
+    <option name="PATCH_PATH" value="" />
+  </component>
+  <component name="DaemonCodeAnalyzer">
+    <disable_hints />
+  </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
+  <component name="FavoritesManager">
+    <favorites_list name="esstools" />
+  </component>
+  <component name="FileEditorManager">
+    <leaf>
+      <file leaf-file-name="AnalysisDialog.py" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/analysis/AnalysisDialog.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0" vertical-offset="6675" max-vertical-offset="8475">
+              <caret line="445" column="8" selection-start-line="445" selection-start-column="8" selection-end-line="445" selection-end-column="8" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ExplorerTool.py" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/explorer/ExplorerTool.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0" vertical-offset="6195" max-vertical-offset="7755">
+              <caret line="413" column="0" selection-start-line="413" selection-start-column="0" selection-end-line="413" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="AttributeSymbology.py" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/explorer/AttributeSymbology.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0" vertical-offset="675" max-vertical-offset="2370">
+              <caret line="45" column="0" selection-start-line="45" selection-start-column="0" selection-end-line="45" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="AnalysisTool.py" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/analysis/AnalysisTool.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.28627452" vertical-offset="9563" max-vertical-offset="13545">
+              <caret line="659" column="8" selection-start-line="659" selection-start-column="8" selection-end-line="659" selection-end-column="8" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="OriginsVerification.py" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/analysis/OriginsVerification.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0" vertical-offset="540" max-vertical-offset="630">
+              <caret line="36" column="0" selection-start-line="36" selection-start-column="0" selection-end-line="36" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="AxialVerification.py" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/analysis/AxialVerification.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0" vertical-offset="25" max-vertical-offset="6930">
+              <caret line="29" column="11" selection-start-line="29" selection-start-column="11" selection-end-line="29" selection-end-column="11" />
+              <folding>
+                <marker date="1410481551000" expanded="true" signature="8229:8324" placeholder="SELECT f_geo..geometry_columns..." />
+                <marker date="1410481551000" expanded="true" signature="9171:9238" placeholder="SELECT &quot;miss..missing_value..." />
+                <marker date="1410481551000" expanded="true" signature="9701:9746" placeholder="SELECT &quot;miss..missing_value..." />
+                <marker date="1410481551000" expanded="true" signature="10200:10270" placeholder="SELECT &quot;miss..missing_value..." />
+                <marker date="1410481551000" expanded="true" signature="10749:10789" placeholder="SELECT &quot;miss..missing_value..." />
+                <marker date="1410481551000" expanded="true" signature="11273:11581" placeholder="SELECT a.&quot;mi..missing_value..." />
+                <marker date="1410481551000" expanded="true" signature="11504:11578" placeholder="SELECT ROWID..SpatialIndex..." />
+                <marker date="1410481551000" expanded="true" signature="12176:12366" placeholder="SELECT a.&quot;mi..missing_value..." />
+                <marker date="1410481551000" expanded="true" signature="12289:12363" placeholder="SELECT ROWID..SpatialIndex..." />
+                <marker date="1410481551000" expanded="true" signature="12892:13109" placeholder="SELECT a.&quot;mi..missing_value..." />
+                <marker date="1410481551000" expanded="true" signature="13032:13106" placeholder="SELECT ROWID..SpatialIndex..." />
+                <marker date="1410481551000" expanded="true" signature="13764:14022" placeholder="SELECT &quot;miss..missing_value..." />
+                <marker date="1410481551000" expanded="true" signature="13803:14021" placeholder="SELECT DISTI..missing_value..." />
+                <marker date="1410481551000" expanded="true" signature="13944:14018" placeholder="SELECT ROWID..SpatialIndex..." />
+                <marker date="1410481551000" expanded="true" signature="14928:14953" placeholder="DROP TABLE I..." />
+                <marker date="1410481551000" expanded="true" signature="15326:15728" placeholder="INSERT INTO ..." />
+                <marker date="1410481551000" expanded="true" signature="15356:15728" placeholder="SELECT DISTI..missing_value..." />
+                <marker date="1410481551000" expanded="true" signature="15651:15725" placeholder="SELECT ROWID..SpatialIndex..." />
+                <marker date="1410481551000" expanded="true" signature="16296:16570" placeholder="DELETE FROM ..." />
+                <marker date="1410481551000" expanded="true" signature="16367:16425" placeholder="SELECT cast(..missing_value..." />
+                <marker date="1410481551000" expanded="true" signature="16509:16567" placeholder="SELECT cast(..missing_value..." />
+                <marker date="1410481551000" expanded="true" signature="16920:16945" placeholder="SELECT a_fid..missing_value..." />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="DepthmapAnalysis.py" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/analysis/DepthmapAnalysis.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0" vertical-offset="3840" max-vertical-offset="7770">
+              <caret line="256" column="36" selection-start-line="256" selection-start-column="36" selection-end-line="256" selection-end-column="36" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="EssTools.py" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/EssTools.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0" vertical-offset="1470" max-vertical-offset="2820">
+              <caret line="98" column="0" selection-start-line="98" selection-start-column="0" selection-end-line="98" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="utility_functions.py" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/utility_functions.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0" vertical-offset="4695" max-vertical-offset="20055">
+              <caret line="313" column="64" selection-start-line="313" selection-start-column="64" selection-end-line="313" selection-end-column="64" />
+              <folding>
+                <marker date="1410481278000" expanded="true" signature="23614:23673" placeholder="SELECT * FRO..geometry_columns..." />
+                <marker date="1410481278000" expanded="true" signature="24237:24287" placeholder="SELECT * FRO..sqlite_sequence..." />
+                <marker date="1410481278000" expanded="true" signature="26177:26272" placeholder="SELECT f_geo..geometry_columns..." />
+                <marker date="1410481278000" expanded="true" signature="27087:27112" placeholder="DROP TABLE I..." />
+                <marker date="1410481278000" expanded="true" signature="28280:28344" placeholder="CREATE TABLE..missing_value..." />
+                <marker date="1410481278000" expanded="true" signature="29965:29998" placeholder="INSERT INTO ..." />
+                <marker date="1410481278000" expanded="true" signature="30153:30192" placeholder="INSERT INTO ..." />
+                <marker date="1410481278000" expanded="true" signature="31860:31899" placeholder="INSERT INTO ..." />
+                <marker date="1410481278000" expanded="true" signature="32107:32140" placeholder="INSERT INTO ..." />
+                <marker date="1410481278000" expanded="true" signature="33236:33265" placeholder="ALTER TABLE missing_value..." />
+                <marker date="1410481278000" expanded="true" signature="33939:33971" placeholder="ALTER TABLE missing_value..." />
+                <marker date="1410481278000" expanded="true" signature="34060:34078" placeholder="CREATE TABLE..missing_value..." />
+                <marker date="1410481278000" expanded="true" signature="34079:34101" placeholder="SELECT missi..to_drop..." />
+                <marker date="1410481278000" expanded="true" signature="34400:34418" placeholder="DROP TABLE t..." />
+                <marker date="1410481278000" expanded="true" signature="35300:35329" placeholder="ALTER TABLE missing_value..." />
+                <marker date="1410481278000" expanded="true" signature="35976:36009" placeholder="UPDATE &quot;miss..." />
+                <marker date="1410481278000" expanded="true" signature="36518:36543" placeholder="DROP TABLE I..." />
+                <marker date="1410481278000" expanded="true" signature="38848:38912" placeholder="CREATE TABLE..missing_value..." />
+                <marker date="1410481278000" expanded="true" signature="39713:39744" placeholder="INSERT INTO ..." />
+                <marker date="1410481278000" expanded="true" signature="40002:40030" placeholder="INSERT INTO ..." />
+                <marker date="1410481278000" expanded="true" signature="40315:40374" placeholder="UPDATE OR RO..." />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="UnlinksVerification.py" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/analysis/UnlinksVerification.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0" vertical-offset="870" max-vertical-offset="7965">
+              <caret line="58" column="31" selection-start-line="58" selection-start-column="31" selection-end-line="58" selection-end-column="31" />
+              <folding>
+                <marker date="1410481827000" expanded="true" signature="5013:5052" placeholder="ALTER TABLE missing_value..." />
+                <marker date="1410481827000" expanded="true" signature="5207:5246" placeholder="ALTER TABLE missing_value..." />
+                <marker date="1410481827000" expanded="true" signature="5966:6047" placeholder="SELECT &quot;miss..missing_value..." />
+                <marker date="1410481827000" expanded="true" signature="6546:6754" placeholder="SELECT a.&quot;mi..missing_value..." />
+                <marker date="1410481827000" expanded="true" signature="6677:6751" placeholder="SELECT ROWID..SpatialIndex..." />
+                <marker date="1410481827000" expanded="true" signature="7325:7395" placeholder="SELECT &quot;miss..missing_value..." />
+                <marker date="1410481827000" expanded="true" signature="7860:7913" placeholder="SELECT &quot;miss..missing_value..." />
+                <marker date="1410481827000" expanded="true" signature="9152:9339" placeholder="SELECT &quot;miss..missing_value..." />
+                <marker date="1410481827000" expanded="true" signature="9199:9338" placeholder="SELECT unlin..unlinkid..." />
+                <marker date="1410481827000" expanded="true" signature="9221:9322" placeholder="SELECT unlin..temp_unlinks_result..." />
+                <marker date="1410481827000" expanded="true" signature="9823:10010" placeholder="SELECT &quot;miss..missing_value..." />
+                <marker date="1410481827000" expanded="true" signature="9870:10009" placeholder="SELECT unlin..unlinkid..." />
+                <marker date="1410481827000" expanded="true" signature="9892:9993" placeholder="SELECT unlin..temp_unlinks_result..." />
+                <marker date="1410481827000" expanded="true" signature="10488:10598" placeholder="SELECT &quot;miss..missing_value..." />
+                <marker date="1410481827000" expanded="true" signature="10539:10597" placeholder="SELECT unlin..temp_unlinks_result..." />
+                <marker date="1410481827000" expanded="true" signature="11098:11238" placeholder="SELECT b.&quot;mi..temp_unlinks_result..." />
+                <marker date="1410481827000" expanded="true" signature="19734:19937" placeholder="UPDATE missi..." />
+                <marker date="1410481827000" expanded="true" signature="19757:19865" placeholder="SELECT c.lin..missing_value..." />
+                <marker date="1410481827000" expanded="true" signature="19777:19865" placeholder="SELECT b.mis..missing_value..." />
+                <marker date="1410481827000" expanded="true" signature="20242:20446" placeholder="UPDATE missi..." />
+                <marker date="1410481827000" expanded="true" signature="20265:20373" placeholder="SELECT c.lin..missing_value..." />
+                <marker date="1410481827000" expanded="true" signature="20285:20373" placeholder="SELECT b.mis..missing_value..." />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
+  </component>
+  <component name="FindManager">
+    <FindUsagesManager>
+      <setting name="OPEN_NEW_TAB" value="false" />
+    </FindUsagesManager>
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="changedFiles">
+      <list>
+        <option value="$PROJECT_DIR$/tools/SettingsManager.py" />
+        <option value="$PROJECT_DIR$/tools/ExplorerStats.py" />
+        <option value="$PROJECT_DIR$/tools/ExplorerPrint.py" />
+        <option value="$PROJECT_DIR$/tools/ExplorerMaps.py" />
+        <option value="$PROJECT_DIR$/tools/AnalysisAxialUnlinks.py" />
+        <option value="$PROJECT_DIR$/tools/AnalysisAxialOrigins.py" />
+        <option value="$PROJECT_DIR$/tools/AnalysisAxialMap.py" />
+        <option value="$PROJECT_DIR$/tools/AnalysisAxialLinks.py" />
+        <option value="$PROJECT_DIR$/ui/AboutDialog.py" />
+        <option value="$PROJECT_DIR$/ui/SettingsDialog.py" />
+        <option value="$PROJECT_DIR$/ui/AnalysisDialog.py" />
+        <option value="$PROJECT_DIR$/ui/ui_Project.py" />
+        <option value="$PROJECT_DIR$/ui/AxialAdvancedDialog.py" />
+        <option value="$PROJECT_DIR$/ui/ui_About.py" />
+        <option value="$PROJECT_DIR$/tools/AnalysisAxialAnalysis.py" />
+        <option value="$PROJECT_DIR$/tools/AnalysisAxialLines.py" />
+        <option value="$PROJECT_DIR$/tools/utility_functions.py" />
+        <option value="$PROJECT_DIR$/tools/ProjectManager.py" />
+        <option value="$PROJECT_DIR$/ui/ProjectDialog.py" />
+        <option value="$PROJECT_DIR$/ProjectDialog.py" />
+        <option value="$PROJECT_DIR$/analysis/AxialOrigins.py" />
+        <option value="$PROJECT_DIR$/analysis/AxialLinks.py" />
+        <option value="$PROJECT_DIR$/analysis/AxialUnlinks.py" />
+        <option value="$PROJECT_DIR$/SettingsManager.py" />
+        <option value="$PROJECT_DIR$/analysis/ui_Analysis.py" />
+        <option value="$PROJECT_DIR$/analysis/AxialAnalysis.py" />
+        <option value="$PROJECT_DIR$/analysis/AxialAdvancedDialog.py" />
+        <option value="$PROJECT_DIR$/analysis/ui_AxialAdvanced.py" />
+        <option value="$PROJECT_DIR$/analysis/ui_DepthmapAdvanced.py" />
+        <option value="$PROJECT_DIR$/resources.qrc" />
+        <option value="$PROJECT_DIR$/analysis/DepthmapAdvancedDialog.py" />
+        <option value="$PROJECT_DIR$/__init__.py" />
+        <option value="$PROJECT_DIR$/analysis/AxialMap.py" />
+        <option value="$PROJECT_DIR$/analysis/OriginsVerification.py" />
+        <option value="$PROJECT_DIR$/analysis/LinksVerification.py" />
+        <option value="$PROJECT_DIR$/analysis/VerificationSettingsDialog.py" />
+        <option value="$PROJECT_DIR$/explorer/ui_Explorer.py" />
+        <option value="$PROJECT_DIR$/explorer/AttributeStats.py" />
+        <option value="$PROJECT_DIR$/explorer/AttributeSymbology.py" />
+        <option value="$PROJECT_DIR$/explorer/AttributeCharts.py" />
+        <option value="$PROJECT_DIR$/explorer/ExplorerTool.py" />
+        <option value="$PROJECT_DIR$/explorer/ExplorerDialog.py" />
+        <option value="$PROJECT_DIR$/metadata.txt" />
+        <option value="$PROJECT_DIR$/ProjectManager.py" />
+        <option value="$PROJECT_DIR$/EssTools.py" />
+        <option value="$PROJECT_DIR$/utility_functions.py" />
+        <option value="$PROJECT_DIR$/analysis/AxialVerification.py" />
+        <option value="$PROJECT_DIR$/analysis/UnlinksVerification.py" />
+        <option value="$PROJECT_DIR$/analysis/AnalysisTool.py" />
+        <option value="$PROJECT_DIR$/analysis/AnalysisDialog.py" />
+        <option value="$PROJECT_DIR$/analysis/DepthmapAnalysis.py" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectFrameBounds">
+    <option name="x" value="1920" />
+    <option name="y" value="-171" />
+    <option name="width" value="1280" />
+    <option name="height" value="1200" />
+  </component>
+  <component name="ProjectInspectionProfilesVisibleTreeState">
+    <entry key="Project Default">
+      <profile-state>
+        <expanded-state>
+          <State>
+            <id />
+          </State>
+          <State>
+            <id>Assignment issuesJavaScript</id>
+          </State>
+          <State>
+            <id>Bitwise operation issuesJavaScript</id>
+          </State>
+          <State>
+            <id>Buildout</id>
+          </State>
+          <State>
+            <id>CSS</id>
+          </State>
+          <State>
+            <id>Code quality toolsJavaScript</id>
+          </State>
+          <State>
+            <id>Code style issuesJavaScript</id>
+          </State>
+          <State>
+            <id>CoffeeScript</id>
+          </State>
+          <State>
+            <id>Control flow issuesJavaScript</id>
+          </State>
+          <State>
+            <id>DOM issuesJavaScript</id>
+          </State>
+          <State>
+            <id>Data flow issuesJavaScript</id>
+          </State>
+          <State>
+            <id>Django</id>
+          </State>
+          <State>
+            <id>Error handlingJavaScript</id>
+          </State>
+          <State>
+            <id>File Watchers</id>
+          </State>
+          <State>
+            <id>General</id>
+          </State>
+          <State>
+            <id>GeneralCoffeeScript</id>
+          </State>
+          <State>
+            <id>GeneralJavaScript</id>
+          </State>
+          <State>
+            <id>Google App Engine (Python)</id>
+          </State>
+          <State>
+            <id>HTML</id>
+          </State>
+          <State>
+            <id>Ini Files</id>
+          </State>
+          <State>
+            <id>Internationalization issues</id>
+          </State>
+          <State>
+            <id>Invalid elementsCSS</id>
+          </State>
+          <State>
+            <id>JavaScript</id>
+          </State>
+          <State>
+            <id>JavaScript function metricsJavaScript</id>
+          </State>
+          <State>
+            <id>JavaScript validity issuesJavaScript</id>
+          </State>
+          <State>
+            <id>Mako</id>
+          </State>
+          <State>
+            <id>Naming conventionsJavaScript</id>
+          </State>
+          <State>
+            <id>Portability issues</id>
+          </State>
+          <State>
+            <id>Potentially confusing code constructsJavaScript</id>
+          </State>
+          <State>
+            <id>Probable bugsCoffeeScript</id>
+          </State>
+          <State>
+            <id>Probable bugsJavaScript</id>
+          </State>
+          <State>
+            <id>Python</id>
+          </State>
+          <State>
+            <id>RELAX NG</id>
+          </State>
+          <State>
+            <id>SASS/SCSS</id>
+          </State>
+          <State>
+            <id>SQL</id>
+          </State>
+          <State>
+            <id>Spelling</id>
+          </State>
+          <State>
+            <id>XML</id>
+          </State>
+        </expanded-state>
+        <selected-state>
+          <State>
+            <id>Buildout</id>
+          </State>
+        </selected-state>
+      </profile-state>
+    </entry>
+  </component>
+  <component name="ProjectLevelVcsManager" settingsEditedManually="false">
+    <OptionsSetting value="true" id="Add" />
+    <OptionsSetting value="true" id="Remove" />
+    <OptionsSetting value="true" id="Checkout" />
+    <OptionsSetting value="true" id="Update" />
+    <OptionsSetting value="true" id="Status" />
+    <OptionsSetting value="true" id="Edit" />
+    <ConfirmationsSetting value="0" id="Add" />
+    <ConfirmationsSetting value="0" id="Remove" />
+  </component>
+  <component name="ProjectReloadState">
+    <option name="STATE" value="0" />
+  </component>
+  <component name="ProjectView">
+    <navigator currentView="ProjectPane" proportions="" version="1">
+      <flattenPackages />
+      <showMembers />
+      <showModules />
+      <showLibraryContents />
+      <hideEmptyPackages />
+      <abbreviatePackageNames />
+      <autoscrollToSource />
+      <autoscrollFromSource />
+      <sortByType />
+    </navigator>
+    <panes>
+      <pane id="ProjectPane">
+        <subPane>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="esstools" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="esstools" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="esstools" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="esstools" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="esstools" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="explorer" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+        </subPane>
+      </pane>
+      <pane id="Scope" />
+    </panes>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="options.splitter.main.proportions" value="0.3" />
+    <property name="options.lastSelected" value="reference.settingsdialog.IDE.editor.colors.General" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../BC_Prototyping/prototypes" />
+    <property name="options.searchVisible" value="true" />
+    <property name="options.splitter.details.proportions" value="0.2" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="FullScreen" value="false" />
+    <property name="SearchEverywhereHistoryKey" value="&#9;FILE&#9;file:///Users/jorge/Dropbox/UCL/Development/C_Implementation/esstools/analysis/AnalysisDialog.py" />
+    <property name="recentsLimit" value="5" />
+    <property name="restartRequiresConfirmation" value="true" />
+  </component>
+  <component name="PyConsoleOptionsProvider">
+    <option name="myPythonConsoleState">
+      <console-settings />
+    </option>
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/analysis" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/tools" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Python Remote Debug.debug qgis plugin">
+    <configuration default="true" type="DjangoTestsConfigurationType" factoryName="Django tests">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="esstools" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="TARGET" value="" />
+      <option name="SETTINGS_FILE" value="" />
+      <option name="CUSTOM_SETTINGS" value="false" />
+      <option name="USE_OPTIONS" value="false" />
+      <option name="OPTIONS" value="" />
+      <method />
+    </configuration>
+    <configuration default="true" type="tests" factoryName="py.test">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="esstools" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="CLASS_NAME" value="" />
+      <option name="METHOD_NAME" value="" />
+      <option name="FOLDER_NAME" value="" />
+      <option name="TEST_TYPE" value="TEST_SCRIPT" />
+      <option name="PATTERN" value="" />
+      <option name="USE_PATTERN" value="false" />
+      <option name="testToRun" value="" />
+      <option name="keywords" value="" />
+      <option name="params" value="" />
+      <option name="USE_PARAM" value="false" />
+      <option name="USE_KEYWORD" value="false" />
+      <method />
+    </configuration>
+    <configuration default="true" type="tests" factoryName="Nosetests">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="esstools" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="CLASS_NAME" value="" />
+      <option name="METHOD_NAME" value="" />
+      <option name="FOLDER_NAME" value="" />
+      <option name="TEST_TYPE" value="TEST_SCRIPT" />
+      <option name="PATTERN" value="" />
+      <option name="USE_PATTERN" value="false" />
+      <option name="PARAMS" value="" />
+      <option name="USE_PARAM" value="false" />
+      <method />
+    </configuration>
+    <configuration default="true" type="PythonConfigurationType" factoryName="Python">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="esstools" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="PARAMETERS" value="" />
+      <method />
+    </configuration>
+    <configuration default="true" type="PyRemoteDebugConfigurationType" factoryName="Python Remote Debug">
+      <module name="" />
+      <option name="PORT" value="0" />
+      <option name="HOST" value="null" />
+      <PathMappingSettings>
+        <option name="pathMappings">
+          <list />
+        </option>
+      </PathMappingSettings>
+      <option name="REDIRECT_OUTPUT" value="true" />
+      <option name="SUSPEND_AFTER_CONNECT" value="true" />
+      <method />
+    </configuration>
+    <configuration default="true" type="tests" factoryName="Unittests">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="esstools" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="CLASS_NAME" value="" />
+      <option name="METHOD_NAME" value="" />
+      <option name="FOLDER_NAME" value="" />
+      <option name="TEST_TYPE" value="TEST_SCRIPT" />
+      <option name="PATTERN" value="" />
+      <option name="USE_PATTERN" value="false" />
+      <option name="PUREUNITTEST" value="true" />
+      <option name="PARAMS" value="" />
+      <option name="USE_PARAM" value="false" />
+      <method />
+    </configuration>
+    <configuration default="true" type="JavascriptDebugType" factoryName="JavaScript Debug">
+      <method />
+    </configuration>
+    <configuration default="true" type="tests" factoryName="Doctests">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="esstools" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="CLASS_NAME" value="" />
+      <option name="METHOD_NAME" value="" />
+      <option name="FOLDER_NAME" value="" />
+      <option name="TEST_TYPE" value="TEST_SCRIPT" />
+      <option name="PATTERN" value="" />
+      <option name="USE_PATTERN" value="false" />
+      <method />
+    </configuration>
+    <configuration default="true" type="tests" factoryName="Attests">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="esstools" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="CLASS_NAME" value="" />
+      <option name="METHOD_NAME" value="" />
+      <option name="FOLDER_NAME" value="" />
+      <option name="TEST_TYPE" value="TEST_SCRIPT" />
+      <option name="PATTERN" value="" />
+      <option name="USE_PATTERN" value="false" />
+      <method />
+    </configuration>
+    <configuration default="false" name="debug qgis plugin" type="PyRemoteDebugConfigurationType" factoryName="Python Remote Debug">
+      <module name="" />
+      <option name="PORT" value="53100" />
+      <option name="HOST" value="localhost" />
+      <PathMappingSettings>
+        <option name="pathMappings">
+          <list />
+        </option>
+      </PathMappingSettings>
+      <option name="REDIRECT_OUTPUT" value="true" />
+      <option name="SUSPEND_AFTER_CONNECT" value="true" />
+      <RunnerSettings RunnerId="PyRemoteDebugRunner" />
+      <ConfigurationWrapper RunnerId="PyRemoteDebugRunner" />
+      <method />
+    </configuration>
+    <list size="1">
+      <item index="0" class="java.lang.String" itemvalue="Python Remote Debug.debug qgis plugin" />
+    </list>
+  </component>
+  <component name="ShelveChangesManager" show_recycled="false" />
+  <component name="SvnConfiguration" myUseAcceleration="nothing">
+    <configuration useDefault="false" />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="d4ee610d-f2aa-449b-98a4-1fc9e376cfb8" name="Default" comment="" />
+      <created>1396258491778</created>
+      <updated>1396258491778</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="TodoView" selected-index="0">
+    <todo-panel id="selected-file">
+      <are-packages-shown value="false" />
+      <are-modules-shown value="false" />
+      <flatten-packages value="false" />
+      <is-autoscroll-to-source value="false" />
+    </todo-panel>
+    <todo-panel id="all">
+      <are-packages-shown value="false" />
+      <are-modules-shown value="false" />
+      <flatten-packages value="false" />
+      <is-autoscroll-to-source value="false" />
+      <todo-filter name="bug" />
+    </todo-panel>
+    <todo-panel id="default-changelist">
+      <are-packages-shown value="false" />
+      <are-modules-shown value="false" />
+      <flatten-packages value="false" />
+      <is-autoscroll-to-source value="false" />
+    </todo-panel>
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="1920" y="-171" width="1280" height="1200" extended-state="0" />
+    <editor active="false" />
+    <layout>
+      <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.18173432" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.15405904" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.23344104" sideWeight="0.41420665" order="0" side_tool="true" content_ui="tabs" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.23344104" sideWeight="0.5857934" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.17896679" sideWeight="0.49919224" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="true" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24284396" sideWeight="0.50080776" order="0" side_tool="true" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.15498155" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.23616236" sideWeight="0.49966192" order="1" side_tool="false" content_ui="tabs" />
+    </layout>
+  </component>
+  <component name="Vcs.Log.UiProperties">
+    <option name="RECENTLY_FILTERED_USER_GROUPS">
+      <collection />
+    </option>
+    <option name="RECENTLY_FILTERED_BRANCH_GROUPS">
+      <collection />
+    </option>
+  </component>
+  <component name="VcsContentAnnotationSettings">
+    <option name="myLimit" value="2678400000" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="myTodoPanelSettings">
+      <TodoPanelSettings />
+    </option>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints-dialog>
+        <breakpoints-dialog />
+      </breakpoints-dialog>
+      <option name="time" value="247" />
+    </breakpoint-manager>
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/analysis/AnalysisDialog.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ProjectManager.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/utility_functions.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <marker date="1410481278000" expanded="true" signature="23614:23673" placeholder="SELECT * FRO..geometry_columns..." />
+            <marker date="1410481278000" expanded="true" signature="24237:24287" placeholder="SELECT * FRO..sqlite_sequence..." />
+            <marker date="1410481278000" expanded="true" signature="26177:26272" placeholder="SELECT f_geo..geometry_columns..." />
+            <marker date="1410481278000" expanded="true" signature="27087:27112" placeholder="DROP TABLE I..." />
+            <marker date="1410481278000" expanded="true" signature="28280:28344" placeholder="CREATE TABLE..missing_value..." />
+            <marker date="1410481278000" expanded="true" signature="29965:29998" placeholder="INSERT INTO ..." />
+            <marker date="1410481278000" expanded="true" signature="30153:30192" placeholder="INSERT INTO ..." />
+            <marker date="1410481278000" expanded="true" signature="31860:31899" placeholder="INSERT INTO ..." />
+            <marker date="1410481278000" expanded="true" signature="32107:32140" placeholder="INSERT INTO ..." />
+            <marker date="1410481278000" expanded="true" signature="33236:33265" placeholder="ALTER TABLE missing_value..." />
+            <marker date="1410481278000" expanded="true" signature="33939:33971" placeholder="ALTER TABLE missing_value..." />
+            <marker date="1410481278000" expanded="true" signature="34060:34078" placeholder="CREATE TABLE..missing_value..." />
+            <marker date="1410481278000" expanded="true" signature="34079:34101" placeholder="SELECT missi..to_drop..." />
+            <marker date="1410481278000" expanded="true" signature="34400:34418" placeholder="DROP TABLE t..." />
+            <marker date="1410481278000" expanded="true" signature="35300:35329" placeholder="ALTER TABLE missing_value..." />
+            <marker date="1410481278000" expanded="true" signature="35976:36009" placeholder="UPDATE &quot;miss..." />
+            <marker date="1410481278000" expanded="true" signature="36518:36543" placeholder="DROP TABLE I..." />
+            <marker date="1410481278000" expanded="true" signature="38848:38912" placeholder="CREATE TABLE..missing_value..." />
+            <marker date="1410481278000" expanded="true" signature="39713:39744" placeholder="INSERT INTO ..." />
+            <marker date="1410481278000" expanded="true" signature="40002:40030" placeholder="INSERT INTO ..." />
+            <marker date="1410481278000" expanded="true" signature="40315:40374" placeholder="UPDATE OR RO..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/SettingsManager.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/EssTools.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/SettingsManager.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ProjectManager.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/EssTools.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/SettingsManager.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ProjectManager.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/EssTools.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/EssTools.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/EssTools.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/plugin_upload.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Makefile">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/plugin_upload.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/Library/Caches/PyCharm30/python_stubs/596071422/PyQt4/QtGui.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///Applications/QGIS.app/Contents/Resources/python/qgis/utils.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/analysis/ui_Analysis.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/analysis/ui_DepthmapAdvanced.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.qgis2/python/plugins/inasafe/safe/impact_functions/impact_function_metadata.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/resources.qrc">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/resources.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/analysis/ui_VerificationSettings.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1230">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/analysis/DepthmapAdvancedDialog.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="81" max-vertical-offset="870">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/SettingsManager.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/analysis/VerificationSettingsDialog.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.75127554" vertical-offset="86" max-vertical-offset="1155">
+          <caret line="48" column="30" selection-start-line="48" selection-start-column="30" selection-end-line="48" selection-end-column="30" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/analysis/LinksVerification.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="570">
+          <caret line="36" column="0" selection-start-line="36" selection-start-column="0" selection-end-line="36" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/explorer/AttributeStats.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.7066381" vertical-offset="0" max-vertical-offset="934">
+          <caret line="44" column="0" selection-start-line="44" selection-start-column="0" selection-end-line="44" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///Library/Python/2.7/site-packages/numpy-override/numpy/core/_methods.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1845">
+          <caret line="20" column="0" selection-start-line="20" selection-start-column="0" selection-end-line="20" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///Library/Python/2.7/site-packages/numpy-override/numpy/core/fromnumeric.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="31440" max-vertical-offset="43755">
+          <caret line="2119" column="0" selection-start-line="2119" selection-start-column="0" selection-end-line="2119" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///Library/Python/2.7/site-packages/numpy-override/numpy/lib/function_base.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.3323486" vertical-offset="25725" max-vertical-offset="53235">
+          <caret line="1730" column="0" selection-start-line="1730" selection-start-column="0" selection-end-line="1730" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/explorer/ui_Explorer.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.33283132" vertical-offset="2074" max-vertical-offset="4320">
+          <caret line="153" column="8" selection-start-line="153" selection-start-column="8" selection-end-line="153" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/explorer/AttributeCharts.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="73" max-vertical-offset="2235">
+          <caret line="96" column="0" selection-start-line="96" selection-start-column="0" selection-end-line="96" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/analysis/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="607">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/explorer/ExplorerDialog.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="2206" max-vertical-offset="7170">
+          <caret line="169" column="77" selection-start-line="169" selection-start-column="77" selection-end-line="169" selection-end-column="77" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/metadata.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.23269689" vertical-offset="0" max-vertical-offset="838">
+          <caret line="13" column="90" selection-start-line="13" selection-start-column="90" selection-end-line="13" selection-end-column="90" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.39379475" vertical-offset="0" max-vertical-offset="838">
+          <caret line="22" column="0" selection-start-line="22" selection-start-column="0" selection-end-line="22" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ProjectManager.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="5281" max-vertical-offset="6390">
+          <caret line="403" column="134" selection-start-line="403" selection-start-column="134" selection-end-line="403" selection-end-column="134" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///Library/Python/2.7/site-packages/igraph/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.3329298" vertical-offset="2455" max-vertical-offset="60420">
+          <caret line="182" column="0" selection-start-line="182" selection-start-column="0" selection-end-line="182" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/utility_functions.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="4105" max-vertical-offset="19920">
+          <caret line="313" column="64" selection-start-line="313" selection-start-column="64" selection-end-line="313" selection-end-column="64" />
+          <folding>
+            <marker date="1410481278000" expanded="true" signature="23614:23673" placeholder="SELECT * FRO..geometry_columns..." />
+            <marker date="1410481278000" expanded="true" signature="24237:24287" placeholder="SELECT * FRO..sqlite_sequence..." />
+            <marker date="1410481278000" expanded="true" signature="26177:26272" placeholder="SELECT f_geo..geometry_columns..." />
+            <marker date="1410481278000" expanded="true" signature="27087:27112" placeholder="DROP TABLE I..." />
+            <marker date="1410481278000" expanded="true" signature="28280:28344" placeholder="CREATE TABLE..missing_value..." />
+            <marker date="1410481278000" expanded="true" signature="29965:29998" placeholder="INSERT INTO ..." />
+            <marker date="1410481278000" expanded="true" signature="30153:30192" placeholder="INSERT INTO ..." />
+            <marker date="1410481278000" expanded="true" signature="31860:31899" placeholder="INSERT INTO ..." />
+            <marker date="1410481278000" expanded="true" signature="32107:32140" placeholder="INSERT INTO ..." />
+            <marker date="1410481278000" expanded="true" signature="33236:33265" placeholder="ALTER TABLE missing_value..." />
+            <marker date="1410481278000" expanded="true" signature="33939:33971" placeholder="ALTER TABLE missing_value..." />
+            <marker date="1410481278000" expanded="true" signature="34060:34078" placeholder="CREATE TABLE..missing_value..." />
+            <marker date="1410481278000" expanded="true" signature="34079:34101" placeholder="SELECT missi..to_drop..." />
+            <marker date="1410481278000" expanded="true" signature="34400:34418" placeholder="DROP TABLE t..." />
+            <marker date="1410481278000" expanded="true" signature="35300:35329" placeholder="ALTER TABLE missing_value..." />
+            <marker date="1410481278000" expanded="true" signature="35976:36009" placeholder="UPDATE &quot;miss..." />
+            <marker date="1410481278000" expanded="true" signature="36518:36543" placeholder="DROP TABLE I..." />
+            <marker date="1410481278000" expanded="true" signature="38848:38912" placeholder="CREATE TABLE..missing_value..." />
+            <marker date="1410481278000" expanded="true" signature="39713:39744" placeholder="INSERT INTO ..." />
+            <marker date="1410481278000" expanded="true" signature="40002:40030" placeholder="INSERT INTO ..." />
+            <marker date="1410481278000" expanded="true" signature="40315:40374" placeholder="UPDATE OR RO..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/analysis/UnlinksVerification.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="660" max-vertical-offset="7875">
+          <caret line="58" column="31" selection-start-line="58" selection-start-column="31" selection-end-line="58" selection-end-column="31" />
+          <folding>
+            <marker date="1410481827000" expanded="true" signature="5013:5052" placeholder="ALTER TABLE missing_value..." />
+            <marker date="1410481827000" expanded="true" signature="5207:5246" placeholder="ALTER TABLE missing_value..." />
+            <marker date="1410481827000" expanded="true" signature="5966:6047" placeholder="SELECT &quot;miss..missing_value..." />
+            <marker date="1410481827000" expanded="true" signature="6546:6754" placeholder="SELECT a.&quot;mi..missing_value..." />
+            <marker date="1410481827000" expanded="true" signature="6677:6751" placeholder="SELECT ROWID..SpatialIndex..." />
+            <marker date="1410481827000" expanded="true" signature="7325:7395" placeholder="SELECT &quot;miss..missing_value..." />
+            <marker date="1410481827000" expanded="true" signature="7860:7913" placeholder="SELECT &quot;miss..missing_value..." />
+            <marker date="1410481827000" expanded="true" signature="9152:9339" placeholder="SELECT &quot;miss..missing_value..." />
+            <marker date="1410481827000" expanded="true" signature="9199:9338" placeholder="SELECT unlin..unlinkid..." />
+            <marker date="1410481827000" expanded="true" signature="9221:9322" placeholder="SELECT unlin..temp_unlinks_result..." />
+            <marker date="1410481827000" expanded="true" signature="9823:10010" placeholder="SELECT &quot;miss..missing_value..." />
+            <marker date="1410481827000" expanded="true" signature="9870:10009" placeholder="SELECT unlin..unlinkid..." />
+            <marker date="1410481827000" expanded="true" signature="9892:9993" placeholder="SELECT unlin..temp_unlinks_result..." />
+            <marker date="1410481827000" expanded="true" signature="10488:10598" placeholder="SELECT &quot;miss..missing_value..." />
+            <marker date="1410481827000" expanded="true" signature="10539:10597" placeholder="SELECT unlin..temp_unlinks_result..." />
+            <marker date="1410481827000" expanded="true" signature="11098:11238" placeholder="SELECT b.&quot;mi..temp_unlinks_result..." />
+            <marker date="1410481827000" expanded="true" signature="19734:19937" placeholder="UPDATE missi..." />
+            <marker date="1410481827000" expanded="true" signature="19757:19865" placeholder="SELECT c.lin..missing_value..." />
+            <marker date="1410481827000" expanded="true" signature="19777:19865" placeholder="SELECT b.mis..missing_value..." />
+            <marker date="1410481827000" expanded="true" signature="20242:20446" placeholder="UPDATE missi..." />
+            <marker date="1410481827000" expanded="true" signature="20265:20373" placeholder="SELECT c.lin..missing_value..." />
+            <marker date="1410481827000" expanded="true" signature="20285:20373" placeholder="SELECT b.mis..missing_value..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/analysis/AxialVerification.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="25" max-vertical-offset="6930">
+          <caret line="29" column="11" selection-start-line="29" selection-start-column="11" selection-end-line="29" selection-end-column="11" />
+          <folding>
+            <marker date="1410481551000" expanded="true" signature="8229:8324" placeholder="SELECT f_geo..geometry_columns..." />
+            <marker date="1410481551000" expanded="true" signature="9171:9238" placeholder="SELECT &quot;miss..missing_value..." />
+            <marker date="1410481551000" expanded="true" signature="9701:9746" placeholder="SELECT &quot;miss..missing_value..." />
+            <marker date="1410481551000" expanded="true" signature="10200:10270" placeholder="SELECT &quot;miss..missing_value..." />
+            <marker date="1410481551000" expanded="true" signature="10749:10789" placeholder="SELECT &quot;miss..missing_value..." />
+            <marker date="1410481551000" expanded="true" signature="11273:11581" placeholder="SELECT a.&quot;mi..missing_value..." />
+            <marker date="1410481551000" expanded="true" signature="11504:11578" placeholder="SELECT ROWID..SpatialIndex..." />
+            <marker date="1410481551000" expanded="true" signature="12176:12366" placeholder="SELECT a.&quot;mi..missing_value..." />
+            <marker date="1410481551000" expanded="true" signature="12289:12363" placeholder="SELECT ROWID..SpatialIndex..." />
+            <marker date="1410481551000" expanded="true" signature="12892:13109" placeholder="SELECT a.&quot;mi..missing_value..." />
+            <marker date="1410481551000" expanded="true" signature="13032:13106" placeholder="SELECT ROWID..SpatialIndex..." />
+            <marker date="1410481551000" expanded="true" signature="13764:14022" placeholder="SELECT &quot;miss..missing_value..." />
+            <marker date="1410481551000" expanded="true" signature="13803:14021" placeholder="SELECT DISTI..missing_value..." />
+            <marker date="1410481551000" expanded="true" signature="13944:14018" placeholder="SELECT ROWID..SpatialIndex..." />
+            <marker date="1410481551000" expanded="true" signature="14928:14953" placeholder="DROP TABLE I..." />
+            <marker date="1410481551000" expanded="true" signature="15326:15728" placeholder="INSERT INTO ..." />
+            <marker date="1410481551000" expanded="true" signature="15356:15728" placeholder="SELECT DISTI..missing_value..." />
+            <marker date="1410481551000" expanded="true" signature="15651:15725" placeholder="SELECT ROWID..SpatialIndex..." />
+            <marker date="1410481551000" expanded="true" signature="16296:16570" placeholder="DELETE FROM ..." />
+            <marker date="1410481551000" expanded="true" signature="16367:16425" placeholder="SELECT cast(..missing_value..." />
+            <marker date="1410481551000" expanded="true" signature="16509:16567" placeholder="SELECT cast(..missing_value..." />
+            <marker date="1410481551000" expanded="true" signature="16920:16945" placeholder="SELECT a_fid..missing_value..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/analysis/OriginsVerification.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="570">
+          <caret line="36" column="0" selection-start-line="36" selection-start-column="0" selection-end-line="36" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/EssTools.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="1116" max-vertical-offset="2760">
+          <caret line="98" column="0" selection-start-line="98" selection-start-column="0" selection-end-line="98" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/analysis/AnalysisDialog.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="6675" max-vertical-offset="8475">
+          <caret line="445" column="8" selection-start-line="445" selection-start-column="8" selection-end-line="445" selection-end-column="8" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/analysis/DepthmapAnalysis.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="3426" max-vertical-offset="7680">
+          <caret line="256" column="36" selection-start-line="256" selection-start-column="36" selection-end-line="256" selection-end-column="36" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/explorer/ExplorerTool.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="2325" max-vertical-offset="7725">
+          <caret line="413" column="0" selection-start-line="413" selection-start-column="0" selection-end-line="413" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/explorer/AttributeSymbology.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="539" max-vertical-offset="2280">
+          <caret line="45" column="0" selection-start-line="45" selection-start-column="0" selection-end-line="45" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/analysis/AnalysisTool.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.28627452" vertical-offset="9563" max-vertical-offset="13545">
+          <caret line="659" column="8" selection-start-line="659" selection-start-column="8" selection-end-line="659" selection-end-column="8" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+  </component>
+</project>
+

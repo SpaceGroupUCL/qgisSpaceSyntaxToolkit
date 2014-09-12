@@ -1,0 +1,466 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ExplorerDialog</class>
+ <widget class="QDockWidget" name="ExplorerDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>364</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>364</width>
+    <height>600</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Attributes Explorer</string>
+  </property>
+  <widget class="QWidget" name="explorerLayout">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QSplitter" name="explorerSplitter">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <widget class="QWidget" name="">
+       <layout class="QVBoxLayout" name="attributesLayout" stretch="0,0,2">
+        <item>
+         <widget class="QComboBox" name="layerCombo"/>
+        </item>
+        <item>
+         <widget class="QLabel" name="attributesLabel">
+          <property name="text">
+           <string>Numeric attributes:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QListWidget" name="attributesList">
+          <property name="selectionMode">
+           <enum>QAbstractItemView::SingleSelection</enum>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QTabWidget" name="explorerTabs">
+       <property name="currentIndex">
+        <number>0</number>
+       </property>
+       <widget class="QWidget" name="symbologyTab">
+        <attribute name="title">
+         <string>Symbology</string>
+        </attribute>
+        <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,0">
+         <property name="spacing">
+          <number>-1</number>
+         </property>
+         <property name="sizeConstraint">
+          <enum>QLayout::SetDefaultConstraint</enum>
+         </property>
+         <property name="margin">
+          <number>10</number>
+         </property>
+         <item>
+          <layout class="QGridLayout" name="coloursLayout" columnstretch="0,1">
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <item row="0" column="1">
+            <widget class="QComboBox" name="colourRangeCombo">
+             <item>
+              <property name="text">
+               <string>Classic</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Red - Blue</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Greyscale</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Monchrome</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="colourRangeLabel">
+             <property name="text">
+              <string>Colour range:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="lineWidthLabel">
+             <property name="text">
+              <string>Line width:</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QDoubleSpinBox" name="lineWidthSpin">
+             <property name="prefix">
+              <string/>
+             </property>
+             <property name="maximum">
+              <double>10.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.250000000000000</double>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QComboBox" name="displayOrderCombo">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="frame">
+              <bool>true</bool>
+             </property>
+             <item>
+              <property name="text">
+               <string>Display top level first</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Display bottom level first</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QCheckBox" name="invertColourCheck">
+             <property name="layoutDirection">
+              <enum>Qt::RightToLeft</enum>
+             </property>
+             <property name="text">
+              <string>Invert</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QGridLayout" name="intervalsLayout" columnstretch="0,0,1">
+           <item row="0" column="0">
+            <widget class="QLabel" name="intervalLabel">
+             <property name="text">
+              <string>Intervals:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="2">
+            <widget class="QComboBox" name="intervalTypeCombo">
+             <item>
+              <property name="text">
+               <string>Equal interval</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Quantiles</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Natural breaks</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Custom</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="topLimitLabel">
+             <property name="layoutDirection">
+              <enum>Qt::LeftToRight</enum>
+             </property>
+             <property name="lineWidth">
+              <number>0</number>
+             </property>
+             <property name="text">
+              <string>Top %</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="2">
+            <widget class="QLineEdit" name="topLimitText">
+             <property name="text">
+              <string>Maximum</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="bottomLimitLabel">
+             <property name="text">
+              <string>Bottom %</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QSpinBox" name="bottomLimitSpin">
+             <property name="specialValueText">
+              <string/>
+             </property>
+             <property name="prefix">
+              <string/>
+             </property>
+             <property name="maximum">
+              <number>100</number>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="2">
+            <widget class="QLineEdit" name="bottomLimitText">
+             <property name="text">
+              <string>Minimum</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QSpinBox" name="topLimitSpin">
+             <property name="maximum">
+              <number>100</number>
+             </property>
+             <property name="value">
+              <number>100</number>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QSpinBox" name="intervalSpin">
+             <property name="minimum">
+              <number>1</number>
+             </property>
+             <property name="maximum">
+              <number>1024</number>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="QPushButton" name="symbologyApplyButton">
+           <property name="text">
+            <string>Apply Symbology</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="statsTab">
+        <attribute name="title">
+         <string>Stats</string>
+        </attribute>
+        <layout class="QVBoxLayout" name="verticalLayout_3" stretch="4,0">
+         <property name="margin">
+          <number>10</number>
+         </property>
+         <item>
+          <widget class="QTableWidget" name="statisticsTable">
+           <property name="lineWidth">
+            <number>1</number>
+           </property>
+           <property name="horizontalScrollBarPolicy">
+            <enum>Qt::ScrollBarAlwaysOff</enum>
+           </property>
+           <property name="autoScroll">
+            <bool>true</bool>
+           </property>
+           <property name="alternatingRowColors">
+            <bool>true</bool>
+           </property>
+           <property name="selectionMode">
+            <enum>QAbstractItemView::NoSelection</enum>
+           </property>
+           <property name="selectionBehavior">
+            <enum>QAbstractItemView::SelectRows</enum>
+           </property>
+           <property name="gridStyle">
+            <enum>Qt::NoPen</enum>
+           </property>
+           <property name="rowCount">
+            <number>0</number>
+           </property>
+           <property name="columnCount">
+            <number>3</number>
+           </property>
+           <attribute name="horizontalHeaderStretchLastSection">
+            <bool>true</bool>
+           </attribute>
+           <attribute name="verticalHeaderVisible">
+            <bool>false</bool>
+           </attribute>
+           <column>
+            <property name="text">
+             <string>Statistic</string>
+            </property>
+           </column>
+           <column>
+            <property name="text">
+             <string>Value</string>
+            </property>
+           </column>
+           <column>
+            <property name="text">
+             <string>Selection</string>
+            </property>
+           </column>
+          </widget>
+         </item>
+         <item>
+          <widget class="QProgressBar" name="statisticsProgressBar">
+           <property name="value">
+            <number>24</number>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="chartsTab">
+        <attribute name="title">
+         <string>Charts</string>
+        </attribute>
+        <layout class="QVBoxLayout" name="verticalLayout_4" stretch="4,0">
+         <property name="margin">
+          <number>10</number>
+         </property>
+         <item>
+          <layout class="QHBoxLayout" name="chartsLayout" stretch="0">
+           <item>
+            <layout class="QVBoxLayout" name="chartToolsLayout" stretch="0,3,0">
+             <item>
+              <layout class="QVBoxLayout" name="chartSetupLayout">
+               <item>
+                <widget class="QRadioButton" name="histogramCheck">
+                 <property name="text">
+                  <string>Histogram</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QRadioButton" name="boxplotCheck">
+                 <property name="text">
+                  <string>Box plot</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QRadioButton" name="scatterplotCheck">
+                 <property name="text">
+                  <string>Scatter plot</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="yaxisLabel">
+                 <property name="text">
+                  <string>Y axis:</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QComboBox" name="yaxisCombo"/>
+               </item>
+               <item>
+                <widget class="QLabel" name="rLabel">
+                 <property name="text">
+                  <string>r:</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="pLabel">
+                 <property name="text">
+                  <string>p:</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="r2Label">
+                 <property name="text">
+                  <string>r2:</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="lineLabel">
+                 <property name="text">
+                  <string>line:</string>
+                 </property>
+                 <property name="wordWrap">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <spacer name="verticalSpacer">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>40</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QPushButton" name="popoutButton">
+               <property name="text">
+                <string>Pop-out chart</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="QProgressBar" name="chartsProgressBar">
+           <property name="value">
+            <number>24</number>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources>
+  <include location="../resources.qrc"/>
+ </resources>
+ <connections/>
+</ui>
