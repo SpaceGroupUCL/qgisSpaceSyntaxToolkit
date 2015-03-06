@@ -217,10 +217,10 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
     # Symbology group
     #
     def __lockApplyButton(self, onoff):
-        #if not onoff and self.current_symbology["top_value"] is not None and self.current_symbology["bottom_value"] is not None:
-        #    self.symbologyApplyButton.setDisabled(onoff)
-        #else:
-        self.symbologyApplyButton.setDisabled(onoff)
+        if not onoff and self.current_symbology["top_value"] is not None and self.current_symbology["bottom_value"] is not None:
+            self.symbologyApplyButton.setDisabled(onoff)
+        else:
+            self.symbologyApplyButton.setDisabled(True)
 
     def __lockColourControls(self, onoff):
         #set all the colour and interval controls
@@ -292,6 +292,7 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
         self.current_symbology["interval_type"] = idx
         if self.current_symbology["interval_type"] == 3:
             self.__lockCustomIntervalControls(False)
+            self.__lockApplyButton(True)
         else:
             self.__lockCustomIntervalControls(True)
             self.current_symbology["top_value"] = self.attribute_max

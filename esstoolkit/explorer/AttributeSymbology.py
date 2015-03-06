@@ -68,24 +68,28 @@ class AttributeSymbology(QObject):
             ranges = []
             top_value = float(settings["top_value"])
             bottom_value = float(settings["bottom_value"])
-            max_value = attribute_vals["max"]
-            min_value = attribute_vals["min"]
-            range_steps = np.linspace(bottom_value,top_value,(intervals-1))
-            for i in range(0,intervals):
+            max_value = float(attribute_vals["max"])
+            min_value = float(attribute_vals["min"])
+            # calculate number of ranges depending on top/bottom difference from max/min:
+            # is there really a range there? Otherwise this will calculate 1 or even 2 ranges less
+            calc_intervals = intervals+1
+            if top_value <> max_value:
+                calc_intervals = calc_intervals-1
+            if bottom_value <> min_value:
+                calc_intervals = calc_intervals-1
+            range_steps = [r for r in np.linspace(bottom_value,top_value,calc_intervals)]
+            if top_value <> max_value:
+                range_steps.append(max_value)
+            if bottom_value <> min_value:
+                range_steps.insert(0,min_value)
+            for i in range(0,len(range_steps)-1):
                 symbol = QgsSymbolV2.defaultSymbol(geometry)
                 if symbol:
-                    new_colour = ramp.color(i/(float(intervals)-1)).getRgb()
+                    new_colour = ramp.color(i/(float(len(range_steps))-2)).getRgb()
                     symbol.setColor(QColor(*new_colour))
                     symbol.setWidth(line_width)
-                    if i == 0:
-                        label = "%s - %s"%(min_value, range_steps[i])
-                        this_range = QgsRendererRangeV2(min_value, range_steps[i], symbol, label)
-                    elif i == (intervals-1):
-                        label = "%s - %s"%(range_steps[i-1], max_value)
-                        this_range = QgsRendererRangeV2(range_steps[i-1], max_value, symbol, label)
-                    else:
-                        label = "%s - %s"%(range_steps[i-1], range_steps[i])
-                        this_range = QgsRendererRangeV2(range_steps[i-1], range_steps[i], symbol, label)
+                    label = "%s - %s"%(range_steps[i], range_steps[i+1])
+                    this_range = QgsRendererRangeV2(range_steps[i], range_steps[i+1], symbol, label)
                     ranges.append(this_range)
             if ranges:
                 renderer = QgsGraduatedSymbolRendererV2(attribute, ranges)
