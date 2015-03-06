@@ -194,8 +194,8 @@ class ExplorerTool(QObject):
             self.update_attributtes = True
         # get layer attributes
         if self.current_layer and self.update_attributtes:
-            #if not self.legend.isLayerVisible(self.current_layer):
-            #    self.legend.setLayerVisible(self.current_layer, True)
+            if not self.legend.isLayerVisible(self.current_layer):
+                self.legend.setLayerVisible(self.current_layer, True)
             if self.current_layer.type() == 0:  #VectorLayer
                 # fixme: throws NoneType error occasionally when adding/removing layers. trapping it for now.
                 try:
@@ -236,7 +236,7 @@ class ExplorerTool(QObject):
                         else:
                             current_attribute = 0
                     else:
-                        current_attribute = -1
+                        current_attribute = 0
                     # check for saved display settings for the given layer
                     self.getProjectSettings()
                     # update the dialog with this info
