@@ -82,16 +82,7 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
         # default symbology values
         self.layerRefreshButton.hide()
         self.current_symbology = dict()
-        self.current_symbology["colour_range"] = 0
-        self.current_symbology["invert_colour"] = 0
-        self.current_symbology["line_width"] = 0.25
-        self.current_symbology["display_order"] = 0
-        self.current_symbology["intervals"] = 10
-        self.current_symbology["interval_type"] = 0
-        self.current_symbology["top_percent"] = 100
-        self.current_symbology["top_value"] = 0.0
-        self.current_symbology["bottom_percent"] = 0
-        self.current_symbology["bottom_value"] = 0.0
+        #self.__setDefaultDisplaySettings()
 
         # statistics labels
         self.__addStatsLabels()
@@ -155,6 +146,7 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
 
     def setAttributesList(self, data):
         self.layer_attributes = data
+        self.attributesList.blockSignals(True)
         self.attributesList.clear()
         if len(data) > 0:
             # get the names for the list
@@ -167,12 +159,15 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
             #self.clearPlot()
             self.__lockColourControls(True)
         #self.attributesLoaded.emit(self.attributesList.count())
+        self.attributesList.blockSignals(False)
 
     def setAttributesSymbology(self, data):
         self.symbology_settings = data
 
     def setCurrentAttribute(self, idx):
         self.attributesList.setCurrentRow(idx)
+        if idx < 0:
+             self.__setDefaultDisplaySettings()
         # fixme: when changing layer, stats and chart update is not happening (though the function is called!)
 
     def getCurrentAttribute(self):
@@ -191,6 +186,24 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
         settings = self.symbology_settings[self.curr_attribute]
         for key in settings.iterkeys():
             self.current_symbology[key] = settings[key]
+        # update the interface
+        self.setColourRanges(int(self.current_symbology["colour_range"]))
+        self.setLineWidthSpin(float(self.current_symbology["line_width"]))
+        self.setInvertColour(int(self.current_symbology["invert_colour"]))
+        self.setDisplayOrder(int(self.current_symbology["display_order"]))
+        self.setIntervalSpin(int(self.current_symbology["intervals"]))
+        self.setIntervalType(int(self.current_symbology["interval_type"]))
+        self.setTopLimitSpin(int(self.current_symbology["top_percent"]))
+        self.setTopLimitText(str(self.current_symbology["top_value"]))
+        self.setBottomLimitSpin(int(self.current_symbology["bottom_percent"]))
+        self.setBottomLimitText(str(self.current_symbology["bottom_value"]))
+
+    def __setDefaultDisplaySettings(self):
+        # set default current display settings
+        self.current_symbology = dict(attribute="", colour_range=0, line_width=0.25, invert_colour=0, display_order=0,
+                        intervals=10, interval_type=0, top_percent=100, top_value=0.0, bottom_percent=0, bottom_value=0.0)
+        self.attribute_max = 0.0
+        self.attribute_min = 0.0
         # update the interface
         self.setColourRanges(int(self.current_symbology["colour_range"]))
         self.setLineWidthSpin(float(self.current_symbology["line_width"]))
@@ -292,7 +305,10 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
         self.current_symbology["interval_type"] = idx
         if self.current_symbology["interval_type"] == 3:
             self.__lockCustomIntervalControls(False)
-            self.__lockApplyButton(True)
+            if self.current_symbology["top_value"] is None and self.current_symbology["top_value"] is None:
+                self.__lockApplyButton(True)
+            else:
+                self.__lockApplyButton(False)
         else:
             self.__lockCustomIntervalControls(True)
             self.current_symbology["top_value"] = self.attribute_max
