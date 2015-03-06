@@ -51,6 +51,7 @@ class AnalysisTool(QObject):
         self.iface = iface
         self.settings = settings
         self.project = project
+        self.legend = self.iface.legendInterface()
 
         # initialise UI
         self.dlg = AnalysisDialog(self.iface.mainWindow())
@@ -63,6 +64,7 @@ class AnalysisTool(QObject):
         self.project.settingsUpdated.connect(self.setDatastore)
         self.editDatastoreSettings.connect(self.project.showDialog)
         #self.updateDatastoreSettings.connect(self.project.writeSettings)
+        self.project.getProject().instance().layerLoaded.connect(self.getProjectSettings)
 
         # set up GUI signals
         #self.dlg.dialogClosed.connect(self.onHide)
@@ -79,6 +81,12 @@ class AnalysisTool(QObject):
         self.dlg.axialReportList.itemSelectionChanged.connect(self.zoomAxialProblem)
         self.dlg.axialDepthmapCalculateButton.clicked.connect(self.runDepthmapAnalysis)
         self.dlg.axialDepthmapCancelButton.clicked.connect(self.cancelDepthmapAnalysis)
+
+        # connect signal/slots with main program
+        self.legend.itemAdded.connect(self.updateLayers)
+        self.legend.itemRemoved.connect(self.updateLayers)
+        self.iface.projectRead.connect(self.updateLayers)
+        self.iface.newProjectCreated.connect(self.updateLayers)
 
         # initialise internal globals
         self.isVisible = False
@@ -106,8 +114,8 @@ class AnalysisTool(QObject):
     def unload(self):
         if self.isVisible:
             # Disconnect signals from main program
-            self.iface.legendInterface().itemAdded.disconnect(self.updateLayers)
-            self.iface.legendInterface().itemRemoved.disconnect(self.updateLayers)
+            self.legend.itemAdded.disconnect(self.updateLayers)
+            self.legend.itemRemoved.disconnect(self.updateLayers)
             self.iface.projectRead.disconnect(self.updateLayers)
             self.iface.newProjectCreated.disconnect(self.updateLayers)
             self.project.getProject().instance().layerLoaded.disconnect(self.getProjectSettings)
@@ -116,8 +124,8 @@ class AnalysisTool(QObject):
     def onShow(self):
         if self.dlg.isVisible():
             # Connect signals to QGIS interface
-            self.iface.legendInterface().itemAdded.connect(self.updateLayers)
-            self.iface.legendInterface().itemRemoved.connect(self.updateLayers)
+            self.legend.itemAdded.connect(self.updateLayers)
+            self.legend.itemRemoved.connect(self.updateLayers)
             self.iface.projectRead.connect(self.updateLayers)
             self.iface.newProjectCreated.connect(self.updateLayers)
             self.project.getProject().instance().layerLoaded.connect(self.getProjectSettings)
@@ -126,22 +134,13 @@ class AnalysisTool(QObject):
             self.isVisible = True
         else:
             # Disconnect signals to QGIS interface
-            self.iface.legendInterface().itemAdded.disconnect(self.updateLayers)
-            self.iface.legendInterface().itemRemoved.disconnect(self.updateLayers)
+            self.legend.itemAdded.disconnect(self.updateLayers)
+            self.legend.itemRemoved.disconnect(self.updateLayers)
             self.iface.projectRead.disconnect(self.updateLayers)
             self.iface.newProjectCreated.disconnect(self.updateLayers)
             self.project.getProject().instance().layerLoaded.disconnect(self.getProjectSettings)
             self.isVisible = False
 
-    #def onHide(self):
-    #    if self.isVisible:
-    #        # Disconnect signals to QGIS interface
-    #        self.iface.legendInterface().itemAdded.disconnect(self.updateLayers)
-    #        self.iface.legendInterface().itemRemoved.disconnect(self.updateLayers)
-    #        self.iface.projectRead.disconnect(self.updateLayers)
-    #        self.iface.newProjectCreated.disconnect(self.updateLayers)
-    #        self.project.getProject().instance().layerLoaded.disconnect(self.getProjectSettings)
-    #    self.isVisible = False
 
     ##
     ## manage project and tool settings
@@ -577,9 +576,8 @@ class AnalysisTool(QObject):
                 layer.setSelectedFeatures([])
             if layer.selectedFeatureCount() > 0:
                 self.iface.mapCanvas().setCurrentLayer(layer)
-                l = self.iface.legendInterface()
-                if not l.isLayerVisible(layer):
-                    l.setLayerVisible(layer,True)
+                if not self.legend.isLayerVisible(layer):
+                    self.legend.setLayerVisible(layer,True)
                 self.iface.mapCanvas().zoomToSelected()
                 if layer.geometryType() in (QGis.Polygon, QGis.Line):
                     self.iface.mapCanvas().zoomOut()

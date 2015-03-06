@@ -61,9 +61,9 @@ class ExplorerTool(QObject):
         self.dlg.visibilityChanged.connect(self.onShow)
 
         # connect signal/slots with main program
-        #self.legend.itemAdded.connect(self.updateLayers)
-        #self.legend.itemRemoved.connect(self.updateLayers)
-        #self.iface.projectRead.connect(self.updateLayers)
+        self.legend.itemAdded.connect(self.updateLayers)
+        self.legend.itemRemoved.connect(self.updateLayers)
+        self.iface.projectRead.connect(self.updateLayers)
         #self.iface.newProjectCreated.connect(self.updateLayers)
 
         # initialise attribute explorer classes
@@ -80,18 +80,18 @@ class ExplorerTool(QObject):
         self.selection_ids = []
         self.layer_ids = dict()
         self.updateActionConnections(0)
-        self.isVisible = False
+        #self.isVisible = False
 
 
     def unload(self):
-        if self.isVisible:
+        if self.dlg.isVisible():
             # Disconnect signals from main program
             #self.legend.currentLayerChanged.disconnect(self.updateLayerAttributes)
             self.legend.itemAdded.disconnect(self.updateLayers)
             self.legend.itemRemoved.disconnect(self.updateLayers)
             self.iface.projectRead.disconnect(self.updateLayers)
-            self.iface.newProjectCreated.disconnect(self.updateLayers)
-        self.isVisible = False
+            #self.iface.newProjectCreated.disconnect(self.updateLayers)
+        #self.isVisible = False
         # clear stored values
         self.attribute_statistics = []
         self.bivariate_statistics = []
@@ -106,17 +106,17 @@ class ExplorerTool(QObject):
             self.legend.itemAdded.connect(self.updateLayers)
             self.legend.itemRemoved.connect(self.updateLayers)
             self.iface.projectRead.connect(self.updateLayers)
-            self.iface.newProjectCreated.connect(self.updateLayers)
+            #self.iface.newProjectCreated.connect(self.updateLayers)
             self.updateLayers()
-            self.isVisible = True
+            #self.isVisible = True
         else:
             # Disconnect signals to QGIS interface
             #self.legend.currentLayerChanged.disconnect(self.updateLayerAttributes)
             self.legend.itemAdded.disconnect(self.updateLayers)
             self.legend.itemRemoved.disconnect(self.updateLayers)
             self.iface.projectRead.disconnect(self.updateLayers)
-            self.iface.newProjectCreated.disconnect(self.updateLayers)
-            self.isVisible = False
+            #self.iface.newProjectCreated.disconnect(self.updateLayers)
+            #self.isVisible = False
 
     ##
     ## manage project and tool settings
@@ -156,7 +156,7 @@ class ExplorerTool(QObject):
     ##
     def updateLayers(self):
         #try:
-        # fixme: throws NoneType error occasionally when adding/removing layers. trapping it for now.
+        # fixme: ?throws NoneType error occasionally when adding/removing layers. trapping it for now.
         layers = getLegendLayers(self.iface)
         #except:
         #    layers = []
@@ -181,19 +181,19 @@ class ExplorerTool(QObject):
 
     def updateLayerAttributes(self):
         no_layer = False
-        update_attributtes = False
+        self.update_attributtes = False
         # get selected layer
         layer = self.dlg.getCurrentLayer()
-        if layer != '':
+        if layer not in ("","Open a vector layer with numeric fields","Select layer to explore..."):
             if self.current_layer is None or self.current_layer.name() != layer:
                 # fixme: throws NoneType error occasionally when adding/removing layers. trapping it for now.
                 try:
                     self.current_layer = getLegendLayerByName(self.iface, layer)
                 except:
                     self.current_layer = None
-            update_attributtes = True
+            self.update_attributtes = True
         # get layer attributes
-        if self.current_layer and update_attributtes:
+        if self.current_layer and self.update_attributtes:
             #if not self.legend.isLayerVisible(self.current_layer):
             #    self.legend.setLayerVisible(self.current_layer, True)
             if self.current_layer.type() == 0:  #VectorLayer

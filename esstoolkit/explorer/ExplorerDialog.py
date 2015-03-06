@@ -49,7 +49,7 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
         # Connect dialog's internal signals and slots
         #self.attributesLoaded.connect(self.__lockColourControls)
         self.layerRefreshButton.clicked.connect(self.__refreshLayers)
-        self.layerCombo.currentIndexChanged.connect(self.__selectCurrentLayer)
+        self.layerCombo.activated.connect(self.__selectCurrentLayer)
         self.attributesList.currentRowChanged.connect(self.__lockApplyButton)
         self.attributesList.currentRowChanged.connect(self.__selectCurrentAttribute)
         # symbology colour range settings
@@ -138,10 +138,14 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
         self.refreshLayers.emit()
 
     def setCurrentLayer(self, names, idx=0):
+        # block the signal to update the attributes to avoid repeat updates when there is a layer selected
+        #self.layerCombo.blockSignals(True)
         self.layerCombo.clear()
         self.layerCombo.addItems(names)
-        if idx > 0:
-            self.layerCombo.setCurrentIndex(idx)
+        self.layerCombo.setCurrentIndex(idx)
+        #self.layerCombo.blockSignals(False)
+        if idx == 0:
+            self.__selectCurrentLayer()
 
     def __selectCurrentLayer(self):
         self.layerChanged.emit()
