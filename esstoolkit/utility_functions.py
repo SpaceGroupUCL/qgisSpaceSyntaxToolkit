@@ -440,7 +440,7 @@ def grouper(iterable, n, fillvalue=None):
 
 
 # check if a text string is of numeric type
-def isNumeric(txt):
+def isNumericOld(txt):
     try:
         int(txt)
         return True
@@ -454,6 +454,22 @@ def isNumeric(txt):
                 return True
             except ValueError:
                 return False
+
+
+# function found here http://www.power-quant.com/?q=node/85
+def isNumeric(x):
+    """Checks to see if x represents a numeric value by converting
+    into unicode and utilizing the isnumeric() method."""
+    # first convert the number into a string
+    strRep = str(x)
+    # then make a unicode version so we can ensure we're dealing with
+    # something that represents a numeric value:
+    uRep = unicode(strRep)
+    if ('.' in uRep) and all([x.isnumeric() for x in uRep.split('.')]):
+        return True # there's a decimal and everything to the right
+                    # and left of it is numeric
+    else:
+        return uRep.isnumeric()
 
 
 # convert a text string to a numeric value, if possible
@@ -470,27 +486,28 @@ def convertNumeric(txt):
                 value = ''#txt
     return value
 
+
 # by Ben Hoyt
 # http://code.activestate.com/recipes/578114-round-number-to-specified-number-of-significant-di/
 # round a number to specified significant digits
 def roundSigFigs(num, sig_figs):
     """Round to specified number of sigfigs.
     round_sigfigs(0, sig_figs=4)
-    0
+    >> 0
     int(round_sigfigs(12345, sig_figs=2))
-    12000
+    >> 12000
     int(round_sigfigs(-12345, sig_figs=2))
-    -12000
+    >> -12000
     int(round_sigfigs(1, sig_figs=2))
-    1
+    >> 1
     '{0:.3}'.format(round_sigfigs(3.1415, sig_figs=2))
-    '3.1'
+    >> '3.1'
     '{0:.3}'.format(round_sigfigs(-3.1415, sig_figs=2))
-    '-3.1'
+    >> '-3.1'
     '{0:.5}'.format(round_sigfigs(0.00098765, sig_figs=2))
-    '0.00099'
+    >> '0.00099'
     '{0:.6}'.format(round_sigfigs(0.00098765, sig_figs=3))
-    '0.000988'
+    >> '0.000988'
     """
     if num != 0:
         return round(num, -int(math.floor(math.log10(abs(num))) - (sig_figs - 1)))
