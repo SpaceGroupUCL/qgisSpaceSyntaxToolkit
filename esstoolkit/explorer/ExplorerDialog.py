@@ -304,6 +304,7 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
         spin = str(((self.attribute_max-self.attribute_min)*self.current_symbology["top_percent"]/100)+self.attribute_min)
         self.setTopLimitText(spin)
         self.bottomLimitSpin.setMaximum(value)
+        self.__lockApplyButton(False)
 
     def setTopLimitText(self, txt):
         self.topLimitText.blockSignals(True)
@@ -314,7 +315,7 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
 
     def __topLimitTextChanged(self):
         value = self.topLimitText.text()
-        try:
+        if isNumeric(value):
             self.current_symbology["top_value"] = float(value)
             if self.current_symbology["top_value"] >= self.current_symbology["bottom_value"] and self.current_symbology["top_value"] <= self.attribute_max:
                 # calculate spin percentage
@@ -325,7 +326,7 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
             else:
                 self.current_symbology["top_value"] = None
                 self.__lockApplyButton(True)
-        except:
+        else:
             self.current_symbology["top_value"] = None
             self.__lockApplyButton(True)
 
@@ -341,6 +342,7 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
         spin = str(((self.attribute_max-self.attribute_min)*self.current_symbology["bottom_percent"]/100)+self.attribute_min)
         self.setBottomLimitText(spin)
         self.topLimitSpin.setMinimum(value)
+        self.__lockApplyButton(False)
 
     def setBottomLimitText(self, txt):
         self.bottomLimitText.blockSignals(True)
@@ -351,7 +353,7 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
 
     def __bottomLimitTextChanged(self):
         value = self.bottomLimitText.text()
-        try:
+        if isNumeric(value):
             self.current_symbology["bottom_value"] = float(value)
             if self.current_symbology["bottom_value"] <= self.current_symbology["top_value"] and self.current_symbology["bottom_value"] >= self.attribute_min:
                 # calculate spin percentage
@@ -362,7 +364,7 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
             else:
                 self.current_symbology["bottom_value"] = None
                 self.__lockApplyButton(True)
-        except:
+        else:
             self.current_symbology["bottom_value"] = None
             self.__lockApplyButton(True)
 
