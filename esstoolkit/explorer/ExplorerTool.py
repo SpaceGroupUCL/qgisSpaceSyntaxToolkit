@@ -240,10 +240,10 @@ class ExplorerTool(QObject):
                     # check for saved display settings for the given layer
                     self.getProjectSettings()
                     # update the dialog with this info
+                    self.dlg.lockTabs(False)
                     self.dlg.setAttributesList(self.layer_attributes)
                     self.dlg.setAttributesSymbology(self.layer_display_settings)
                     self.dlg.setCurrentAttribute(current_attribute)
-                    self.dlg.lockTabs(False)
                     #
                     self.updateSymbology()
                 else:

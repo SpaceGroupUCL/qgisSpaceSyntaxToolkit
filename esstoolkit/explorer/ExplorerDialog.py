@@ -82,7 +82,7 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
         # default symbology values
         self.layerRefreshButton.hide()
         self.current_symbology = dict()
-        #self.__setDefaultDisplaySettings()
+        #self.__clearSymbology()
 
         # statistics labels
         self.__addStatsLabels()
@@ -166,9 +166,6 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
 
     def setCurrentAttribute(self, idx):
         self.attributesList.setCurrentRow(idx)
-        if idx < 0:
-             self.__setDefaultDisplaySettings()
-        # fixme: when changing layer, stats and chart update is not happening (though the function is called!)
 
     def getCurrentAttribute(self):
         return self.attributesList.currentRow()
@@ -198,7 +195,7 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
         self.setBottomLimitSpin(int(self.current_symbology["bottom_percent"]))
         self.setBottomLimitText(str(self.current_symbology["bottom_value"]))
 
-    def __setDefaultDisplaySettings(self):
+    def __clearSymbology(self):
         # set default current display settings
         self.current_symbology = dict(attribute="", colour_range=0, line_width=0.25, invert_colour=0, display_order=0,
                         intervals=10, interval_type=0, top_percent=100, top_value=0.0, bottom_percent=0, bottom_value=0.0)
@@ -224,6 +221,7 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
 
     def lockTabs(self, onoff):
         self.explorerTabs.setDisabled(onoff)
+        self.__clearSymbology()
         self.__clearStats()
         self.clearPlot()
 
