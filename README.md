@@ -11,7 +11,7 @@ The “Attributes explorer” module supports the visual and statistical explora
 
 
 ## Where to find...
-* The toolkit source code can be downloaded from the 'esstools' folder.
+* The toolkit source code can be downloaded from the 'esstoolkit' folder.
 * The latest packaged plug-in can be found in the 'downloads' folder. It includes installation instructions. At the moment it is not yet available as a QGIS managed plugin.
 * Documentation can be obtained from the 'documents' folder.
 * A sample dataset is in the 'data' folder, for experimenting with the plugin and following the documentation .
@@ -19,7 +19,7 @@ The “Attributes explorer” module supports the visual and statistical explora
 ## Requirements
 * QGIS (2.0 or above) - [http://www.qgis.org/en/site/](http://www.qgis.org/en/site/)
 
-For complete functionality and optimal performance the plugin has the following pre-requisites:
+The plugin has the following pre-requisites for complete functionality and optimal performance:
 * depthmapXnet - [http://archtech.gr/varoudis/depthmapX/?dir=depthmapXnet](http://archtech.gr/varoudis/depthmapX/?dir=depthmapXnet)
 * python igraph - [http://igraph.org/python/](http://igraph.org/python/)
 * pyqtgraph - [http://www.pyqtgraph.org/](http://www.pyqtgraph.org/)
