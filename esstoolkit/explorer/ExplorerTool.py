@@ -199,17 +199,17 @@ class ExplorerTool(QObject):
             if self.current_layer.type() == 0:  #VectorLayer
                 # fixme: throws NoneType error occasionally when adding/removing layers. trapping it for now.
                 try:
-                    #field_names = getNumericFieldNames(self.current_layer)
-                    numeric_field_ids, numeric_fields = getValidFields(self.current_layer,type=(QVariant.Int, QVariant.LongLong, QVariant.Double, QVariant.UInt, QVariant.ULongLong),null="all")
+                    numeric_fields, numeric_field_indices = getNumericFieldNames(self.current_layer)
+                    #numeric_fields = getValidFieldNames(self.current_layer,type=(QVariant.Int, QVariant.LongLong, QVariant.Double, QVariant.UInt, QVariant.ULongLong),null="all")
                 except:
                     numeric_fields = []
-                    numeric_field_ids = []
+                    numeric_field_indices = []
                 if len(numeric_fields) > 0:
                     # set min and max values of attributes
                     # set this layer's default display attributes
                     self.layer_display_settings = []
                     self.layer_attributes = []
-                    for i, index in enumerate(numeric_field_ids):
+                    for i, index in enumerate(numeric_field_indices):
                         max_value = self.current_layer.maximumValue(index)
                         min_value = self.current_layer.minimumValue(index)
                         # set the layer's attribute info
@@ -355,7 +355,7 @@ class ExplorerTool(QObject):
                 select_stats = None
                 if self.current_layer.selectedFeatureCount() > 0:
                     select_stats = dict()
-                    self.selection_values, self.selection_ids = getSelectionValues(self.current_layer, attribute["name"], null=False, id=True)
+                    self.selection_values, self.selection_ids = getSelectionValues(self.current_layer, attribute["name"], null=False)
                     select_stats["Mean"] = np.nanmean(self.selection_values)
                     select_stats["Std Dev"] = np.nanstd(self.selection_values)
                     select_stats["Median"] = np.median(self.selection_values)
@@ -394,7 +394,7 @@ class ExplorerTool(QObject):
                 ids = self.layer_ids[self.current_layer.name()]
                 # retrieve selection values
                 if self.current_layer.selectedFeatureCount() > 0:
-                    self.selection_values, self.selection_ids = getSelectionValues(self.current_layer, attribute["name"], null=False, id=True)
+                    self.selection_values, self.selection_ids = getSelectionValues(self.current_layer, attribute["name"], null=False)
                 else:
                     self.selection_values = []
                     self.selection_ids = []
@@ -477,10 +477,8 @@ class ExplorerTool(QObject):
 
 
     def retrieveAttributeValues(self, attribute):
-        if self.layer_ids.has_key(self.current_layer.name()):
-            values = getFieldValues(self.current_layer, attribute["name"], null=True, id=False)
-        else:
-            values, ids = getFieldValues(self.current_layer, attribute["name"], null=True, id=True)
+        values, ids = getFieldValues(self.current_layer, attribute["name"], null=True)
+        if not self.layer_ids.has_key(self.current_layer.name()):
             # store retrieved ids for charts
             self.layer_ids[self.current_layer.name()] = ids
         nan_values = filter(None,values)

@@ -128,7 +128,7 @@ class AxialVerification(QThread):
             if self.user_id == '':
                 axialids = self.axial_layer.allFeatureIds()
             else:
-                axialids = getFieldValues(self.axial_layer, self.user_id)
+                axialids, ids = getFieldValues(self.axial_layer, self.user_id)
             # uses igraph to test islands. look for orphans with the geometry test
             self.igraphTestTopology(graph_links, axialids)
             if is_debug: print "Analysing topology: %s"%str(time.time()-start_time)

@@ -545,7 +545,7 @@ class AnalysisTool(QObject):
             if self.user_id == '':
                 self.all_ids = layer.allFeatureIds()
             else:
-                self.all_ids = getFieldValues(layer, self.user_id)
+                self.all_ids, ids = getFieldValues(layer, self.user_id)
                 layer.setDisplayField(self.user_id)
             # set display field for axial map (always)
             if idx != 0:

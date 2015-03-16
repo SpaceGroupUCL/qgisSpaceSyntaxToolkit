@@ -197,7 +197,7 @@ class DepthmapAnalysis(QObject):
             self.showMessage("Unlinks layer not ready for analysis: update and verify first.",'Warning',lev=2, dur=5)
             return unlinks_data
         # get axial ids
-        axialids = getFieldValues(self.axial_layer, self.user_id)
+        axialids, ids = getFieldValues(self.axial_layer, self.user_id)
         # assign row number by id
         try:
             features = self.unlinks_layer.getFeatures()

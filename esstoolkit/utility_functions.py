@@ -157,7 +157,7 @@ def reloadLayer(layer):
 #------------------------------
 def getFieldNames(layer):
     fields_list = []
-    if layer:
+    if layer and layer.dataProvider():
         fields_list = [field.name() for field in layer.dataProvider().fields()]
     return fields_list
 
@@ -168,30 +168,30 @@ def getNumericFields(layer, type='all'):
         types = (QVariant.Int, QVariant.LongLong, QVariant.Double, QVariant.UInt, QVariant.ULongLong)
     else:
         types = (type)
-    if layer:
-        if layer.dataProvider():
-            for field in layer.dataProvider().fields():
-                if field.type() in types:
-                    fields.append(field)
+    if layer and layer.dataProvider():
+        for field in layer.dataProvider().fields():
+            if field.type() in types:
+                fields.append(field)
     return fields
 
 
 def getNumericFieldNames(layer, type='all'):
-    fields = []
+    field_names = []
+    field_indices = []
     if type == 'all':
         types = (QVariant.Int, QVariant.LongLong, QVariant.Double, QVariant.UInt, QVariant.ULongLong)
     else:
         types = [type]
-    if layer:
-        for field in layer.dataProvider().fields():
+    if layer and layer.dataProvider():
+        for index, field in enumerate(layer.dataProvider().fields()):
             if field.type() in types:
-                fields.append(field.name())
-    return fields
+                field_names.append(field.name())
+                field_indices.append(index)
+    return field_names, field_indices
 
 
-def getValidFields(layer, type='all', null='any'):
-    field_names = []
-    field_ids = []
+def getValidFieldNames(layer, type='all', null='any'):
+    field_names = {}
     if type == 'all':
         types = (QVariant.Int, QVariant.LongLong, QVariant.Double, QVariant.UInt, QVariant.ULongLong, QVariant.String, QVariant.Char)
     else:
@@ -203,14 +203,12 @@ def getValidFields(layer, type='all', null='any'):
                 # exclude layers that only have NULL values
                 if null == 'all':
                     if (len(vals) == 1 and vals[0] != NULL) or len(vals) > 1:
-                        field_names.append(field.name())
-                        field_ids.append(index)
+                        field_names[field.name()] = index
                 # exclude layers with any NULL values
                 elif null == 'any':
                     if len(vals) > 0 and vals[0] != NULL:
-                        field_names.append(field.name())
-                        field_ids.append(index)
-    return field_ids, field_names
+                        field_names[field.name()] = index
+    return field_names
 
 
 def getFieldIndex(layer, name):
@@ -220,7 +218,7 @@ def getFieldIndex(layer, name):
 
 def fieldHasValues(layer, name):
     if layer and fieldExists(layer, name):
-    # exclude fields that only have NULL values
+    # find fields that only have NULL values
         idx = getFieldIndex(layer, name)
         vals = layer.uniqueValues(idx,2)
         # depending on the provider list is empty or has single NULL value
@@ -251,7 +249,7 @@ def fieldHasNullValues(layer, name):
             return False
 
 
-def getFieldValues(layer, name, null=True, id=False):
+def getFieldValues(layer, name, null=True):
     attributes = []
     ids = []
     if fieldExists(layer, name):
@@ -261,17 +259,12 @@ def getFieldValues(layer, name, null=True, id=False):
             val = feature.attribute(name)
             if null:
                 attributes.append(val)
-                if id:
-                    ids.append(feature.id())
+                ids.append(feature.id())
             else:
                 if val != NULL:
                     attributes.append(val)
-                    if id:
-                        ids.append(feature.id())
-    if id:
-        return attributes, ids
-    else:
-        return attributes
+                    ids.append(feature.id())
+    return attributes, ids
 
 
 def getSelectionValues(layer, name, null=True, id=False):
@@ -283,17 +276,12 @@ def getSelectionValues(layer, name, null=True, id=False):
             val = feature.attribute(name)
             if null:
                 attributes.append(val)
-                if id:
-                    ids.append(feature.id())
+                ids.append(feature.id())
             else:
                 if val != NULL:
                     attributes.append(val)
-                    if id:
-                        ids.append(feature.id())
-    if id:
-        return attributes, ids
-    else:
-        return attributes
+                    ids.append(feature.id())
+    return attributes, ids
 
 
 def fieldExists(layer, name):
@@ -309,7 +297,7 @@ def getIdField(layer):
     if len(pk) > 0:
         user_id = layer.dataProvider().fields().field(pk[0]).name()
     else:
-        names = getNumericFieldNames(layer)
+        names, idxs = getNumericFieldNames(layer)
         user_id = ''
         standard_id = ("pk","pkuid","pkid","sid","fid","id","ref")
         # look for user defined ID

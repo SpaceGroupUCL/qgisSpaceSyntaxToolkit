@@ -397,7 +397,7 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
         # update weights combo box
         if self.layers[0]['idx'] > 0:
             layer = getLayerByName(self.layers[0]['name'])
-            txt = getNumericFieldNames(layer)
+            txt, idxs = getNumericFieldNames(layer)
             if self.axial_analysis_type == 0:
                 txt.insert(0,"Line Length")
             elif self.axial_analysis_type == 1:
