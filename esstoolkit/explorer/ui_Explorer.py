@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/Users/jorge/github/qgisSpaceSyntaxToolkit/esstoolkit/explorer/ui_Explorer.ui'
 #
-# Created: Wed Mar  4 13:26:59 2015
+# Created: Tue Apr 14 16:02:29 2015
 #      by: PyQt4 UI code generator 4.10.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,8 +26,8 @@ except AttributeError:
 class Ui_ExplorerDialog(object):
     def setupUi(self, ExplorerDialog):
         ExplorerDialog.setObjectName(_fromUtf8("ExplorerDialog"))
-        ExplorerDialog.resize(364, 600)
-        ExplorerDialog.setMinimumSize(QtCore.QSize(364, 600))
+        ExplorerDialog.resize(364, 550)
+        ExplorerDialog.setMinimumSize(QtCore.QSize(364, 550))
         self.explorerLayout = QtGui.QWidget()
         self.explorerLayout.setObjectName(_fromUtf8("explorerLayout"))
         self.verticalLayout = QtGui.QVBoxLayout(self.explorerLayout)

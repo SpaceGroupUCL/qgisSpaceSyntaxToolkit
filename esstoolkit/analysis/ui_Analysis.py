@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/Users/jorge/Dropbox/UCL/qgisSpaceSyntaxToolkit/esstools/analysis/ui_Analysis.ui'
+# Form implementation generated from reading ui file '/Users/jorge/github/qgisSpaceSyntaxToolkit/esstoolkit/analysis/ui_Analysis.ui'
 #
-# Created: Fri Sep 12 10:59:58 2014
+# Created: Wed Apr 15 00:41:57 2015
 #      by: PyQt4 UI code generator 4.10.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,8 +26,8 @@ except AttributeError:
 class Ui_AnalysisDialog(object):
     def setupUi(self, AnalysisDialog):
         AnalysisDialog.setObjectName(_fromUtf8("AnalysisDialog"))
-        AnalysisDialog.resize(400, 600)
-        AnalysisDialog.setMinimumSize(QtCore.QSize(400, 580))
+        AnalysisDialog.resize(395, 550)
+        AnalysisDialog.setMinimumSize(QtCore.QSize(395, 550))
         AnalysisDialog.setToolTip(_fromUtf8(""))
         self.analysisLayout = QtGui.QWidget()
         self.analysisLayout.setObjectName(_fromUtf8("analysisLayout"))
@@ -176,7 +176,7 @@ class Ui_AnalysisDialog(object):
         self.axialReportList.setObjectName(_fromUtf8("axialReportList"))
         self.axialReportList.setRowCount(0)
         self.axialReportList.horizontalHeader().setStretchLastSection(True)
-        self.axialReportList.verticalHeader().setVisible(True)
+        self.axialReportList.verticalHeader().setVisible(False)
         self.verticalLayout_3.addWidget(self.axialReportList)
         self.axialAnalysisTabs.addTab(self.axialEditTab, _fromUtf8(""))
         self.axialDepthmapTab = QtGui.QWidget()

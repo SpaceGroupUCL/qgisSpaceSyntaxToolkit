@@ -6,14 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>600</height>
+    <width>395</width>
+    <height>550</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>400</width>
-    <height>580</height>
+    <width>395</width>
+    <height>550</height>
    </size>
   </property>
   <property name="toolTip">
@@ -310,7 +310,7 @@
            <bool>true</bool>
           </attribute>
           <attribute name="verticalHeaderVisible">
-           <bool>true</bool>
+           <bool>false</bool>
           </attribute>
           <column/>
           <column/>
