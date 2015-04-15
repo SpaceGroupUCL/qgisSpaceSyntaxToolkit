@@ -126,22 +126,14 @@ class EssToolkit:
         #self.iface.addPluginToMenu(u"&Space Syntax Toolkit", self.help_action)
         self.iface.addPluginToMenu(u"&Space Syntax Toolkit", self.about_action)
 
-        self.iface.addDockWidget(Qt.RightDockWidgetArea, self.analysis.dlg)
-        self.analysis.dlg.hide()
-        self.iface.addDockWidget(Qt.RightDockWidgetArea, self.explorer.dlg)
-        self.explorer.dlg.hide()
 
     def showAnalysis(self):
-        #self.iface.addDockWidget(Qt.RightDockWidgetArea, self.analysis.dlg)
-        self.explorer.dlg.hide()
-        self.analysis.dlg.show()
-        #self.analysis.onShow()
+        self.iface.removeDockWidget(self.explorer.dlg)
+        self.iface.addDockWidget(Qt.RightDockWidgetArea, self.analysis.dlg)
 
     def showExplorer(self):
-        #self.iface.addDockWidget(Qt.RightDockWidgetArea, self.dlg_explorer)
-        self.analysis.dlg.hide()
-        self.explorer.dlg.show()
-        #self.explorer.onShow()
+        self.iface.removeDockWidget(self.analysis.dlg)
+        self.iface.addDockWidget(Qt.RightDockWidgetArea, self.explorer.dlg)
 
     def showHelp(self):
         # todo: decide what to do for help documentation
