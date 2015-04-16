@@ -299,9 +299,8 @@ def getIdField(layer):
     else:
         names, idxs = getNumericFieldNames(layer)
         user_id = ''
-        standard_id = ("pk","pkuid","pkid","sid","fid","id","ref")
-        # look for user defined ID
-        #for field in getNumericFields(layer):
+        standard_id = ("pk","pkuid","pkid","pk_id","pk id","sid","uid","fid","id","ref")
+        # look for user defined ID, take first found
         for field in names:
             if field.lower() in standard_id:
                 if isValidIdField(layer, field):
