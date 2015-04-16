@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/Users/jorge/github/qgisSpaceSyntaxToolkit/esstoolkit/analysis/ui_Analysis.ui'
 #
-# Created: Wed Apr 15 00:41:57 2015
+# Created: Thu Apr 16 16:09:35 2015
 #      by: PyQt4 UI code generator 4.10.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -39,6 +39,7 @@ class Ui_AnalysisDialog(object):
         self.analysisDataLabel.setObjectName(_fromUtf8("analysisDataLabel"))
         self.analysisDataLayout.addWidget(self.analysisDataLabel)
         self.analysisDataEdit = QtGui.QLineEdit(self.analysisLayout)
+        self.analysisDataEdit.setFrame(False)
         self.analysisDataEdit.setReadOnly(True)
         self.analysisDataEdit.setObjectName(_fromUtf8("analysisDataEdit"))
         self.analysisDataLayout.addWidget(self.analysisDataEdit)

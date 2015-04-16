@@ -836,8 +836,9 @@ def getSpatialiteLayer(connection, path, name):
     uri.setDatabase(path)
     geometry = ''
     for table in listSpatialiteGeomTables(connection):
-        if table[0] == name:
+        if table[0] == name.lower():
             geometry = table[1]
+            break
     if geometry != '':
         uri.setDataSource('', "%s" % name, "%s" % geometry)
         layer = QgsVectorLayer(uri.uri(), "%s" %  name, 'spatialite')
@@ -894,7 +895,7 @@ def createSpatialiteTable(connection, path, name, srid, attributes, types, geome
         elif 'polygon' in geometrytype.lower():
             geometry = 'MULTIPOLYGON'
     if geometry:
-        fields.insert(0,"geometry %s"%geometry)
+        fields.insert(0,'"geometry" %s'%geometry)
     #Create new table
     fields=','.join(fields)
     if len(fields)>0:
@@ -902,8 +903,10 @@ def createSpatialiteTable(connection, path, name, srid, attributes, types, geome
     header, data, error = executeSpatialiteQuery(connection,"""CREATE TABLE "%s" ( pk_id INTEGER PRIMARY KEY AUTOINCREMENT %s )""" % (name, fields))
     #Recover Geometry Column:
     if geometry:
-        header, data, error = executeSpatialiteQuery(connection,"""SELECT RecoverGeometryColumn("%s",'geometry',%s,'%s',2)""" % (name,srid,geometry))
+        header, data, error = executeSpatialiteQuery(connection,"""SELECT RecoverGeometryColumn("%s","geometry",%s,'%s',2)""" % (name,srid,geometry))
         header,data, error = executeSpatialiteQuery(connection,"""SELECT CreateSpatialIndex("%s", "%s") """%(name,'geometry'))
+    if error != '':
+        return False
     return True
 
 
@@ -933,9 +936,9 @@ def insertSpatialiteValues(connection, name, attributes, values, coords=None):
             #Create line in DB table
             attr_values = ','.join(tuple([unicode(value) for value in val]))
             if geometry_values == "":
-                header, data, error = executeSpatialiteQuery(connection,"""INSERT INTO "%s" ('%s') VALUES (%s)""" % (name, "','".join(attributes), attr_values), commit=True)
+                header, data, error = executeSpatialiteQuery(connection,"""INSERT INTO "%s" ("%s") VALUES (%s)""" % (name, '","'.join(attributes), attr_values), commit=True)
             else:
-                header, data, error = executeSpatialiteQuery(connection,"""INSERT INTO "%s" ('%s','%s') VALUES (%s,%s)""" % (name, geometry_attr, "','".join(attributes), geometry_values, attr_values), commit=True)
+                header, data, error = executeSpatialiteQuery(connection,"""INSERT INTO "%s" ("%s","%s") VALUES (%s,%s)""" % (name, geometry_attr, '","'.join(attributes), geometry_values, attr_values), commit=True)
     else:
         return False
     #Commit changes to connection:
@@ -977,9 +980,9 @@ def insertSpatialiteGeometry(connection, name, geometry, attributes=None, values
             #Create line in DB table
             if attributes:
                 attr_values = ','.join(tuple([unicode(value) for value in values[i]]))
-                header, data, error = executeSpatialiteQuery(connection,"""INSERT INTO "%s" ('%s','%s') VALUES (%s,%s)""" % (name, geometry_attr, "','".join(attributes), geometry_values, attr_values))
+                header, data, error = executeSpatialiteQuery(connection,"""INSERT INTO "%s" ("%s","%s") VALUES (%s,%s)""" % (name, geometry_attr, '","'.join(attributes), geometry_values, attr_values))
             else: #no attribute data, only geometry
-                header, data, error = executeSpatialiteQuery(connection,"""INSERT INTO "%s" ('%s') VALUES (%s)""" % (name, geometry_attr, geometry_values))
+                header, data, error = executeSpatialiteQuery(connection,"""INSERT INTO "%s" ("%s") VALUES (%s)""" % (name, geometry_attr, geometry_values))
     else:
         return False
     #Commit changes to connection:
@@ -1005,7 +1008,7 @@ def addSpatialiteColumns(connection, name, columns, types):
             elif types[i] == QVariant.Double: # field type is DOUBLE
                 field_type = 'REAL'
             if field_type != '':
-                query = """ALTER TABLE "%s" ADD COLUMN '%s' %s""" % (name, attr, field_type)
+                query = """ALTER TABLE "%s" ADD COLUMN "%s" %s""" % (name, attr, field_type)
                 header, data, error = executeSpatialiteQuery(connection,query)
     query = """SELECT UpdateLayerStatistics("%s")""" % name
     header, data, error = executeSpatialiteQuery(connection,query, commit=True)
@@ -1025,7 +1028,7 @@ def dropSpatialiteColumns(connection, name, columns):
             new_cols.append(attr)
     query = """ALTER TABLE "%s" RENAME TO to_drop""" % name
     header, data, error = executeSpatialiteQuery(connection,query)
-    query = """CREATE TABLE "%s" AS SELECT '%s' FROM to_drop""" % (name, "','".join(new_cols))
+    query = """CREATE TABLE "%s" AS SELECT "%s" FROM to_drop""" % (name, '","'.join(new_cols))
     header, data, error = executeSpatialiteQuery(connection,query)
     query = """SELECT UpdateLayerStatistics("%s")""" % name
     header, data, error = executeSpatialiteQuery(connection,query, commit=True)
