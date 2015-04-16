@@ -308,22 +308,7 @@ class DepthmapAnalysis(QObject):
             idx = attributes.index("Id")
             attributes[idx] = "Axial Id"
         # remove spaces
-        attributes = [x.replace(" ","_") for x in attributes]
-        #the attribute names must be fixed
-        if datastore['type'] == 1:
-            # when working with shape files
-            attributes = self.fixDepthmapNames(attributes)
-        else:
-            # when working with geodatabases
-            attr = []
-            for x in attributes:
-                # remove square brackets
-                x = x.replace("[","")
-                x = x.replace("]","")
-                # make lowercase
-                x = x.lower()
-                attr.append(x)
-            attributes = attr
+        #attributes = [x.replace(" ","_") for x in attributes]
         # get data type of attributes
         types = []
         data_sample = [convertNumeric(x) for x in values[0]]
@@ -337,12 +322,28 @@ class DepthmapAnalysis(QObject):
             # define the attributes, using name and type
             types.append(data_type)
         coords = [attributes.index('x1'),attributes.index('y1'),attributes.index('x2'),attributes.index('y2')]
+        # calculate new normalised variables
         if self.settings['type'] == 1 and self.settings['newnorm'] == 1:
             new_attributes, values = self.calculateNormalisedSegment(attributes, values)
             attributes.extend(new_attributes)
             new_types = [QVariant.Double] * len(new_attributes)
             types.extend(new_types)
-            #addShapeFileAttributes(new_layer, new_attributes, new_types, new_values)
+        #the attribute names must be fixed
+        if datastore['type'] == 1:
+            # when working with shape files
+            attributes = self.fixDepthmapNames(attributes)
+        else:
+            # when working with geodatabases
+            attr = []
+            for x in attributes:
+                # remove square brackets
+                x = x.replace("[","")
+                x = x.replace("]","")
+                # make lowercase
+                # x = x.lower()
+                attr.append(x)
+            attributes = attr
+
         return attributes, types, values, coords
 
     def excludeDepthmapResults(self,attributes):
@@ -362,14 +363,14 @@ class DepthmapAnalysis(QObject):
         nain = []
         # identify new attributes that need to be calculated
         for i, attr in enumerate(attributes):
-            if 'CH' in attr:
+            if 'Choice' in attr:
                 choice.append(i)
-                nach.append(attr.replace('CH','NACH'))
-            if 'NC' in attr:
+                nach.append(attr.replace('Choice','NACH'))
+            if 'Node Count' in attr:
                 nc.append(i)
-            if 'TD' in attr:
+            if 'Total Depth' in attr:
                 td.append(i)
-                nain.append(attr.replace('TD','NAIN'))
+                nain.append(attr.replace('Total Depth','NAIN'))
         new_attributes = []
         new_attributes.extend(nach)
         new_attributes.extend(nain)
@@ -420,12 +421,14 @@ class DepthmapAnalysis(QObject):
             't1024' : '',
             'total' : 'T',
             'wgt]' : ']',
-            'wgt][norm]' : ']norm'
+            'wgt][norm]' : ']norm',
+            'nach' : 'NACH',
+            'nain' : 'NAIN'
         }
         #using simple dict / string operations
         new_names = []
         for name in names:
-            parts = name.split("_")
+            parts = name.split(" ")
             new_name = ""
             for part in parts:
                 part = part.lower()

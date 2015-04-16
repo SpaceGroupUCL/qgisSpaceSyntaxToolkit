@@ -884,7 +884,7 @@ def createSpatialiteTable(connection, path, name, srid, attributes, types, geome
             field_type = 'INTEGER'
         elif type==QVariant.Double: # field type is DOUBLE
             field_type = 'REAL'
-        fields.append('"%s" %s'% (attributes[i].lower(),field_type))
+        fields.append('"%s" %s'% (attributes[i],field_type)) #.lower()
     # Get the geometry
     geometry = False
     if geometrytype != '':
