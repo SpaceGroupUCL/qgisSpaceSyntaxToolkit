@@ -95,10 +95,10 @@ class AnalysisTool(QObject):
         self.start_time = None
         self.end_time = None
         self.analysis_nodes = 0
-        self.current_layer = QgsVectorLayer()
         self.user_id = ''
         self.axial_id = ''
         self.all_ids = []
+        self.current_layer = None
 
         # timer to check for analysis result
         self.timer = QTimer()
@@ -172,7 +172,7 @@ class AnalysisTool(QObject):
 
     def updateDatastore(self, name):
         new_datastore = {'name':'','path':'','type':-1,'schema':'','crs':''}
-        layer = getLayerByName(name)
+        layer = getLegendLayerByName(self.iface, name)
         new_datastore['path'] = getLayerPath(layer)
         new_datastore['name'] = os.path.basename(new_datastore['path'])
         new_datastore['crs'] = layer.crs().postgisSrid()
@@ -250,23 +250,17 @@ class AnalysisTool(QObject):
         origins_list = []
         try:
             # fixme: throws NoneType error occasionally when removing layers. trapping it for now.
-            layers = getLegendLayers(self.iface,[1],'all')
+            layers = getLegendLayers(self.iface,'all','all')
         except:
             layers = None
         if layers:
             for layer in layers:
                 if isLayerProjected(layer):
-                    map_list.append(layer.name())
-                    links_list.append(layer.name())
-        try:
-            layers = getLegendLayers(self.iface,[0,1,2],'all')
-        except:
-            layers = None
-        if layers:
-            for layer in layers:
-                if isLayerProjected(layer):
-                    unlinks_list.append(layer.name())
                     origins_list.append(layer.name())
+                    unlinks_list.append(layer.name())
+                    if layer.geometryType() in [1,4]:
+                        map_list.append(layer.name())
+                        links_list.append(layer.name())
         # default selection
         analysis_map = -1
         analysis_unlinks = -1
@@ -322,10 +316,10 @@ class AnalysisTool(QObject):
     def runAxialVerification(self):
         self.edit_mode = self.dlg.getLayerTab()
         self.analysis_layers = self.dlg.getAnalysisLayers()
-        axial = getLayerByName(self.analysis_layers['map'])
-        unlinks = getLayerByName(self.analysis_layers['unlinks'])
-        links = getLayerByName(self.analysis_layers['links'])
-        origins = getLayerByName(self.analysis_layers['origins'])
+        axial = getLegendLayerByName(self.iface, self.analysis_layers['map'])
+        unlinks = getLegendLayerByName(self.iface, self.analysis_layers['unlinks'])
+        links = getLegendLayerByName(self.iface, self.analysis_layers['links'])
+        origins = getLegendLayerByName(self.iface, self.analysis_layers['origins'])
         settings = self.dlg.getAxialEditSettings()
         caps = None
         self.axial_id = getIdField(axial)
@@ -389,10 +383,10 @@ class AnalysisTool(QObject):
     def runAxialUpdate(self):
         self.edit_mode = self.dlg.getLayerTab()
         self.analysis_layers = self.dlg.getAnalysisLayers()
-        axial = getLayerByName(self.analysis_layers['map'])
-        unlinks = getLayerByName(self.analysis_layers['unlinks'])
-        links = getLayerByName(self.analysis_layers['links'])
-        origins = getLayerByName(self.analysis_layers['origins'])
+        axial = getLegendLayerByName(self.iface, self.analysis_layers['map'])
+        unlinks = getLegendLayerByName(self.iface, self.analysis_layers['unlinks'])
+        links = getLegendLayerByName(self.iface, self.analysis_layers['links'])
+        origins = getLegendLayerByName(self.iface, self.analysis_layers['origins'])
         settings = self.dlg.getAxialEditSettings()
         self.axial_id= getIdField(axial)
         if self.axial_id == '':
@@ -463,13 +457,13 @@ class AnalysisTool(QObject):
         # reload the layer if columns were added with the ID update
         if self.datastore['type'] == 0:
             if self.edit_mode == 0:
-                layer = getLayerByName(self.analysis_layers['map'])
+                layer = getLegendLayerByName(self.iface,self.analysis_layers['map'])
             elif self.edit_mode == 1:
-                layer = getLayerByName(self.analysis_layers['unlinks'])
+                layer = getLegendLayerByName(self.iface,self.analysis_layers['unlinks'])
             elif self.edit_mode == 2:
-                layer = getLayerByName(self.analysis_layers['links'])
+                layer = getLegendLayerByName(self.iface,self.analysis_layers['links'])
             else:
-                layer = getLayerByName(self.analysis_layers['origins'])
+                layer = getLegendLayerByName(self.iface,self.analysis_layers['origins'])
             connection = getLayerConnection(layer)
             cols = listSpatialiteColumns(connection, layer.name())
             connection.close()
@@ -534,11 +528,13 @@ class AnalysisTool(QObject):
         elif idx == 3:
             name = layers['origins']
         if name:
-            if name != self.current_layer.name():
-                layer = getLayerByName(name)
-                self.current_layer = layer
-            else:
-                layer = self.current_layer
+            layer = getLegendLayerByName(self.iface,name)
+            #if self.current_layer and name == self.current_layer.name():
+            #    layer = self.current_layer
+            #else:
+                #self.current_layer = QgsVectorLayer
+            #    layer = getLayerByName(name)
+            #    self.current_layer = layer
         if layer:
             # get layer ids
             #self.user_id = getIdField(layer)
@@ -549,15 +545,14 @@ class AnalysisTool(QObject):
                 layer.setDisplayField(self.user_id)
             # set display field for axial map (always)
             if idx != 0:
-                axial_layer = getLayerByName(layers['map'])
+                axial_layer = getLegendLayerByName(self.iface, layers['map'])
                 if self.axial_id != '':
                     axial_layer.setDisplayField(self.axial_id)
             if not self.iface.actionMapTips().isChecked():
                 self.iface.actionMapTips().trigger()
-            # preare features to check
+            # prepare features to check
             features = []
             items = self.dlg.getAxialVerifyProblems()
-            # select features and zoom
             for id in items:
                 if type(id) == list:
                     for i in id:
@@ -566,6 +561,7 @@ class AnalysisTool(QObject):
                 else:
                     if int(id) in self.all_ids:
                         features.append(int(id))
+            # select features and zoom
             if features:
                 if self.user_id == '':
                     layer.setSelectedFeatures(features)
