@@ -95,7 +95,6 @@ class AnalysisTool(QObject):
         self.start_time = None
         self.end_time = None
         self.analysis_nodes = 0
-        self.user_id = ''
         self.axial_id = ''
         self.all_ids = []
         self.current_layer = None
@@ -108,6 +107,7 @@ class AnalysisTool(QObject):
         self.analysis_layers = {'map':'','unlinks':'','links':'','origins':''}
         self.axial_analysis_settings = {'type':0,'distance':0,'radius':0,'rvalues':'n','output':'',
                                         'fullset':0,'betweenness':1,'newnorm':1,'weight':0,'weightBy':''}
+        self.user_ids = {'map':'','unlinks':'','links':'','origins':''}
         self.analysis_output = ''
 
 
@@ -327,10 +327,10 @@ class AnalysisTool(QObject):
             self.iface.messageBar().pushMessage("Warning", "The axial layer has invalid or duplicate values in the ID column. Using feature ids instead.", level=1, duration=5)
         if self.edit_mode == 0:
             # get ids (to match the object ids in the map)
-            self.user_id = self.axial_id
+            self.user_ids['map'] = "%s" % self.axial_id
             if axial.geometryType() == QGis.Line:
                 caps = axial.dataProvider().capabilities()
-                self.verificationThread = AxialVerification(self.iface.mainWindow(), self, settings, axial, self.user_id, unlinks, links)
+                self.verificationThread = AxialVerification(self.iface.mainWindow(), self, settings, axial, self.user_ids['map'], unlinks, links)
             else:
                 self.iface.messageBar().pushMessage("Error","Select an axial lines map layer.", level=1, duration=5)
                 return False
@@ -339,19 +339,19 @@ class AnalysisTool(QObject):
                 self.iface.messageBar().pushMessage("Error","All layers must be in the same file format.", level=1, duration=5)
                 return False
             caps = unlinks.dataProvider().capabilities()
-            self.user_id = getIdField(unlinks)
-            if self.user_id == '':
+            self.user_ids['unlinks'] = getIdField(unlinks)
+            if self.user_ids['unlinks'] == '':
                 self.iface.messageBar().pushMessage("Warning", "The unlinks layer has invalid or duplicate values in the ID column. Using feature ids instead.", level=1, duration=5)
             if unlinks.fieldNameIndex("line1") == -1 or unlinks.fieldNameIndex("line2") == -1:
                 self.iface.messageBar().pushMessage("Warning", "The unlinks layer is missing the line1 and line2 ID columns. Update IDs to complete the verification.", level=1, duration=5)
-            self.verificationThread = UnlinksVerification( self.iface.mainWindow(), self, settings, axial, self.axial_id, unlinks, self.user_id)
+            self.verificationThread = UnlinksVerification( self.iface.mainWindow(), self, settings, axial, self.axial_id, unlinks, self.user_ids['unlinks'])
         elif self.edit_mode == 2:
             if links and (axial.storageType() != links.storageType()):
                 self.iface.messageBar().pushMessage("Error","All layers must be in the same file format.", level=1, duration=5)
                 return False
             caps = links.dataProvider().capabilities()
-            self.user_id = getIdField(links)
-            if self.user_id == '':
+            self.user_ids['links'] = getIdField(links)
+            if self.user_ids['links'] == '':
                 self.iface.messageBar().pushMessage("Warning", "The links layer has invalid or duplicate values in the ID column. Using feature ids instead.", level=1, duration=5)
             if links.fieldNameIndex("line1") == -1 or links.fieldNameIndex("line2") == -1:
                 self.iface.messageBar().pushMessage("Warning", "The links layer is missing the line1 and line2 ID columns. Update IDs to complete the verification.", level=1, duration=5)
@@ -361,8 +361,8 @@ class AnalysisTool(QObject):
                 self.iface.messageBar().pushMessage("Error","All layers must be in the same file format.", level=1, duration=5)
                 return False
             caps = origins.dataProvider().capabilities()
-            self.user_id = getIdField(origins)
-            if self.user_id == '':
+            self.user_ids['origins'] = getIdField(origins)
+            if self.user_ids['origins'] == '':
                 self.iface.messageBar().pushMessage("Warning", "The origins layer has invalid or duplicate values in the ID column. Using feature ids instead.", level=1, duration=5)
             if unlinks.fieldNameIndex("lineid") == -1:
                 self.iface.messageBar().pushMessage("Warning", "The unlinks layer is missing the lineid column. Update IDs to complete the verification.", level=1, duration=5)
@@ -388,11 +388,11 @@ class AnalysisTool(QObject):
         links = getLegendLayerByName(self.iface, self.analysis_layers['links'])
         origins = getLegendLayerByName(self.iface, self.analysis_layers['origins'])
         settings = self.dlg.getAxialEditSettings()
-        self.axial_id= getIdField(axial)
+        self.axial_id = getIdField(axial)
         if self.axial_id == '':
             self.iface.messageBar().pushMessage("Warning", "The axial layer has invalid or duplicate values in the id column. Using feature ids instead.", level=1, duration=5)
         if self.edit_mode == 0:
-            self.user_id = self.axial_id
+            self.user_ids['map'] = "%s" % self.axial_id
             # newfeature: update axial ids when layer is shapefile
         elif self.edit_mode == 1:
             if unlinks and (axial.storageType() != unlinks.storageType()):
@@ -402,8 +402,8 @@ class AnalysisTool(QObject):
             if caps & QgsVectorDataProvider.ChangeAttributeValues:
                 self.dlg.lockAxialEditTab(True)
                 self.dlg.clearAxialProblems()
-                self.user_id = getIdField(unlinks)
-                self.verificationThread = UnlinksIdUpdate(self.iface.mainWindow(), self, unlinks, self.user_id, axial, self.axial_id, settings['unlink_dist'])
+                self.user_ids['unlinks'] = getIdField(unlinks)
+                self.verificationThread = UnlinksIdUpdate(self.iface.mainWindow(), self, unlinks, self.user_ids['unlinks'], axial, self.axial_id, settings['unlink_dist'])
         elif self.edit_mode == 2:
             if links and (axial.storageType() != links.storageType()):
                 self.iface.messageBar().pushMessage("Error","The selected layers must be in the same file format.", level=1, duration=5)
@@ -412,6 +412,7 @@ class AnalysisTool(QObject):
             if caps & QgsVectorDataProvider.ChangeAttributeValues:
                 self.dlg.lockAxialEditTab(True)
                 self.dlg.clearAxialProblems()
+                self.user_ids['links'] = getIdField(links)
                 # newfeature: update links ids
         elif self.edit_mode == 3:
             if origins and (axial.storageType() != origins.storageType()):
@@ -421,6 +422,7 @@ class AnalysisTool(QObject):
             if caps & QgsVectorDataProvider.ChangeAttributeValues:
                 self.dlg.lockAxialEditTab(True)
                 self.dlg.clearAxialProblems()
+                self.user_ids['origins'] = getIdField(origins)
                 # newfeature: update origins ids
         self.dlg.setAxialVerifyProgressbar(0,100)
         self.dlg.clearAxialProblems()
@@ -519,30 +521,29 @@ class AnalysisTool(QObject):
         layers = self.dlg.getAnalysisLayers()
         layer = None
         name = None
+        user_id = ''
         if idx == 0:
             name = layers['map']
+            user_id = self.user_ids['map']
         elif idx == 1:
             name = layers['unlinks']
+            user_id = self.user_ids['unlinks']
         elif idx == 2:
             name = layers['links']
+            user_id = self.user_ids['links']
         elif idx == 3:
             name = layers['origins']
+            user_id = self.user_ids['origins']
         if name:
             layer = getLegendLayerByName(self.iface,name)
-            #if self.current_layer and name == self.current_layer.name():
-            #    layer = self.current_layer
-            #else:
-                #self.current_layer = QgsVectorLayer
-            #    layer = getLayerByName(name)
-            #    self.current_layer = layer
         if layer:
             # get layer ids
             #self.user_id = getIdField(layer)
-            if self.user_id == '':
+            if user_id == '':
                 self.all_ids = layer.allFeatureIds()
             else:
-                self.all_ids, ids = getFieldValues(layer, self.user_id)
-                layer.setDisplayField(self.user_id)
+                self.all_ids, ids = getFieldValues(layer, user_id)
+                layer.setDisplayField(user_id)
             # set display field for axial map (always)
             if idx != 0:
                 axial_layer = getLegendLayerByName(self.iface, layers['map'])
@@ -563,10 +564,10 @@ class AnalysisTool(QObject):
                         features.append(int(id))
             # select features and zoom
             if features:
-                if self.user_id == '':
+                if user_id == '':
                     layer.setSelectedFeatures(features)
                 else:
-                    ids = getFeatureListIds(layer,self.user_id,features)
+                    ids = getFeatureListIds(layer,user_id,features)
                     layer.setSelectedFeatures(ids.values())
             else:
                 layer.setSelectedFeatures([])
