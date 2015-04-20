@@ -108,7 +108,8 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
         self.analysisMapCombo.clear()
         self.analysisMapCombo.addItems(layers)
         self.analysisMapCombo.setCurrentIndex(idx+1)
-        self.selectMapLayer()
+        #if idx == -1:
+            #self.selectMapLayer()
 
     def selectMapLayer(self):
         self.layers[0]['idx'] = self.analysisMapCombo.currentIndex()
@@ -125,7 +126,8 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
         self.analysisUnlinksCombo.clear()
         self.analysisUnlinksCombo.addItems(layers)
         self.analysisUnlinksCombo.setCurrentIndex(idx+1)
-        self.selectUnlinksLayer()
+        #if idx == -1:
+            #self.selectUnlinksLayer()
 
     def selectUnlinksLayer(self):
         self.layers[1]['name'] = self.analysisUnlinksCombo.currentText()
@@ -141,7 +143,8 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
         self.analysisLinksCombo.clear()
         self.analysisLinksCombo.addItems(layers)
         self.analysisLinksCombo.setCurrentIndex(idx+1)
-        self.selectLinksLayer()
+        #if idx == -1:
+            #self.selectLinksLayer()
 
     def selectLinksLayer(self):
         self.layers[2]['name'] = self.analysisLinksCombo.currentText()
@@ -157,7 +160,8 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
         self.analysisOriginsCombo.clear()
         self.analysisOriginsCombo.addItems(layers)
         self.analysisOriginsCombo.setCurrentIndex(idx+1)
-        self.selectOriginsLayer()
+        #if idx == -1:
+            #self.selectOriginsLayer()
 
     def selectOriginsLayer(self):
         self.layers[3]['name'] = self.analysisOriginsCombo.currentText()

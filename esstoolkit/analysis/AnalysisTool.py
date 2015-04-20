@@ -290,6 +290,7 @@ class AnalysisTool(QObject):
         self.dlg.setUnlinksLayers(unlinks_list, analysis_unlinks)
         self.dlg.setLinksLayers(links_list, analysis_links)
         self.dlg.setOriginsLayers(origins_list, analysis_origins)
+        self.dlg.updateAnalysisTabs()
 
     def createMapLayer(self):
         # newfeature: create map layer. probably remove this in the future
