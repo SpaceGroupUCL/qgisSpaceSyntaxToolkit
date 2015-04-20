@@ -173,20 +173,23 @@ class AnalysisTool(QObject):
     def updateDatastore(self, name):
         new_datastore = {'name':'','path':'','type':-1,'schema':'','crs':''}
         layer = getLegendLayerByName(self.iface, name)
-        new_datastore['path'] = getLayerPath(layer)
-        new_datastore['name'] = os.path.basename(new_datastore['path'])
-        new_datastore['crs'] = layer.crs().postgisSrid()
-        if 'SpatiaLite' in layer.storageType():
-            new_datastore['type'] = 0
-        elif 'Shapefile' in layer.storageType():
-            new_datastore['type'] = 1
-        elif 'PostGIS' in layer.storageType():
-            new_datastore['type'] = 2
-            new_datastore['schema'] = ''
-        if new_datastore['type'] > -1:
-            #self.updateDatastoreSettings.emit(new_datastore, 'datastore')
-            self.project.writeSettings(new_datastore, 'datastore')
-            self.setDatastore()
+        if layer:
+            new_datastore['path'] = getLayerPath(layer)
+            new_datastore['name'] = os.path.basename(new_datastore['path'])
+            new_datastore['crs'] = layer.crs().postgisSrid()
+            if 'SpatiaLite' in layer.storageType():
+                new_datastore['type'] = 0
+            elif 'Shapefile' in layer.storageType():
+                new_datastore['type'] = 1
+            elif 'PostGIS' in layer.storageType():
+                new_datastore['type'] = 2
+                new_datastore['schema'] = ''
+            if new_datastore['type'] > -1:
+                #self.updateDatastoreSettings.emit(new_datastore, 'datastore')
+                self.project.writeSettings(new_datastore, 'datastore')
+                self.setDatastore()
+            else:
+                return
         else:
             return
 
@@ -291,6 +294,7 @@ class AnalysisTool(QObject):
         self.dlg.setLinksLayers(links_list, analysis_links)
         self.dlg.setOriginsLayers(origins_list, analysis_origins)
         self.dlg.updateAnalysisTabs()
+        self.updateAxialDepthmapTab()
 
     def createMapLayer(self):
         # newfeature: create map layer. probably remove this in the future
