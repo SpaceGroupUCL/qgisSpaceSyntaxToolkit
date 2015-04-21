@@ -99,7 +99,7 @@ class AttributeCharts(QObject):
     def drawBoxPlot(self, values):
         pass
 
-    def drawScatterplot(self, values, yvalues, ids, symbols):
+    def drawScatterplot(self, xvalues, yvalues, ids, symbols):
         # plot the chart
         if has_pyqtgraph:
             self.scatter = pg.ScatterPlotItem()
@@ -107,7 +107,7 @@ class AttributeCharts(QObject):
             # each point takes the colour of the map
             points = []
             for i, id in enumerate(ids):
-                x = values[i]
+                x = xvalues[i]
                 y = yvalues[i]
                 symb = symbols[i]
                 points.append({'x':x,'y':y,'data':id,'size':3,'pen':pg.mkPen(None), 'brush':symb})

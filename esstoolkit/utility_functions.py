@@ -222,9 +222,9 @@ def fieldHasValues(layer, name):
     if layer and fieldExists(layer, name):
     # find fields that only have NULL values
         idx = getFieldIndex(layer, name)
-        vals = layer.uniqueValues(idx,2)
-        # depending on the provider list is empty or has single NULL value
-        if len(vals) == 0 or (len(vals) == 1 and vals[0] == NULL):
+        maxval = layer.maximumValue(idx)
+        minval = layer.minimumValue(idx)
+        if maxval == NULL and minval == NULL:
             return False
         else:
             return True
@@ -415,7 +415,7 @@ def grouper(iterable, n, fillvalue=None):
 
 
 # check if a text string is of numeric type
-def isNumericOld(txt):
+def isNumeric(txt):
     try:
         int(txt)
         return True
@@ -431,22 +431,6 @@ def isNumericOld(txt):
                 return False
 
 
-# function found here http://www.power-quant.com/?q=node/85
-def isNumeric(x):
-    """Checks to see if x represents a numeric value by converting
-    into unicode and utilizing the isnumeric() method."""
-    # first convert the number into a string
-    strRep = str(x)
-    # then make a unicode version so we can ensure we're dealing with
-    # something that represents a numeric value:
-    uRep = unicode(strRep)
-    if ('.' in uRep) and all([x.isnumeric() for x in uRep.split('.')]):
-        return True # there's a decimal and everything to the right
-                    # and left of it is numeric
-    else:
-        return uRep.isnumeric()
-
-
 # convert a text string to a numeric value, if possible
 def convertNumeric(txt):
     try:
@@ -458,30 +442,101 @@ def convertNumeric(txt):
             try:
                 value = float(txt)
             except ValueError:
-                value = ''#txt
+                value = ''
     return value
+
+
+# round number based on simple rules of thumb
+# for suggestion on the best number to round
+# some principles found here: http://www.tc3.edu/instruct/sbrown/stat/rounding.htm
+def roundNumber(num):
+    if isNumeric(num):
+        if isinstance(num, basestring):
+            convertNumeric(num)
+        rounded = num
+        if num > 100 or num < -100:
+            rounded = round(num,1)
+        elif (1 < num <= 100) or (-1 > num >= -100):
+            rounded = round(num,2)
+        elif (0.01 < num <= 1) or (-0.01 > num >= -1):
+            rounded = round(num,4)
+        return rounded
+
+
+def truncateNumber(num,digits=9):
+    if isNumeric(num):
+        truncated = str(num)
+        if '.' in truncated:
+            truncated = truncated[:digits]
+            truncated = truncated.rstrip('0').rstrip('.')
+        return convertNumeric(truncated)
+
+
+# function found here http://www.power-quant.com/?q=node/85
+def isNumericNew(num):
+    """Checks to see if x represents a numeric value by converting
+    into unicode and utilizing the isnumeric() method."""
+    # first convert the number into a string
+    strRep = str(num)
+    # fixme: breaks if value comes out in scientific notation, considers it non numeric!
+    # then make a unicode version so we can ensure we're dealing with
+    # something that represents a numeric value:
+    uRep = unicode(strRep)
+    print uRep
+    if ('.' in uRep) and all([x.isnumeric() for x in uRep.split('.')]):
+        return True # there's a decimal and everything to the right
+                    # and left of it is numeric
+    else:
+        return uRep.isnumeric()
+
+
+# get the number of significant digits in a number
+# some code found here: http://www.power-quant.com/?q=node/85
+def numSigDigits(num):
+    """Returns the number of significant digits in x."""
+    numdigits = -1
+    decimal = u'.'
+    if isNumeric(num):
+        # number the digits:
+        enumerated_chars = list(enumerate(str(num)))
+        #for x in enumerated_chars:
+        #    if x[1] in (u'.',u','):
+        #        decimal = x[1]
+        non_zero_chars = [x for x in enumerated_chars if (x[1] != '0') and (x[1] != decimal)]
+        most_sig_digit = non_zero_chars[0]
+        least_sig_digit = None
+        if decimal in [x[1] for x in enumerated_chars]:
+            least_sig_digit = enumerated_chars[-1]
+        else:
+            least_sig_digit = non_zero_chars[-1]
+
+        enumed_sig_digits = [x for x in enumerated_chars[most_sig_digit[0]:least_sig_digit[0] + 1]]
+        numdigits = len(enumed_sig_digits)
+        if decimal in [x[1] for x in enumerated_chars]:
+            numdigits -= 1
+
+    return numdigits
 
 
 # by Ben Hoyt
 # http://code.activestate.com/recipes/578114-round-number-to-specified-number-of-significant-di/
-# round a number to specified significant digits
-def roundSigFigs(num, sig_figs):
-    """Round to specified number of sigfigs.
-    round_sigfigs(0, sig_figs=4)
+def roundSigDigits(num, sig_figs):
+    """Round to specified number of significant digits.
+    roundSigDigits(0, sig_figs=4)
     >> 0
-    int(round_sigfigs(12345, sig_figs=2))
+    int(roundSigDigits(12345, sig_figs=2))
     >> 12000
-    int(round_sigfigs(-12345, sig_figs=2))
+    int(roundSigDigits(-12345, sig_figs=2))
     >> -12000
-    int(round_sigfigs(1, sig_figs=2))
+    int(roundSigDigits(1, sig_figs=2))
     >> 1
-    '{0:.3}'.format(round_sigfigs(3.1415, sig_figs=2))
+    '{0:.3}'.format(roundSigDigits(3.1415, sig_figs=2))
     >> '3.1'
-    '{0:.3}'.format(round_sigfigs(-3.1415, sig_figs=2))
+    '{0:.3}'.format(roundSigDigits(-3.1415, sig_figs=2))
     >> '-3.1'
-    '{0:.5}'.format(round_sigfigs(0.00098765, sig_figs=2))
+    '{0:.5}'.format(roundSigDigits(0.00098765, sig_figs=2))
     >> '0.00099'
-    '{0:.6}'.format(round_sigfigs(0.00098765, sig_figs=3))
+    '{0:.6}'.format(roundSigDigits(0.00098765, sig_figs=3))
     >> '0.000988'
     """
     if num != 0:

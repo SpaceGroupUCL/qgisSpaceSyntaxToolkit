@@ -79,7 +79,7 @@ class ExplorerTool(QObject):
         self.attribute_values = []
         self.selection_values = []
         self.selection_ids = []
-        self.layer_ids = dict()
+        #self.layer_ids = dict()
         self.updateActionConnections(0)
         #self.isVisible = False
 
@@ -98,7 +98,7 @@ class ExplorerTool(QObject):
         self.bivariate_statistics = []
         self.attribute_values = []
         self.selection_values = []
-        self.layer_ids = dict()
+        #self.layer_ids = dict()
 
     def onShow(self):
         if self.dlg.isVisible():
@@ -359,25 +359,22 @@ class ExplorerTool(QObject):
                 if self.current_layer.selectedFeatureCount() > 0:
                     select_stats = dict()
                     self.selection_values, self.selection_ids = getFieldValues(self.current_layer, attribute["name"], null=False, selection=True)
-                    select_stats["Mean"] = np.nanmean(self.selection_values)
-                    select_stats["Std Dev"] = np.nanstd(self.selection_values)
-                    select_stats["Median"] = np.median(self.selection_values)
+                    select_stats["Mean"] = truncateNumber(np.nanmean(self.selection_values))
+                    select_stats["Std Dev"] = truncateNumber(np.nanstd(self.selection_values))
+                    select_stats["Median"] = truncateNumber(np.median(self.selection_values))
                     select_stats["Minimum"] = np.nanmin(self.selection_values)
                     select_stats["Maximum"] = np.nanmax(self.selection_values)
-                    select_stats["Range"] = select_stats["Maximum"]-select_stats["Minimum"]
-                    select_stats["1st Quart"] = np.percentile(self.selection_values,25)
-                    select_stats["3rd Quart"] = np.percentile(self.selection_values,75)
-                    select_stats["IQR"] = select_stats["3rd Quart"]-select_stats["1st Quart"]
-                    select_stats["Gini"] = calcGini(self.selection_values)
+                    select_stats["Range"] = truncateNumber(select_stats["Maximum"]-select_stats["Minimum"])
+                    select_stats["1st Quart"] = truncateNumber(np.percentile(self.selection_values,25))
+                    select_stats["3rd Quart"] = truncateNumber(np.percentile(self.selection_values,75))
+                    select_stats["IQR"] = truncateNumber(select_stats["3rd Quart"]-select_stats["1st Quart"])
+                    select_stats["Gini"] = roundNumber(calcGini(self.selection_values))
                 else:
                     self.selection_values = []
                     self.selection_ids = []
                 # update the dialog
                 self.dlg.setStats(stats, select_stats)
-            #else:
-            #    self.dlg.__clearStats()
-        #else:
-        #    self.dlg.__clearStats()
+
 
     ##
     ## Charts actions
@@ -394,7 +391,8 @@ class ExplorerTool(QObject):
                     self.retrieveAttributeValues(attribute)
                     idx = len(self.attribute_values)-1
                 values = self.attribute_values[idx]["values"]
-                ids = self.layer_ids[self.current_layer.name()]
+                ids = self.attribute_values[idx]["ids"]
+                #ids = self.layer_ids[self.current_layer.name()]
                 # retrieve selection values
                 if self.current_layer.selectedFeatureCount() > 0:
                     self.selection_values, self.selection_ids = getFieldValues(self.current_layer, attribute["name"], null=False, selection=True)
@@ -440,9 +438,9 @@ class ExplorerTool(QObject):
                             bistats["Layer"] = self.current_layer.name()
                             bistats["x"] = current_attribute
                             bistats["y"] = current_dependent
-                            bistats["r"] = round((np.corrcoef(values,yvalues)[1][0]),5)
-                            bistats["r2"] = round((bistats["r"]*bistats["r"]),5)
-                            bistats["p"] = 0 #round(calcPvalue(values,yvalues),5) fixme: pvalue calc not correct
+                            bistats["r"] = roundNumber(np.corrcoef(values,yvalues)[1][0])
+                            bistats["r2"] = roundNumber(bistats["r"]*bistats["r"])
+                            bistats["p"] = 0 #roundNumber(calcPvalue(values,yvalues)) fixme: pvalue calc not correct
                             # newfeature: calculate linear regression
                             bistats["line"] = ""
                             self.bivariate_statistics.append(bistats)
@@ -457,11 +455,10 @@ class ExplorerTool(QObject):
                         self.attributeCharts.drawScatterplot(values, yvalues, ids, symbols)
                         # plot chart of selected objects
                         if len(self.selection_values) > 0:
-                            all_ids = self.layer_ids[self.current_layer.name()]
                             indices = []
                             for id in self.selection_ids:
-                                if id in all_ids:
-                                    indices.append(all_ids.index(id))
+                                if id in ids:
+                                    indices.append(ids.index(id))
                             self.attributeCharts.setScatterplotSelection(indices)
                     else:
                         self.dlg.clearDependentValues()
@@ -470,6 +467,10 @@ class ExplorerTool(QObject):
         else:
             self.dlg.clearDependentValues()
 
+
+    ##
+    ## General functions
+    ##
     def checkValuesAvailable(self, attribute):
         idx = -1
         for i, vals in enumerate(self.attribute_values):
@@ -481,23 +482,23 @@ class ExplorerTool(QObject):
 
     def retrieveAttributeValues(self, attribute):
         values, ids = getFieldValues(self.current_layer, attribute["name"], null=False)
-        if not self.layer_ids.has_key(self.current_layer.name()):
+        #if not self.layer_ids.has_key(self.current_layer.name()):
             # store retrieved ids for charts
-            self.layer_ids[self.current_layer.name()] = ids
-        # calculate the stats
+        #    self.layer_ids[self.current_layer.name()] = ids
+        # calculate the stats, rounding numbers that result from calculations
         stats = dict()
         stats["Layer"] = self.current_layer.name()
         stats["Attribute"] = attribute["name"]
-        stats["Mean"] = np.nanmean(values)
-        stats["Std Dev"] = np.nanstd(values)
-        stats["Median"] = np.median(values)
+        stats["Mean"] = truncateNumber(np.nanmean(values))
+        stats["Std Dev"] = truncateNumber(np.nanstd(values))
+        stats["Median"] = truncateNumber(np.median(values))
         stats["Minimum"] = np.nanmin(values)
         stats["Maximum"] = np.nanmax(values)
-        stats["Range"] = stats["Maximum"]-stats["Minimum"]
-        stats["1st Quart"] = np.percentile(values,25)
-        stats["3rd Quart"] = np.percentile(values,75)
-        stats["IQR"] = stats["3rd Quart"]-stats["1st Quart"]
-        stats["Gini"] = calcGini(values)
+        stats["Range"] = truncateNumber(stats["Maximum"]-stats["Minimum"])
+        stats["1st Quart"] = truncateNumber(np.percentile(values,25))
+        stats["3rd Quart"] = truncateNumber(np.percentile(values,75))
+        stats["IQR"] = truncateNumber(stats["3rd Quart"]-stats["1st Quart"])
+        stats["Gini"] = roundNumber(calcGini(values))
         # store the results
         self.attribute_statistics.append(stats)
         # store retrieved values for selection stats and charts

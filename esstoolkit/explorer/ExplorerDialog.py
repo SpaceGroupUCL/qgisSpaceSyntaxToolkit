@@ -318,9 +318,12 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
 
     def __topLimitSpinClicked(self, value):
         self.current_symbology["top_percent"] = value
-        # calculate spin absolute value
-        spin = str(((self.attribute_max-self.attribute_min)*self.current_symbology["top_percent"]/100)+self.attribute_min)
-        self.setTopLimitText(spin)
+        if value < 100:
+            # calculate spin absolute value
+            spin = ((self.attribute_max-self.attribute_min)*self.current_symbology["top_percent"]/100)+self.attribute_min
+        else:
+            spin = self.attribute_max
+        self.setTopLimitText(str(spin))
         self.bottomLimitSpin.setMaximum(value)
         self.__lockApplyButton(False)
 
@@ -356,9 +359,12 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
 
     def __bottomLimitSpinClicked(self, value):
         self.current_symbology["bottom_percent"] = value
-        # calculate spin absolute value
-        spin = str(((self.attribute_max-self.attribute_min)*self.current_symbology["bottom_percent"]/100)+self.attribute_min)
-        self.setBottomLimitText(spin)
+        if value > 0:
+            # calculate spin absolute value
+            spin = ((self.attribute_max-self.attribute_min)*self.current_symbology["bottom_percent"]/100)+self.attribute_min
+        else:
+            spin = self.attribute_min
+        self.setBottomLimitText(str(spin))
         self.topLimitSpin.setMinimum(value)
         self.__lockApplyButton(False)
 
@@ -425,7 +431,7 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
             else:
                 self.statisticsTable.setItem(row, 2, QTableWidgetItem(""))
         self.statisticsTable.horizontalHeader().setResizeMode(0, QHeaderView.ResizeToContents)
-        self.statisticsTable.horizontalHeader().setResizeMode(1, QHeaderView.ResizeToContents)
+        self.statisticsTable.horizontalHeader().setResizeMode(1, QHeaderView.Stretch)
         self.statisticsTable.horizontalHeader().setResizeMode(2, QHeaderView.Stretch)
         self.statisticsTable.resizeRowsToContents()
 
