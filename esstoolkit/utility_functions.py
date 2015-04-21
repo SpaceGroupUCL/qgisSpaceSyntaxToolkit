@@ -199,13 +199,15 @@ def getValidFieldNames(layer, type='all', null='any'):
     if layer and layer.dataProvider():
         for index, field in enumerate(layer.dataProvider().fields()):
             if field.type() in types:
-                vals = layer.uniqueValues(index,2)
                 # exclude layers that only have NULL values
                 if null == 'all':
-                    if (len(vals) == 1 and vals[0] != NULL) or len(vals) > 1:
+                    maxval = layer.maximumValue(index)
+                    minval = layer.minimumValue(index)
+                    if maxval != NULL and minval != NULL:
                         field_names[field.name()] = index
                 # exclude layers with any NULL values
                 elif null == 'any':
+                    vals = layer.uniqueValues(index,2)
                     if len(vals) > 0 and vals[0] != NULL:
                         field_names[field.name()] = index
     return field_names
@@ -249,29 +251,15 @@ def fieldHasNullValues(layer, name):
             return False
 
 
-def getFieldValues(layer, name, null=True):
+def getFieldValues(layer, name, null=True, selection=False):
     attributes = []
     ids = []
     if fieldExists(layer, name):
-        request = QgsFeatureRequest().setSubsetOfAttributes([getFieldIndex(layer, name)])
-        features = layer.getFeatures(request)
-        for feature in features:
-            val = feature.attribute(name)
-            if null:
-                attributes.append(val)
-                ids.append(feature.id())
-            else:
-                if val != NULL:
-                    attributes.append(val)
-                    ids.append(feature.id())
-    return attributes, ids
-
-
-def getSelectionValues(layer, name, null=True, id=False):
-    attributes = []
-    ids = []
-    if fieldExists(layer, name):
-        features = layer.selectedFeatures()
+        if selection:
+            features = layer.selectedFeatures()
+        else:
+            request = QgsFeatureRequest().setSubsetOfAttributes([getFieldIndex(layer, name)])
+            features = layer.getFeatures(request)
         for feature in features:
             val = feature.attribute(name)
             if null:

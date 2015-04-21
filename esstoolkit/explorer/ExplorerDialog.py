@@ -302,11 +302,14 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
     def __intervalTypeChanged(self, idx):
         self.current_symbology["interval_type"] = idx
         if self.current_symbology["interval_type"] == 3:
-            self.__lockCustomIntervalControls(False)
-            if self.current_symbology["top_value"] is None and self.current_symbology["top_value"] is None:
-                self.__lockApplyButton(True)
+            if self.attribute_max == 'NULL' or self.attribute_min == 'NULL':
+                self.__lockCustomIntervalControls(True)
             else:
-                self.__lockApplyButton(False)
+                self.__lockCustomIntervalControls(False)
+                if self.current_symbology["top_value"] is None and self.current_symbology["top_value"] is None:
+                    self.__lockApplyButton(True)
+                else:
+                    self.__lockApplyButton(False)
         else:
             self.__lockCustomIntervalControls(True)
             self.current_symbology["top_value"] = self.attribute_max

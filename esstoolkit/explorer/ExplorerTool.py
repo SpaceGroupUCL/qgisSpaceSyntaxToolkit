@@ -33,7 +33,8 @@ from AttributeCharts import *
 from ..utility_functions import *
 
 import numpy as np
-
+from operator import is_not
+from functools import partial
 
 class ExplorerTool(QObject):
 
@@ -212,21 +213,23 @@ class ExplorerTool(QObject):
                     for i, index in enumerate(numeric_field_indices):
                         max_value = self.current_layer.maximumValue(index)
                         min_value = self.current_layer.minimumValue(index)
-                        # set the layer's attribute info
-                        attribute_info = dict()
-                        attribute_info["id"]=index
-                        attribute_info["name"]=numeric_fields[i]
-                        attribute_info["min"]=min_value
-                        attribute_info["max"]=max_value
-                        self.layer_attributes.append(attribute_info)
-                        # set default display settings
-                        attribute_display = dict(attribute="", colour_range=0, line_width=0.25, invert_colour=0, display_order=0,
-                        intervals=10, interval_type=0, top_percent=100, top_value=0.0, bottom_percent=0, bottom_value=0.0)
-                        # update the top and bottom value of the defaults
-                        attribute_display["attribute"] = numeric_fields[i]
-                        attribute_display["top_value"] = float(max_value)
-                        attribute_display["bottom_value"] = float(min_value)
-                        self.layer_display_settings.append(attribute_display)
+                        # exclude columns with only NULL values
+                        if max_value != NULL and min_value != NULL:
+                            # set the layer's attribute info
+                            attribute_info = dict()
+                            attribute_info["id"]=index
+                            attribute_info["name"]=numeric_fields[i]
+                            attribute_info["max"] = max_value
+                            attribute_info["min"] = min_value
+                            self.layer_attributes.append(attribute_info)
+                            # set default display settings
+                            attribute_display = dict(attribute="", colour_range=0, line_width=0.25, invert_colour=0, display_order=0,
+                            intervals=10, interval_type=0, top_percent=100, top_value=0.0, bottom_percent=0, bottom_value=0.0)
+                             # update the top and bottom value of the defaults
+                            attribute_display["attribute"] = numeric_fields[i]
+                            attribute_display["top_value"] = max_value
+                            attribute_display["bottom_value"] = min_value
+                            self.layer_display_settings.append(attribute_display)
                     # get the current display attribute
                     attributes = self.current_layer.rendererV2().usedAttributes()
                     if len(attributes) > 0:
@@ -355,13 +358,13 @@ class ExplorerTool(QObject):
                 select_stats = None
                 if self.current_layer.selectedFeatureCount() > 0:
                     select_stats = dict()
-                    self.selection_values, self.selection_ids = getSelectionValues(self.current_layer, attribute["name"], null=False)
+                    self.selection_values, self.selection_ids = getFieldValues(self.current_layer, attribute["name"], null=False, selection=True)
                     select_stats["Mean"] = np.nanmean(self.selection_values)
                     select_stats["Std Dev"] = np.nanstd(self.selection_values)
                     select_stats["Median"] = np.median(self.selection_values)
                     select_stats["Minimum"] = np.nanmin(self.selection_values)
                     select_stats["Maximum"] = np.nanmax(self.selection_values)
-                    select_stats["Range"] = stats["Maximum"]-stats["Minimum"]
+                    select_stats["Range"] = select_stats["Maximum"]-select_stats["Minimum"]
                     select_stats["1st Quart"] = np.percentile(self.selection_values,25)
                     select_stats["3rd Quart"] = np.percentile(self.selection_values,75)
                     select_stats["IQR"] = select_stats["3rd Quart"]-select_stats["1st Quart"]
@@ -394,7 +397,7 @@ class ExplorerTool(QObject):
                 ids = self.layer_ids[self.current_layer.name()]
                 # retrieve selection values
                 if self.current_layer.selectedFeatureCount() > 0:
-                    self.selection_values, self.selection_ids = getSelectionValues(self.current_layer, attribute["name"], null=False)
+                    self.selection_values, self.selection_ids = getFieldValues(self.current_layer, attribute["name"], null=False, selection=True)
                 else:
                     self.selection_values = []
                     self.selection_ids = []
@@ -477,30 +480,30 @@ class ExplorerTool(QObject):
 
 
     def retrieveAttributeValues(self, attribute):
-        values, ids = getFieldValues(self.current_layer, attribute["name"], null=True)
+        values, ids = getFieldValues(self.current_layer, attribute["name"], null=False)
         if not self.layer_ids.has_key(self.current_layer.name()):
             # store retrieved ids for charts
             self.layer_ids[self.current_layer.name()] = ids
-        nan_values = filter(None,values)
         # calculate the stats
         stats = dict()
         stats["Layer"] = self.current_layer.name()
         stats["Attribute"] = attribute["name"]
-        stats["Mean"] = np.nanmean(nan_values)
-        stats["Std Dev"] = np.nanstd(nan_values)
-        stats["Median"] = np.median(nan_values)
-        stats["Minimum"] = np.nanmin(nan_values)
-        stats["Maximum"] = np.nanmax(nan_values)
+        stats["Mean"] = np.nanmean(values)
+        stats["Std Dev"] = np.nanstd(values)
+        stats["Median"] = np.median(values)
+        stats["Minimum"] = np.nanmin(values)
+        stats["Maximum"] = np.nanmax(values)
         stats["Range"] = stats["Maximum"]-stats["Minimum"]
-        stats["1st Quart"] = np.percentile(nan_values,25)
-        stats["3rd Quart"] = np.percentile(nan_values,75)
+        stats["1st Quart"] = np.percentile(values,25)
+        stats["3rd Quart"] = np.percentile(values,75)
         stats["IQR"] = stats["3rd Quart"]-stats["1st Quart"]
-        stats["Gini"] = calcGini(nan_values)
+        stats["Gini"] = calcGini(values)
         # store the results
         self.attribute_statistics.append(stats)
-        # store retrieved values for charts
+        # store retrieved values for selection stats and charts
         attr = dict()
         attr["Layer"] = self.current_layer.name()
         attr["Attribute"] = attribute["name"]
         attr["values"] = values
+        attr["ids"] = ids
         self.attribute_values.append(attr)
