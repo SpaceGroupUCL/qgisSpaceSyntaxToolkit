@@ -251,13 +251,14 @@ class AnalysisTool(QObject):
         unlinks_list = []
         links_list = []
         origins_list = []
-        try:
-            # fixme: throws NoneType error occasionally when removing layers. trapping it for now.
-            layers = getLegendLayers(self.iface,'all','all')
-        except:
-            layers = None
+        #try:
+        # fixme: throws NoneType error occasionally when removing layers. trapping it for now.
+        layers = getLegendLayers(self.iface,'all','all')
+        #except:
+        #    layers = None
         if layers:
             for layer in layers:
+                # checks if the layer is projected. Geographic coordinates are not supported
                 if isLayerProjected(layer):
                     origins_list.append(layer.name())
                     unlinks_list.append(layer.name())
@@ -294,7 +295,7 @@ class AnalysisTool(QObject):
         self.dlg.setLinksLayers(links_list, analysis_links)
         self.dlg.setOriginsLayers(origins_list, analysis_origins)
         self.dlg.updateAnalysisTabs()
-        self.updateAxialDepthmapTab()
+        self.dlg.updateAxialDepthmapTab()
 
     def createMapLayer(self):
         # newfeature: create map layer. probably remove this in the future

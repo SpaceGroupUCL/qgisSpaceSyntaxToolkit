@@ -11,8 +11,8 @@
 category = Vector
 name=Space Syntax Toolkit
 qgisMinimumVersion=2.0
-description=Tools for spatial network analysis and data exploration.
-about=Dependencies: igraph python, pyqtgraph, depthmapXnet
+description=Collection of tools for spatial network analysis and data exploration.
+about=Dependencies: depthmapXnet, igraph python, pyqtgraph
 version=0.1.3b
 author=Jorge Gil, UCL
 email=jorge.gil@ucl.ac.uk

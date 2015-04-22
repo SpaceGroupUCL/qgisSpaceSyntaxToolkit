@@ -99,19 +99,22 @@ class AttributeCharts(QObject):
     def drawBoxPlot(self, values):
         pass
 
-    def drawScatterplot(self, xvalues, yvalues, ids, symbols):
+    def drawScatterplot(self, xvalues, yvalues, ids, symbols=None):
         # plot the chart
         if has_pyqtgraph:
             self.scatter = pg.ScatterPlotItem()
             self.plot.clear()
             # each point takes the colour of the map
-            points = []
-            for i, id in enumerate(ids):
-                x = xvalues[i]
-                y = yvalues[i]
-                symb = symbols[i]
-                points.append({'x':x,'y':y,'data':id,'size':3,'pen':pg.mkPen(None), 'brush':symb})
-            self.scatter.addPoints(points)
+            if symbols:
+                points = []
+                for i, id in enumerate(ids):
+                    x = xvalues[i]
+                    y = yvalues[i]
+                    symb = symbols[i]
+                    points.append({'x':x,'y':y,'data':id,'size':3,'pen':pg.mkPen(None), 'brush':symb})
+                self.scatter.addPoints(points)
+            else:
+                self.scatter.addPoints(x=xvalues,y=yvalues,data=ids,size=3,pen=pg.mkPen(None), brush=pg.mkBrush(235, 235, 235, 255))
             self.plot.addItem(self.scatter)
             # newfeature: add the selection tool
             #self.scatter.sigClicked.connect(self.getScatterplotSelection)
@@ -137,8 +140,9 @@ class AttributeCharts(QObject):
 
     def setScatterplotSelection(self, ids):
         points = []
-        if has_pyqtgraph:
-            for id in ids:
-                points.append(self.scatter.points()[id])
-            for point in points:
-                point.setPen('r',width=2)
+        #if has_pyqtgraph:
+            #for id in ids:
+                #self.scatter.points()[id].setPen('r',width=2)
+            #    points.append(self.scatter.points()[id])
+            #for point in points:
+            #    point.setPen('r',width=2)

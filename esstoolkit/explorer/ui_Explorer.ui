@@ -392,7 +392,20 @@
                </widget>
               </item>
               <item>
-               <widget class="QComboBox" name="yaxisCombo"/>
+               <widget class="QComboBox" name="yaxisCombo">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="toolTip">
+                 <string>Select y axis attribute of scatter plot.</string>
+                </property>
+                <property name="sizeAdjustPolicy">
+                 <enum>QComboBox::AdjustToMinimumContentsLength</enum>
+                </property>
+               </widget>
               </item>
               <item>
                <widget class="QLabel" name="rLabel">

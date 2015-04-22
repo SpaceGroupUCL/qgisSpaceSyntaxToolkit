@@ -107,7 +107,7 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
         self.chartPlotWidget.setFrameShadow(QtGui.QFrame.Sunken)
         self.chartPlotWidget.setObjectName("chartPlotWidget")
         self.chartsLayout.addWidget(self.chartPlotWidget)
-        self.chartsLayout.setStretch(1, 2)
+        self.chartsLayout.setStretch(1, 1)
 
 
     #####
@@ -479,10 +479,19 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
     def __setYAxisCombo(self, attributes):
         self.yaxisCombo.clear()
         self.yaxisCombo.addItems(attributes)
+        #for attr in attributes:
+        #    self.yaxisCombo.addItem(attr,attr)
         self.yaxisCombo.setCurrentIndex(0)
+
+    def __setYAxisTooltip(self, idx):
+        if idx > 0:
+            self.yaxisCombo.setToolTip(self.yaxisCombo.itemText(idx))
+        else:
+            self.yaxisCombo.setToolTip('Select y axis attribute of scatter plot.')
 
     def yAxisChanged(self):
         if self.curr_chart == 2:
+            self.yaxisCombo.setToolTip(self.yaxisCombo.itemText(self.yaxisCombo.currentIndex()))
             self.dependentChanged.emit()
 
     def getYAxisAttribute(self):

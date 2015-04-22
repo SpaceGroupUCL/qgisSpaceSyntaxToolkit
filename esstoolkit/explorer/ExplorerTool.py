@@ -438,7 +438,8 @@ class ExplorerTool(QObject):
                             bistats["y"] = current_dependent
                             bistats["r"] = roundNumber(np.corrcoef(values,yvalues)[1][0])
                             bistats["r2"] = roundNumber(bistats["r"]*bistats["r"])
-                            bistats["p"] = 0 #roundNumber(calcPvalue(values,yvalues)) fixme: pvalue calc not correct
+                            # fixme: pvalue calc not correct
+                            bistats["p"] = 0 #roundNumber(calcPvalue(values,yvalues))
                             # newfeature: calculate linear regression
                             bistats["line"] = ""
                             self.bivariate_statistics.append(bistats)
@@ -449,15 +450,14 @@ class ExplorerTool(QObject):
                         # plot chart
                         # fixme: retrieve feature symbols from layer
                         #symbols = getAllFeatureSymbols(self.current_layer)
-                        symbols = [QColor(200,200,200,255)] * len(ids)
-                        self.attributeCharts.drawScatterplot(values, yvalues, ids, symbols)
+                        self.attributeCharts.drawScatterplot(values, yvalues, ids)
                         # plot chart of selected objects
                         if len(self.selection_values) > 0:
-                            indices = []
-                            for id in self.selection_ids:
-                                if id in ids:
-                                    indices.append(ids.index(id))
-                            self.attributeCharts.setScatterplotSelection(indices)
+                        #    indices = []
+                        #    for id in self.selection_ids:
+                        #        if id in ids:
+                        #            indices.append(ids.index(id))
+                            self.attributeCharts.setScatterplotSelection(self.selection_ids)
                     else:
                         self.dlg.clearDependentValues()
             else:

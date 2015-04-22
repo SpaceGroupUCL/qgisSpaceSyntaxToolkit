@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/Users/jorge/github/qgisSpaceSyntaxToolkit/esstoolkit/explorer/ui_Explorer.ui'
 #
-# Created: Wed Apr 22 10:31:46 2015
+# Created: Wed Apr 22 15:30:44 2015
 #      by: PyQt4 UI code generator 4.10.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -205,6 +205,12 @@ class Ui_ExplorerDialog(object):
         self.yaxisLabel.setObjectName(_fromUtf8("yaxisLabel"))
         self.chartSetupLayout.addWidget(self.yaxisLabel)
         self.yaxisCombo = QtGui.QComboBox(self.chartsTab)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.MinimumExpanding, QtGui.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.yaxisCombo.sizePolicy().hasHeightForWidth())
+        self.yaxisCombo.setSizePolicy(sizePolicy)
+        self.yaxisCombo.setSizeAdjustPolicy(QtGui.QComboBox.AdjustToMinimumContentsLength)
         self.yaxisCombo.setObjectName(_fromUtf8("yaxisCombo"))
         self.chartSetupLayout.addWidget(self.yaxisCombo)
         self.rLabel = QtGui.QLabel(self.chartsTab)
@@ -276,6 +282,7 @@ class Ui_ExplorerDialog(object):
         self.boxplotCheck.setText(_translate("ExplorerDialog", "Box plot", None))
         self.scatterplotCheck.setText(_translate("ExplorerDialog", "Scatter plot", None))
         self.yaxisLabel.setText(_translate("ExplorerDialog", "Y axis:", None))
+        self.yaxisCombo.setToolTip(_translate("ExplorerDialog", "Select y axis attribute of scatter plot.", None))
         self.rLabel.setText(_translate("ExplorerDialog", "r:", None))
         self.pLabel.setText(_translate("ExplorerDialog", "p:", None))
         self.r2Label.setText(_translate("ExplorerDialog", "r2:", None))
