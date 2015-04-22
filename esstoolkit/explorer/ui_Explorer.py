@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/Users/jorge/github/qgisSpaceSyntaxToolkit/esstoolkit/explorer/ui_Explorer.ui'
 #
-# Created: Tue Apr 14 16:02:29 2015
+# Created: Wed Apr 22 10:31:46 2015
 #      by: PyQt4 UI code generator 4.10.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -43,7 +43,6 @@ class Ui_ExplorerDialog(object):
         self.layerRefreshButton.setObjectName(_fromUtf8("layerRefreshButton"))
         self.layersLayout.addWidget(self.layerRefreshButton)
         self.layersLayout.setStretch(0, 5)
-        self.layersLayout.setStretch(1, 1)
         self.attributesLayout.addLayout(self.layersLayout)
         self.attributesLabel = QtGui.QLabel(self.explorerLayout)
         self.attributesLabel.setObjectName(_fromUtf8("attributesLabel"))
@@ -224,9 +223,6 @@ class Ui_ExplorerDialog(object):
         self.chartToolsLayout.addLayout(self.chartSetupLayout)
         spacerItem = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
         self.chartToolsLayout.addItem(spacerItem)
-        self.popoutButton = QtGui.QPushButton(self.chartsTab)
-        self.popoutButton.setObjectName(_fromUtf8("popoutButton"))
-        self.chartToolsLayout.addWidget(self.popoutButton)
         self.chartToolsLayout.setStretch(1, 3)
         self.chartsLayout.addLayout(self.chartToolsLayout)
         self.verticalLayout_4.addLayout(self.chartsLayout)
@@ -284,7 +280,6 @@ class Ui_ExplorerDialog(object):
         self.pLabel.setText(_translate("ExplorerDialog", "p:", None))
         self.r2Label.setText(_translate("ExplorerDialog", "r2:", None))
         self.lineLabel.setText(_translate("ExplorerDialog", "line:", None))
-        self.popoutButton.setText(_translate("ExplorerDialog", "Pop-out chart", None))
         self.explorerTabs.setTabText(self.explorerTabs.indexOf(self.chartsTab), _translate("ExplorerDialog", "Charts", None))
 
 import resources_rc

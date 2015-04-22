@@ -26,6 +26,7 @@ from qgis.core import *
 
 from pyspatialite import dbapi2 as sqlite
 import psycopg2 as pgsql
+import numpy as np
 
 import os.path
 import math
@@ -493,7 +494,8 @@ def isNumericNew(num):
 # get the number of significant digits in a number
 # some code found here: http://www.power-quant.com/?q=node/85
 def numSigDigits(num):
-    """Returns the number of significant digits in x."""
+    """Returns the number of significant digits in a number.
+    based on some code found here: http://www.power-quant.com/?q=node/85"""
     numdigits = -1
     decimal = u'.'
     if isNumeric(num):
@@ -558,6 +560,28 @@ def calcGini(values):
     G = 2.0 * P/(N * T)
     gini = G - 1 - (1./N)
     return gini
+
+
+def calcBins(values, minbins=3, maxbins=128):
+    """Calculates the best number of bins for the given values
+    Uses the Freedman-Diaconis modification of Scott's rule.
+    """
+    nbins = 1
+    # prepare data
+    if not isinstance(values, np.ndarray):
+        values = np.array(values)
+    # calculate stats
+    range = np.nanmax(values)-np.nanmin(values)
+    IQR = np.percentile(values,75)-np.percentile(values,25)
+    # calculate bin size
+    bin_size = 2 * IQR * np.size(values)**(-1.0/3)
+    # calculate number of bins
+    if bin_size > 0:
+        nbins = range / bin_size
+
+    nbins = max(minbins, min(maxbins, int(nbins)))
+
+    return nbins
 
 
 # fixme: this calculates pearson correlation, not p value!

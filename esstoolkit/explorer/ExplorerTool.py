@@ -359,16 +359,17 @@ class ExplorerTool(QObject):
                 if self.current_layer.selectedFeatureCount() > 0:
                     select_stats = dict()
                     self.selection_values, self.selection_ids = getFieldValues(self.current_layer, attribute["name"], null=False, selection=True)
-                    select_stats["Mean"] = truncateNumber(np.nanmean(self.selection_values))
-                    select_stats["Std Dev"] = truncateNumber(np.nanstd(self.selection_values))
-                    select_stats["Median"] = truncateNumber(np.median(self.selection_values))
-                    select_stats["Minimum"] = np.nanmin(self.selection_values)
-                    select_stats["Maximum"] = np.nanmax(self.selection_values)
+                    sel_values = np.array(self.selection_values)
+                    select_stats["Mean"] = truncateNumber(np.nanmean(sel_values))
+                    select_stats["Std Dev"] = truncateNumber(np.nanstd(sel_values))
+                    select_stats["Median"] = truncateNumber(np.median(sel_values))
+                    select_stats["Minimum"] = np.nanmin(sel_values)
+                    select_stats["Maximum"] = np.nanmax(sel_values)
                     select_stats["Range"] = truncateNumber(select_stats["Maximum"]-select_stats["Minimum"])
-                    select_stats["1st Quart"] = truncateNumber(np.percentile(self.selection_values,25))
-                    select_stats["3rd Quart"] = truncateNumber(np.percentile(self.selection_values,75))
+                    select_stats["1st Quart"] = truncateNumber(np.percentile(sel_values,25))
+                    select_stats["3rd Quart"] = truncateNumber(np.percentile(sel_values,75))
                     select_stats["IQR"] = truncateNumber(select_stats["3rd Quart"]-select_stats["1st Quart"])
-                    select_stats["Gini"] = roundNumber(calcGini(self.selection_values))
+                    select_stats["Gini"] = roundNumber(calcGini(sel_values))
                 else:
                     self.selection_values = []
                     self.selection_ids = []
@@ -392,48 +393,45 @@ class ExplorerTool(QObject):
                     idx = len(self.attribute_values)-1
                 values = self.attribute_values[idx]["values"]
                 ids = self.attribute_values[idx]["ids"]
-                #ids = self.layer_ids[self.current_layer.name()]
+                bins = self.attribute_values[idx]["bins"]
                 # retrieve selection values
                 if self.current_layer.selectedFeatureCount() > 0:
                     self.selection_values, self.selection_ids = getFieldValues(self.current_layer, attribute["name"], null=False, selection=True)
                 else:
                     self.selection_values = []
                     self.selection_ids = []
+                sel_values = np.array(self.selection_values)
                 # plot charts and dependent variable stats
                 chart_type = self.dlg.getChartType()
                 if chart_type == 0:
-                    # filter out NULL values
-                    nan_values = filter(None,values)
-                    # newfeature: getting unique can be slow in large tables. thread?
-                    #bins = getUniqueValuesNumber(self.current_layer, attribute["name"])
-                    bins = 50
-                    if bins > 0:
-                        self.attributeCharts.drawHistogram(nan_values, attribute["min"], attribute["max"], bins)
+                    # create a histogram
+                    self.attributeCharts.drawHistogram(values, attribute["min"], attribute["max"], bins)
                     # plot chart of selected objects
                     if len(self.selection_values) > 0:
-                        nan_values = filter(None,self.selection_values)
-                        self.attributeCharts.setHistogramSelection(nan_values, np.min(nan_values), np.max(nan_values), bins)
+                        self.attributeCharts.setHistogramSelection(sel_values, np.min(sel_values), np.max(sel_values), bins)
                 # newfeature: implement box plot
                 elif chart_type == 1:
                     self.attributeCharts.drawBoxPlot(values)
                 elif chart_type == 2:
-                    # calculate bi-variate stats
+                    # create a scatter plot
                     current_dependent = self.dlg.getYAxisAttribute()
                     if current_dependent != current_attribute:
+                        # prepare data for scatter plot
                         dependent = self.layer_attributes[current_dependent]
                         idx = self.checkValuesAvailable(dependent)
                         if idx == -1:
                             self.retrieveAttributeValues(dependent)
                             idx = len(self.attribute_values)-1
                         yvalues = self.attribute_values[idx]["values"]
-                        # check if it exists
+                        yids = self.attribute_values[idx]["ids"]
+                        # check if it has already been calculated
                         idx = -1
                         for i, bistats in enumerate(self.bivariate_statistics):
                             if bistats["Layer"] == self.current_layer.name() and bistats["x"] == current_attribute and bistats["y"] == current_dependent:
                                 idx = i
                                 break
                         if idx == -1:
-                            #calculate
+                            # calculate bi-variate stats
                             bistats = dict()
                             bistats["Layer"] = self.current_layer.name()
                             bistats["x"] = current_attribute
@@ -486,6 +484,7 @@ class ExplorerTool(QObject):
             # store retrieved ids for charts
         #    self.layer_ids[self.current_layer.name()] = ids
         # calculate the stats, rounding numbers that result from calculations
+        values = np.array(values)
         stats = dict()
         stats["Layer"] = self.current_layer.name()
         stats["Attribute"] = attribute["name"]
@@ -507,4 +506,13 @@ class ExplorerTool(QObject):
         attr["Attribute"] = attribute["name"]
         attr["values"] = values
         attr["ids"] = ids
+        attr["bins"] = calcBins(values)
         self.attribute_values.append(attr)
+
+
+    def retrieveSelectionValues(self, attribute):
+        if self.current_layer.selectedFeatureCount() > 0:
+            self.selection_values, self.selection_ids = getFieldValues(self.current_layer, attribute["name"], null=False, selection=True)
+        else:
+            self.selection_values = []
+            self.selection_ids = []

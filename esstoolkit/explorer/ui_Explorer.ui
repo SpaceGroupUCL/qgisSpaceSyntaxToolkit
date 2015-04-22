@@ -24,7 +24,7 @@
     <item>
      <layout class="QVBoxLayout" name="attributesLayout" stretch="1,1,10">
       <item>
-       <layout class="QHBoxLayout" name="layersLayout" stretch="5,1">
+       <layout class="QHBoxLayout" name="layersLayout" stretch="5,0">
         <item>
          <widget class="QComboBox" name="layerCombo"/>
         </item>
@@ -360,7 +360,7 @@
         <item>
          <layout class="QHBoxLayout" name="chartsLayout" stretch="0">
           <item>
-           <layout class="QVBoxLayout" name="chartToolsLayout" stretch="0,3,0">
+           <layout class="QVBoxLayout" name="chartToolsLayout" stretch="0,3">
             <item>
              <layout class="QVBoxLayout" name="chartSetupLayout">
               <item>
@@ -439,13 +439,6 @@
                </size>
               </property>
              </spacer>
-            </item>
-            <item>
-             <widget class="QPushButton" name="popoutButton">
-              <property name="text">
-               <string>Pop-out chart</string>
-              </property>
-             </widget>
             </item>
            </layout>
           </item>

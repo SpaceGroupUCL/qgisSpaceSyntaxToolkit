@@ -90,7 +90,6 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
 
         # charts widgets
         self.lineLabel.hide()
-        self.popoutButton.hide()
         self.boxplotCheck.hide()
         self.pLabel.hide()
         self.chartsProgressBar.hide()
