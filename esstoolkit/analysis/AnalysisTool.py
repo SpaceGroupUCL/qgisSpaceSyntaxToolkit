@@ -83,10 +83,10 @@ class AnalysisTool(QObject):
         self.dlg.axialDepthmapCancelButton.clicked.connect(self.cancelDepthmapAnalysis)
 
         # connect signal/slots with main program
-        self.legend.itemAdded.connect(self.updateLayers)
-        self.legend.itemRemoved.connect(self.updateLayers)
-        self.iface.projectRead.connect(self.updateLayers)
-        self.iface.newProjectCreated.connect(self.updateLayers)
+        #self.legend.itemAdded.connect(self.updateLayers)
+        #self.legend.itemRemoved.connect(self.updateLayers)
+        #self.iface.projectRead.connect(self.updateLayers)
+        #self.iface.newProjectCreated.connect(self.updateLayers)
 
         # initialise internal globals
         self.isVisible = False
@@ -150,7 +150,7 @@ class AnalysisTool(QObject):
         self.project.readSettings(self.analysis_layers,"analysis")
         self.project.readSettings(self.axial_analysis_settings,"depthmap")
         # update UI
-        self.updateLayers()
+        #self.updateLayers()
         if self.axial_analysis_settings['type'] == 0:
             self.dlg.setDepthmapAxialAnalysis()
         else:
@@ -223,16 +223,16 @@ class AnalysisTool(QObject):
         is_set = False
         if self.datastore:
             if self.datastore['name'] == "":
-                self.iface.messageBar().pushMessage("Warning","Select a 'Data store' to save analysis results.",level=1,duration=5)
+                self.iface.messageBar().pushMessage("Info","Select a 'Data store' to save analysis results.",level=0,duration=5)
             elif not os.path.exists(self.datastore['path']):
                 # clear datastore
                 self.clearDatastore()
-                self.iface.messageBar().pushMessage("Warning","The selected data store cannot be found.",level=1,duration=5)
+                self.iface.messageBar().pushMessage("Info","The selected data store cannot be found.",level=0,duration=5)
             else:
                 is_set = True
         else:
             self.clearDatastore()
-            self.iface.messageBar().pushMessage("Warning","Select a 'Data store' to save analysis results.",level=1,duration=5)
+            self.iface.messageBar().pushMessage("Info","Select a 'Data store' to save analysis results.",level=0,duration=5)
         return is_set
 
     def getToolkitSettings(self):
@@ -256,10 +256,10 @@ class AnalysisTool(QObject):
         links_list = []
         origins_list = []
         # fixme: throws error when removing layers. trapping it for now. TypeError: 'NoneType' object is not callable
-        try:
-            layers = getLegendLayers(self.iface,'all','all')
-        except:
-            layers = None
+        #try:
+        layers = getLegendLayers(self.iface,'all','all')
+        #except:
+        #    layers = None
         if layers:
             for layer in layers:
                 # checks if the layer is projected. Geographic coordinates are not supported
@@ -334,7 +334,7 @@ class AnalysisTool(QObject):
         caps = None
         self.axial_id = getIdField(axial)
         if self.axial_id == '':
-            self.iface.messageBar().pushMessage("Warning", "The axial layer has invalid or duplicate values in the ID column. Using feature ids instead.", level=1, duration=5)
+            self.iface.messageBar().pushMessage("Info", "The axial layer has invalid or duplicate values in the ID column. Using feature ids instead.", level=0, duration=5)
         if self.edit_mode == 0:
             # get ids (to match the object ids in the map)
             self.user_ids['map'] = "%s" % self.axial_id
@@ -342,40 +342,40 @@ class AnalysisTool(QObject):
                 caps = axial.dataProvider().capabilities()
                 self.verificationThread = AxialVerification(self.iface.mainWindow(), self, settings, axial, self.user_ids['map'], unlinks, links)
             else:
-                self.iface.messageBar().pushMessage("Error","Select an axial lines map layer.", level=1, duration=5)
+                self.iface.messageBar().pushMessage("Info","Select an axial lines map layer.", level=0, duration=5)
                 return False
         elif self.edit_mode == 1:
             if unlinks and (axial.storageType() != unlinks.storageType()):
-                self.iface.messageBar().pushMessage("Error","All layers must be in the same file format.", level=1, duration=5)
+                self.iface.messageBar().pushMessage("Warning","All layers must be in the same file format.", level=1, duration=5)
                 return False
             caps = unlinks.dataProvider().capabilities()
             self.user_ids['unlinks'] = getIdField(unlinks)
             if self.user_ids['unlinks'] == '':
-                self.iface.messageBar().pushMessage("Warning", "The unlinks layer has invalid or duplicate values in the ID column. Using feature ids instead.", level=1, duration=5)
+                self.iface.messageBar().pushMessage("Info", "The unlinks layer has invalid or duplicate values in the ID column. Using feature ids instead.", level=0, duration=5)
             if unlinks.fieldNameIndex("line1") == -1 or unlinks.fieldNameIndex("line2") == -1:
-                self.iface.messageBar().pushMessage("Warning", "The unlinks layer is missing the line1 and line2 ID columns. Update IDs to complete the verification.", level=1, duration=5)
+                self.iface.messageBar().pushMessage("Info", "The unlinks layer is missing the line1 and line2 ID columns. Update IDs to complete the verification.", level=0, duration=5)
             self.verificationThread = UnlinksVerification( self.iface.mainWindow(), self, settings, axial, self.axial_id, unlinks, self.user_ids['unlinks'])
         elif self.edit_mode == 2:
             if links and (axial.storageType() != links.storageType()):
-                self.iface.messageBar().pushMessage("Error","All layers must be in the same file format.", level=1, duration=5)
+                self.iface.messageBar().pushMessage("Warning","All layers must be in the same file format.", level=1, duration=5)
                 return False
             caps = links.dataProvider().capabilities()
             self.user_ids['links'] = getIdField(links)
             if self.user_ids['links'] == '':
-                self.iface.messageBar().pushMessage("Warning", "The links layer has invalid or duplicate values in the ID column. Using feature ids instead.", level=1, duration=5)
+                self.iface.messageBar().pushMessage("Info", "The links layer has invalid or duplicate values in the ID column. Using feature ids instead.", level=0, duration=5)
             if links.fieldNameIndex("line1") == -1 or links.fieldNameIndex("line2") == -1:
-                self.iface.messageBar().pushMessage("Warning", "The links layer is missing the line1 and line2 ID columns. Update IDs to complete the verification.", level=1, duration=5)
+                self.iface.messageBar().pushMessage("Info", "The links layer is missing the line1 and line2 ID columns. Update IDs to complete the verification.", level=0, duration=5)
             # newfeature: check links validity
         elif self.edit_mode == 3:
             if origins and (axial.storageType() != origins.storageType()):
-                self.iface.messageBar().pushMessage("Error","All layers must be in the same file format.", level=1, duration=5)
+                self.iface.messageBar().pushMessage("Warning","All layers must be in the same file format.", level=1, duration=5)
                 return False
             caps = origins.dataProvider().capabilities()
             self.user_ids['origins'] = getIdField(origins)
             if self.user_ids['origins'] == '':
-                self.iface.messageBar().pushMessage("Warning", "The origins layer has invalid or duplicate values in the ID column. Using feature ids instead.", level=1, duration=5)
+                self.iface.messageBar().pushMessage("Info", "The origins layer has invalid or duplicate values in the ID column. Using feature ids instead.", level=0, duration=5)
             if unlinks.fieldNameIndex("lineid") == -1:
-                self.iface.messageBar().pushMessage("Warning", "The unlinks layer is missing the lineid column. Update IDs to complete the verification.", level=1, duration=5)
+                self.iface.messageBar().pushMessage("Info", "The origins layer is missing the lineid column. Update IDs to complete the verification.", level=0, duration=5)
             # newfeature: check origins validity (for step depth/isovists)
         if not caps & QgsVectorDataProvider.AddFeatures:
             self.iface.messageBar().pushMessage("Info","To edit the selected layer, change to another file format.", level=0, duration=5)
@@ -400,7 +400,7 @@ class AnalysisTool(QObject):
         settings = self.dlg.getAxialEditSettings()
         self.axial_id = getIdField(axial)
         if self.axial_id == '':
-            self.iface.messageBar().pushMessage("Warning", "The axial layer has invalid or duplicate values in the id column. Using feature ids instead.", level=1, duration=5)
+            self.iface.messageBar().pushMessage("Info", "The axial layer has invalid or duplicate values in the id column. Using feature ids instead.", level=0, duration=5)
         if self.edit_mode == 0:
             self.user_ids['map'] = "%s" % self.axial_id
             # newfeature: update axial ids when layer is shapefile
@@ -608,7 +608,7 @@ class AnalysisTool(QObject):
         result = self.socket.connectSocket(connection['host'],connection['port'])
         # if connection fails give warning and stop analysis
         if result != '':
-            self.iface.messageBar().pushMessage("Warning","Make sure depthmapX is running.", level=1, duration=4)
+            self.iface.messageBar().pushMessage("Info","Make sure depthmapX is running.", level=0, duration=4)
             connected = False
             self.socket.closeSocket()
         else:
@@ -795,7 +795,7 @@ class AnalysisTool(QObject):
                 message = u"Post-processing finish: %s" % dt.strftime("%d/%m/%Y %H:%M:%S")
                 self.dlg.writeAxialDepthmapReport(message)
             else:
-                self.iface.messageBar().pushMessage("Warning","Failed to import the analysis results.",level=1,duration=5)
+                self.iface.messageBar().pushMessage("Info","Failed to import the analysis results.",level=1,duration=5)
                 self.dlg.writeAxialDepthmapReport(u"Post-processing: Failed!")
             self.end_time = datetime.datetime.now()
             elapsed = self.end_time - self.start_time
@@ -823,7 +823,7 @@ class AnalysisTool(QObject):
         new_layer = None
         # must check if data store is still there
         if not self.isDatastoreSet():
-            self.iface.messageBar().pushMessage("Warning","The analysis results will be saved in a memory layer.",level=1,duration=5)
+            self.iface.messageBar().pushMessage("Warning","The analysis results will be saved in a memory layer.",level=0,duration=5)
         # save output based on data store format and type of analysis
         provider = analysis_layer.storageType()
         create_table = False

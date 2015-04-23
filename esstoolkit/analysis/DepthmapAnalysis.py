@@ -191,10 +191,10 @@ class DepthmapAnalysis(QObject):
         unlinks_data = ''
         # check if unlinks layer is valid
         if not fieldExists(self.unlinks_layer, 'line1') or not fieldExists(self.unlinks_layer, 'line2'):
-            self.showMessage("Unlinks layer not ready for analysis: update and verify first.",'Warning',lev=2, dur=5)
+            self.showMessage("Unlinks layer not ready for analysis: update and verify first.",'Info',lev=1, dur=5)
             return unlinks_data
         elif fieldHasNullValues(self.unlinks_layer, 'line1') or fieldHasNullValues(self.unlinks_layer, 'line2'):
-            self.showMessage("Unlinks layer not ready for analysis: update and verify first.",'Warning',lev=2, dur=5)
+            self.showMessage("Unlinks layer not ready for analysis: update and verify first.",'Info',lev=1, dur=5)
             return unlinks_data
         # get axial ids
         axialids, ids = getFieldValues(self.axial_layer, self.user_id)
@@ -206,7 +206,7 @@ class DepthmapAnalysis(QObject):
                 row2 = axialids.index(f.attribute('line2'))
                 unlinks_data += str(row1) + ',' + str(row2) + ';'
         except:
-            self.showMessage("Exporting unlinks failed.",'Error',lev=3, dur=5)
+            self.showMessage("Exporting unlinks failed.",'Warning',lev=1, dur=5)
             return unlinks_data
         if unlinks_data != '':
             unlinks_data = unlinks_data[:-1]
@@ -219,7 +219,7 @@ class DepthmapAnalysis(QObject):
             for f in features:
                 links_data += str(f.attribute('line1')) + ',' + str(f.attribute('line2')) + ';'
         except:
-            self.showMessage("Exporting links failed.",'Error',lev=3, dur=5)
+            self.showMessage("Exporting links failed.",'Warning',lev=1, dur=5)
             links_data = ''
         return links_data
 
@@ -230,7 +230,7 @@ class DepthmapAnalysis(QObject):
             for f in features:
                 origins_data += str(f.attribute('lineId')) + ';'
         except:
-            self.showMessage("Exporting origins failed.",'Error',lev=3, dur=5)
+            self.showMessage("Exporting origins failed.",'Warning',lev=1, dur=5)
             origins_data = ''
         return origins_data
 

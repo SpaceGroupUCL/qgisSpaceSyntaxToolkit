@@ -814,7 +814,7 @@ def getSpatialiteDatabaseName(layer):
 
 def executeSpatialiteQuery(connection, query, params=(), commit=False):
     """Execute query (string) with given parameters (tuple)
-    (optionnaly perform commit to save Db) and return result set [header,data]
+    (optionally perform commit to save Db) and return result set [header,data]
     or [error] error"""
     query = unicode(query)
     header = []
@@ -991,20 +991,24 @@ def insertSpatialiteValues(connection, name, attributes, values, coords=None):
         return False
     # iterate through values to populate geometry and attributes
     if values:
-        for val in values:
-            geometry_values = ""
-            if geometry_type in (1,4) and len(coords) == 2:
+        if geometry_type in (1,4) and len(coords) == 2:
+            for val in values:
                 WKT = "POINT(%s %s)" % (val[coords[0]],val[coords[1]])
                 geometry_values = 'CastToMulti(GeomFromText("%s",%s))'%(WKT,srid)
-            elif geometry_type in (2,5) and len(coords) == 4:
+                #Create line in DB table
+                attr_values = ','.join(tuple([unicode(value) for value in val]))
+                header, data, error = executeSpatialiteQuery(connection,"""INSERT INTO "%s" ("%s","%s") VALUES (%s,%s)""" % (name, geometry_attr, '","'.join(attributes), geometry_values, attr_values), commit=False)
+                #cursor.execute()
+        elif geometry_type in (2,5) and len(coords) == 4:
+            for val in values:
                 WKT = "LINESTRING(%s %s, %s %s)" % (val[coords[0]],val[coords[1]],val[coords[2]],val[coords[3]])
                 geometry_values = 'CastToMulti(GeomFromText("%s",%s))'%(WKT,srid)
-            #Create line in DB table
-            attr_values = ','.join(tuple([unicode(value) for value in val]))
-            if geometry_values == "":
-                header, data, error = executeSpatialiteQuery(connection,"""INSERT INTO "%s" ("%s") VALUES (%s)""" % (name, '","'.join(attributes), attr_values), commit=True)
-            else:
-                header, data, error = executeSpatialiteQuery(connection,"""INSERT INTO "%s" ("%s","%s") VALUES (%s,%s)""" % (name, geometry_attr, '","'.join(attributes), geometry_values, attr_values), commit=True)
+                attr_values = ','.join(tuple([unicode(value) for value in val]))
+                header, data, error = executeSpatialiteQuery(connection,"""INSERT INTO "%s" ("%s","%s") VALUES (%s,%s)""" % (name, geometry_attr, '","'.join(attributes), geometry_values, attr_values), commit=False)
+        else:
+            for val in values:
+                attr_values = ','.join(tuple([unicode(value) for value in val]))
+                header, data, error = executeSpatialiteQuery(connection,"""INSERT INTO "%s" ("%s") VALUES (%s)""" % (name, '","'.join(attributes), attr_values), commit=False)
     else:
         return False
     #Commit changes to connection:
@@ -1135,9 +1139,7 @@ def addSpatialiteAttributes(connection, name, attributes, types, values):
             if error:
                 return False
     query = """SELECT UpdateLayerStatistics("%s")""" % name
-    header, data, error = executeSpatialiteQuery(connection,query)
-    #Commit changes to connection:
-    connection.commit()
+    header, data, error = executeSpatialiteQuery(connection,query,commit=True)
     return True
 
 
