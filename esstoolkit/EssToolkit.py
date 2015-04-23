@@ -47,7 +47,7 @@ try:
 except ImportError, e:
     has_pydevd = False
 # set to False in release version
-is_debug = True
+is_debug = False
 
 # todo: add documentation notes to all functions
 # todo edit Makefile
