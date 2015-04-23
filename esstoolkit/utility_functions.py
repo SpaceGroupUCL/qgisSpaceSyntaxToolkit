@@ -639,7 +639,7 @@ def createTempLayer(name, srid, attributes, types, values, coords):
         except:
             pass
         # add attribute values
-        feat.setAttributes(val)
+        feat.setAttributes(list(val))
         features.append(feat)
     # add the features to the layer
     try:

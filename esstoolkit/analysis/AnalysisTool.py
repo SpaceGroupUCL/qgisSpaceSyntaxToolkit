@@ -179,11 +179,11 @@ class AnalysisTool(QObject):
             new_datastore['crs'] = layer.crs().postgisSrid()
             if 'SpatiaLite' in layer.storageType():
                 new_datastore['type'] = 0
-            elif 'Shapefile' in layer.storageType():
-                new_datastore['type'] = 1
             elif 'PostGIS' in layer.storageType():
                 new_datastore['type'] = 2
                 new_datastore['schema'] = ''
+            elif 'memory?' not in layer.storageType(): #'Shapefile' #'memory?' not
+                new_datastore['type'] = 1
             if new_datastore['type'] > -1:
                 #self.updateDatastoreSettings.emit(new_datastore, 'datastore')
                 self.project.writeSettings(new_datastore, 'datastore')
@@ -221,14 +221,18 @@ class AnalysisTool(QObject):
 
     def isDatastoreSet(self):
         is_set = False
-        if self.datastore['name'] == "":
-            self.iface.messageBar().pushMessage("Warning","Select a data store to save analysis results.",level=1,duration=5)
-        elif not os.path.exists(self.datastore['path']):
-            # clear datastore
-            self.clearDatastore()
-            self.iface.messageBar().pushMessage("Warning","The selected data store cannot be found.",level=1,duration=5)
+        if self.datastore:
+            if self.datastore['name'] == "":
+                self.iface.messageBar().pushMessage("Warning","Select a 'Data store' to save analysis results.",level=1,duration=5)
+            elif not os.path.exists(self.datastore['path']):
+                # clear datastore
+                self.clearDatastore()
+                self.iface.messageBar().pushMessage("Warning","The selected data store cannot be found.",level=1,duration=5)
+            else:
+                is_set = True
         else:
-            is_set = True
+            self.clearDatastore()
+            self.iface.messageBar().pushMessage("Warning","Select a 'Data store' to save analysis results.",level=1,duration=5)
         return is_set
 
     def getToolkitSettings(self):
@@ -251,11 +255,11 @@ class AnalysisTool(QObject):
         unlinks_list = []
         links_list = []
         origins_list = []
-        #try:
-        # fixme: throws NoneType error occasionally when removing layers. trapping it for now.
-        layers = getLegendLayers(self.iface,'all','all')
-        #except:
-        #    layers = None
+        # fixme: throws error when removing layers. trapping it for now. TypeError: 'NoneType' object is not callable
+        try:
+            layers = getLegendLayers(self.iface,'all','all')
+        except:
+            layers = None
         if layers:
             for layer in layers:
                 # checks if the layer is projected. Geographic coordinates are not supported
@@ -614,6 +618,7 @@ class AnalysisTool(QObject):
     def runDepthmapAnalysis(self):
         # check if there's a datastore defined
         if not self.isDatastoreSet():
+            #self.iface.messageBar().pushMessage("Warning","Please select a 'Data store' to save the analysis results.", level=1, duration=4)
             return
         # try to connect to the analysis engine
         if self.connectDepthmapNet():
@@ -675,6 +680,7 @@ class AnalysisTool(QObject):
             else:
                 self.dlg.writeAxialDepthmapReport("Unable to run this analysis. Please check the analysis settings.")
                 #self.iface.messageBar().pushMessage("Error","Unable to run this space syntax analysis.", level=2, duration=4)
+            #self.dlg.lockAxialDepthmapTab(False)
 
     def compileDepthmapAnalysisSummary(self):
         message = u"Running analysis for layer '%s':" % self.analysis_layers["map"]
