@@ -6,7 +6,7 @@
  Set of tools for space syntax network analysis and results exploration
                               -------------------
         begin                : 2014-04-01
-        copyright            : (C) 2014 by Jorge Gil, UCL
+        copyright            : (C) 2015 UCL, Jorge Gil
         email                : jorge.gil@ucl.ac.uk
  ***************************************************************************/
 
@@ -21,24 +21,30 @@
 
 """
 # Import the PyQt and QGIS libraries, essential libraries
-from PyQt4 import QtCore, QtGui
+from PyQt4.QtCore import *
+from PyQt4.QtGui import *
 from qgis.core import *
 
-# try to use pyqtgraph, if not available use basic graph widget
+# try to import installed pyqtgraph, if not available use the one shipped with the esstoolkit
 try:
     import pyqtgraph as pg
     has_pyqtgraph = True
 except ImportError, e:
-    has_pyqtgraph = False
+    try:
+        from ..external import pyqtgraph as pg
+        has_pyqtgraph = True
+    except ImportError, e:
+        has_pyqtgraph = False
+
 import numpy as np
 from operator import itemgetter
 
-from ..utility_functions import *
+from .. import utility_functions as uf
 
 
 class AttributeCharts(QObject):
-    histogramSelected = QtCore.pyqtSignal(int, int)
-    scatterplotSelected = QtCore.pyqtSignal(list)
+    histogramSelected = pyqtSignal(int, int)
+    scatterplotSelected = pyqtSignal(list)
 
     def __init__(self, iface, plot):
         QObject.__init__(self)

@@ -1,5 +1,5 @@
 <RCC>
-  <qresource prefix="/plugins/esstools/">
+  <qresource prefix="/plugins/esstoolkit/">
     <file>icons/about.png</file>
     <file>icons/analysis.png</file>
     <file>icons/explorer.png</file>

@@ -6,7 +6,7 @@
  Set of tools for space syntax network analysis and results exploration
                               -------------------
         begin                : 2014-04-01
-        copyright            : (C) 2014 by Jorge Gil, UCL
+        copyright            : (C) 2015 UCL, Jorge Gil
         email                : jorge.gil@ucl.ac.uk
  ***************************************************************************/
 
@@ -23,15 +23,19 @@
 from PyQt4 import QtCore, QtGui
 from ui_Explorer import Ui_ExplorerDialog
 
-from ..utility_functions import *
-
-
-# try to use pyqtgraph, if not available use basic graph widget
+# try to import installed pyqtgraph, if not available use the one shipped with the esstoolkit
 try:
     import pyqtgraph as pg
     has_pyqtgraph = True
 except ImportError, e:
-    has_pyqtgraph = False
+    try:
+        from ..external import pyqtgraph as pg
+        has_pyqtgraph = True
+    except ImportError, e:
+        has_pyqtgraph = False
+
+from .. import utility_functions as uf
+
 
 class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
     layerChanged = QtCore.pyqtSignal()
@@ -335,7 +339,7 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
 
     def __topLimitTextChanged(self):
         value = self.topLimitText.text()
-        if isNumeric(value):
+        if uf.isNumeric(value):
             self.current_symbology["top_value"] = float(value)
             if self.current_symbology["top_value"] >= self.current_symbology["bottom_value"] and self.current_symbology["top_value"] <= self.attribute_max:
                 # calculate spin percentage
@@ -376,7 +380,7 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
 
     def __bottomLimitTextChanged(self):
         value = self.bottomLimitText.text()
-        if isNumeric(value):
+        if uf.isNumeric(value):
             self.current_symbology["bottom_value"] = float(value)
             if self.current_symbology["bottom_value"] <= self.current_symbology["top_value"] and self.current_symbology["bottom_value"] >= self.attribute_min:
                 # calculate spin percentage
@@ -403,16 +407,16 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
     def __addStatsLabels(self):
         self.statisticsTable.setHorizontalHeaderLabels(["Statistic","Value","Selection"])
         self.statisticsTable.setRowCount(10)
-        self.statisticsTable.setItem(0,0,QTableWidgetItem("Mean"))
-        self.statisticsTable.setItem(1,0,QTableWidgetItem("Std Dev"))
-        self.statisticsTable.setItem(2,0,QTableWidgetItem("Median"))
-        self.statisticsTable.setItem(3,0,QTableWidgetItem("Minimum"))
-        self.statisticsTable.setItem(4,0,QTableWidgetItem("Maximum"))
-        self.statisticsTable.setItem(5,0,QTableWidgetItem("Range"))
-        self.statisticsTable.setItem(6,0,QTableWidgetItem("1st Quart"))
-        self.statisticsTable.setItem(7,0,QTableWidgetItem("3rd Quart"))
-        self.statisticsTable.setItem(8,0,QTableWidgetItem("IQR"))
-        self.statisticsTable.setItem(9,0,QTableWidgetItem("Gini"))
+        self.statisticsTable.setItem(0,0,QtGui.QTableWidgetItem("Mean"))
+        self.statisticsTable.setItem(1,0,QtGui.QTableWidgetItem("Std Dev"))
+        self.statisticsTable.setItem(2,0,QtGui.QTableWidgetItem("Median"))
+        self.statisticsTable.setItem(3,0,QtGui.QTableWidgetItem("Minimum"))
+        self.statisticsTable.setItem(4,0,QtGui.QTableWidgetItem("Maximum"))
+        self.statisticsTable.setItem(5,0,QtGui.QTableWidgetItem("Range"))
+        self.statisticsTable.setItem(6,0,QtGui.QTableWidgetItem("1st Quart"))
+        self.statisticsTable.setItem(7,0,QtGui.QTableWidgetItem("3rd Quart"))
+        self.statisticsTable.setItem(8,0,QtGui.QTableWidgetItem("IQR"))
+        self.statisticsTable.setItem(9,0,QtGui.QTableWidgetItem("Gini"))
 
     def setStats(self, stats, selection):
         #self.statisticsTable.clear()
@@ -421,17 +425,17 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
         for row in range(self.statisticsTable.rowCount()):
             label = self.statisticsTable.item(row,0).text()
             if stats.has_key(label):
-                item = QTableWidgetItem(str(stats[label]))
+                item = QtGui.QTableWidgetItem(str(stats[label]))
                 self.statisticsTable.setItem(row, 1, item)
             if selection:
                 if selection.has_key(label):
-                    item = QTableWidgetItem(str(selection[label]))
+                    item = QtGui.QTableWidgetItem(str(selection[label]))
                     self.statisticsTable.setItem(row, 2, item)
             else:
-                self.statisticsTable.setItem(row, 2, QTableWidgetItem(""))
-        self.statisticsTable.horizontalHeader().setResizeMode(0, QHeaderView.ResizeToContents)
-        self.statisticsTable.horizontalHeader().setResizeMode(1, QHeaderView.Stretch)
-        self.statisticsTable.horizontalHeader().setResizeMode(2, QHeaderView.Stretch)
+                self.statisticsTable.setItem(row, 2, QtGui.QTableWidgetItem(""))
+        self.statisticsTable.horizontalHeader().setResizeMode(0, QtGui.QHeaderView.ResizeToContents)
+        self.statisticsTable.horizontalHeader().setResizeMode(1, QtGui.QHeaderView.Stretch)
+        self.statisticsTable.horizontalHeader().setResizeMode(2, QtGui.QHeaderView.Stretch)
         self.statisticsTable.resizeRowsToContents()
 
     def __clearStats(self):

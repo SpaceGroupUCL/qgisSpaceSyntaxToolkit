@@ -6,7 +6,7 @@
  Set of tools for space syntax network analysis and results exploration
                               -------------------
         begin                : 2014-04-01
-        copyright            : (C) 2014 by Jorge Gil, UCL
+        copyright            : (C) 2015 UCL, Jorge Gil
         email                : jorge.gil@ucl.ac.uk
  ***************************************************************************/
 
@@ -21,22 +21,21 @@
 
 """
 # Import the PyQt and QGIS libraries
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from PyQt4 import QtCore, QtGui
 from qgis.core import *
 
 import os.path
 
-from utility_functions import *
+from . import utility_functions as uf
 
 # import project settings dialog
 from ui_Project import Ui_ProjectDialog
 
-class ProjectManager(QObject):
-    settingsUpdated = pyqtSignal()
+class ProjectManager(QtCore.QObject):
+    settingsUpdated = QtCore.pyqtSignal()
 
     def __init__(self, iface, settings):
-        QObject.__init__(self)
+        QtCore.QObject.__init__(self)
 
         self.iface = iface
         self.settings = settings
@@ -216,12 +215,12 @@ class ProjectManager(QObject):
         #self.datastoreUpdated.emit(self.datastore)
 
 
-class ProjectDialog(QDialog, Ui_ProjectDialog):
-    saveDatastoreSettings = pyqtSignal(dict)
+class ProjectDialog(QtGui.QDialog, Ui_ProjectDialog):
+    saveDatastoreSettings = QtCore.pyqtSignal(dict)
 
     def __init__(self, proj_settings, settings):
 
-        QDialog.__init__(self)
+        QtGui.QDialog.__init__(self)
 
         # Set up the user interface from Designer.
         self.setupUi(self)
@@ -236,8 +235,8 @@ class ProjectDialog(QDialog, Ui_ProjectDialog):
         self.datastore_schema = None
 
         # set up internal GUI signals
-        QObject.connect(self.closeButtonBox,SIGNAL("rejected()"),self.close)
-        QObject.connect(self.closeButtonBox,SIGNAL("accepted()"),self.updateSettings)
+        QtCore.QObject.connect(self.closeButtonBox,QtCore.SIGNAL("rejected()"),self.close)
+        QtCore.QObject.connect(self.closeButtonBox,QtCore.SIGNAL("accepted()"),self.updateSettings)
         self.dataTypeCombo.currentIndexChanged.connect(self.selectDatastoreType)
         self.dataSelectCombo.currentIndexChanged.connect(self.selectDatastore)
         self.schemaCombo.currentIndexChanged.connect(self.selectSchema)
@@ -289,9 +288,9 @@ class ProjectDialog(QDialog, Ui_ProjectDialog):
     def loadDatastoreList(self):
         # get list of datastores from loaded layers
         if self.datastore_type == 0:
-            self.datastores = listSpatialiteConnections()
+            self.datastores = uf.listSpatialiteConnections()
         elif self.datastore_type == 1:
-            self.datastores = listShapeFolders()
+            self.datastores = uf.listShapeFolders()
         elif self.datastore_type == 2:
             #newfeature: get list of PostGIS connections
             pass
@@ -371,7 +370,7 @@ class ProjectDialog(QDialog, Ui_ProjectDialog):
         path = ""
         name = ""
         if self.datastore_type == 0:
-            path = QFileDialog.getOpenFileName(self, "Open Spatialite data base", lastDir, "Spatialite (*.sqlite *.db)")
+            path = QtGui.QFileDialog.getOpenFileName(self, "Open Spatialite data base", lastDir, "Spatialite (*.sqlite *.db)")
             if path.strip()!="":
                 path = unicode(path)
                 name = os.path.basename(path)
@@ -381,11 +380,11 @@ class ProjectDialog(QDialog, Ui_ProjectDialog):
                         self.iface.messageBar().pushMessage("Error","A database already exists with the same name.",level = 1,duration = 5)
                     #if not, create new connection in registry
                     else:
-                        createSpatialiteConnection(name, path)
+                        uf.createSpatialiteConnection(name, path)
                 else:
-                    createSpatialiteConnection(name, path)
+                    uf.createSpatialiteConnection(name, path)
         elif self.datastore_type == 1:
-            path = QFileDialog.getExistingDirectory(self, "Select shape files folder", lastDir)
+            path = QtGui.QFileDialog.getExistingDirectory(self, "Select shape files folder", lastDir)
             if path.strip()!="":
                 path = unicode(path)
                 name = os.path.basename(path)
@@ -402,7 +401,7 @@ class ProjectDialog(QDialog, Ui_ProjectDialog):
         path = ""
         name = ""
         if self.datastore_type == 0:
-            path = QFileDialog.getSaveFileName(self, "Create Spatialite data base", lastDir, "Spatialite (*.sqlite *.db)")
+            path = QtGui.QFileDialog.getSaveFileName(self, "Create Spatialite data base", lastDir, "Spatialite (*.sqlite *.db)")
             if path.strip()!="":
                 path = unicode(path)
                 name = os.path.basename(path)
@@ -411,10 +410,10 @@ class ProjectDialog(QDialog, Ui_ProjectDialog):
                     self.iface.messageBar().pushMessage("Error","A database already exists with the same name.",level = 1,duration = 5)
                 #if not, create new connection in registry
                 else:
-                    createSpatialiteConnection(name, path)
-                    createSpatialiteDatabase(path)
+                    uf.createSpatialiteConnection(name, path)
+                    uf.createSpatialiteDatabase(path)
         if self.datastore_type == 1:
-            path = QFileDialog.getExistingDirectory(self, "Select shape files folder ", lastDir)
+            path = QtGui.QFileDialog.getExistingDirectory(self, "Select shape files folder ", lastDir)
             if path.strip()!="":
                 path = unicode(path)
                 name = os.path.basename(path)

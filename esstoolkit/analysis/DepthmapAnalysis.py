@@ -6,7 +6,7 @@
  Set of tools for space syntax network analysis and results exploration
                               -------------------
         begin                : 2014-04-01
-        copyright            : (C) 2014 by Jorge Gil, UCL
+        copyright            : (C) 2015 UCL, Jorge Gil
         email                : jorge.gil@ucl.ac.uk
  ***************************************************************************/
 
@@ -27,7 +27,7 @@ from qgis.core import *
 
 import math
 
-from ..utility_functions import *
+from .. import utility_functions as uf
 
 class DepthmapAnalysis(QObject):
 
@@ -56,19 +56,19 @@ class DepthmapAnalysis(QObject):
         # get relevant QGIS layer objects
         axial = layers['map']
         if axial != '':
-            self.axial_layer = getLegendLayerByName(self.iface, axial)
+            self.axial_layer = uf.getLegendLayerByName(self.iface, axial)
         else:
             return None
         if layers['unlinks'] != '':
-            self.unlinks_layer = getLegendLayerByName(self.iface, layers['unlinks'])
+            self.unlinks_layer = uf.getLegendLayerByName(self.iface, layers['unlinks'])
         else:
             self.unlinks_layer = ''
         if layers['links'] != '':
-            self.links_layer = getLegendLayerByName(self.iface, layers['links'])
+            self.links_layer = uf.getLegendLayerByName(self.iface, layers['links'])
         else:
             self.links_layer = ''
         if layers['origins'] != '':
-            self.origins_layer = getLegendLayerByName(self.iface, layers['origins'])
+            self.origins_layer = uf.getLegendLayerByName(self.iface, layers['origins'])
         else:
             self.origins_layer = ''
         #
@@ -78,7 +78,7 @@ class DepthmapAnalysis(QObject):
         else:
             weight_by = ''
         # look for user defined ID
-        self.user_id = getIdField(self.axial_layer)
+        self.user_id = uf.getIdField(self.axial_layer)
         axial_data = self.prepareAxialMap(self.user_id, weight_by)
         if self.unlinks_layer:
             unlinks_data = self.prepareUnlinks()
@@ -184,20 +184,20 @@ class DepthmapAnalysis(QObject):
                         axial_data += str(f.geometry().vertexAt(1).x()) + "\t" + str(f.geometry().vertexAt(1).y()) + "\n"
             return axial_data
         except:
-            self.showMessage("Exporting axial map failed.",'Error',lev=3, dur=5)
+            self.showMessage("Exporting axial map failed.", 'Error', lev=3, dur=5)
             return ''
 
     def prepareUnlinks(self):
         unlinks_data = ''
         # check if unlinks layer is valid
-        if not fieldExists(self.unlinks_layer, 'line1') or not fieldExists(self.unlinks_layer, 'line2'):
-            self.showMessage("Unlinks layer not ready for analysis: update and verify first.",'Info',lev=1, dur=5)
+        if not uf.fieldExists(self.unlinks_layer, 'line1') or not uf.fieldExists(self.unlinks_layer, 'line2'):
+            self.showMessage("Unlinks layer not ready for analysis: update and verify first.", 'Info', lev=1, dur=5)
             return unlinks_data
-        elif fieldHasNullValues(self.unlinks_layer, 'line1') or fieldHasNullValues(self.unlinks_layer, 'line2'):
-            self.showMessage("Unlinks layer not ready for analysis: update and verify first.",'Info',lev=1, dur=5)
+        elif uf.fieldHasNullValues(self.unlinks_layer, 'line1') or uf.fieldHasNullValues(self.unlinks_layer, 'line2'):
+            self.showMessage("Unlinks layer not ready for analysis: update and verify first.", 'Info', lev=1, dur=5)
             return unlinks_data
         # get axial ids
-        axialids, ids = getFieldValues(self.axial_layer, self.user_id)
+        axialids, ids = uf.getFieldValues(self.axial_layer, self.user_id)
         # assign row number by id
         try:
             features = self.unlinks_layer.getFeatures()
@@ -206,7 +206,7 @@ class DepthmapAnalysis(QObject):
                 row2 = axialids.index(f.attribute('line2'))
                 unlinks_data += str(row1) + ',' + str(row2) + ';'
         except:
-            self.showMessage("Exporting unlinks failed.",'Warning',lev=1, dur=5)
+            self.showMessage("Exporting unlinks failed.", 'Warning',lev=1, dur=5)
             return unlinks_data
         if unlinks_data != '':
             unlinks_data = unlinks_data[:-1]
@@ -219,7 +219,7 @@ class DepthmapAnalysis(QObject):
             for f in features:
                 links_data += str(f.attribute('line1')) + ',' + str(f.attribute('line2')) + ';'
         except:
-            self.showMessage("Exporting links failed.",'Warning',lev=1, dur=5)
+            self.showMessage("Exporting links failed.", 'Warning',lev=1, dur=5)
             links_data = ''
         return links_data
 
@@ -230,7 +230,7 @@ class DepthmapAnalysis(QObject):
             for f in features:
                 origins_data += str(f.attribute('lineId')) + ';'
         except:
-            self.showMessage("Exporting origins failed.",'Warning',lev=1, dur=5)
+            self.showMessage("Exporting origins failed.", 'Warning',lev=1, dur=5)
             origins_data = ''
         return origins_data
 
@@ -254,13 +254,13 @@ class DepthmapAnalysis(QObject):
     def parseRadii(self, txt):
         radii = txt
         radii.lower()
-        radii = radii.replace(' ','')
+        radii = radii.replace(' ', '')
         radii = radii.split(',')
         radii.sort()
         radii = list(set(radii))
         radii = ['0' if x == 'n' else x for x in radii]
         for r in radii:
-            if not isNumeric(r):
+            if not uf.isNumeric(r):
                 return ''
         radii = ','.join(radii)
         return radii
@@ -286,7 +286,7 @@ class DepthmapAnalysis(QObject):
         if self.settings['fullset'] == 0:
             exclusions = self.excludeDepthmapResults(attributes)
             # remove HH suffix from integration measure
-            attributes = [x.replace(" [HH]","") for x in attributes]
+            attributes = [x.replace(" [HH]", "") for x in attributes]
         # remove weight attribute if duplicate
         if self.settings['weight']:
             weight_by = self.settings['weightBy'].title() + ' 1'
@@ -311,17 +311,21 @@ class DepthmapAnalysis(QObject):
         #attributes = [x.replace(" ","_") for x in attributes]
         # get data type of attributes
         types = []
-        data_sample = [convertNumeric(x) for x in values[0]]
+        data_sample = [uf.convertNumeric(x) for x in values[0]]
         for data in data_sample:
             data_type = None
             # get the data types
-            if type(data).__name__ == 'int': data_type = QVariant.Int
-            elif type(data).__name__ == 'long': data_type = QVariant.LongLong
-            elif type(data).__name__ == 'str': data_type = QVariant.String
-            elif type(data).__name__ == 'float': data_type = QVariant.Double
+            if type(data).__name__ == 'int':
+                data_type = QVariant.Int
+            elif type(data).__name__ == 'long':
+                data_type = QVariant.LongLong
+            elif type(data).__name__ == 'str':
+                data_type = QVariant.String
+            elif type(data).__name__ == 'float':
+                data_type = QVariant.Double
             # define the attributes, using name and type
             types.append(data_type)
-        coords = [attributes.index('x1'),attributes.index('y1'),attributes.index('x2'),attributes.index('y2')]
+        coords = [attributes.index('x1'), attributes.index('y1'), attributes.index('x2'), attributes.index('y2')]
         # calculate new normalised variables
         if self.settings['type'] == 1 and self.settings['newnorm'] == 1:
             new_attributes, values = self.calculateNormalisedSegment(attributes, values)
@@ -337,8 +341,8 @@ class DepthmapAnalysis(QObject):
             attr = []
             for x in attributes:
                 # remove square brackets
-                x = x.replace("[","")
-                x = x.replace("]","")
+                x = x.replace("[", "")
+                x = x.replace("]", "")
                 # make lowercase
                 # x = x.lower()
                 attr.append(x)
@@ -346,9 +350,9 @@ class DepthmapAnalysis(QObject):
 
         return attributes, types, values, coords
 
-    def excludeDepthmapResults(self,attributes):
+    def excludeDepthmapResults(self, attributes):
         # list of attributes to exclude
-        exclusion_list = ['[Norm]','Controllability','Entropy','Harmonic','[P-value]','[Tekl]','Intensity']
+        exclusion_list = ['[Norm]', 'Controllability', 'Entropy', 'Harmonic', '[P-value]', '[Tekl]', 'Intensity']
         attributes_to_remove = []
         for i, attr in enumerate(attributes):
             if any(substring in attr for substring in exclusion_list):
@@ -365,12 +369,12 @@ class DepthmapAnalysis(QObject):
         for i, attr in enumerate(attributes):
             if 'Choice' in attr:
                 choice.append(i)
-                nach.append(attr.replace('Choice','NACH'))
+                nach.append(attr.replace('Choice', 'NACH'))
             if 'Node Count' in attr:
                 nc.append(i)
             if 'Total Depth' in attr:
                 td.append(i)
-                nain.append(attr.replace('Total Depth','NAIN'))
+                nain.append(attr.replace('Total Depth', 'NAIN'))
         new_attributes = []
         new_attributes.extend(nach)
         new_attributes.extend(nain)
@@ -393,37 +397,37 @@ class DepthmapAnalysis(QObject):
             all_values.append(feat)
         return new_attributes, all_values
 
-    def fixDepthmapNames(self,names):
+    def fixDepthmapNames(self, names):
         #proper conversion makes short version based on real name
         replacement_table = {
-            'choice' : 'CH',
-            'connectivity' : 'CONN',
-            '[norm]' : 'norm',
-            'controllability' : 'CONTR',
-            'entropy' : 'ENT',
-            'harmonic' : 'har',
-            'mean' : 'M',
-            'depth' : 'D',
-            'integration' : 'INT',
-            '[hh]' : 'hh',
-            '[p-value]' : 'pv',
-            '[tekl]' : 'tk',
-            'intensity' : 'INTEN',
-            'line' : '',
-            'node' : 'N',
-            'count' : 'C',
-            'relativised' : 'rel',
-            'angular' : 'ang',
-            'axial' : 'ax',
+            'choice': 'CH',
+            'connectivity': 'CONN',
+            '[norm]': 'norm',
+            'controllability': 'CONTR',
+            'entropy': 'ENT',
+            'harmonic': 'har',
+            'mean': 'M',
+            'depth': 'D',
+            'integration': 'INT',
+            '[hh]': 'hh',
+            '[p-value]': 'pv',
+            '[tekl]': 'tk',
+            'intensity': 'INTEN',
+            'line': '',
+            'node': 'N',
+            'count': 'C',
+            'relativised': 'rel',
+            'angular': 'ang',
+            'axial': 'ax',
             'segment': 'seg',
-            'length' : 'LEN',
-            'metric' : 'm',
-            't1024' : '',
-            'total' : 'T',
-            'wgt]' : ']',
-            'wgt][norm]' : ']norm',
-            'nach' : 'NACH',
-            'nain' : 'NAIN'
+            'length': 'LEN',
+            'metric': 'm',
+            't1024': '',
+            'total': 'T',
+            'wgt]': ']',
+            'wgt][norm]': ']norm',
+            'nach': 'NACH',
+            'nain': 'NAIN'
         }
         #using simple dict / string operations
         new_names = []
@@ -436,7 +440,7 @@ class DepthmapAnalysis(QObject):
                     text = replacement_table[part]
                 except KeyError:
                     try:
-                        text = "[" + replacement_table[part.replace("[","")]
+                        text = "[" + replacement_table[part.replace("[", "")]
                     except KeyError:
                         text = part
                 new_name += text
@@ -461,48 +465,49 @@ class DepthmapAnalysis(QObject):
         self.axial_thread.result.connect(self.prepareAxialAnalysis)
         self.axial_thread.start()
 
+
 #####
 #class to extract the model geometry for input in Depthmap.
 # can be slow with large models and need to run it in separate thread
 class ExportAxialMap(QThread):
-    def __init__(self, parentThread, parentObject, layer, ref='', weight=''):
-        QThread.__init__(self, parentThread)
-        self.parent = parentObject
+    def __init__(self, parent_thread, parent_object, layer, ref='', weight=''):
+        QThread.__init__(self, parent_thread)
+        self.parent = parent_object
         self.layer = layer
         self.abort = False
-        self.id = id
+        self.id = ref
         self.weight = weight
 
     def run(self):
-        axialLayer = ''
+        axial_layer = ''
         try:
             features = self.layer.getFeatures()
             if self.id in self.layer.dataProvider().fields():
                 if self.weight != '':
                     for f in features:
-                        axialLayer += str(f.attribute(self.id)) + "\t"
-                        axialLayer += str(f.geometry().vertexAt(0).x()) + "\t" + str(f.geometry().vertexAt(0).y()) + "\t"
-                        axialLayer += str(f.geometry().vertexAt(1).x()) + "\t" + str(f.geometry().vertexAt(1).y()) + "\t"
-                        axialLayer += str(f.attribute(self.weight)) + "\n"
+                        axial_layer += str(f.attribute(self.id)) + "\t"
+                        axial_layer += str(f.geometry().vertexAt(0).x()) + "\t" + str(f.geometry().vertexAt(0).y()) + "\t"
+                        axial_layer += str(f.geometry().vertexAt(1).x()) + "\t" + str(f.geometry().vertexAt(1).y()) + "\t"
+                        axial_layer += str(f.attribute(self.weight)) + "\n"
                 else:
                     for f in features:
-                        axialLayer += str(f.attribute(self.id)) + "\t"
-                        axialLayer += str(f.geometry().vertexAt(0).x()) + "\t" + str(f.geometry().vertexAt(0).y()) + "\t"
-                        axialLayer += str(f.geometry().vertexAt(1).x()) + "\t" + str(f.geometry().vertexAt(1).y()) + "\n"
+                        axial_layer += str(f.attribute(self.id)) + "\t"
+                        axial_layer += str(f.geometry().vertexAt(0).x()) + "\t" + str(f.geometry().vertexAt(0).y()) + "\t"
+                        axial_layer += str(f.geometry().vertexAt(1).x()) + "\t" + str(f.geometry().vertexAt(1).y()) + "\n"
             else:
                 if self.weight != '':
                     for f in features:
-                        axialLayer += str(f.id()) + "\t"
-                        axialLayer += str(f.geometry().vertexAt(0).x()) + "\t" + str(f.geometry().vertexAt(0).y()) + "\t"
-                        axialLayer += str(f.geometry().vertexAt(1).x()) + "\t" + str(f.geometry().vertexAt(1).y()) + "\t"
-                        axialLayer += str(f.attribute(self.weight)) + "\n"
+                        axial_layer += str(f.id()) + "\t"
+                        axial_layer += str(f.geometry().vertexAt(0).x()) + "\t" + str(f.geometry().vertexAt(0).y()) + "\t"
+                        axial_layer += str(f.geometry().vertexAt(1).x()) + "\t" + str(f.geometry().vertexAt(1).y()) + "\t"
+                        axial_layer += str(f.attribute(self.weight)) + "\n"
                 else:
                     for f in features:
-                        axialLayer += str(f.id()) + "\t"
-                        axialLayer += str(f.geometry().vertexAt(0).x()) + "\t" + str(f.geometry().vertexAt(0).y()) + "\t"
-                        axialLayer += str(f.geometry().vertexAt(1).x()) + "\t" + str(f.geometry().vertexAt(1).y()) + "\n"
+                        axial_layer += str(f.id()) + "\t"
+                        axial_layer += str(f.geometry().vertexAt(0).x()) + "\t" + str(f.geometry().vertexAt(0).y()) + "\t"
+                        axial_layer += str(f.geometry().vertexAt(1).x()) + "\t" + str(f.geometry().vertexAt(1).y()) + "\n"
             self.status.emit('Model exported for analysis.')
-            self.result.emit(axialLayer)
+            self.result.emit(axial_layer)
         except:
             self.error.emit('Exporting model failed.')
 

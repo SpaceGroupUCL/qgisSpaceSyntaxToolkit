@@ -6,7 +6,7 @@
  Set of tools for space syntax network analysis and results exploration
                               -------------------
         begin                : 2014-04-01
-        copyright            : (C) 2014 by Jorge Gil, UCL
+        copyright            : (C) 2015 UCL, Jorge Gil
         email                : jorge.gil@ucl.ac.uk
  ***************************************************************************/
 
@@ -25,7 +25,7 @@ from ui_Analysis import Ui_AnalysisDialog
 from DepthmapAdvancedDialog import DepthmapAdvancedDialog
 from VerificationSettingsDialog import VerificationSettingsDialog
 
-from ..utility_functions import *
+from .. import utility_functions as uf
 
 
 class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
@@ -314,11 +314,11 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
                             else:
                                 if problem in v:
                                     errors.append(k)
-                    problems.append((problem,', '.join(errors)))
+                    problems.append((problem, ', '.join(errors)))
             elif select == "island":
                 for i, v in enumerate(report[select]):
                     ids = [str(id) for id in v]
-                    problems.append((i,','.join(ids)))
+                    problems.append((i, ','.join(ids)))
             elif select == "no problems found!":
                 return
             else:
@@ -326,14 +326,14 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
                     problems.append((v,select))
             # update the interface
             self.axialReportList.setColumnCount(2)
-            self.axialReportList.setHorizontalHeaderLabels(["ID","Problem"])
-            self.axialReportList.horizontalHeader().setResizeMode(0, QHeaderView.ResizeToContents)
-            self.axialReportList.horizontalHeader().setResizeMode(1, QHeaderView.Stretch)
+            self.axialReportList.setHorizontalHeaderLabels(["ID", "Problem"])
+            self.axialReportList.horizontalHeader().setResizeMode(0, QtGui.QHeaderView.ResizeToContents)
+            self.axialReportList.horizontalHeader().setResizeMode(1, QtGui.QHeaderView.Stretch)
             self.axialReportList.setRowCount(len(problems))
             for i, rec in enumerate(problems):
-                item = QTableWidgetItem(str(rec[0]))
+                item = QtGui.QTableWidgetItem(str(rec[0]))
                 self.axialReportList.setItem(i, 0, item)
-                item = QTableWidgetItem(rec[1])
+                item = QtGui.QTableWidgetItem(rec[1])
                 self.axialReportList.setItem(i, 1, item)
             self.axialReportList.horizontalHeader().show()
             self.axialReportList.resizeRowsToContents()
@@ -349,35 +349,35 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
         problems = []
         if select:
             if select == "all problems":
-                for id in nodes_list:
+                for fid in nodes_list:
                     errors = []
                     for k, v in report.iteritems():
-                        if id[0] in v:
+                        if fid[0] in v:
                             errors.append(k)
-                    problems.append((id[0],id[1],id[2],', '.join(errors)))
+                    problems.append((fid[0], fid[1], fid[2], ', '.join(errors)))
             elif select == "no problems found!":
                 return
             else:
-                for id in nodes_list:
-                    if id[0] in report[select]:
-                        problems.append((id[0],id[1],id[2],select))
+                for fid in nodes_list:
+                    if fid[0] in report[select]:
+                        problems.append((fid[0], fid[1], fid[2], select))
             # update the interface
             self.axialReportList.setColumnCount(4)
-            self.axialReportList.setHorizontalHeaderLabels(["ID","Line1","Line2","Problem"])
+            self.axialReportList.setHorizontalHeaderLabels(["ID", "Line1", "Line2", "Problem"])
             self.axialReportList.setRowCount(len(problems))
             for i, rec in enumerate(problems):
-                item = QTableWidgetItem(str(rec[0]))
+                item = QtGui.QTableWidgetItem(str(rec[0]))
                 self.axialReportList.setItem(i, 0, item)
-                item = QTableWidgetItem(str(rec[1]))
+                item = QtGui.QTableWidgetItem(str(rec[1]))
                 self.axialReportList.setItem(i, 1, item)
-                item = QTableWidgetItem(str(rec[2]))
+                item = QtGui.QTableWidgetItem(str(rec[2]))
                 self.axialReportList.setItem(i, 2, item)
-                item = QTableWidgetItem(rec[3])
+                item = QtGui.QTableWidgetItem(rec[3])
                 self.axialReportList.setItem(i, 3, item)
-            self.axialReportList.horizontalHeader().setResizeMode(0, QHeaderView.ResizeToContents)
-            self.axialReportList.horizontalHeader().setResizeMode(1, QHeaderView.ResizeToContents)
-            self.axialReportList.horizontalHeader().setResizeMode(2, QHeaderView.ResizeToContents)
-            self.axialReportList.horizontalHeader().setResizeMode(3, QHeaderView.Stretch)
+            self.axialReportList.horizontalHeader().setResizeMode(0, QtGui.QHeaderView.ResizeToContents)
+            self.axialReportList.horizontalHeader().setResizeMode(1, QtGui.QHeaderView.ResizeToContents)
+            self.axialReportList.horizontalHeader().setResizeMode(2, QtGui.QHeaderView.ResizeToContents)
+            self.axialReportList.horizontalHeader().setResizeMode(3, QtGui.QHeaderView.Stretch)
             self.axialReportList.horizontalHeader().show()
             self.axialReportList.resizeRowsToContents()
 
@@ -409,8 +409,8 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
         #self.axialDepthmapCalculateWeightCheck.setChecked(0)
         # update weights combo box
         if self.layers[0]['idx'] > 0:
-            layer = getLayerByName(self.layers[0]['name'])
-            txt, idxs = getNumericFieldNames(layer)
+            layer = uf.getLayerByName(self.layers[0]['name'])
+            txt, idxs = uf.getNumericFieldNames(layer)
             if self.axial_analysis_type == 0:
                 txt.insert(0,"Line Length")
             elif self.axial_analysis_type == 1:
@@ -495,7 +495,7 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
     def getAxialDepthmapOutputTable(self):
         return self.axialDepthmapOutputText.text()
 
-    def updateAxialDepthmapAdvancedSettings(self,settings={}):
+    def updateAxialDepthmapAdvancedSettings(self, settings={}):
         if 'fullset' in settings:
             self.dlg_depthmap.setCalculateFull(settings['fullset'])
         else:

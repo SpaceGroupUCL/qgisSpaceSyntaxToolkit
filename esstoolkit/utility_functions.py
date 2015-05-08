@@ -6,7 +6,7 @@
  Set of tools for space syntax network analysis and results exploration
                               -------------------
         begin                : 2014-04-01
-        copyright            : (C) 2014 by Jorge Gil, UCL
+        copyright            : (C) 2015 UCL, Jorge Gil
         email                : jorge.gil@ucl.ac.uk
  ***************************************************************************/
 
@@ -1336,7 +1336,7 @@ def createShapeFileFullLayer(path, name, srid, attributes, types, values, coords
 
 def createShapeFileLayer(path, name, srid, attributes, types, geometrytype):
     # create new layer with given attributes
-    # fixme: created table has no attributes.
+    # todo: created table has no attributes. not used
     # use createShapeFileFullLayer instead
     filename = path+"/"+name+".shp"
     #create the required fields
@@ -1366,7 +1366,7 @@ def createShapeFileLayer(path, name, srid, attributes, types, geometrytype):
 
 def insertShapeFileValues(layer, attributes, values, coords):
     # get the geometry type
-    # fixme: not working yet. attribute ids must match those from table.
+    # todo: not working yet. attribute ids must match those from table.
     # use createShapeFileFullLayer instead
     res = False
     if layer:

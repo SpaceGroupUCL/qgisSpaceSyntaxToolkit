@@ -8,19 +8,24 @@
 # Mandatory items:
 
 [general]
-category = Vector
 name=Space Syntax Toolkit
 qgisMinimumVersion=2.0
 description=Collection of tools for spatial network analysis and data exploration.
-about=Dependencies: depthmapXnet, igraph python, pyqtgraph
-version=0.1.3b
+version=0.0.4
 author=Jorge Gil, UCL
 email=jorge.gil@ucl.ac.uk
 
 # end of mandatory metadata
 
 # Optional items:
-changelog=version 0.0.3:
+
+about=Dependencies: depthmapXnet
+category = Vector
+changelog=version 0.04:
+    * includes external Python packages
+    * minor bug fixes
+
+    version 0.0.3:
     * more bug fixes
     * round values in statistics panels
 

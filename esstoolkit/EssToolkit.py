@@ -6,7 +6,7 @@
  Set of tools for essential space syntax network analysis and results exploration
                              -------------------
         begin                : 2014-04-01
-        copyright            : (C) 2015 by Jorge Gil, UCL
+        copyright            : (C) 2015, UCL
         email                : jorge.gil@ucl.ac.uk
 
 /***************************************************************************
@@ -24,30 +24,41 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from qgis.core import *
 
-import os.path
-
-# Initialize Qt resources from file resources.py
-from resources_rc import *
-
-# Import essential dialog modules
-from ui_About import Ui_AboutDialog
-from SettingsManager import SettingsManager
-from ProjectManager import ProjectManager
-
-# Import tool modules
-from analysis.AnalysisTool import *
-from explorer.ExplorerTool import *
-
-from utility_functions import *
-
 # Import the debug library
+# can set is_debug to False in release version
+is_debug = False
 try:
     import pydevd
     has_pydevd = True
 except ImportError, e:
     has_pydevd = False
-# set to False in release version
-is_debug = False
+    is_debug = False
+
+import os.path
+#change sys path to networkx package if not installed
+import sys
+import inspect
+try:
+    import networkx as nx
+except ImportError, e:
+    cmd_subfolder = os.path.realpath(os.path.abspath(os.path.join(os.path.split(inspect.getfile(inspect.currentframe()))[0],"external")))
+    if cmd_subfolder not in sys.path:
+        sys.path.insert(0, cmd_subfolder)
+
+# Initialize Qt resources from file resources.py
+from resources_rc import *
+
+# Import general esstoolkit modules
+from ui_About import Ui_AboutDialog
+from SettingsManager import SettingsManager
+from ProjectManager import ProjectManager
+
+# Import esstoolkit tool modules
+from analysis import AnalysisTool
+from explorer import ExplorerTool
+
+from . import utility_functions as uf
+
 
 # todo: add documentation notes to all functions
 # todo edit Makefile
@@ -62,15 +73,15 @@ class EssToolkit:
         # initialise plugin directory
         self.plugin_dir = os.path.dirname(__file__)
         # initialize locale
-        locale = QSettings().value("locale/userLocale")[0:2]
+        locale = QtCore.QSettings().value("locale/userLocale")[0:2]
         locale_path = os.path.join(self.plugin_dir, 'i18n', 'essTools_{}.qm'.format(locale))
 
         if os.path.exists(locale_path):
-            self.translator = QTranslator()
+            self.translator = QtCore.QTranslator()
             self.translator.load(locale_path)
 
-            if qVersion() > '4.3.3':
-                QCoreApplication.installTranslator(self.translator)
+            if QtCore.qVersion() > '4.3.3':
+                QtCore.QCoreApplication.installTranslator(self.translator)
 
         # initialise base modules and interface actions
         self.settings = SettingsManager(self.iface)
@@ -81,9 +92,9 @@ class EssToolkit:
         self.help_action = None
 
         # initialise the tool modules and interface actions
-        self.analysis = AnalysisTool(self.iface, self.settings, self.project)
+        self.analysis = AnalysisTool.AnalysisTool(self.iface, self.settings, self.project)
         self.analysis_action = None
-        self.explorer = ExplorerTool(self.iface, self.settings, self.project)
+        self.explorer = ExplorerTool.ExplorerTool(self.iface, self.settings, self.project)
         self.explorer_action = None
         # Create other dialogs
         self.about = AboutDialog()
@@ -129,11 +140,11 @@ class EssToolkit:
 
     def showAnalysis(self):
         self.iface.removeDockWidget(self.explorer.dlg)
-        self.iface.addDockWidget(Qt.RightDockWidgetArea, self.analysis.dlg)
+        self.iface.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.analysis.dlg)
 
     def showExplorer(self):
         self.iface.removeDockWidget(self.analysis.dlg)
-        self.iface.addDockWidget(Qt.RightDockWidgetArea, self.explorer.dlg)
+        self.iface.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.explorer.dlg)
 
     def showHelp(self):
         # todo: decide what to do for help documentation

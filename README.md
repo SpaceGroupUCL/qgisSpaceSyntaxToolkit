@@ -21,6 +21,6 @@ The “Attributes explorer” module supports the visual and statistical explora
 
 The plugin has the following pre-requisites for complete functionality and optimal performance:
 * depthmapXnet - [http://archtech.gr/varoudis/depthmapX/?dir=depthmapXnet](http://archtech.gr/varoudis/depthmapX/?dir=depthmapXnet)
-* python igraph - [http://igraph.org/python/](http://igraph.org/python/)
+* python igraph - [http://igraph.org/python/](http://igraph.org/python/). Binaries for Mac OSX can be found on the [official site](http://igraph.org/python/#downloads) and at the [Python package index](https://pypi.python.org/pypi/python-igraph). Binaries for MS Windoes are available from [Christoph Gohlke](http://www.lfd.uci.edu/~gohlke/pythonlibs/#python-igraph)
 * pyqtgraph - [http://www.pyqtgraph.org/](http://www.pyqtgraph.org/)
 

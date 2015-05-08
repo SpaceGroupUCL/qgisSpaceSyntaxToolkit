@@ -4,7 +4,7 @@
 # Prototype interface for the ESSTools
 #                             -------------------
 #        begin                : 2014-01-21
-#        copyright            : (C) 2014 by Jorge Gil, UCL
+#        copyright            : (C) 2015 UCL, Jorge Gil
 #        email                : jorge.gil@ucl.ac.uk
 # ***************************************************************************/
 #

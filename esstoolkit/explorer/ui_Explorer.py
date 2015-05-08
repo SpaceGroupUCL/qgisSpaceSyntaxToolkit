@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/Users/jorge/github/qgisSpaceSyntaxToolkit/esstoolkit/explorer/ui_Explorer.ui'
 #
-# Created: Wed Apr 22 15:30:44 2015
+# Created: Thu May  7 16:03:34 2015
 #      by: PyQt4 UI code generator 4.10.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -239,7 +239,7 @@ class Ui_ExplorerDialog(object):
         self.verticalLayout_4.setStretch(0, 4)
         self.explorerTabs.addTab(self.chartsTab, _fromUtf8(""))
         self.verticalLayout.addWidget(self.explorerTabs)
-        self.verticalLayout.setStretch(0, 5)
+        self.verticalLayout.setStretch(0, 3)
         self.verticalLayout.setStretch(1, 1)
         ExplorerDialog.setWidget(self.explorerLayout)
 

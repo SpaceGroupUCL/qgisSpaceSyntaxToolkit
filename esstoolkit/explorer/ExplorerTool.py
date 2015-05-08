@@ -6,7 +6,7 @@
  Set of tools for space syntax network analysis and results exploration
                               -------------------
         begin                : 2014-04-01
-        copyright            : (C) 2014 by Jorge Gil, UCL
+        copyright            : (C) 2015 UCL, Jorge Gil
         email                : jorge.gil@ucl.ac.uk
  ***************************************************************************/
 
@@ -30,11 +30,11 @@ from ExplorerDialog import ExplorerDialog
 from AttributeSymbology import *
 from AttributeStats import *
 from AttributeCharts import *
-from ..utility_functions import *
+from .. import utility_functions as uf
 
 import numpy as np
-from operator import is_not
-from functools import partial
+#from operator import is_not
+#from functools import partial
 
 class ExplorerTool(QObject):
 
@@ -82,7 +82,8 @@ class ExplorerTool(QObject):
         #self.layer_ids = dict()
         self.updateActionConnections(0)
         #self.isVisible = False
-
+        self.layer_display_settings = []
+        self.layer_attributes = []
 
     def unload(self):
         if self.dlg.isVisible():
@@ -158,7 +159,7 @@ class ExplorerTool(QObject):
     def updateLayers(self):
         #try:
         # fixme: ?throws NoneType error occasionally when adding/removing layers. trapping it for now.
-        layers = getLegendLayers(self.iface)
+        layers = uf.getLegendLayers(self.iface)
         #except:
         #    layers = []
         has_numeric = []
@@ -166,7 +167,7 @@ class ExplorerTool(QObject):
         if len(layers) > 0:
             for layer in layers:
                 if layer.type() == 0:  #VectorLayer
-                    fields = getNumericFields(layer)
+                    fields = uf.getNumericFields(layer)
                     if len(fields) > 0:
                         has_numeric.append(layer.name())
                         if self.current_layer and layer.name() == self.current_layer.name():
@@ -189,7 +190,7 @@ class ExplorerTool(QObject):
             if self.current_layer is None or self.current_layer.name() != layer:
                 # fixme: throws NoneType error occasionally when adding/removing layers. trapping it for now.
                 try:
-                    self.current_layer = getLegendLayerByName(self.iface, layer)
+                    self.current_layer = uf.getLegendLayerByName(self.iface, layer)
                 except:
                     self.current_layer = None
             self.update_attributtes = True
@@ -200,7 +201,7 @@ class ExplorerTool(QObject):
             if self.current_layer.type() == 0:  #VectorLayer
                 # fixme: throws NoneType error occasionally when adding/removing layers. trapping it for now.
                 try:
-                    numeric_fields, numeric_field_indices = getNumericFieldNames(self.current_layer)
+                    numeric_fields, numeric_field_indices = uf.getNumericFieldNames(self.current_layer)
                     #numeric_fields = getValidFieldNames(self.current_layer,type=(QVariant.Int, QVariant.LongLong, QVariant.Double, QVariant.UInt, QVariant.ULongLong),null="all")
                 except:
                     numeric_fields = []
@@ -316,11 +317,6 @@ class ExplorerTool(QObject):
         self.updateSymbology()
 
     def updateSymbology(self):
-        """
-        Identifies the current attribute, gets its current display settings
-
-        @param idx: the id of the selected attribute in the dialog's attributes list
-        """
         if self.current_layer is not None:
             current_attribute = self.dlg.getCurrentAttribute()
             attribute = self.layer_attributes[current_attribute]
@@ -358,18 +354,18 @@ class ExplorerTool(QObject):
                 select_stats = None
                 if self.current_layer.selectedFeatureCount() > 0:
                     select_stats = dict()
-                    self.selection_values, self.selection_ids = getFieldValues(self.current_layer, attribute["name"], null=False, selection=True)
+                    self.selection_values, self.selection_ids = uf.getFieldValues(self.current_layer, attribute["name"], null=False, selection=True)
                     sel_values = np.array(self.selection_values)
-                    select_stats["Mean"] = truncateNumber(np.nanmean(sel_values))
-                    select_stats["Std Dev"] = truncateNumber(np.nanstd(sel_values))
-                    select_stats["Median"] = truncateNumber(np.median(sel_values))
+                    select_stats["Mean"] = uf.truncateNumber(np.nanmean(sel_values))
+                    select_stats["Std Dev"] = uf.truncateNumber(np.nanstd(sel_values))
+                    select_stats["Median"] = uf.truncateNumber(np.median(sel_values))
                     select_stats["Minimum"] = np.nanmin(sel_values)
                     select_stats["Maximum"] = np.nanmax(sel_values)
-                    select_stats["Range"] = truncateNumber(select_stats["Maximum"]-select_stats["Minimum"])
-                    select_stats["1st Quart"] = truncateNumber(np.percentile(sel_values,25))
-                    select_stats["3rd Quart"] = truncateNumber(np.percentile(sel_values,75))
-                    select_stats["IQR"] = truncateNumber(select_stats["3rd Quart"]-select_stats["1st Quart"])
-                    select_stats["Gini"] = roundNumber(calcGini(sel_values))
+                    select_stats["Range"] = uf.truncateNumber(select_stats["Maximum"]-select_stats["Minimum"])
+                    select_stats["1st Quart"] = uf.truncateNumber(np.percentile(sel_values,25))
+                    select_stats["3rd Quart"] = uf.truncateNumber(np.percentile(sel_values,75))
+                    select_stats["IQR"] = uf.truncateNumber(select_stats["3rd Quart"]-select_stats["1st Quart"])
+                    select_stats["Gini"] = uf.roundNumber(uf.calcGini(sel_values))
                 else:
                     self.selection_values = []
                     self.selection_ids = []
@@ -396,7 +392,7 @@ class ExplorerTool(QObject):
                 bins = self.attribute_values[idx]["bins"]
                 # retrieve selection values
                 if self.current_layer.selectedFeatureCount() > 0:
-                    self.selection_values, self.selection_ids = getFieldValues(self.current_layer, attribute["name"], null=False, selection=True)
+                    self.selection_values, self.selection_ids = uf.getFieldValues(self.current_layer, attribute["name"], null=False, selection=True)
                 else:
                     self.selection_values = []
                     self.selection_ids = []
@@ -409,7 +405,6 @@ class ExplorerTool(QObject):
                     # plot chart of selected objects
                     if len(self.selection_values) > 0:
                         self.attributeCharts.setHistogramSelection(sel_values, np.min(sel_values), np.max(sel_values), bins)
-                # newfeature: implement box plot
                 elif chart_type == 1:
                     self.attributeCharts.drawBoxPlot(values)
                 elif chart_type == 2:
@@ -436,11 +431,10 @@ class ExplorerTool(QObject):
                             bistats["Layer"] = self.current_layer.name()
                             bistats["x"] = current_attribute
                             bistats["y"] = current_dependent
-                            bistats["r"] = roundNumber(np.corrcoef(values,yvalues)[1][0])
-                            bistats["r2"] = roundNumber(bistats["r"]*bistats["r"])
+                            bistats["r"] = uf.roundNumber(np.corrcoef(values,yvalues)[1][0])
+                            bistats["r2"] = uf.roundNumber(bistats["r"]*bistats["r"])
                             # fixme: pvalue calc not correct
                             bistats["p"] = 0 #roundNumber(calcPvalue(values,yvalues))
-                            # newfeature: calculate linear regression
                             bistats["line"] = ""
                             self.bivariate_statistics.append(bistats)
                         else:
@@ -448,9 +442,12 @@ class ExplorerTool(QObject):
                         # update the dialog
                         self.dlg.setCorrelation(bistats)
                         # plot chart
-                        # fixme: retrieve feature symbols from layer
-                        #symbols = getAllFeatureSymbols(self.current_layer)
-                        self.attributeCharts.drawScatterplot(values, yvalues, ids)
+                        # fixme: get symbols from features
+                        #if len(ids) <= 100:
+                        #    symbols = uf.getAllFeatureSymbols(self.current_layer)
+                        #else:
+                        symbols = None
+                        self.attributeCharts.drawScatterplot(values, yvalues, ids, symbols)
                         # plot chart of selected objects
                         if len(self.selection_values) > 0:
                         #    indices = []
@@ -479,7 +476,7 @@ class ExplorerTool(QObject):
 
 
     def retrieveAttributeValues(self, attribute):
-        values, ids = getFieldValues(self.current_layer, attribute["name"], null=False)
+        values, ids = uf.getFieldValues(self.current_layer, attribute["name"], null=False)
         #if not self.layer_ids.has_key(self.current_layer.name()):
             # store retrieved ids for charts
         #    self.layer_ids[self.current_layer.name()] = ids
@@ -488,16 +485,16 @@ class ExplorerTool(QObject):
         stats = dict()
         stats["Layer"] = self.current_layer.name()
         stats["Attribute"] = attribute["name"]
-        stats["Mean"] = truncateNumber(np.nanmean(values))
-        stats["Std Dev"] = truncateNumber(np.nanstd(values))
-        stats["Median"] = truncateNumber(np.median(values))
+        stats["Mean"] = uf.truncateNumber(np.nanmean(values))
+        stats["Std Dev"] = uf.truncateNumber(np.nanstd(values))
+        stats["Median"] = uf.truncateNumber(np.median(values))
         stats["Minimum"] = np.nanmin(values)
         stats["Maximum"] = np.nanmax(values)
-        stats["Range"] = truncateNumber(stats["Maximum"]-stats["Minimum"])
-        stats["1st Quart"] = truncateNumber(np.percentile(values,25))
-        stats["3rd Quart"] = truncateNumber(np.percentile(values,75))
-        stats["IQR"] = truncateNumber(stats["3rd Quart"]-stats["1st Quart"])
-        stats["Gini"] = roundNumber(calcGini(values))
+        stats["Range"] = uf.truncateNumber(stats["Maximum"]-stats["Minimum"])
+        stats["1st Quart"] = uf.truncateNumber(np.percentile(values,25))
+        stats["3rd Quart"] = uf.truncateNumber(np.percentile(values,75))
+        stats["IQR"] = uf.truncateNumber(stats["3rd Quart"]-stats["1st Quart"])
+        stats["Gini"] = uf.roundNumber(uf.calcGini(values))
         # store the results
         self.attribute_statistics.append(stats)
         # store retrieved values for selection stats and charts
@@ -506,13 +503,13 @@ class ExplorerTool(QObject):
         attr["Attribute"] = attribute["name"]
         attr["values"] = values
         attr["ids"] = ids
-        attr["bins"] = calcBins(values)
+        attr["bins"] = uf.calcBins(values)
         self.attribute_values.append(attr)
 
 
     def retrieveSelectionValues(self, attribute):
         if self.current_layer.selectedFeatureCount() > 0:
-            self.selection_values, self.selection_ids = getFieldValues(self.current_layer, attribute["name"], null=False, selection=True)
+            self.selection_values, self.selection_ids = uf.getFieldValues(self.current_layer, attribute["name"], null=False, selection=True)
         else:
             self.selection_values = []
             self.selection_ids = []

@@ -6,7 +6,7 @@
  Set of tools for space syntax network analysis and results exploration
                               -------------------
         begin                : 2014-04-01
-        copyright            : (C) 2014 by Jorge Gil, UCL
+        copyright            : (C) 2015 UCL, Jorge Gil
         email                : jorge.gil@ucl.ac.uk
  ***************************************************************************/
 
@@ -33,7 +33,7 @@ from LinksVerification import *
 from OriginsVerification import *
 from DepthmapAnalysis import *
 
-from ..utility_functions import *
+from .. import utility_functions as uf
 
 import socket
 import datetime
@@ -133,12 +133,13 @@ class AnalysisTool(QObject):
             self.setDatastore()
             self.isVisible = True
         else:
-            # Disconnect signals to QGIS interface
-            self.legend.itemAdded.disconnect(self.updateLayers)
-            self.legend.itemRemoved.disconnect(self.updateLayers)
-            self.iface.projectRead.disconnect(self.updateLayers)
-            self.iface.newProjectCreated.disconnect(self.updateLayers)
-            self.project.getProject().instance().layerLoaded.disconnect(self.getProjectSettings)
+            if self.isVisible:
+                # Disconnect signals to QGIS interface
+                self.legend.itemAdded.disconnect(self.updateLayers)
+                self.legend.itemRemoved.disconnect(self.updateLayers)
+                self.iface.projectRead.disconnect(self.updateLayers)
+                self.iface.newProjectCreated.disconnect(self.updateLayers)
+                self.project.getProject().instance().layerLoaded.disconnect(self.getProjectSettings)
             self.isVisible = False
 
 
@@ -172,9 +173,9 @@ class AnalysisTool(QObject):
 
     def updateDatastore(self, name):
         new_datastore = {'name':'','path':'','type':-1,'schema':'','crs':''}
-        layer = getLegendLayerByName(self.iface, name)
+        layer = uf.getLegendLayerByName(self.iface, name)
         if layer:
-            new_datastore['path'] = getLayerPath(layer)
+            new_datastore['path'] = uf.getLayerPath(layer)
             new_datastore['name'] = os.path.basename(new_datastore['path'])
             new_datastore['crs'] = layer.crs().postgisSrid()
             if 'SpatiaLite' in layer.storageType():
@@ -223,16 +224,16 @@ class AnalysisTool(QObject):
         is_set = False
         if self.datastore:
             if self.datastore['name'] == "":
-                self.iface.messageBar().pushMessage("Info","Select a 'Data store' to save analysis results.",level=0,duration=5)
+                self.iface.messageBar().pushMessage("Info", "Select a 'Data store' to save analysis results.", level=0, duration=5)
             elif not os.path.exists(self.datastore['path']):
                 # clear datastore
                 self.clearDatastore()
-                self.iface.messageBar().pushMessage("Info","The selected data store cannot be found.",level=0,duration=5)
+                self.iface.messageBar().pushMessage("Info", "The selected data store cannot be found.", level=0, duration=5)
             else:
                 is_set = True
         else:
             self.clearDatastore()
-            self.iface.messageBar().pushMessage("Info","Select a 'Data store' to save analysis results.",level=0,duration=5)
+            self.iface.messageBar().pushMessage("Info", "Select a 'Data store' to save analysis results.", level=0, duration=5)
         return is_set
 
     def getToolkitSettings(self):
@@ -257,13 +258,13 @@ class AnalysisTool(QObject):
         origins_list = []
         # fixme: throws error when removing layers. trapping it for now. TypeError: 'NoneType' object is not callable
         #try:
-        layers = getLegendLayers(self.iface,'all','all')
+        layers = uf.getLegendLayers(self.iface, 'all', 'all')
         #except:
         #    layers = None
         if layers:
             for layer in layers:
                 # checks if the layer is projected. Geographic coordinates are not supported
-                if isLayerProjected(layer):
+                if uf.isLayerProjected(layer):
                     origins_list.append(layer.name())
                     unlinks_list.append(layer.name())
                     if layer.geometryType() in [1,4]:
@@ -326,13 +327,13 @@ class AnalysisTool(QObject):
     def runAxialVerification(self):
         self.edit_mode = self.dlg.getLayerTab()
         self.analysis_layers = self.dlg.getAnalysisLayers()
-        axial = getLegendLayerByName(self.iface, self.analysis_layers['map'])
-        unlinks = getLegendLayerByName(self.iface, self.analysis_layers['unlinks'])
-        links = getLegendLayerByName(self.iface, self.analysis_layers['links'])
-        origins = getLegendLayerByName(self.iface, self.analysis_layers['origins'])
+        axial = uf.getLegendLayerByName(self.iface, self.analysis_layers['map'])
+        unlinks = uf.getLegendLayerByName(self.iface, self.analysis_layers['unlinks'])
+        links = uf.getLegendLayerByName(self.iface, self.analysis_layers['links'])
+        origins = uf.getLegendLayerByName(self.iface, self.analysis_layers['origins'])
         settings = self.dlg.getAxialEditSettings()
         caps = None
-        self.axial_id = getIdField(axial)
+        self.axial_id = uf.getIdField(axial)
         if self.axial_id == '':
             self.iface.messageBar().pushMessage("Info", "The axial layer has invalid or duplicate values in the ID column. Using feature ids instead.", level=0, duration=5)
         if self.edit_mode == 0:
@@ -349,7 +350,7 @@ class AnalysisTool(QObject):
                 self.iface.messageBar().pushMessage("Warning","All layers must be in the same file format.", level=1, duration=5)
                 return False
             caps = unlinks.dataProvider().capabilities()
-            self.user_ids['unlinks'] = getIdField(unlinks)
+            self.user_ids['unlinks'] = uf.getIdField(unlinks)
             if self.user_ids['unlinks'] == '':
                 self.iface.messageBar().pushMessage("Info", "The unlinks layer has invalid or duplicate values in the ID column. Using feature ids instead.", level=0, duration=5)
             if unlinks.fieldNameIndex("line1") == -1 or unlinks.fieldNameIndex("line2") == -1:
@@ -360,7 +361,7 @@ class AnalysisTool(QObject):
                 self.iface.messageBar().pushMessage("Warning","All layers must be in the same file format.", level=1, duration=5)
                 return False
             caps = links.dataProvider().capabilities()
-            self.user_ids['links'] = getIdField(links)
+            self.user_ids['links'] = uf.getIdField(links)
             if self.user_ids['links'] == '':
                 self.iface.messageBar().pushMessage("Info", "The links layer has invalid or duplicate values in the ID column. Using feature ids instead.", level=0, duration=5)
             if links.fieldNameIndex("line1") == -1 or links.fieldNameIndex("line2") == -1:
@@ -371,7 +372,7 @@ class AnalysisTool(QObject):
                 self.iface.messageBar().pushMessage("Warning","All layers must be in the same file format.", level=1, duration=5)
                 return False
             caps = origins.dataProvider().capabilities()
-            self.user_ids['origins'] = getIdField(origins)
+            self.user_ids['origins'] = uf.getIdField(origins)
             if self.user_ids['origins'] == '':
                 self.iface.messageBar().pushMessage("Info", "The origins layer has invalid or duplicate values in the ID column. Using feature ids instead.", level=0, duration=5)
             if unlinks.fieldNameIndex("lineid") == -1:
@@ -393,12 +394,12 @@ class AnalysisTool(QObject):
     def runAxialUpdate(self):
         self.edit_mode = self.dlg.getLayerTab()
         self.analysis_layers = self.dlg.getAnalysisLayers()
-        axial = getLegendLayerByName(self.iface, self.analysis_layers['map'])
-        unlinks = getLegendLayerByName(self.iface, self.analysis_layers['unlinks'])
-        links = getLegendLayerByName(self.iface, self.analysis_layers['links'])
-        origins = getLegendLayerByName(self.iface, self.analysis_layers['origins'])
+        axial = uf.getLegendLayerByName(self.iface, self.analysis_layers['map'])
+        unlinks = uf.getLegendLayerByName(self.iface, self.analysis_layers['unlinks'])
+        links = uf.getLegendLayerByName(self.iface, self.analysis_layers['links'])
+        origins = uf.getLegendLayerByName(self.iface, self.analysis_layers['origins'])
         settings = self.dlg.getAxialEditSettings()
-        self.axial_id = getIdField(axial)
+        self.axial_id = uf.getIdField(axial)
         if self.axial_id == '':
             self.iface.messageBar().pushMessage("Info", "The axial layer has invalid or duplicate values in the id column. Using feature ids instead.", level=0, duration=5)
         if self.edit_mode == 0:
@@ -412,7 +413,7 @@ class AnalysisTool(QObject):
             if caps & QgsVectorDataProvider.ChangeAttributeValues:
                 self.dlg.lockAxialEditTab(True)
                 self.dlg.clearAxialProblems()
-                self.user_ids['unlinks'] = getIdField(unlinks)
+                self.user_ids['unlinks'] = uf.getIdField(unlinks)
                 self.verificationThread = UnlinksIdUpdate(self.iface.mainWindow(), self, unlinks, self.user_ids['unlinks'], axial, self.axial_id, settings['unlink_dist'])
         elif self.edit_mode == 2:
             if links and (axial.storageType() != links.storageType()):
@@ -422,7 +423,7 @@ class AnalysisTool(QObject):
             if caps & QgsVectorDataProvider.ChangeAttributeValues:
                 self.dlg.lockAxialEditTab(True)
                 self.dlg.clearAxialProblems()
-                self.user_ids['links'] = getIdField(links)
+                self.user_ids['links'] = uf.getIdField(links)
                 # newfeature: update links ids
         elif self.edit_mode == 3:
             if origins and (axial.storageType() != origins.storageType()):
@@ -432,7 +433,7 @@ class AnalysisTool(QObject):
             if caps & QgsVectorDataProvider.ChangeAttributeValues:
                 self.dlg.lockAxialEditTab(True)
                 self.dlg.clearAxialProblems()
-                self.user_ids['origins'] = getIdField(origins)
+                self.user_ids['origins'] = uf.getIdField(origins)
                 # newfeature: update origins ids
         self.dlg.setAxialVerifyProgressbar(0,100)
         self.dlg.clearAxialProblems()
@@ -469,15 +470,15 @@ class AnalysisTool(QObject):
         # reload the layer if columns were added with the ID update
         if self.datastore['type'] == 0:
             if self.edit_mode == 0:
-                layer = getLegendLayerByName(self.iface,self.analysis_layers['map'])
+                layer = uf.getLegendLayerByName(self.iface, self.analysis_layers['map'])
             elif self.edit_mode == 1:
-                layer = getLegendLayerByName(self.iface,self.analysis_layers['unlinks'])
+                layer = uf.getLegendLayerByName(self.iface, self.analysis_layers['unlinks'])
             elif self.edit_mode == 2:
-                layer = getLegendLayerByName(self.iface,self.analysis_layers['links'])
+                layer = uf.getLegendLayerByName(self.iface, self.analysis_layers['links'])
             else:
-                layer = getLegendLayerByName(self.iface,self.analysis_layers['origins'])
-            connection = getLayerConnection(layer)
-            cols = listSpatialiteColumns(connection, layer.name())
+                layer = uf.getLegendLayerByName(self.iface, self.analysis_layers['origins'])
+            connection = uf.getLayerConnection(layer)
+            cols = uf.listSpatialiteColumns(connection, layer.name())
             connection.close()
             if len(layer.dataProvider().fields()) == len(cols)-1:
                 layer.dataProvider().reloadData()
@@ -488,7 +489,6 @@ class AnalysisTool(QObject):
         return True
 
     def cancelAxialVerification(self, txt=""):
-        # fixme: check if working at all/for shape files
         self.verificationThread.stop()
         if txt:
             self.iface.messageBar().pushMessage("Error",txt, level=1, duration=5)
@@ -545,18 +545,18 @@ class AnalysisTool(QObject):
             name = layers['origins']
             user_id = self.user_ids['origins']
         if name:
-            layer = getLegendLayerByName(self.iface,name)
+            layer = uf.getLegendLayerByName(self.iface,name)
         if layer:
             # get layer ids
             #self.user_id = getIdField(layer)
             if user_id == '':
                 self.all_ids = layer.allFeatureIds()
             else:
-                self.all_ids, ids = getFieldValues(layer, user_id)
+                self.all_ids, ids = uf.getFieldValues(layer, user_id)
                 layer.setDisplayField(user_id)
             # set display field for axial map (always)
             if idx != 0:
-                axial_layer = getLegendLayerByName(self.iface, layers['map'])
+                axial_layer = uf.getLegendLayerByName(self.iface, layers['map'])
                 if self.axial_id != '':
                     axial_layer.setDisplayField(self.axial_id)
             if not self.iface.actionMapTips().isChecked():
@@ -647,12 +647,12 @@ class AnalysisTool(QObject):
             # check if output file/table already exists
             table_exists = False
             if self.datastore['type'] == 0:
-                connection = getSpatialiteConnection(self.datastore['path'])
+                connection = uf.getSpatialiteConnection(self.datastore['path'])
                 if connection:
-                    table_exists = testSpatialiteTableExists(connection,self.axial_analysis_settings['output'])
+                    table_exists = uf.testSpatialiteTableExists(connection, self.axial_analysis_settings['output'])
                 connection.close()
             elif self.datastore['type'] == 1:
-                table_exists = testShapeFileExists(self.datastore['path'],self.axial_analysis_settings['output'])
+                table_exists = uf.testShapeFileExists(self.datastore['path'], self.axial_analysis_settings['output'])
             if table_exists:
                 action = QMessageBox.question(None, "Overwrite table", "The output table already exists in:\n %s.\nOverwrite?"% self.datastore['path'],"Ok","Cancel","",1,1)
                 if action == 0:
@@ -671,7 +671,7 @@ class AnalysisTool(QObject):
                 # print message in results window
                 self.dlg.writeAxialDepthmapReport(message)
                 self.dlg.lockAxialDepthmapTab(True)
-                self.iface.messageBar().pushMessage("Info","Do not close QGIS or depthmapX while the analysis is running!", level=0, duration=5)
+                self.iface.messageBar().pushMessage("Info", "Do not close QGIS or depthmapX while the analysis is running!", level=0, duration=5)
                 # start the analysis by sending the command and starting the timer
                 bytessent = self.socket.sendData(command)
                 #timer to check if results are ready, in milliseconds
@@ -688,30 +688,30 @@ class AnalysisTool(QObject):
             txt = "axial"
         else:
             txt = "segment"
-        message = message + u"\n   analysis type - %s" % txt
+        message += u"\n   analysis type - %s" % txt
         if self.axial_analysis_settings['distance'] == 0:
             txt = "topological"
         elif self.axial_analysis_settings['distance'] == 1:
             txt = "angular"
         elif self.axial_analysis_settings['distance'] == 2:
             txt = "metric"
-        message = message + u"\n   distance - %s" % txt
+        message += u"\n   distance - %s" % txt
         if self.axial_analysis_settings['weight'] == 1:
-            message = message + u"\n   weighted by - %s" % self.axial_analysis_settings['weightBy']
+            message += u"\n   weighted by - %s" % self.axial_analysis_settings['weightBy']
         if self.axial_analysis_settings['radius'] == 0:
             txt = "topological"
         elif self.axial_analysis_settings['radius'] == 1:
             txt = "angular"
         elif self.axial_analysis_settings['radius'] == 2:
             txt = "metric"
-        message = message + u"\n   %s radius - %s" % (txt,self.axial_analysis_settings['rvalues'])
+        message += u"\n   %s radius - %s" % (txt, self.axial_analysis_settings['rvalues'])
         if self.axial_analysis_settings['betweenness'] == 1:
-            message = message + u"\n   calculate choice"
+            message += u"\n   calculate choice"
         if self.axial_analysis_settings['fullset'] == 1:
-            message = message + u"\n   include advanced measures"
+            message += u"\n   include advanced measures"
         if self.axial_analysis_settings['newnorm'] == 1:
-            message = message + u"\n   calculate NACH and NAIN"
-        message = message + u"\n\nStart: %s\n..." % self.start_time.strftime("%d/%m/%Y %H:%M:%S")
+            message += u"\n   calculate NACH and NAIN"
+        message += u"\n\nStart: %s\n..." % self.start_time.strftime("%d/%m/%Y %H:%M:%S")
         return message
 
     def cancelDepthmapAnalysis(self):
@@ -766,7 +766,7 @@ class AnalysisTool(QObject):
         # extract number of nodes
         if "--comm: 2," in msg:
             pos1 = msg.find("--comm: 2,")
-            pos2 = msg.find(",0 ",pos1)
+            pos2 = msg.find(",0 ", pos1)
             self.analysis_nodes = msg[(pos1 + 10):pos2]
             step = int(self.analysis_nodes) * 0.2
             self.timer.start(step)
@@ -804,10 +804,10 @@ class AnalysisTool(QObject):
             self.dlg.lockAxialDepthmapTab(False)
             self.dlg.setAxialDepthmapProgressbar(0, 100)
         if new_layer:
-            existing_names = [layer.name() for layer in getLegendLayers(self.iface)]
+            existing_names = [layer.name() for layer in uf.getLegendLayers(self.iface)]
             if new_layer.name() in existing_names:
-                old_layer = getLegendLayerByName(self.iface,new_layer.name())
-                if getLayerPath(new_layer) == getLayerPath(old_layer):
+                old_layer = uf.getLegendLayerByName(self.iface, new_layer.name())
+                if getLayerPath(new_layer) == uf.getLayerPath(old_layer):
                     QgsMapLayerRegistry.instance().removeMapLayer(old_layer.id())
             QgsMapLayerRegistry.instance().addMapLayer(new_layer)
             new_layer.updateExtents()
@@ -815,7 +815,7 @@ class AnalysisTool(QObject):
 
     def saveAnalysisResults(self, attributes, types, values, coords):
         # Save results to output
-        analysis_layer = getLegendLayerByName(self.iface, self.analysis_layers['map'])
+        analysis_layer = uf.getLegendLayerByName(self.iface, self.analysis_layers['map'])
         srid = analysis_layer.crs()
         path = self.datastore['path']
         name = self.analysis_output
@@ -830,40 +830,40 @@ class AnalysisTool(QObject):
         # if it's a segment analysis always create a new layer
         # also if one of these is different: output table name, file type, data store location, number of records
         # this last one is a weak check for changes to the table. making a match of results by id would take ages.
-        if self.axial_analysis_settings['type'] == 1 or analysis_layer.name() != name or getLayerPath(analysis_layer) != path or len(values) != analysis_layer.featureCount():
+        if self.axial_analysis_settings['type'] == 1 or analysis_layer.name() != name or uf.getLayerPath(analysis_layer) != path or len(values) != analysis_layer.featureCount():
             create_table = True
         # spatialite data store
         if self.datastore['type'] == 0:
-            connection = getSpatialiteConnection(path)
-            if ('spatialite' not in provider.lower() or create_table):
-                res = createSpatialiteTable(connection, path, name, srid.postgisSrid(), attributes, types, 'MULTILINESTRING')
+            connection = uf.getSpatialiteConnection(path)
+            if 'spatialite' not in provider.lower() or create_table:
+                res = uf.createSpatialiteTable(connection, path, name, srid.postgisSrid(), attributes, types, 'MULTILINESTRING')
                 if res:
-                    res = insertSpatialiteValues(connection, name, attributes, values, coords)
+                    res = uf.insertSpatialiteValues(connection, name, attributes, values, coords)
                     if res:
-                        new_layer = getSpatialiteLayer(connection, path, name)
+                        new_layer = uf.getSpatialiteLayer(connection, path, name)
             else:
-                res = addSpatialiteAttributes(connection, name, attributes, types, values)
+                res = uf.addSpatialiteAttributes(connection, name, attributes, types, values)
                 # the spatialite layer needs to be removed and re-inserted to display changes
                 if res:
                     QgsMapLayerRegistry.instance().removeMapLayer(analysis_layer.id())
-                    new_layer = getSpatialiteLayer(connection, path, name)
+                    new_layer = uf.getSpatialiteLayer(connection, path, name)
             connection.close()
         # shapefile data store
         elif self.datastore['type'] == 1:
-            if ('shapefile' not in provider.lower() or create_table):
-                new_layer = createShapeFileFullLayer(path, name, srid, attributes, types, values, coords)
+            if 'shapefile' not in provider.lower() or create_table:
+                new_layer = uf.createShapeFileFullLayer(path, name, srid, attributes, types, values, coords)
             else:
-                res = addShapeFileAttributes(analysis_layer, attributes, types, values)
+                res = uf.addShapeFileAttributes(analysis_layer, attributes, types, values)
         # postgis data store
         elif self.datastore['type'] == 2:
-            if ('postgresql' not in provider.lower() or create_table):
+            if 'postgresql' not in provider.lower() or create_table:
                 # newfeature: implement PostGIS handling
                 pass
         # memory layer data store
         elif self.datastore['type'] == -1:
             # create a memory layer with the results
             # the coords indicates the results columns with x1, y1, x2, y2
-            new_layer = createTempLayer(name, srid.postgisSrid(), attributes, types, values, coords)
+            new_layer = uf.createTempLayer(name, srid.postgisSrid(), attributes, types, values, coords)
 
         return new_layer
 
@@ -939,7 +939,8 @@ class MySocket(QObject):
         try:
             while True:
                 chunk = self.sock.recv(buff)
-                if not chunk: break
+                if not chunk:
+                    break
                 msg += chunk
             dump = True
         except socket.error as errormsg:
@@ -947,15 +948,17 @@ class MySocket(QObject):
             dump = False
         return dump, msg
 
-    def receiveData(self, buff=1024, suffix = ''):
+    def receiveData(self, buff=1024, suffix=''):
         receive = False
         msg = ''
         try:
             while True:
                 chunk = self.sock.recv(buff)
-                if not chunk: break
+                if not chunk:
+                    break
                 msg += chunk
-                if msg.endswith(suffix): break
+                if msg.endswith(suffix):
+                    break
             receive = True
         except socket.error as errormsg:
             msg = errormsg
