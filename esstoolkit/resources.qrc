@@ -1,10 +1,10 @@
 <RCC>
   <qresource prefix="/plugins/esstoolkit/">
     <file>icons/about.png</file>
-    <file>icons/analysis.png</file>
-    <file>icons/explorer.png</file>
+    <file>icons/esst_graph.png</file>
+    <file>icons/esst_explorer.png</file>
     <file>icons/help.png</file>
-    <file>icons/logo.png</file>
+    <file>icons/esst_logo.png</file>
     <file>icons/ucl.png</file>
     <file>icons/project.png</file>
     <file>icons/settings.png</file>

@@ -42,7 +42,7 @@ tags= network analysis,spatial analysis,numeric attribute visualisation
 homepage=https://github.com/SpaceGroupUCL/qgisSpaceSyntaxToolkit
 tracker=https://github.com/SpaceGroupUCL/qgisSpaceSyntaxToolkit/issues
 repository=https://github.com/SpaceGroupUCL/qgisSpaceSyntaxToolkit/tree/master/esstoolkit
-icon=icons/logo.png
+icon=icons/esst_logo.png
 # experimental flag
 experimental=True
 

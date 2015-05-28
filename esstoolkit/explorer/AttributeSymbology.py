@@ -67,10 +67,10 @@ class AttributeSymbology(QObject):
         else:
             # calculate range values individually based on custom settings
             ranges = []
-            top_value = float(settings["top_value"])
-            bottom_value = float(settings["bottom_value"])
             max_value = float(attribute_vals["max"])
             min_value = float(attribute_vals["min"])
+            top_value = float(settings["top_value"])
+            bottom_value = float(settings["bottom_value"])
             # calculate number of ranges depending on top/bottom difference from max/min:
             # is there really a range there? Otherwise this will calculate 1 or even 2 ranges less
             calc_intervals = intervals + 1
@@ -149,9 +149,15 @@ class AttributeSymbology(QObject):
         if colour_type == 3:  # monochrome
             #depends on canvas background: if canvas is black, lines are white, and vice versa
             canvas = uf.getCanvasColour(self.iface)
-            # newfeature: add threshold to tool settings
             if canvas.value() < 80:
                 ramp = QgsVectorGradientColorRampV2(QColor(255, 255, 255, 255), QColor(255, 255, 255, 255), False)
             else:
                 ramp = QgsVectorGradientColorRampV2(QColor(0, 0, 0, 255), QColor(0, 0, 0, 255), False)
+        if colour_type == 4:  # space syntax ltd
+            if invert:
+                ramp = QgsVectorGradientColorRampV2(QColor(255, 0, 0, 255), QColor(0, 0, 255, 255), False)
+                ramp.setStops([QgsGradientStop(0.15, QColor(255, 170, 0, 255)), QgsGradientStop(0.25, QColor(255, 255, 0, 255)), QgsGradientStop(0.5, QColor(0,255,0,255)), QgsGradientStop(0.75, QColor(85, 255, 255, 255))])
+            else:
+                ramp = QgsVectorGradientColorRampV2(QColor(0, 0, 255, 255), QColor(255, 0, 0, 255), False)
+                ramp.setStops([QgsGradientStop(0.25, QColor(85, 255, 255, 255)), QgsGradientStop(0.5, QColor(0, 255, 0, 255)), QgsGradientStop(0.75, QColor(255, 255, 0, 255)), QgsGradientStop(0.85, QColor(255, 170, 0, 255))])
         return ramp

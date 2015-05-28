@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/Users/jorge/github/qgisSpaceSyntaxToolkit/esstoolkit/explorer/ui_Explorer.ui'
 #
-# Created: Thu May  7 16:03:34 2015
+# Created: Mon May 11 17:31:11 2015
 #      by: PyQt4 UI code generator 4.10.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -69,10 +69,6 @@ class Ui_ExplorerDialog(object):
         self.coloursLayout.setObjectName(_fromUtf8("coloursLayout"))
         self.colourRangeCombo = QtGui.QComboBox(self.symbologyTab)
         self.colourRangeCombo.setObjectName(_fromUtf8("colourRangeCombo"))
-        self.colourRangeCombo.addItem(_fromUtf8(""))
-        self.colourRangeCombo.addItem(_fromUtf8(""))
-        self.colourRangeCombo.addItem(_fromUtf8(""))
-        self.colourRangeCombo.addItem(_fromUtf8(""))
         self.coloursLayout.addWidget(self.colourRangeCombo, 0, 1, 1, 1)
         self.colourRangeLabel = QtGui.QLabel(self.symbologyTab)
         self.colourRangeLabel.setObjectName(_fromUtf8("colourRangeLabel"))
@@ -107,10 +103,6 @@ class Ui_ExplorerDialog(object):
         self.intervalsLayout.addWidget(self.intervalLabel, 0, 0, 1, 1)
         self.intervalTypeCombo = QtGui.QComboBox(self.symbologyTab)
         self.intervalTypeCombo.setObjectName(_fromUtf8("intervalTypeCombo"))
-        self.intervalTypeCombo.addItem(_fromUtf8(""))
-        self.intervalTypeCombo.addItem(_fromUtf8(""))
-        self.intervalTypeCombo.addItem(_fromUtf8(""))
-        self.intervalTypeCombo.addItem(_fromUtf8(""))
         self.intervalsLayout.addWidget(self.intervalTypeCombo, 0, 2, 1, 1)
         self.topLimitLabel = QtGui.QLabel(self.symbologyTab)
         self.topLimitLabel.setLayoutDirection(QtCore.Qt.LeftToRight)
@@ -251,20 +243,12 @@ class Ui_ExplorerDialog(object):
         ExplorerDialog.setWindowTitle(_translate("ExplorerDialog", "Attributes Explorer", None))
         self.layerRefreshButton.setText(_translate("ExplorerDialog", "Refresh", None))
         self.attributesLabel.setText(_translate("ExplorerDialog", "Numeric attributes:", None))
-        self.colourRangeCombo.setItemText(0, _translate("ExplorerDialog", "Classic", None))
-        self.colourRangeCombo.setItemText(1, _translate("ExplorerDialog", "Red - Blue", None))
-        self.colourRangeCombo.setItemText(2, _translate("ExplorerDialog", "Greyscale", None))
-        self.colourRangeCombo.setItemText(3, _translate("ExplorerDialog", "Monchrome", None))
         self.colourRangeLabel.setText(_translate("ExplorerDialog", "Colour range:", None))
         self.lineWidthLabel.setText(_translate("ExplorerDialog", "Line width:", None))
         self.displayOrderCombo.setItemText(0, _translate("ExplorerDialog", "Display top level first", None))
         self.displayOrderCombo.setItemText(1, _translate("ExplorerDialog", "Display bottom level first", None))
         self.invertColourCheck.setText(_translate("ExplorerDialog", "Invert", None))
         self.intervalLabel.setText(_translate("ExplorerDialog", "Intervals:", None))
-        self.intervalTypeCombo.setItemText(0, _translate("ExplorerDialog", "Equal interval", None))
-        self.intervalTypeCombo.setItemText(1, _translate("ExplorerDialog", "Quantiles", None))
-        self.intervalTypeCombo.setItemText(2, _translate("ExplorerDialog", "Natural breaks", None))
-        self.intervalTypeCombo.setItemText(3, _translate("ExplorerDialog", "Custom", None))
         self.topLimitLabel.setText(_translate("ExplorerDialog", "Top %", None))
         self.topLimitText.setText(_translate("ExplorerDialog", "Maximum", None))
         self.bottomLimitLabel.setText(_translate("ExplorerDialog", "Bottom %", None))

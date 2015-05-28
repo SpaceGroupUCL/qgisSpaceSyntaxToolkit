@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>320</width>
-    <height>230</height>
+    <height>375</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -22,18 +22,21 @@
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
     <widget class="QTabWidget" name="settingsTab">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="analysisTab">
       <attribute name="title">
-       <string>depthmapXnet</string>
+       <string>Graph Analysis</string>
       </attribute>
       <layout class="QFormLayout" name="formLayout">
        <item row="0" column="0">
         <widget class="QLabel" name="engineHostLabel">
          <property name="text">
-          <string>Host IP</string>
+          <string>depthmapXnet IP</string>
          </property>
         </widget>
        </item>
@@ -61,6 +64,49 @@
          </property>
          <property name="readOnly">
           <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="explorerTab">
+      <attribute name="title">
+       <string>Explorer</string>
+      </attribute>
+      <layout class="QFormLayout" name="formLayout_2">
+       <item row="2" column="0">
+        <widget class="QComboBox" name="colourCombo">
+         <item>
+          <property name="text">
+           <string>Classic</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Red - blue</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Greyscale</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Monochrome</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Classic inflection</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="colourLabel">
+         <property name="text">
+          <string>Default colour range:</string>
          </property>
         </widget>
        </item>

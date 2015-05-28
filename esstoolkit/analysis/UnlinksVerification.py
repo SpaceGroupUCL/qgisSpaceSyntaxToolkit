@@ -63,12 +63,12 @@ class UnlinksVerification(QThread):
         if 'spatialite' in datastore.lower():
             # get the relevant layers names
             start_time = time.time()
-            unlinkname = getLayerTableName(self.unlinks_layer)
-            axialname = getLayerTableName(self.axial_layer)
+            unlinkname = getDBLayerTableName(self.unlinks_layer)
+            axialname = getDBLayerTableName(self.axial_layer)
             if not testSameDatabase([self.unlinks_layer, self.axial_layer]):
                 self.verificationError.emit("The map layer must be in the same database as the unlinks layer.")
                 return
-            connection = getLayerConnection(self.unlinks_layer)
+            connection = getDBLayerConnection(self.unlinks_layer)
             # get the geometry column name and other properties
             unlinkgeom = getSpatialiteGeometryColumn(connection, unlinkname)
             axialgeom = getSpatialiteGeometryColumn(connection, axialname)
@@ -415,12 +415,12 @@ class UnlinksIdUpdate(QThread):
 
     def spatialiteUpdateIDs(self, unlinktype):
         # get the relevant layers names
-        unlinkname = getLayerTableName(self.unlinks_layer)
-        axialname = getLayerTableName(self.axial_layer)
+        unlinkname = getDBLayerTableName(self.unlinks_layer)
+        axialname = getDBLayerTableName(self.axial_layer)
         if not testSameDatabase([self.unlinks_layer, self.axial_layer]):
             self.verificationError.emit("The map layer must be in the same database as the unlinks layer.")
             return
-        connection = getLayerConnection(self.unlinks_layer)
+        connection = getDBLayerConnection(self.unlinks_layer)
         # get the geometry column name and other properties
         unlinkgeom = getSpatialiteGeometryColumn(connection, unlinkname)
         axialgeom = getSpatialiteGeometryColumn(connection, axialname)

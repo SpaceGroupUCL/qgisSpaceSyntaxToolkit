@@ -91,11 +91,11 @@ class AnalysisTool(QObject):
         # initialise internal globals
         self.isVisible = False
         self.datastore = dict()
-        self.running_analysis = ''
+        self.running_analysis = ""
         self.start_time = None
         self.end_time = None
         self.analysis_nodes = 0
-        self.axial_id = ''
+        self.axial_id = ""
         self.all_ids = []
         self.current_layer = None
 
@@ -104,11 +104,12 @@ class AnalysisTool(QObject):
         self.timer.timeout.connect(self.checkDepthmapAnalysisProgress)
 
         # define analysis data structures
-        self.analysis_layers = {'map':'','unlinks':'','links':'','origins':''}
-        self.axial_analysis_settings = {'type':0,'distance':0,'radius':0,'rvalues':'n','output':'',
-                                        'fullset':0,'betweenness':1,'newnorm':1,'weight':0,'weightBy':''}
-        self.user_ids = {'map':'','unlinks':'','links':'','origins':''}
-        self.analysis_output = ''
+        self.analysis_layers = {'map': "",'unlinks': "",'links': "",'origins': ""}
+        self.axial_analysis_settings = {'type': 0,'distance': 0,'radius': 0,'rvalues': "n",'output': "",
+                                        'fullset': 0,'betweenness': 1,'newnorm': 1,'weight': 0,'weightBy': "",
+                                        'stubs': 40, 'id': ""}
+        self.user_ids = {'map': "",'unlinks': "",'links': "",'origins': ""}
+        self.analysis_output = ""
 
 
     def unload(self):
@@ -151,7 +152,6 @@ class AnalysisTool(QObject):
         self.project.readSettings(self.analysis_layers,"analysis")
         self.project.readSettings(self.axial_analysis_settings,"depthmap")
         # update UI
-        #self.updateLayers()
         if self.axial_analysis_settings['type'] == 0:
             self.dlg.setDepthmapAxialAnalysis()
         else:
@@ -175,18 +175,22 @@ class AnalysisTool(QObject):
         new_datastore = {'name':'','path':'','type':-1,'schema':'','crs':''}
         layer = uf.getLegendLayerByName(self.iface, name)
         if layer:
-            new_datastore['path'] = uf.getLayerPath(layer)
-            new_datastore['name'] = os.path.basename(new_datastore['path'])
             new_datastore['crs'] = layer.crs().postgisSrid()
             if 'SpatiaLite' in layer.storageType():
-                new_datastore['type'] = 0
+                new_datastore['type'] = 1
+                new_datastore['path'] = uf.getLayerPath(layer)
+                new_datastore['name'] = os.path.basename(new_datastore['path'])
             elif 'PostGIS' in layer.storageType():
                 new_datastore['type'] = 2
-                new_datastore['schema'] = ''
-            elif 'memory?' not in layer.storageType(): #'Shapefile' #'memory?' not
-                new_datastore['type'] = 1
+                layerinfo = uf.getPostgisLayerInfo(layer)
+                new_datastore['path'] = layerinfo['database']
+                new_datastore['schema'] = layerinfo['schema']
+                new_datastore['name'] = layerinfo['connection']
+            elif 'memory?' not in layer.storageType(): #'Shapefile'
+                new_datastore['type'] = 0
+                new_datastore['path'] = uf.getLayerPath(layer)
+                new_datastore['name'] = os.path.basename(new_datastore['path'])
             if new_datastore['type'] > -1:
-                #self.updateDatastoreSettings.emit(new_datastore, 'datastore')
                 self.project.writeSettings(new_datastore, 'datastore')
                 self.setDatastore()
             else:
@@ -203,34 +207,48 @@ class AnalysisTool(QObject):
         self.datastore = self.project.getGroupSettings('datastore')
         if 'type' in self.datastore:
             self.datastore['type'] = int(self.datastore['type'])
+        else:
+            self.datastore['type'] = -1
         # update UI
         txt = ""
         path = ""
-        if 'name' in self.datastore:
-            if self.datastore['name'] != "" and os.path.exists(self.datastore['path']):
-                # get elements for string to identify data store for user
-                if 'type' in self.datastore:
-                    if self.datastore['type'] == 0:
-                        txt = 'SL: '
-                    elif self.datastore['type'] == 1:
-                        txt = 'SF: '
-                    elif self.datastore['type'] == 2:
-                        txt = 'PG: '
-                txt += self.datastore['name']
+        if 'name' in self.datastore and self.datastore['name'] != "":
+            # get elements for string to identify data store for user
+            # shape file data store
+            if self.datastore['type'] == 0 and os.path.exists(self.datastore['path']):
+                txt = 'SF: %s' % self.datastore['name']
                 path = self.datastore['path']
+            # spatialite data store
+            elif self.datastore['type'] == 1 and self.datastore['name'] in uf.listSpatialiteConnections()['name'] and os.path.exists(self.datastore['path']):
+                txt = 'SL: %s' % self.datastore['name']
+                path = self.datastore['path']
+            # postgis data store
+            elif self.datastore['type'] == 2 and self.datastore['name'] in uf.listPostgisConnections():
+                txt = 'PG: %s (%s)' % (self.datastore['name'],self.datastore['schema'])
+                path = """dbname='%s' schema='%s'""" % (self.datastore['path'], self.datastore['schema'])
         self.dlg.setDatastore(txt, path)
 
     def isDatastoreSet(self):
         is_set = False
+        name = self.datastore['name']
+        path = self.datastore['path']
+        schema = self.datastore['schema']
         if self.datastore:
-            if self.datastore['name'] == "":
-                self.iface.messageBar().pushMessage("Info", "Select a 'Data store' to save analysis results.", level=0, duration=5)
-            elif not os.path.exists(self.datastore['path']):
-                # clear datastore
+            if name == "":
                 self.clearDatastore()
-                self.iface.messageBar().pushMessage("Info", "The selected data store cannot be found.", level=0, duration=5)
+                self.iface.messageBar().pushMessage("Info", "Select a 'Data store' to save analysis results.", level=0, duration=5)
+            elif self.datastore['type'] == 0 and not os.path.exists(path):
+                is_set = False
+            elif self.datastore['type'] == 1 and (name not in uf.listSpatialiteConnections()['name'] or not os.path.exists(path)):
+                is_set = False
+            elif self.datastore['type'] == 2 and (name not in uf.listPostgisConnections() or schema not in uf.listPostgisSchemas(uf.getPostgisConnection(name))):
+                is_set = False
             else:
                 is_set = True
+           # clear whatever data store settings are saved
+            if not is_set:
+                self.clearDatastore()
+                self.iface.messageBar().pushMessage("Info", "The selected data store cannot be found.", level=0, duration=5)
         else:
             self.clearDatastore()
             self.iface.messageBar().pushMessage("Info", "Select a 'Data store' to save analysis results.", level=0, duration=5)
@@ -256,18 +274,14 @@ class AnalysisTool(QObject):
         unlinks_list = []
         links_list = []
         origins_list = []
-        # fixme: throws error when removing layers. trapping it for now. TypeError: 'NoneType' object is not callable
-        #try:
         layers = uf.getLegendLayers(self.iface, 'all', 'all')
-        #except:
-        #    layers = None
         if layers:
             for layer in layers:
                 # checks if the layer is projected. Geographic coordinates are not supported
-                if uf.isLayerProjected(layer):
+                if layer.hasGeometryType() and uf.isLayerProjected(layer):
                     origins_list.append(layer.name())
                     unlinks_list.append(layer.name())
-                    if layer.geometryType() in [1,4]:
+                    if layer.geometryType() == 1: # line geometry
                         map_list.append(layer.name())
                         links_list.append(layer.name())
         # default selection
@@ -301,25 +315,6 @@ class AnalysisTool(QObject):
         self.dlg.setOriginsLayers(origins_list, analysis_origins)
         self.dlg.updateAnalysisTabs()
         self.dlg.updateAxialDepthmapTab()
-
-    def createMapLayer(self):
-        # newfeature: create map layer. probably remove this in the future
-        if not self.datastore['type']:
-            # ask to set datastore
-            return
-        # get table name
-        name = ""
-        # create new layer
-        #self.axialMap.createAxialMap(name, self.datastore['type'])
-
-    def createAxialFeature(self):
-        # newfeature: create a new line with standard attributes. probably remove this in the future
-        self.edit_mode = self.dlg.getLayerTab()
-
-    def createUnlinkFeature(self):
-        # newfeature: create a new unlink updating attributes. probably remove this in the future
-        self.edit_mode = self.dlg.getLayerTab()
-
 
     ##
     ## Layer verification functions
@@ -377,7 +372,7 @@ class AnalysisTool(QObject):
                 self.iface.messageBar().pushMessage("Info", "The origins layer has invalid or duplicate values in the ID column. Using feature ids instead.", level=0, duration=5)
             if unlinks.fieldNameIndex("lineid") == -1:
                 self.iface.messageBar().pushMessage("Info", "The origins layer is missing the lineid column. Update IDs to complete the verification.", level=0, duration=5)
-            # newfeature: check origins validity (for step depth/isovists)
+            # newfeature: check origins validity (for step depth and isovists)
         if not caps & QgsVectorDataProvider.AddFeatures:
             self.iface.messageBar().pushMessage("Info","To edit the selected layer, change to another file format.", level=0, duration=5)
         self.dlg.setAxialVerifyProgressbar(0,100)
@@ -468,7 +463,7 @@ class AnalysisTool(QObject):
             pass
         self.verificationThread = None
         # reload the layer if columns were added with the ID update
-        if self.datastore['type'] == 0:
+        if self.datastore['type'] in (1,2):
             if self.edit_mode == 0:
                 layer = uf.getLegendLayerByName(self.iface, self.analysis_layers['map'])
             elif self.edit_mode == 1:
@@ -477,9 +472,16 @@ class AnalysisTool(QObject):
                 layer = uf.getLegendLayerByName(self.iface, self.analysis_layers['links'])
             else:
                 layer = uf.getLegendLayerByName(self.iface, self.analysis_layers['origins'])
-            connection = uf.getLayerConnection(layer)
-            cols = uf.listSpatialiteColumns(connection, layer.name())
+            connection = uf.getDBLayerConnection(layer)
+            if self.datastore['type'] == 1:
+                cols = uf.listSpatialiteColumns(connection, layer.name())
+            else:
+                info = uf.getPostgisLayerInfo(layer)
+                schema = info['schema']
+                name = info['table']
+                cols = uf.listPostgisColumns(connection, schema, name)
             connection.close()
+            # columns-1 to account for the geometry column that is not a field in QGIS
             if len(layer.dataProvider().fields()) == len(cols)-1:
                 layer.dataProvider().reloadData()
             else:
@@ -588,15 +590,14 @@ class AnalysisTool(QObject):
                 self.iface.mapCanvas().zoomToSelected()
                 if layer.geometryType() in (QGis.Polygon, QGis.Line):
                     self.iface.mapCanvas().zoomOut()
-                #else:
-                    #self.iface.mapCanvas().zoomIn()
 
 
     ##
     ## Depthmap analysis functions
     ##
     def getDepthmapConnection(self):
-        # todo: get these settings from settings manager
+        # newfeature: get these settings from settings manager.
+        # no need for it now as it's hardcoded in depthmapXnet.
         connection = {'host':'localhost','port':31337}
         return connection
 
@@ -626,6 +627,8 @@ class AnalysisTool(QObject):
             # get selected layers
             self.analysis_layers = self.dlg.getAnalysisLayers()
             # get the basic analysis settings
+            analysis_layer = uf.getLegendLayerByName(self.iface, self.analysis_layers['map'])
+            self.axial_analysis_settings['id'] = uf.getIdField(analysis_layer)
             self.axial_analysis_settings['type'] = self.dlg.getDepthmapAnalysisType()
             self.axial_analysis_settings['weight'] = self.dlg.getDepthmapWeighted()
             self.axial_analysis_settings['weightBy'] = self.dlg.getDepthmapWeightAttribute()
@@ -643,21 +646,27 @@ class AnalysisTool(QObject):
             self.axial_analysis_settings['fullset'] = self.dlg.getAxialDepthmapFullset()
             self.axial_analysis_settings['betweenness'] = self.dlg.getAxialDepthmapChoice()
             self.axial_analysis_settings['newnorm'] = self.dlg.getAxialDepthmapNormalised()
+            self.axial_analysis_settings['stubs'] = 40 #self.dlg.getAxialDepthmapStubs()
 
             # check if output file/table already exists
             table_exists = False
             if self.datastore['type'] == 0:
+                table_exists = uf.testShapeFileExists(self.datastore['path'], self.axial_analysis_settings['output'])
+            elif self.datastore['type'] == 1:
                 connection = uf.getSpatialiteConnection(self.datastore['path'])
                 if connection:
                     table_exists = uf.testSpatialiteTableExists(connection, self.axial_analysis_settings['output'])
                 connection.close()
-            elif self.datastore['type'] == 1:
-                table_exists = uf.testShapeFileExists(self.datastore['path'], self.axial_analysis_settings['output'])
+            elif self.datastore['type'] == 2:
+                connection = uf.getPostgisConnection(self.datastore['name'])
+                if connection:
+                    table_exists = uf.testPostgisTableExists(connection, self.datastore['schema'], self.axial_analysis_settings['output'])
+                connection.close()
             if table_exists:
                 action = QMessageBox.question(None, "Overwrite table", "The output table already exists in:\n %s.\nOverwrite?"% self.datastore['path'],"Ok","Cancel","",1,1)
-                if action == 0:
+                if action == 0: # Yes
                     pass
-                elif action == 1:
+                elif action == 1: # No
                     return
                 else:
                     return
@@ -678,7 +687,7 @@ class AnalysisTool(QObject):
                 self.timer.start(1000)
                 self.running_analysis = 'axial'
             else:
-                self.dlg.writeAxialDepthmapReport("Unable to run this analysis. Please check the analysis settings.")
+                self.dlg.writeAxialDepthmapReport("Unable to run this analysis. Please check the input layer and analysis settings.")
                 #self.iface.messageBar().pushMessage("Error","Unable to run this space syntax analysis.", level=2, duration=4)
             #self.dlg.lockAxialDepthmapTab(False)
 
@@ -815,10 +824,12 @@ class AnalysisTool(QObject):
 
     def saveAnalysisResults(self, attributes, types, values, coords):
         # Save results to output
+        res = False
         analysis_layer = uf.getLegendLayerByName(self.iface, self.analysis_layers['map'])
         srid = analysis_layer.crs()
         path = self.datastore['path']
-        name = self.analysis_output
+        table = self.analysis_output
+        id = self.axial_analysis_settings['id']
         # if it's an axial analysis try to update the existing layer
         new_layer = None
         # must check if data store is still there
@@ -830,40 +841,78 @@ class AnalysisTool(QObject):
         # if it's a segment analysis always create a new layer
         # also if one of these is different: output table name, file type, data store location, number of records
         # this last one is a weak check for changes to the table. making a match of results by id would take ages.
-        if self.axial_analysis_settings['type'] == 1 or analysis_layer.name() != name or uf.getLayerPath(analysis_layer) != path or len(values) != analysis_layer.featureCount():
+        if analysis_layer.name() != table or self.axial_analysis_settings['type'] == 1 or len(values) != analysis_layer.featureCount():
             create_table = True
-        # spatialite data store
+        # shapefile data store
         if self.datastore['type'] == 0:
-            connection = uf.getSpatialiteConnection(path)
-            if 'spatialite' not in provider.lower() or create_table:
-                res = uf.createSpatialiteTable(connection, path, name, srid.postgisSrid(), attributes, types, 'MULTILINESTRING')
-                if res:
-                    res = uf.insertSpatialiteValues(connection, name, attributes, values, coords)
-                    if res:
-                        new_layer = uf.getSpatialiteLayer(connection, path, name)
+            if uf.getLayerPath(analysis_layer) != path or analysis_layer.name() != table:
+                create_table = True
+            if 'shapefile' not in provider.lower() or create_table:
+                new_layer = uf.createShapeFileFullLayer(path, table, srid, attributes, types, values, coords)
+                if new_layer:
+                    res = True
+                else:
+                    res = False
             else:
-                res = uf.addSpatialiteAttributes(connection, name, attributes, types, values)
+                res = uf.addShapeFileAttributes(analysis_layer, attributes, types, values)
+        # spatialite data store
+        elif self.datastore['type'] == 1:
+            connection = uf.getSpatialiteConnection(path)
+            if not uf.testSpatialiteTableExists(connection, self.axial_analysis_settings['output']):
+                create_table = True
+            if 'spatialite' not in provider.lower() or create_table:
+                res = uf.createSpatialiteTable(connection, path, table, srid.postgisSrid(), attributes, types, 'MULTILINESTRING')
+                if res:
+                    res = uf.insertSpatialiteValues(connection, table, attributes, values, coords)
+                    if res:
+                        new_layer = uf.getSpatialiteLayer(connection, path, table)
+                        if new_layer:
+                            res = True
+                        else:
+                            res = False
+            else:
+                res = uf.addSpatialiteAttributes(connection, table, id, attributes, types, values)
                 # the spatialite layer needs to be removed and re-inserted to display changes
                 if res:
                     QgsMapLayerRegistry.instance().removeMapLayer(analysis_layer.id())
-                    new_layer = uf.getSpatialiteLayer(connection, path, name)
+                    new_layer = uf.getSpatialiteLayer(connection, path, table)
+                    if new_layer:
+                        res = True
+                    else:
+                        res = False
             connection.close()
-        # shapefile data store
-        elif self.datastore['type'] == 1:
-            if 'shapefile' not in provider.lower() or create_table:
-                new_layer = uf.createShapeFileFullLayer(path, name, srid, attributes, types, values, coords)
-            else:
-                res = uf.addShapeFileAttributes(analysis_layer, attributes, types, values)
         # postgis data store
         elif self.datastore['type'] == 2:
+            schema = self.datastore['schema']
+            connection = uf.getPostgisConnection(self.datastore['name'])
+            if not uf.testPostgisTableExists(connection, self.datastore['schema'], self.axial_analysis_settings['output']):
+                create_table = True
             if 'postgresql' not in provider.lower() or create_table:
-                # newfeature: implement PostGIS handling
-                pass
+                res = uf.createPostgisTable(connection, schema, table, srid.postgisSrid(), attributes, types, 'MULTILINESTRING')
+                if res:
+                    res = uf.insertPostgisValues(connection, schema, table, attributes, values, coords)
+                    if res:
+                        new_layer = uf.getPostgisLayer(connection, self.datastore['name'], schema, table)
+                        if new_layer:
+                            res = True
+                        else:
+                            res = False
+            else:
+                res = uf.addPostgisAttributes(connection, schema, table, id, attributes, types, values)
+                # the spatialite layer needs to be removed and re-inserted to display changes
+                if res:
+                    QgsMapLayerRegistry.instance().removeMapLayer(analysis_layer.id())
+                    new_layer = uf.getPostgisLayer(connection, self.datastore['name'], schema, table)
+                    if new_layer:
+                        res = True
+                    else:
+                        res = False
+            connection.close()
         # memory layer data store
-        elif self.datastore['type'] == -1:
+        if self.datastore['type'] == -1 or not res:
             # create a memory layer with the results
             # the coords indicates the results columns with x1, y1, x2, y2
-            new_layer = uf.createTempLayer(name, srid.postgisSrid(), attributes, types, values, coords)
+            new_layer = uf.createTempLayer(table, srid.postgisSrid(), attributes, types, values, coords)
 
         return new_layer
 

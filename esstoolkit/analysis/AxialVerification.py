@@ -86,18 +86,18 @@ class AxialVerification(QThread):
             # get the relevant layers
             unlinkname = ''
             if self.unlinks_layer:
-                unlinkname = uf.getLayerTableName(self.unlinks_layer)
+                unlinkname = uf.getDBLayerTableName(self.unlinks_layer)
                 if not uf.testSameDatabase([self.unlinks_layer, self.axial_layer]):
                     self.verificationError.emit("The map layer must be in the same database as the unlinks layer.")
                     return
             linkname = ''
             if self.links_layer:
-                linkname = uf.getLayerTableName(self.links_layer)
+                linkname = uf.getDBLayerTableName(self.links_layer)
                 if not uf.testSameDatabase([self.links_layer, self.axial_layer]):
                     self.verificationError.emit("The map layer must be in the same database as the links layer.")
                     return
-            axialname = uf.getLayerTableName(self.axial_layer)
-            self.connection = uf.getLayerConnection(self.axial_layer)
+            axialname = uf.getDBLayerTableName(self.axial_layer)
+            self.connection = uf.getDBLayerConnection(self.axial_layer)
             # get the geometry column name and other properties
             # always check if the operation has been cancelled before proceeding.
             # this would come up only once if the thread was based on a loop, to break it.

@@ -26,7 +26,7 @@ from qgis.core import *
 
 # Import the debug library
 # can set is_debug to False in release version
-is_debug = False
+is_debug = True
 try:
     import pydevd
     has_pydevd = True
@@ -111,10 +111,10 @@ class EssToolkit:
         icon = QIcon(os.path.dirname(__file__) + "/icons/project.png")
         self.project_action = QAction(icon, u"Project", self.iface.mainWindow())
         self.project_action.triggered.connect(self.project.showDialog)
-        icon = QIcon(os.path.dirname(__file__) + "/icons/analysis.png")
+        icon = QIcon(os.path.dirname(__file__) + "/icons/esst_graph.png")
         self.analysis_action = QAction(icon, u"Graph Analysis", self.iface.mainWindow())
         self.analysis_action.triggered.connect(self.showAnalysis)
-        icon = QIcon(os.path.dirname(__file__) + "/icons/explorer.png")
+        icon = QIcon(os.path.dirname(__file__) + "/icons/esst_explorer.png")
         self.explorer_action = QAction(icon, u"Attributes Explorer", self.iface.mainWindow())
         self.explorer_action.triggered.connect(self.showExplorer)
         #icon = QIcon(os.path.dirname(__file__) + "/icons/settings.png")

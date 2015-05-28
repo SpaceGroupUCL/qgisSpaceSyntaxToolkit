@@ -46,7 +46,7 @@ class DepthmapAnalysis(QObject):
         self.axial_default = ('Connectivity','Line Length','Id')
         self.segment_default = ('Angular Connectivity','Axial Connectivity','Axial Id',
                                 'Axial Line Length','Axial Line Ref','Connectivity','Segment Length')
-        self.user_id = ''
+        self.axial_id = ''
 
     def showMessage(self, msg, type='Info', lev=1, dur=2):
         self.iface.messageBar().pushMessage(type,msg,level=lev,duration=dur)
@@ -78,8 +78,14 @@ class DepthmapAnalysis(QObject):
         else:
             weight_by = ''
         # look for user defined ID
-        self.user_id = uf.getIdField(self.axial_layer)
-        axial_data = self.prepareAxialMap(self.user_id, weight_by)
+        if self.settings['id']:
+            self.axial_id = self.settings['id']
+        else:
+            self.axial_id = uf.getIdField(self.axial_layer)
+        axial_data = self.prepareAxialMap(self.axial_id, weight_by)
+        if axial_data == '':
+            self.showMessage("The axial layer is not ready for analysis: verify its geometry first.", 'Info', lev=1, dur=5)
+            return ''
         if self.unlinks_layer:
             unlinks_data = self.prepareUnlinks()
         else:
@@ -158,6 +164,7 @@ class DepthmapAnalysis(QObject):
                 defaults.extend(self.axial_default)
             elif self.settings['type'] == 1:
                 defaults.extend(self.segment_default)
+            # I leave all the if clauses outside the for loop to gain some speed
             if ref != '':
                 if weight not in defaults:
                     for f in features:
@@ -182,6 +189,8 @@ class DepthmapAnalysis(QObject):
                         axial_data += str(f.id()) + "\t"
                         axial_data += str(f.geometry().vertexAt(0).x()) + "\t" + str(f.geometry().vertexAt(0).y()) + "\t"
                         axial_data += str(f.geometry().vertexAt(1).x()) + "\t" + str(f.geometry().vertexAt(1).y()) + "\n"
+            if not f.geometry().isGeosValid():
+                axial_data = ''
             return axial_data
         except:
             self.showMessage("Exporting axial map failed.", 'Error', lev=3, dur=5)
@@ -197,7 +206,7 @@ class DepthmapAnalysis(QObject):
             self.showMessage("Unlinks layer not ready for analysis: update and verify first.", 'Info', lev=1, dur=5)
             return unlinks_data
         # get axial ids
-        axialids, ids = uf.getFieldValues(self.axial_layer, self.user_id)
+        axialids, ids = uf.getFieldValues(self.axial_layer, self.axial_id)
         # assign row number by id
         try:
             features = self.unlinks_layer.getFeatures()
@@ -280,6 +289,8 @@ class DepthmapAnalysis(QObject):
             return None, None, None, None
         attributes = final_result[0]
         values = final_result[1:len(final_result)]
+        if values == []:
+            return attributes, None, None, None
         # Process the attributes, renaming them and selecting only relevant ones
         exclusions = []
         # keep only most important attributes
@@ -308,7 +319,7 @@ class DepthmapAnalysis(QObject):
             idx = attributes.index("Id")
             attributes[idx] = "Axial Id"
         # remove spaces
-        #attributes = [x.replace(" ","_") for x in attributes]
+        attributes = [x.replace(" ","_") for x in attributes]
         # get data type of attributes
         types = []
         data_sample = [uf.convertNumeric(x) for x in values[0]]
@@ -333,7 +344,7 @@ class DepthmapAnalysis(QObject):
             new_types = [QVariant.Double] * len(new_attributes)
             types.extend(new_types)
         #the attribute names must be fixed
-        if datastore['type'] == 1:
+        if datastore['type'] == 0:
             # when working with shape files
             attributes = self.fixDepthmapNames(attributes)
         else:
@@ -344,7 +355,7 @@ class DepthmapAnalysis(QObject):
                 x = x.replace("[", "")
                 x = x.replace("]", "")
                 # make lowercase
-                # x = x.lower()
+                x = x.lower()
                 attr.append(x)
             attributes = attr
 
@@ -370,11 +381,11 @@ class DepthmapAnalysis(QObject):
             if 'Choice' in attr:
                 choice.append(i)
                 nach.append(attr.replace('Choice', 'NACH'))
-            if 'Node Count' in attr:
+            if 'Node_Count' in attr:
                 nc.append(i)
-            if 'Total Depth' in attr:
+            if 'Total_Depth' in attr:
                 td.append(i)
-                nain.append(attr.replace('Total Depth', 'NAIN'))
+                nain.append(attr.replace('Total_Depth', 'NAIN'))
         new_attributes = []
         new_attributes.extend(nach)
         new_attributes.extend(nain)
@@ -385,14 +396,20 @@ class DepthmapAnalysis(QObject):
             feat = list(feat)
             calc_values = []
             for i, j in enumerate(choice):
-                val = math.log(float(feat[j])+1.0)/math.log(float(feat[td[i]])+3.0)
-                calc_values.append(val)
+                try:
+                    val = math.log(float(feat[j])+1.0)/math.log(float(feat[td[i]])+3.0)
+                    calc_values.append(val)
+                except:
+                    calc_values.append(NULL)
             for i, j in enumerate(td):
-                if i < len(nc):
-                    val = (float(feat[nc[i]])**1.2)/float(feat[j])
-                else:
-                    val = (float(feat[nc[i-len(nc)]])**1.2)/float(feat[j])
-                calc_values.append(val)
+                try:
+                    if i < len(nc):
+                        val = (float(feat[nc[i]])**1.2)/float(feat[j])
+                    else:
+                        val = (float(feat[nc[i-len(nc)]])**1.2)/float(feat[j])
+                    calc_values.append(val)
+                except:
+                    calc_values.append(NULL)
             feat.extend(calc_values)
             all_values.append(feat)
         return new_attributes, all_values
@@ -432,7 +449,7 @@ class DepthmapAnalysis(QObject):
         #using simple dict / string operations
         new_names = []
         for name in names:
-            parts = name.split(" ")
+            parts = name.split("_")
             new_name = ""
             for part in parts:
                 part = part.lower()

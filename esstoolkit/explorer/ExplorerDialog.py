@@ -50,30 +50,6 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
         # Set up the user interface from Designer.
         self.setupUi(self)
 
-        # Connect dialog's internal signals and slots
-        #self.attributesLoaded.connect(self.__lockColourControls)
-        self.layerRefreshButton.clicked.connect(self.__refreshLayers)
-        self.layerCombo.activated.connect(self.__selectCurrentLayer)
-        self.attributesList.currentRowChanged.connect(self.__lockApplyButton)
-        self.attributesList.currentRowChanged.connect(self.__selectCurrentAttribute)
-        # symbology colour range settings
-        self.colourRangeCombo.currentIndexChanged.connect(self.__colourRangeSelected)
-        self.lineWidthSpin.valueChanged.connect(self.__lineWidthChanged)
-        self.invertColourCheck.stateChanged.connect(self.__invertColourChanged)
-        self.displayOrderCombo.currentIndexChanged.connect(self.__displayOrderSelected)
-        # symbology interval settings
-        self.intervalSpin.valueChanged.connect(self.__intervalNumberChanged)
-        self.intervalTypeCombo.activated.connect(self.__intervalTypeChanged)
-        self.topLimitSpin.valueChanged.connect(self.__topLimitSpinClicked)
-        self.topLimitText.editingFinished.connect(self.__topLimitTextChanged)
-        self.bottomLimitSpin.valueChanged.connect(self.__bottomLimitSpinClicked)
-        self.bottomLimitText.editingFinished.connect(self.__bottomLimitTextChanged)
-        # charts
-        self.histogramCheck.clicked.connect(self.__histogramSelected)
-        self.boxplotCheck.clicked.connect(self.__boxplotSelected)
-        self.scatterplotCheck.clicked.connect(self.__scatterplotSelected)
-        self.yaxisCombo.currentIndexChanged.connect(self.yAxisChanged)
-
         # global variables
         self.layer_attributes = {}
         self.curr_attribute = 0
@@ -84,6 +60,8 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
         self.curr_chart = 0
 
         # default symbology values
+        self.colourRangeCombo.addItems(["Classic","Red - blue","Greyscale","Monochrome"]) #"Classic inflection"
+        self.intervalTypeCombo.addItems(["Equal intervals","Quantiles","Natural breaks","Custom"]) #"Default NACh"
         self.layerRefreshButton.hide()
         self.current_symbology = dict()
         #self.__clearSymbology()
@@ -112,6 +90,30 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
         self.chartPlotWidget.setObjectName("chartPlotWidget")
         self.chartsLayout.addWidget(self.chartPlotWidget)
         self.chartsLayout.setStretch(1, 1)
+
+        # Connect dialog's internal signals and slots
+        #self.attributesLoaded.connect(self.__lockColourControls)
+        self.layerRefreshButton.clicked.connect(self.__refreshLayers)
+        self.layerCombo.activated.connect(self.__selectCurrentLayer)
+        self.attributesList.currentRowChanged.connect(self.__lockApplyButton)
+        self.attributesList.currentRowChanged.connect(self.__selectCurrentAttribute)
+        # symbology colour range settings
+        self.colourRangeCombo.currentIndexChanged.connect(self.__colourRangeSelected)
+        self.lineWidthSpin.valueChanged.connect(self.__lineWidthChanged)
+        self.invertColourCheck.stateChanged.connect(self.__invertColourChanged)
+        self.displayOrderCombo.currentIndexChanged.connect(self.__displayOrderSelected)
+        # symbology interval settings
+        self.intervalSpin.valueChanged.connect(self.__intervalNumberChanged)
+        self.intervalTypeCombo.activated.connect(self.__intervalTypeChanged)
+        self.topLimitSpin.valueChanged.connect(self.__topLimitSpinClicked)
+        self.topLimitText.editingFinished.connect(self.__topLimitTextChanged)
+        self.bottomLimitSpin.valueChanged.connect(self.__bottomLimitSpinClicked)
+        self.bottomLimitText.editingFinished.connect(self.__bottomLimitTextChanged)
+        # charts
+        self.histogramCheck.clicked.connect(self.__histogramSelected)
+        self.boxplotCheck.clicked.connect(self.__boxplotSelected)
+        self.scatterplotCheck.clicked.connect(self.__scatterplotSelected)
+        self.yaxisCombo.currentIndexChanged.connect(self.yAxisChanged)
 
 
     #####
@@ -193,9 +195,9 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
         self.setDisplayOrder(int(self.current_symbology["display_order"]))
         self.setIntervalSpin(int(self.current_symbology["intervals"]))
         self.setIntervalType(int(self.current_symbology["interval_type"]))
-        self.setTopLimitSpin(int(self.current_symbology["top_percent"]))
+        self.setTopLimitSpin(abs(uf.convertNumeric(self.current_symbology["top_percent"])))
         self.setTopLimitText(str(self.current_symbology["top_value"]))
-        self.setBottomLimitSpin(int(self.current_symbology["bottom_percent"]))
+        self.setBottomLimitSpin(abs(uf.convertNumeric(self.current_symbology["bottom_percent"])))
         self.setBottomLimitText(str(self.current_symbology["bottom_value"]))
 
     def __clearSymbology(self):
@@ -211,9 +213,9 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
         self.setDisplayOrder(int(self.current_symbology["display_order"]))
         self.setIntervalSpin(int(self.current_symbology["intervals"]))
         self.setIntervalType(int(self.current_symbology["interval_type"]))
-        self.setTopLimitSpin(int(self.current_symbology["top_percent"]))
+        self.setTopLimitSpin(abs(uf.convertNumeric(self.current_symbology["top_percent"])))
         self.setTopLimitText(str(self.current_symbology["top_value"]))
-        self.setBottomLimitSpin(int(self.current_symbology["bottom_percent"]))
+        self.setBottomLimitSpin(abs(uf.convertNumeric(self.current_symbology["bottom_percent"])))
         self.setBottomLimitText(str(self.current_symbology["bottom_value"]))
 
     def getUpdatedDisplaySettings(self):
@@ -238,7 +240,7 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
 
     def __lockColourControls(self, onoff):
         #set all the colour and interval controls
-        if self.attributesList.count() == 0 or self.current_symbology["colour_range"] != 4:
+        if self.attributesList.count() == 0 or self.current_symbology["colour_range"] == 0:
             self.colourRangeCombo.setDisabled(onoff)
         self.invertColourCheck.setDisabled(onoff)
         self.displayOrderCombo.setDisabled(onoff)
@@ -259,12 +261,13 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
 
     # Colour settings
     def setColourRanges(self, idx):
-        self.colourRangeCombo.setCurrentIndex(idx)
-        #self.__colourRangeSelected(idx)
+        if idx > 0 and idx <= self.colourRangeCombo.maxVisibleItems():
+            self.colourRangeCombo.setCurrentIndex(idx)
+        self.__colourRangeSelected(idx)
 
     def __colourRangeSelected(self, idx):
         self.current_symbology["colour_range"] = idx
-        if idx == 4:
+        if idx > 4:
             self.__lockColourControls(True)
         else:
             self.__lockColourControls(False)
@@ -299,7 +302,8 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
         self.current_symbology["intervals"] = value
 
     def setIntervalType(self, idx):
-        self.intervalTypeCombo.setCurrentIndex(idx)
+        if idx > 0 and idx <= self.intervalTypeCombo.maxVisibleItems():
+            self.intervalTypeCombo.setCurrentIndex(idx)
         self.__intervalTypeChanged(idx)
 
     def __intervalTypeChanged(self, idx):
@@ -315,8 +319,15 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
                     self.__lockApplyButton(False)
         else:
             self.__lockCustomIntervalControls(True)
-            self.current_symbology["top_value"] = self.attribute_max
-            self.current_symbology["bottom_value"] = self.attribute_min
+            if self.current_symbology["interval_type"] == 4:
+                # implementation of default NACh ranges used by Bill Hillier and SSx Ltd
+                self.setTopLimitText("1.4")
+                self.__topLimitTextChanged()
+                self.setBottomLimitText("0.8")
+                self.__bottomLimitTextChanged()
+            #else:
+            #    self.current_symbology["top_value"] = self.attribute_max
+            #    self.current_symbology["bottom_value"] = self.attribute_min
             self.__lockApplyButton(False)
 
     def __topLimitSpinClicked(self, value):

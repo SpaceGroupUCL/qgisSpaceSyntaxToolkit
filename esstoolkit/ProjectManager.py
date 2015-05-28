@@ -59,7 +59,7 @@ class ProjectManager(QtCore.QObject):
         self.iface.newProjectCreated.disconnect(self.__loadDefaults)
 
     def showDialog(self):
-        self.__loadSettings()
+        #self.__loadSettings()
         self.dlg.loadSettings(self.proj_settings)
         self.dlg.show()
 
@@ -212,7 +212,6 @@ class ProjectManager(QtCore.QObject):
             self.datastore["crs"] = self.proj_settings["datastore/crs"]
         else:
             self.datastore["crs"] = ''
-        #self.datastoreUpdated.emit(self.datastore)
 
 
 class ProjectDialog(QtGui.QDialog, Ui_ProjectDialog):
@@ -233,6 +232,10 @@ class ProjectDialog(QtGui.QDialog, Ui_ProjectDialog):
         self.datastore_name = None
         self.datastore_path = None
         self.datastore_schema = None
+        self.default_data_type = 0
+
+        self.dataTypeCombo.clear()
+        self.dataTypeCombo.addItems(['Shape files folder','Personal geodatabase','PostGIS database'])
 
         # set up internal GUI signals
         QtCore.QObject.connect(self.closeButtonBox,QtCore.SIGNAL("rejected()"),self.close)
@@ -243,39 +246,34 @@ class ProjectDialog(QtGui.QDialog, Ui_ProjectDialog):
         self.dataOpenButton.clicked.connect(self.openDatastore)
         self.dataNewButton.clicked.connect(self.newDatastore)
 
-        # Hide schema setting for now. It's only relevant in PostGIS
-        self.schemaLabel.hide()
-        self.schemaCombo.hide()
-
-
     def loadSettings(self,proj_settings):
         self.proj_settings = proj_settings
         # set up current settings, otherwise default
         if "datastore/type" in self.proj_settings:
             try:
-                idx = int(self.proj_settings["datastore/type"])
-                self.dataTypeCombo.setCurrentIndex(idx)
+                data_type = int(self.proj_settings["datastore/type"])
+                self.dataTypeCombo.setCurrentIndex(data_type)
             except:
-                return
+                self.dataTypeCombo.setCurrentIndex(self.default_data_type)
         else:
-            self.dataTypeCombo.setCurrentIndex(0)
+            self.dataTypeCombo.setCurrentIndex(self.default_data_type)
         self.selectDatastoreType()
 
     def selectDatastoreType(self):
         self.datastore_type = self.dataTypeCombo.currentIndex()
-        # type 0 - spatialite personal geodatabase # the default
+        # type 0 - shape file folder
         if self.datastore_type == 0:
             self.dataNewButton.setDisabled(False)
             self.dataOpenButton.setDisabled(False)
-            self.schemaCombo.setDisabled(True)
-            self.schemaLabel.setDisabled(True)
-        # type 1 - shape file folder
+            self.clearDatastoreSelect()
+            self.clearSchemaSelect()
+        # type 0 - spatialite personal geodatabase # the default
         elif self.datastore_type == 1:
             self.dataNewButton.setDisabled(False)
             self.dataOpenButton.setDisabled(False)
-            self.schemaCombo.setDisabled(True)
-            self.schemaLabel.setDisabled(True)
-        # type 2 - PostGIS geodatabase # not available for now...
+            self.clearDatastoreSelect()
+            self.clearSchemaSelect()
+        # type 2 - PostGIS geodatabase
         elif self.datastore_type == 2:
             self.dataNewButton.setDisabled(True)
             self.dataOpenButton.setDisabled(True)
@@ -286,22 +284,26 @@ class ProjectDialog(QtGui.QDialog, Ui_ProjectDialog):
         self.loadDatastoreList()
 
     def loadDatastoreList(self):
-        # get list of datastores from loaded layers
+        # get list of datastores from loaded layers or existing database connections
         if self.datastore_type == 0:
-            self.datastores = uf.listSpatialiteConnections()
-        elif self.datastore_type == 1:
             self.datastores = uf.listShapeFolders()
+        elif self.datastore_type == 1:
+            self.datastores = uf.listSpatialiteConnections()
         elif self.datastore_type == 2:
-            #newfeature: get list of PostGIS connections
-            pass
+            con_settings = uf.getPostgisConnectionSettings()
+            self.datastores['name'] = [con['name'] for con in con_settings]
+            self.datastores['idx'] = self.datastores['name'].index(uf.getPostgisSelectedConnection())
+            self.datastores['path'] = [con['database'] for con in con_settings]
         # identify datastore from settings
         try:
-            idx = int(self.proj_settings["datastore/type"])
+            data_type = int(self.proj_settings["datastore/type"])
         except:
-            idx = 0
-        if self.datastore_type == idx:
-            if self.datastore_type == 1 and os.path.exists(self.proj_settings["datastore/path"]):
+            data_type = None
+        if self.datastore_type == data_type:
+            # for shape files, append the folder if existing and not yet in the list
+            if self.datastore_type == 0 and os.path.exists(self.proj_settings["datastore/path"]):
                 self.appendDatastoreList(self.proj_settings["datastore/name"],self.proj_settings["datastore/path"])
+            # select the datastore if in the list
             try:
                 self.datastores['idx'] = self.datastores['path'].index(self.proj_settings["datastore/path"])
             except:
@@ -310,9 +312,22 @@ class ProjectDialog(QtGui.QDialog, Ui_ProjectDialog):
         if self.datastores:
             self.setDatastore()
         else:
-            self.dataSelectCombo.clear()
-            self.dataSelectCombo.setDisabled(True)
-            self.dataSelectLabel.setDisabled(True)
+            self.clearDatastoreSelect()
+            self.clearSchemaSelect()
+
+    def clearDatastoreSelect(self):
+        self.datastore_name = None
+        self.datastore_path = None
+        self.datastore_idx = None
+        self.dataSelectCombo.clear()
+        self.dataSelectCombo.setDisabled(True)
+        self.dataSelectLabel.setDisabled(True)
+
+    def clearSchemaSelect(self):
+        self.datastore_schema = None
+        self.schemaCombo.clear()
+        self.schemaCombo.setDisabled(True)
+        self.schemaLabel.setDisabled(True)
 
     def appendDatastoreList(self, name, path):
         if self.datastores:
@@ -326,42 +341,52 @@ class ProjectDialog(QtGui.QDialog, Ui_ProjectDialog):
             self.datastores['name'] = [name]
             self.datastores['path'] = [path]
             self.datastores['idx'] = 0
-        self.dataSelectCombo.setDisabled(False)
-        self.dataSelectLabel.setDisabled(False)
 
     def setDatastore(self):
+        # update the combo box
+        self.dataSelectCombo.blockSignals(True)
         self.dataSelectCombo.clear()
         self.dataSelectCombo.addItems(self.datastores['name'])
-        self.dataSelectCombo.setCurrentIndex(self.datastores['idx'])
-        self.dataSelectCombo.setToolTip(self.datastores['path'][self.datastores['idx']])
+        self.dataSelectCombo.blockSignals(False)
         self.dataSelectCombo.setDisabled(False)
         self.dataSelectLabel.setDisabled(False)
+        # set the previous datastore
+        self.dataSelectCombo.setCurrentIndex(self.datastores['idx'])
+        self.dataSelectCombo.setToolTip(self.datastores['path'][self.datastores['idx']])
+        self.selectDatastore()
 
     def selectDatastore(self):
         if self.datastores:
             self.datastore_idx = self.dataSelectCombo.currentIndex()
             self.datastore_name = self.datastores['name'][self.datastore_idx]
             self.datastore_path = self.datastores['path'][self.datastore_idx]
-
-        #update schemas accordingly
-        if self.datastore_type == 2:
-            self.loadSchemaList(self.settings["datastore/name"])
-            self.setSchema(self.settings["datastore/schema"])
+            #update schemas accordingly
+            if self.datastore_type == 2:
+                self.loadSchemaList(self.datastore_name)
 
     def loadSchemaList(self, name):
-        # newfeature: get list of schemas in PostGIS database
-        pass
-
-    def setSchema(self, name):
-        idx = self.datastores["schema"].index(name)
-        if idx:
-            self.schemaCombo.setCurrentIndex(idx)
-        else:
-            self.schemaCombo.setCurrentIndex(0)
+        if name:
+            # get schemas for selected database
+            connection = uf.getPostgisConnection(name)
+            self.datastores['schema'] = uf.listPostgisSchemas(connection)
+            connection.close()
+            #
+            self.schemaCombo.blockSignals(True)
+            self.schemaCombo.clear()
+            self.schemaCombo.addItems(self.datastores['schema'])
+            self.schemaCombo.blockSignals(False)
+            self.schemaCombo.setDisabled(False)
+            self.schemaLabel.setDisabled(False)
+            try:
+                idx = self.datastores['schema'].index(self.proj_settings['datastore/schema'])
+                self.schemaCombo.setCurrentIndex(idx)
+            except:
+                self.schemaCombo.setCurrentIndex(0)
+            self.selectSchema()
 
     def selectSchema(self):
-        txt = self.schemaCombo.currentText()
-        self.datastore_schema = txt
+        if self.datastores:
+            self.datastore_schema = self.schemaCombo.currentText()
 
     def openDatastore(self):
         lastDir = self.settings.getLastDir()
