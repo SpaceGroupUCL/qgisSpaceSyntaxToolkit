@@ -120,8 +120,9 @@ class AxialVerification(QThread):
                 if is_debug: print "Building topology: %s"%str(time.time()-start_time)
             self.verificationProgress.emit(90)
             self.connection.close()
-        #elif 'postgresql' in provider.lower():
+        elif 'postgresql' in provider.lower():
             # newfeature: implement for postgis specific functions
+            pass
         else:
             # create spatial index
             if not self.running: return

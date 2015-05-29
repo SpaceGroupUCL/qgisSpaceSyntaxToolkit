@@ -59,7 +59,6 @@ class ProjectManager(QtCore.QObject):
         self.iface.newProjectCreated.disconnect(self.__loadDefaults)
 
     def showDialog(self):
-        #self.__loadSettings()
         self.dlg.loadSettings(self.proj_settings)
         self.dlg.show()
 

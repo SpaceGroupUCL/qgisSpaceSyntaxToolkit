@@ -43,7 +43,6 @@ import os.path
 
 class AnalysisTool(QObject):
     editDatastoreSettings = pyqtSignal()
-    #updateDatastoreSettings = pyqtSignal(dict, str)
 
     def __init__(self, iface, settings, project):
         QObject.__init__(self)
@@ -63,30 +62,17 @@ class AnalysisTool(QObject):
         # connect signal/slots with main program
         self.project.settingsUpdated.connect(self.setDatastore)
         self.editDatastoreSettings.connect(self.project.showDialog)
-        #self.updateDatastoreSettings.connect(self.project.writeSettings)
-        self.project.getProject().instance().layerLoaded.connect(self.getProjectSettings)
 
         # set up GUI signals
-        #self.dlg.dialogClosed.connect(self.onHide)
         self.dlg.visibilityChanged.connect(self.onShow)
         self.dlg.analysisDataButton.clicked.connect(self.changeDatastore)
         self.dlg.updateDatastore.connect(self.updateDatastore)
-        #self.dlg.analysisNewMapButton.clicked.connect(self.createMapLayer)
-        #self.dlg.analysisNewUnlinksButton.clicked.connect(self.axialUnlinks.newAxialUnlinks)
-        #self.dlg.analysisNewLinksButton.clicked.connect(self.axialLinks.newAxialLinks)
-        #self.dlg.analysisNewOriginsButton.clicked.connect(self.axialOrigins.newAxialOrigins)
         self.dlg.axialVerifyButton.clicked.connect(self.runAxialVerification)
         self.dlg.axialUpdateButton.clicked.connect(self.runAxialUpdate)
         self.dlg.axialVerifyCancelButton.clicked.connect(self.cancelAxialVerification)
         self.dlg.axialReportList.itemSelectionChanged.connect(self.zoomAxialProblem)
         self.dlg.axialDepthmapCalculateButton.clicked.connect(self.runDepthmapAnalysis)
         self.dlg.axialDepthmapCancelButton.clicked.connect(self.cancelDepthmapAnalysis)
-
-        # connect signal/slots with main program
-        #self.legend.itemAdded.connect(self.updateLayers)
-        #self.legend.itemRemoved.connect(self.updateLayers)
-        #self.iface.projectRead.connect(self.updateLayers)
-        #self.iface.newProjectCreated.connect(self.updateLayers)
 
         # initialise internal globals
         self.isVisible = False
@@ -118,8 +104,8 @@ class AnalysisTool(QObject):
             self.legend.itemAdded.disconnect(self.updateLayers)
             self.legend.itemRemoved.disconnect(self.updateLayers)
             self.iface.projectRead.disconnect(self.updateLayers)
+            self.iface.projectRead.disconnect(self.getProjectSettings)
             self.iface.newProjectCreated.disconnect(self.updateLayers)
-            self.project.getProject().instance().layerLoaded.disconnect(self.getProjectSettings)
         self.isVisible = False
 
     def onShow(self):
@@ -128,8 +114,9 @@ class AnalysisTool(QObject):
             self.legend.itemAdded.connect(self.updateLayers)
             self.legend.itemRemoved.connect(self.updateLayers)
             self.iface.projectRead.connect(self.updateLayers)
+            self.iface.projectRead.connect(self.getProjectSettings)
             self.iface.newProjectCreated.connect(self.updateLayers)
-            self.project.getProject().instance().layerLoaded.connect(self.getProjectSettings)
+            self.getProjectSettings()
             self.updateLayers()
             self.setDatastore()
             self.isVisible = True
@@ -139,8 +126,8 @@ class AnalysisTool(QObject):
                 self.legend.itemAdded.disconnect(self.updateLayers)
                 self.legend.itemRemoved.disconnect(self.updateLayers)
                 self.iface.projectRead.disconnect(self.updateLayers)
+                self.iface.projectRead.disconnect(self.getProjectSettings)
                 self.iface.newProjectCreated.disconnect(self.updateLayers)
-                self.project.getProject().instance().layerLoaded.disconnect(self.getProjectSettings)
             self.isVisible = False
 
 
@@ -154,7 +141,7 @@ class AnalysisTool(QObject):
         # update UI
         if self.axial_analysis_settings['type'] == 0:
             self.dlg.setDepthmapAxialAnalysis()
-        else:
+        elif self.axial_analysis_settings['type'] == 1:
             self.dlg.setDepthmapSegmentAnalysis()
         self.dlg.setDepthmapRadiusText(self.axial_analysis_settings['rvalues'])
         self.dlg.setDepthmapWeighted(self.axial_analysis_settings['weight'])
