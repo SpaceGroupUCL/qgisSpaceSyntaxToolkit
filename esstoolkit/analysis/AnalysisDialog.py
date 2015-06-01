@@ -101,6 +101,9 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
     def getLayerTab(self):
         return self.layers_tab
 
+    def lockLayerTab(self, onoff):
+        self.analysisLayersTabs.setDisabled(onoff)
+
     def setMapLayers(self, list, idx):
         layers = ['-----']
         if list:
@@ -285,12 +288,19 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
             self.axialReportFilterCombo.setDisabled(True)
             self.axialReportList.setDisabled(True)
 
-    def clearAxialProblems(self):
-        self.axial_verify_report[self.layers_tab]['progress'] = 0
-        self.axial_verify_report[self.layers_tab]['summary'] = []
-        self.axial_verify_report[self.layers_tab]['filter'] = -1
-        self.axial_verify_report[self.layers_tab]['report'] = dict()
-        self.axial_verify_report[self.layers_tab]['nodes'] = []
+    def clearAxialProblems(self, tab=None):
+        if tab:
+            self.axial_verify_report[tab]['progress'] = 0
+            self.axial_verify_report[tab]['summary'] = []
+            self.axial_verify_report[tab]['filter'] = -1
+            self.axial_verify_report[tab]['report'] = dict()
+            self.axial_verify_report[tab]['nodes'] = []
+        else:
+            self.axial_verify_report[self.layers_tab]['progress'] = 0
+            self.axial_verify_report[self.layers_tab]['summary'] = []
+            self.axial_verify_report[self.layers_tab]['filter'] = -1
+            self.axial_verify_report[self.layers_tab]['report'] = dict()
+            self.axial_verify_report[self.layers_tab]['nodes'] = []
 
     def filterAxialProblems(self):
         # extract filter text

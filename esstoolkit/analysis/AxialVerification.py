@@ -32,7 +32,7 @@ import time
 try:
     import igraph as ig
     has_igraph = False
-except ImportError, e:
+except (ImportError, NameError), e:
     has_igraph = False
 
 # try to import installed networx, if not available use the one shipped with the esstoolkit
@@ -71,9 +71,10 @@ class AxialVerification(QThread):
         # error types to identify:
         self.axial_errors = {'orphan':[],'island':[],'short line':[],'invalid geometry':[],'polyline':[],\
                             'coinciding points':[],'small line':[],'duplicate geometry':[],'overlap':[]}
-        self.connection = None
 
     def run(self):
+        if has_pydevd and is_debug:
+            pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True)
         self.running = True
         # reset all the errors
         self.problem_nodes = []
@@ -81,48 +82,70 @@ class AxialVerification(QThread):
             self.axial_errors[k]=[]
         provider = self.axial_layer.storageType()
         #caps = self.axial_layer.dataProvider().capabilities()
-        graph_links = None
-        if 'spatialite' in provider.lower():
+        graph_links = []
+        datastore = provider.lower()
+        if 'spatialite' in datastore or 'postgis' in datastore:
             # get the relevant layers
             unlinkname = ''
+            unlinkschema = ''
             if self.unlinks_layer:
                 unlinkname = uf.getDBLayerTableName(self.unlinks_layer)
                 if not uf.testSameDatabase([self.unlinks_layer, self.axial_layer]):
                     self.verificationError.emit("The map layer must be in the same database as the unlinks layer.")
                     return
+                if 'postgresql' in datastore:
+                    unlinkschema = uf.getPostgisLayerInfo(self.unlinks_layer)['schema']
             linkname = ''
+            linkschema = ''
             if self.links_layer:
                 linkname = uf.getDBLayerTableName(self.links_layer)
                 if not uf.testSameDatabase([self.links_layer, self.axial_layer]):
                     self.verificationError.emit("The map layer must be in the same database as the links layer.")
                     return
+                if 'postgresql' in datastore:
+                    linkschema = uf.getPostgisLayerInfo(self.links_layer)['schema']
             axialname = uf.getDBLayerTableName(self.axial_layer)
-            self.connection = uf.getDBLayerConnection(self.axial_layer)
+            if self.user_id == '':
+                self.user_id = uf.getDBLayerPrimaryKey(self.axial_layer)
             # get the geometry column name and other properties
             # always check if the operation has been cancelled before proceeding.
             # this would come up only once if the thread was based on a loop, to break it.
             if not self.running: return
             start_time = time.time()
-            geomname = self.spatialitePreparation(self.connection, axialname)
+            geomname = ''
+            # could use this generic but I want to force a spatial index
+            #geomname = uf.getDBLayerGeometryColumn(self.axial_layer)
+            connection = uf.getDBLayerConnection(self.axial_layer)
+            if 'spatialite' in datastore:
+                geomname = uf.getSpatialiteGeometryColumn(connection, axialname)
+            else:
+                layerinfo = uf.getPostgisLayerInfo(self.axial_layer)
+                geomname = uf.getPostgisGeometryColumn(connection, layerinfo['schema'], axialname)
+                # todo: ensure that it has a spatial index
+                #uf.createPostgisSpatialIndex(onnection, layerinfo['schema'], axialname, geomname)
             if is_debug: print "Preparing the map: %s"%str(time.time()-start_time)
             self.verificationProgress.emit(5)
             # analyse the geometry
-            if not self.running: return
+            if not self.running or not geomname:
+                return
             start_time = time.time()
-            self.spatialiteTestGeometry(self.connection, axialname, geomname)
+            if 'spatialite' in datastore:
+                self.spatialiteTestGeometry(connection, axialname, geomname)
+            else:
+                self.postgisTestGeometry(connection, layerinfo['schema'], axialname, geomname)
             if is_debug: print "Analysing geometry: %s"%str(time.time()-start_time)
             self.verificationProgress.emit(80)
             # build the topology
             if not self.running: return
             if has_igraph or has_networkx:
                 start_time = time.time()
-                graph_links = self.spatialiteBuildTopology(self.connection, axialname, geomname, unlinkname, linkname)
+                if 'spatialite' in datastore:
+                    graph_links = self.spatialiteBuildTopology(connection, axialname, geomname, unlinkname, linkname)
+                else:
+                    graph_links = self.postgisBuildTopology(connection, layerinfo['schema'], axialname, geomname, unlinkschema, unlinkname, linkschema, linkname)
                 if is_debug: print "Building topology: %s"%str(time.time()-start_time)
             self.verificationProgress.emit(90)
-            self.connection.close()
-        elif 'postgresql' in provider.lower():
-            # newfeature: implement for postgis specific functions
-            pass
+            connection.close()
         else:
             # create spatial index
             if not self.running: return
@@ -154,7 +177,6 @@ class AxialVerification(QThread):
         # return the results
         self.problem_nodes = list(set(self.problem_nodes))
         self.verificationFinished.emit(self.axial_errors, self.problem_nodes)
-        #self.verificationProgress.emit(0)
         return
 
     def stop(self):
@@ -202,8 +224,6 @@ class AxialVerification(QThread):
         return True
 
     def networkxTestTopology(self, graph_links, graph_nodes):
-        #if has_pydevd and is_debug:
-        #    pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True)
         # create a networkx graph object and store the axial links
         try:
             g = nx.Graph(graph_links)
@@ -234,16 +254,6 @@ class AxialVerification(QThread):
 
     # spatialite based functions
     #
-    def spatialitePreparation(self, connection, axialname):
-        query = """SELECT f_geometry_column, spatial_index_enabled FROM geometry_columns WHERE f_table_name = '%s'"""%(axialname)
-        header, data, error = uf.executeSpatialiteQuery(connection, query)
-        geomname = data[0][0]
-        # ensure that it has a spatial index
-        if data[0][1] == 0:
-            query = """SELECT CreateSpatialIndex('%s', '%s')"""%(axialname,geomname)
-            header, data, error = uf.executeSpatialiteQuery(connection, query, True)
-        return geomname
-
     def spatialiteTestGeometry(self, connection, axialname, geomname):
         # this function checks the geometric validity of geometry using spatialite
         length = self.verification_settings['ax_min']
@@ -255,7 +265,7 @@ class AxialVerification(QThread):
         # geometry is valid (generally)
         if not self.running: return
         start_time = time.time()
-        query = """SELECT "%s" FROM %s WHERE NOT ST_IsSimple(%s) OR NOT ST_IsValid(%s)"""%(idcol, axialname, geomname, geomname)
+        query = """SELECT "%s" FROM "%s" WHERE NOT ST_IsSimple("%s") OR NOT ST_IsValid("%s")"""%(idcol, axialname, geomname, geomname)
         header, data, error = uf.executeSpatialiteQuery(connection, query)
         if data:
             nodes = list(zip(*data)[0])
@@ -266,7 +276,7 @@ class AxialVerification(QThread):
         # geometry is polyline
         if not self.running: return
         start_time = time.time()
-        query = """SELECT "%s" FROM %s WHERE ST_NPoints(%s) <> 2 """%(idcol, axialname, geomname)
+        query = """SELECT "%s" FROM "%s" WHERE ST_NPoints("%s") <> 2 """%(idcol, axialname, geomname)
         header, data, error = uf.executeSpatialiteQuery(connection, query)
         if data:
             nodes = list(zip(*data)[0])
@@ -277,7 +287,7 @@ class AxialVerification(QThread):
         # has two coinciding points
         if not self.running: return
         start_time = time.time()
-        query = """SELECT "%s" FROM %s WHERE ST_Equals(ST_StartPoint(%s),ST_EndPoint(%s))"""%(idcol, axialname, geomname, geomname)
+        query = """SELECT "%s" FROM "%s" WHERE ST_Equals(ST_StartPoint("%s"),ST_EndPoint("%s"))"""%(idcol, axialname, geomname, geomname)
         header, data, error = uf.executeSpatialiteQuery(connection, query)
         if data:
             nodes = list(zip(*data)[0])
@@ -288,7 +298,7 @@ class AxialVerification(QThread):
         # small lines, with small length
         if not self.running: return
         start_time = time.time()
-        query = """SELECT "%s" FROM %s WHERE ST_Length(%s)<%s"""%(idcol, axialname, geomname,length)
+        query = """SELECT "%s" FROM "%s" WHERE ST_Length("%s")<%s"""%(idcol, axialname, geomname,length)
         header, data, error = uf.executeSpatialiteQuery(connection, query)
         if data:
             nodes = list(zip(*data)[0])
@@ -299,9 +309,9 @@ class AxialVerification(QThread):
         # short lines, just about touch without intersecting
         if not self.running: return
         start_time = time.time()
-        query = 'SELECT a."%s" FROM %s a, %s b WHERE a."%s" <> b."%s" AND NOT ST_Intersects(a.%s,b.%s) AND'\
-                '(PtDistWithin(ST_StartPoint(a.%s),b.%s,%s) OR PtDistWithin(ST_EndPoint(a.%s),b.%s,%s))'\
-                'AND a.ROWID IN (SELECT ROWID FROM SpatialIndex WHERE f_table_name="%s" AND search_frame=b.%s)'\
+        query = 'SELECT a."%s" FROM "%s" a, "%s" b WHERE a."%s" <> b."%s" AND NOT ST_Intersects(a."%s",b."%s") AND ' \
+                '(PtDistWithin(ST_StartPoint(a."%s"),b."%s",%s) OR PtDistWithin(ST_EndPoint(a."%s"),b."%s",%s)) ' \
+                'AND a.ROWID IN (SELECT ROWID FROM SpatialIndex WHERE f_table_name="%s" AND search_frame=b."%s")' \
                 %(idcol, axialname, axialname, idcol, idcol, geomname, geomname, geomname, geomname, threshold,
                   geomname, geomname, threshold, axialname, geomname)
         header, data, error = uf.executeSpatialiteQuery(connection, query)
@@ -314,8 +324,8 @@ class AxialVerification(QThread):
         # duplicate geometry
         if not self.running: return
         start_time = time.time()
-        query = 'SELECT a."%s" FROM %s a, %s b WHERE a."%s" <> b."%s" AND ST_Equals(a.%s,b.%s)'\
-                'AND a.ROWID IN (SELECT ROWID FROM SpatialIndex WHERE f_table_name="%s" AND search_frame=b.%s)'\
+        query = 'SELECT a."%s" FROM "%s" a, "%s" b WHERE a."%s" <> b."%s" AND ST_Equals(a."%s",b."%s") ' \
+                'AND a.ROWID IN (SELECT ROWID FROM SpatialIndex WHERE f_table_name="%s" AND search_frame=b."%s")' \
                 %(idcol, axialname, axialname, idcol, idcol, geomname, geomname, axialname, geomname)
         header, data, error = uf.executeSpatialiteQuery(connection, query)
         if data:
@@ -327,8 +337,8 @@ class AxialVerification(QThread):
         # geometry overlaps
         if not self.running: return
         start_time = time.time()
-        query = 'SELECT a."%s" FROM %s a, %s b WHERE a."%s" <> b."%s" AND NOT ST_Equals(a.%s,b.%s) AND ST_Overlaps(a.%s,b.%s)'\
-            'AND a.ROWID IN (SELECT ROWID FROM SpatialIndex WHERE f_table_name="%s" AND search_frame=b.%s)'\
+        query = 'SELECT a."%s" FROM "%s" a, "%s" b WHERE a."%s" <> b."%s" AND NOT ST_Equals(a."%s",b."%s") AND ST_Overlaps(a."%s",b."%s") ' \
+            'AND a.ROWID IN (SELECT ROWID FROM SpatialIndex WHERE f_table_name="%s" AND search_frame=b."%s")' \
             %(idcol, axialname, axialname, idcol, idcol, geomname, geomname, geomname, geomname, axialname, geomname)
         header, data, error = uf.executeSpatialiteQuery(connection, query)
         if data:
@@ -342,9 +352,9 @@ class AxialVerification(QThread):
         # test for orphans
         if not self.running: return
         start_time = time.time()
-        query = 'SELECT "%s" FROM %s WHERE "%s" NOT IN (SELECT DISTINCT(a."%s") FROM %s a, %s b ' \
-            'WHERE a."%s" <> b."%s" AND ST_Intersects(a.%s,b.%s) '\
-            'AND a.ROWID IN (SELECT ROWID FROM SpatialIndex WHERE f_table_name="%s" AND search_frame=b.%s))'\
+        query = 'SELECT "%s" FROM "%s" WHERE "%s" NOT IN (SELECT DISTINCT(a."%s") FROM "%s" a, "%s" b ' \
+            'WHERE a."%s" <> b."%s" AND ST_Intersects(a."%s",b."%s") '\
+            'AND a.ROWID IN (SELECT ROWID FROM SpatialIndex WHERE f_table_name="%s" AND search_frame=b."%s"))' \
             %(idcol, axialname, idcol, idcol, axialname, axialname, idcol, idcol, geomname, geomname, axialname, geomname)
         header, data, error = uf.executeSpatialiteQuery(connection, query)
         if data:
@@ -368,10 +378,10 @@ class AxialVerification(QThread):
         query = """CREATE TEMP TABLE %s (pk_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, a_fid INTEGER, b_fid INTEGER)"""%(graphname)
         header, data, error = uf.executeSpatialiteQuery(connection, query)
         # calculate edges from intersecting feature pairs
-        query = 'INSERT INTO %s (a_fid, b_fid) SELECT DISTINCT CASE WHEN a."%s" < b."%s" THEN a."%s" ELSE b."%s" END AS least_col, '\
-                'CASE WHEN a."%s" > b."%s" THEN a."%s" ELSE b."%s" END AS greatest_col '\
-                'FROM %s a, %s b WHERE a."%s" <> b."%s" AND Intersects(a.%s,b.%s) '\
-                'AND a.ROWID IN (SELECT ROWID FROM SpatialIndex WHERE f_table_name="%s" AND search_frame=b.%s)'\
+        query = 'INSERT INTO %s (a_fid, b_fid) SELECT DISTINCT CASE WHEN a."%s" < b."%s" THEN a."%s" ELSE b."%s" END AS least_col, ' \
+                'CASE WHEN a."%s" > b."%s" THEN a."%s" ELSE b."%s" END AS greatest_col ' \
+                'FROM "%s" a, "%s" b WHERE a."%s" <> b."%s" AND Intersects(a."%s",b."%s") ' \
+                'AND a.ROWID IN (SELECT ROWID FROM SpatialIndex WHERE f_table_name="%s" AND search_frame=b."%s")' \
                 %(graphname, idcol, idcol, idcol, idcol, idcol, idcol, idcol, idcol, axialname, axialname, idcol, idcol,
                   geomname, geomname, axialname, geomname)
         header, data, error = uf.executeSpatialiteQuery(connection, query, commit=True)
@@ -380,17 +390,159 @@ class AxialVerification(QThread):
         if unlinkname:
             if uf.fieldExists(uf.getLayerByName(unlinkname),'line1') and uf.fieldExists(uf.getLayerByName(unlinkname),'line2'):
                 start_time = time.time()
-                query = 'DELETE FROM %s WHERE cast(a_fid as text)||"_"||cast(b_fid as text) in (SELECT cast(line1 as text)||"_"||cast(line2 as text) FROM %s)'\
-                        'OR cast(b_fid as text)||"_"||cast(a_fid as text) in (SELECT cast(line1 as text)||"_"||cast(line2 as text) FROM %s)'\
+                query = 'DELETE FROM %s WHERE cast(a_fid as text)||"_"||cast(b_fid as text) in (SELECT cast(line1 as text)||"_"||cast(line2 as text) FROM "%s") ' \
+                        'OR cast(b_fid as text)||"_"||cast(a_fid as text) in (SELECT cast(line1 as text)||"_"||cast(line2 as text) FROM "%s")' \
                         %(graphname, unlinkname, unlinkname)
                 header, data, error = uf.executeSpatialiteQuery(connection, query, commit=True)
                 if is_debug: print "Unlinking the graph: %s"%str(time.time()-start_time)
         # newfeature: implement inserting links
         # return all the links to build the graph
-        query = """SELECT a_fid, b_fid FROM %s"""%(graphname)
+        query = """SELECT a_fid, b_fid FROM "%s";"""%(graphname)
         header, data, error = uf.executeSpatialiteQuery(connection, query)
         return data
 
+    # Postgis based functions
+    #
+    def postgisTestGeometry(self, connection, schema, axialname, geomname):
+        # this function checks the geometric validity of geometry using spatialite
+        length = self.verification_settings['ax_min']
+        threshold = self.verification_settings['ax_dist']
+        idcol = self.user_id
+        # in postgis we need a unique id because it doesn't have rowid
+        if idcol == '':
+            return
+        # geometry is valid (generally)
+        if not self.running: return
+        start_time = time.time()
+        query = """SELECT "%s" FROM "%s"."%s" WHERE NOT ST_IsSimple("%s") OR NOT ST_IsValid("%s")""" % (idcol, schema, axialname, geomname, geomname)
+        header, data, error = uf.executePostgisQuery(connection, query)
+        if data:
+            nodes = list(zip(*data)[0])
+            self.problem_nodes.extend(nodes)
+            self.axial_errors['invalid geometry'] = nodes
+        self.verificationProgress.emit(10)
+        if is_debug: print "analyse valid: %s" % str(time.time()-start_time)
+        # geometry is polyline
+        if not self.running: return
+        start_time = time.time()
+        query = """SELECT "%s" FROM "%s"."%s" WHERE ST_NPoints("%s") <> 2 """ % (idcol, schema, axialname, geomname)
+        header, data, error = uf.executePostgisQuery(connection, query)
+        if data:
+            nodes = list(zip(*data)[0])
+            self.problem_nodes.extend(nodes)
+            self.axial_errors['polyline'] = nodes
+        self.verificationProgress.emit(15)
+        if is_debug: print "analyse polyline: %s" % str(time.time()-start_time)
+        # has two coinciding points
+        if not self.running: return
+        start_time = time.time()
+        query = """SELECT "%s" FROM "%s"."%s" WHERE ST_Equals(ST_StartPoint("%s"),ST_EndPoint("%s"))""" % (idcol, schema, axialname, geomname, geomname)
+        header, data, error = uf.executePostgisQuery(connection, query)
+        if data:
+            nodes = list(zip(*data)[0])
+            self.problem_nodes.extend(nodes)
+            self.axial_errors['coinciding points'] = nodes
+        self.verificationProgress.emit(20)
+        if is_debug: print "analyse coinciding: %s" % str(time.time()-start_time)
+        # small lines, with small length
+        if not self.running: return
+        start_time = time.time()
+        query = """SELECT "%s" FROM "%s"."%s" WHERE ST_Length("%s")<%s""" % (idcol, schema, axialname, geomname,length)
+        header, data, error = uf.executePostgisQuery(connection, query)
+        if data:
+            nodes = list(zip(*data)[0])
+            self.problem_nodes.extend(nodes)
+            self.axial_errors['small line'] = nodes
+        self.verificationProgress.emit(25)
+        if is_debug: print "analyse small: %s" % str(time.time()-start_time)
+        # short lines, just about touch without intersecting
+        if not self.running: return
+        start_time = time.time()
+        query = 'SELECT a."%s" FROM "%s"."%s" a, "%s"."%s" b WHERE a."%s" <> b."%s" AND NOT ST_Intersects(a."%s",b."%s") AND ' \
+                '(ST_DWithin(ST_StartPoint(a."%s"),b."%s",%s) OR ST_DWithin(ST_EndPoint(a."%s"),b."%s",%s))'\
+                % (idcol, schema, axialname, schema, axialname, idcol, idcol, geomname, geomname, geomname, geomname, threshold,
+                  geomname, geomname, threshold)
+        header, data, error = uf.executePostgisQuery(connection, query)
+        if data:
+            nodes = list(zip(*data)[0])
+            self.problem_nodes.extend(nodes)
+            self.axial_errors['short line'] = nodes
+        self.verificationProgress.emit(35)
+        if is_debug: print "analyse short: %s" % str(time.time()-start_time)
+        # duplicate geometry
+        if not self.running: return
+        start_time = time.time()
+        query = 'SELECT a."%s" FROM "%s"."%s" a, "%s"."%s" b WHERE a."%s" <> b."%s" AND ST_Equals(a."%s",b."%s")' \
+                % (idcol, schema, axialname, schema, axialname, idcol, idcol, geomname, geomname)
+        header, data, error = uf.executePostgisQuery(connection, query)
+        if data:
+            nodes = list(zip(*data)[0])
+            self.problem_nodes.extend(nodes)
+            self.axial_errors['duplicate geometry'] = nodes
+        self.verificationProgress.emit(40)
+        if is_debug: print "analyse duplicate: %s" % str(time.time()-start_time)
+        # geometry overlaps
+        if not self.running: return
+        start_time = time.time()
+        query = 'SELECT a."%s" FROM "%s"."%s" a, "%s"."%s" b WHERE a."%s" <> b."%s" AND NOT ST_Equals(a."%s",b."%s") AND ST_Overlaps(a."%s",b."%s")' \
+            % (idcol, schema, axialname, schema, axialname, idcol, idcol, geomname, geomname, geomname, geomname)
+        header, data, error = uf.executePostgisQuery(connection, query)
+        if data:
+            nodes = list(zip(*data)[0])
+            self.problem_nodes.extend(nodes)
+            self.axial_errors['overlap'] = nodes
+        self.verificationProgress.emit(60)
+        if is_debug: print "analyse overlap: %s" % str(time.time()-start_time)
+        # the overlap function is very accurate and rare in GIS
+        # an alternative function with buffer is too slow
+        # test for orphans
+        if not self.running: return
+        start_time = time.time()
+        query = 'SELECT "%s" FROM "%s"."%s" WHERE "%s" NOT IN (SELECT DISTINCT(a."%s") FROM "%s"."%s" a, "%s"."%s" b ' \
+            'WHERE a."%s" <> b."%s" AND ST_Intersects(a."%s",b."%s")) '\
+            % (idcol, schema, axialname, idcol, idcol, schema, axialname, schema, axialname, idcol, idcol, geomname, geomname)
+        header, data, error = uf.executePostgisQuery(connection, query)
+        if data:
+            nodes = list(zip(*data)[0])
+            self.problem_nodes.extend(nodes)
+            self.axial_errors['orphan'] = nodes
+        if is_debug: print "analyse orphans: %s" % str(time.time()-start_time)
+        self.verificationProgress.emit(80)
+
+    def postgisBuildTopology(self, connection, schema, axialname, geomname, unlinkschema, unlinkname, linkschema, linkname):
+        # this function builds the axial map topology using spatialite. it's much faster.
+        idcol = self.user_id
+        if idcol == '':
+            return
+        # remove temporary table if already exists
+        graphname = "temp_axial_topology"
+        header, data, error = uf.executePostgisQuery(connection,"""DROP TABLE IF EXISTS %s CASCADE """ % graphname)
+        start_time = time.time()
+        # create a new temporary table
+        query = """CREATE TEMP TABLE %s (pk_id serial NOT NULL PRIMARY KEY, a_fid integer, b_fid integer)""" % graphname
+        header, data, error = uf.executePostgisQuery(connection, query)
+        # calculate edges from intersecting feature pairs
+        query = 'INSERT INTO %s (a_fid, b_fid) SELECT DISTINCT CASE WHEN a."%s" < b."%s" THEN a."%s" ELSE b."%s" END AS least_col, ' \
+                'CASE WHEN a."%s" > b."%s" THEN a."%s" ELSE b."%s" END AS greatest_col '\
+                'FROM "%s"."%s" a, "%s"."%s" b WHERE a."%s" <> b."%s" AND ST_Intersects(a."%s",b."%s") '\
+                % (graphname, idcol, idcol, idcol, idcol, idcol, idcol, idcol, idcol, schema, axialname, schema, axialname,
+                  idcol, idcol, geomname, geomname)
+        header, data, error = uf.executePostgisQuery(connection, query, commit=True)
+        if is_debug: print "Building the graph: %s" % str(time.time()-start_time)
+        # eliminate unlinks
+        if unlinkname:
+            if uf.fieldExists(uf.getLayerByName(unlinkname),'line1') and uf.fieldExists(uf.getLayerByName(unlinkname),'line2'):
+                start_time = time.time()
+                query = 'DELETE FROM %s WHERE a_fid::text||"_"||b_fid::text in (SELECT line1::||"_"||line2::text FROM "%s"."%s") ' \
+                        'OR b_fid::text||"_"||a_fid::text in (SELECT line1::text)||"_"||line2::text FROM "%s"."%s")' \
+                        % (graphname, unlinkschema, unlinkname, unlinkschema, unlinkname)
+                header, data, error = uf.executePostgisQuery(connection, query, commit=True)
+                if is_debug: print "Unlinking the graph: %s" % str(time.time()-start_time)
+        # newfeature: implement inserting links
+        # return all the links to build the graph
+        query = """SELECT a_fid, b_fid FROM %s""" % graphname
+        header, data, error = uf.executePostgisQuery(connection, query)
+        return data
 
     # QGIS based functions
     #
@@ -510,12 +662,3 @@ class AxialVerification(QThread):
             progress += steps
             self.verificationProgress.emit(int(progress))
         return axial_links
-
-    # PostGIS based functions
-    #
-    def postgisTestGeometry(self):
-        # newfeature: support postgis axial verification
-        pass
-
-    def postgisBuildTopology(self):
-        pass

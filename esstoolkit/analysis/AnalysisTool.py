@@ -139,6 +139,11 @@ class AnalysisTool(QObject):
         self.project.readSettings(self.analysis_layers,"analysis")
         self.project.readSettings(self.axial_analysis_settings,"depthmap")
         # update UI
+        self.dlg.clearAxialProblems(0)
+        self.dlg.clearAxialProblems(1)
+        self.dlg.clearAxialProblems(2)
+        self.dlg.clearAxialProblems(3)
+        # update graph analysis
         if self.axial_analysis_settings['type'] == 0:
             self.dlg.setDepthmapAxialAnalysis()
         elif self.axial_analysis_settings['type'] == 1:
@@ -317,7 +322,8 @@ class AnalysisTool(QObject):
         caps = None
         self.axial_id = uf.getIdField(axial)
         if self.axial_id == '':
-            self.iface.messageBar().pushMessage("Info", "The axial layer has invalid or duplicate values in the ID column. Using feature ids instead.", level=0, duration=5)
+            self.iface.messageBar().pushMessage("Info", "The axial layer has invalid or duplicate values in the ID column. Using feature ids instead.", level=0, duration=3)
+        # verify axial map
         if self.edit_mode == 0:
             # get ids (to match the object ids in the map)
             self.user_ids['map'] = "%s" % self.axial_id
@@ -325,43 +331,52 @@ class AnalysisTool(QObject):
                 caps = axial.dataProvider().capabilities()
                 self.verificationThread = AxialVerification(self.iface.mainWindow(), self, settings, axial, self.user_ids['map'], unlinks, links)
             else:
-                self.iface.messageBar().pushMessage("Info","Select an axial lines map layer.", level=0, duration=5)
+                self.iface.messageBar().pushMessage("Info","Select an axial lines map layer.", level=0, duration=3)
                 return False
+        # verify unlinks
         elif self.edit_mode == 1:
             if unlinks and (axial.storageType() != unlinks.storageType()):
-                self.iface.messageBar().pushMessage("Warning","All layers must be in the same file format.", level=1, duration=5)
+                self.iface.messageBar().pushMessage("Warning","All layers must be in the same file format.", level=1, duration=3)
                 return False
             caps = unlinks.dataProvider().capabilities()
             self.user_ids['unlinks'] = uf.getIdField(unlinks)
             if self.user_ids['unlinks'] == '':
-                self.iface.messageBar().pushMessage("Info", "The unlinks layer has invalid or duplicate values in the ID column. Using feature ids instead.", level=0, duration=5)
+                self.iface.messageBar().pushMessage("Info", "The unlinks layer invalid values in the ID column. Using feature ids.", level=0, duration=3)
             if unlinks.fieldNameIndex("line1") == -1 or unlinks.fieldNameIndex("line2") == -1:
-                self.iface.messageBar().pushMessage("Info", "The unlinks layer is missing the line1 and line2 ID columns. Update IDs to complete the verification.", level=0, duration=5)
-            self.verificationThread = UnlinksVerification( self.iface.mainWindow(), self, settings, axial, self.axial_id, unlinks, self.user_ids['unlinks'])
+                self.iface.messageBar().pushMessage("Warning", "Line ID columns missing in unlinks layer, please 'Update IDs'.", level=1, duration=3)
+                return False
+            else:
+                self.verificationThread = UnlinksVerification( self.iface.mainWindow(), self, settings, axial, self.axial_id, unlinks, self.user_ids['unlinks'])
+        # verify links
         elif self.edit_mode == 2:
             if links and (axial.storageType() != links.storageType()):
-                self.iface.messageBar().pushMessage("Warning","All layers must be in the same file format.", level=1, duration=5)
+                self.iface.messageBar().pushMessage("Warning","All layers must be in the same file format.", level=1, duration=3)
                 return False
             caps = links.dataProvider().capabilities()
             self.user_ids['links'] = uf.getIdField(links)
             if self.user_ids['links'] == '':
-                self.iface.messageBar().pushMessage("Info", "The links layer has invalid or duplicate values in the ID column. Using feature ids instead.", level=0, duration=5)
+                self.iface.messageBar().pushMessage("Info", "The links layer has invalid values in the ID column. Using feature ids.", level=0, duration=3)
             if links.fieldNameIndex("line1") == -1 or links.fieldNameIndex("line2") == -1:
-                self.iface.messageBar().pushMessage("Info", "The links layer is missing the line1 and line2 ID columns. Update IDs to complete the verification.", level=0, duration=5)
+                self.iface.messageBar().pushMessage("Warning", "Line ID columns missing in links layer, please 'Update IDs'.", level=1, duration=3)
+                return False
             # newfeature: check links validity
+        # verify origins
         elif self.edit_mode == 3:
             if origins and (axial.storageType() != origins.storageType()):
-                self.iface.messageBar().pushMessage("Warning","All layers must be in the same file format.", level=1, duration=5)
+                self.iface.messageBar().pushMessage("Warning","All layers must be in the same file format.", level=1, duration=3)
                 return False
             caps = origins.dataProvider().capabilities()
             self.user_ids['origins'] = uf.getIdField(origins)
             if self.user_ids['origins'] == '':
-                self.iface.messageBar().pushMessage("Info", "The origins layer has invalid or duplicate values in the ID column. Using feature ids instead.", level=0, duration=5)
+                self.iface.messageBar().pushMessage("Info", "The origins layer has invalid values in the ID column. Using feature ids.", level=0, duration=3)
             if unlinks.fieldNameIndex("lineid") == -1:
-                self.iface.messageBar().pushMessage("Info", "The origins layer is missing the lineid column. Update IDs to complete the verification.", level=0, duration=5)
+                self.iface.messageBar().pushMessage("Warning", "Line ID columns missing in origins layer, please 'Update IDs'.", level=1, duration=3)
+                return False
             # newfeature: check origins validity (for step depth and isovists)
         if not caps & QgsVectorDataProvider.AddFeatures:
-            self.iface.messageBar().pushMessage("Info","To edit the selected layer, change to another file format.", level=0, duration=5)
+            self.iface.messageBar().pushMessage("Info","To edit the selected layer, change to another file format.", level=0, duration=3)
+        #prepare dialog
+        self.dlg.lockLayerTab(True)
         self.dlg.setAxialVerifyProgressbar(0,100)
         self.dlg.lockAxialEditTab(True)
         self.dlg.clearAxialProblems()
@@ -370,8 +385,7 @@ class AnalysisTool(QObject):
             self.verificationThread.verificationProgress.connect(self.dlg.updateAxialVerifyProgressbar)
             self.verificationThread.verificationError.connect(self.cancelAxialVerification)
             self.verificationThread.start()
-        return True
-
+        return
 
     def runAxialUpdate(self):
         self.edit_mode = self.dlg.getLayerTab()
@@ -384,9 +398,11 @@ class AnalysisTool(QObject):
         self.axial_id = uf.getIdField(axial)
         if self.axial_id == '':
             self.iface.messageBar().pushMessage("Info", "The axial layer has invalid or duplicate values in the id column. Using feature ids instead.", level=0, duration=5)
+        # update axial id
         if self.edit_mode == 0:
             self.user_ids['map'] = "%s" % self.axial_id
             # newfeature: update axial ids when layer is shapefile
+        # update unlink line ids
         elif self.edit_mode == 1:
             if unlinks and (axial.storageType() != unlinks.storageType()):
                 self.iface.messageBar().pushMessage("Error","The selected layers must be in the same file format.", level=1, duration=5)
@@ -397,6 +413,7 @@ class AnalysisTool(QObject):
                 self.dlg.clearAxialProblems()
                 self.user_ids['unlinks'] = uf.getIdField(unlinks)
                 self.verificationThread = UnlinksIdUpdate(self.iface.mainWindow(), self, unlinks, self.user_ids['unlinks'], axial, self.axial_id, settings['unlink_dist'])
+        # update link line ids
         elif self.edit_mode == 2:
             if links and (axial.storageType() != links.storageType()):
                 self.iface.messageBar().pushMessage("Error","The selected layers must be in the same file format.", level=1, duration=5)
@@ -407,6 +424,7 @@ class AnalysisTool(QObject):
                 self.dlg.clearAxialProblems()
                 self.user_ids['links'] = uf.getIdField(links)
                 # newfeature: update links ids
+        # update origin line ids
         elif self.edit_mode == 3:
             if origins and (axial.storageType() != origins.storageType()):
                 self.iface.messageBar().pushMessage("Error","The selected layers must be in the same file format.", level=1, duration=5)
@@ -417,7 +435,10 @@ class AnalysisTool(QObject):
                 self.dlg.clearAxialProblems()
                 self.user_ids['origins'] = uf.getIdField(origins)
                 # newfeature: update origins ids
+        # prepare dialog
+        self.dlg.lockLayerTab(True)
         self.dlg.setAxialVerifyProgressbar(0,100)
+        self.dlg.lockAxialEditTab(True)
         self.dlg.clearAxialProblems()
         if self.verificationThread:
             self.verificationThread.verificationFinished.connect(self.processAxialIdUpdateResults)
@@ -438,6 +459,7 @@ class AnalysisTool(QObject):
             pass
         #self.verificationThread = None
         self.dlg.updateAxialVerifyProgressbar(0)
+        self.dlg.lockLayerTab(False)
         self.dlg.lockAxialEditTab(False)
 
     def processAxialIdUpdateResults(self):
@@ -474,6 +496,7 @@ class AnalysisTool(QObject):
             else:
                 reloadLayer(layer)
         self.dlg.setAxialProblemsFilter(["Layer IDs updated"])
+        self.dlg.lockLayerTab(False)
         self.dlg.lockAxialEditTab(False)
         return True
 
@@ -489,6 +512,7 @@ class AnalysisTool(QObject):
             pass
         #self.verificationThread = None
         self.dlg.updateAxialVerifyProgressbar(0)
+        self.dlg.lockLayerTab(False)
         self.dlg.lockAxialEditTab(False)
 
     def processAxialVerificationResults(self, results, nodes):
@@ -512,6 +536,7 @@ class AnalysisTool(QObject):
         else:
             summary = ["No problems found!"]
         self.dlg.setAxialProblemsFilter(summary)
+        self.dlg.lockLayerTab(False)
         return True
 
     def zoomAxialProblem(self):

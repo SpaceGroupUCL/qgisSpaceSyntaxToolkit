@@ -30,6 +30,7 @@ import numpy as np
 
 import os.path
 import math
+import sys
 from itertools import izip_longest
 
 
@@ -841,7 +842,7 @@ def executeSpatialiteQuery(connection, query, params=(), commit=False):
         data = [row for row in cursor]
         if commit:
             connection.commit()
-    except sqlite.OperationalError, error:
+    except sqlite.Error, error:
         connection.rollback()
         pop_up_error("The SQL query seems to be invalid. \n %s" % error)
     cursor.close()
@@ -900,10 +901,11 @@ def getSpatialiteLayer(connection, path, name):
 
 
 def getSpatialiteGeometryColumn(connection, name):
-    # table preparation
+    geomname = ''
     query = """SELECT f_geometry_column, spatial_index_enabled FROM geometry_columns WHERE f_table_name = '%s'"""%(name)
     header, data, error = executeSpatialiteQuery(connection, query)
-    geomname = data[0][0]
+    if data:
+        geomname = data[0][0]
     # ensure that it has a spatial index
     if data[0][1] == 0:
         query = """SELECT CreateSpatialIndex('%s', '%s')"""%(name,geomname)
@@ -1475,23 +1477,20 @@ def createPostgisConnectionSetting(name, connection=None):
     :param connection:
     :return:
     """
-    try:
-        settings=QSettings()
-        settings.beginGroup('/PostgreSQL/connections')
-        if connection and isinstance(connection, dict):
-            if 'host' in connection.keys():
-                settings.setValue(u'%s/host' % name,u'%s' % connection['host'])
-            if 'port' in connection.keys():
-                 settings.setValue(u'%s/port' % name,u'%s' % connection['port'])
-            if 'dbname' in connection.keys():
-                 settings.setValue(u'%s/database' % name,u'%s' % connection['dbname'])
-            if 'user' in connection.keys():
-                 settings.setValue(u'%s/username' % name,u'%s' % connection['user'])
-            if 'password' in connection.keys():
-                 settings.setValue(u'%s/password' % name,u'%s' % connection['password'])
-        settings.endGroup()
-    except pgsql.OperationalError, e:
-        pop_up_error("Unable to create connection to the selected database: \n %s" % e)
+    settings=QSettings()
+    settings.beginGroup('/PostgreSQL/connections')
+    if connection and isinstance(connection, dict):
+        if 'host' in connection.keys():
+            settings.setValue(u'%s/host' % name,u'%s' % connection['host'])
+        if 'port' in connection.keys():
+             settings.setValue(u'%s/port' % name,u'%s' % connection['port'])
+        if 'dbname' in connection.keys():
+             settings.setValue(u'%s/database' % name,u'%s' % connection['dbname'])
+        if 'user' in connection.keys():
+             settings.setValue(u'%s/username' % name,u'%s' % connection['user'])
+        if 'password' in connection.keys():
+             settings.setValue(u'%s/password' % name,u'%s' % connection['password'])
+    settings.endGroup()
 
 
 def getPostgisConnection(name):
@@ -1503,9 +1502,8 @@ def getPostgisConnection(name):
     con_str = getPostgisConnectionString(name)
     try:
         connection=pgsql.connect(con_str)
-    except pgsql.OperationalError, e:
-        #pop_up_error("Unable to connect to the selected database: \n %s" % e)
-        pop_up_error(e.message)
+    except pgsql.Error, e:
+        print e.pgerror
         connection = None
     return connection
 
@@ -1546,9 +1544,9 @@ def executePostgisQuery(connection, query, params='',commit=False):
             data = cursor.fetchall()
         if commit:
             connection.commit()
-    except pgsql.OperationalError, error:
+    except pgsql.Error, e:
+        error = e.pgerror
         connection.rollback()
-        pop_up_error("The SQL query seems to be invalid. \n %s" % error)
     cursor.close()
     #return the result even if empty
     return header, data, error
@@ -1645,12 +1643,10 @@ def loadPostgisTable(connection, name, schema, table):
             dsn = con
     if dsn:
         uri.setConnection(dsn['host'], dsn['port'], dsn['database'], dsn['username'], dsn['password'])
-        query = """SELECT f_geometry_column FROM geometry_columns WHERE f_table_schema = '%s' AND f_table_name = '%s'""" % (schema, name)
-        header, data, error = executePostgisQuery(connection, query)
-        if data != []:
-            geometry = data[0][0]
-            uri.setDataSource("%s" % schema, "%s" %name, "%s" % geometry)
-            layer=QgsVectorLayer(uri, "%s" % name, 'postgres')
+        geometry = getPostgisGeometryColumn(connection, schema, table)
+        if geometry:
+            uri.setDataSource("%s" % schema, "%s" % table, "%s" % geometry)
+            layer=QgsVectorLayer(uri, "%s" % table, 'postgres')
             #add layer to canvas
             if layer.isValid():
                 QgsMapLayerRegistry.instance().addMapLayer(layer)
@@ -1687,6 +1683,26 @@ def getPostgisLayer(connection, name, schema, table):
     return layer
 
 
+def getPostgisGeometryColumn(connection, schema, table):
+    geomname = ''
+    query = """SELECT f_geometry_column FROM geometry_columns WHERE f_table_schema = '%s' AND f_table_name = '%s'""" % (schema, table)
+    header, data, error = executePostgisQuery(connection, query)
+    if data:
+        geomname = data[0][0]
+    return geomname
+
+
+def createPostgisSpatialIndex(connection, schema, table, geomname):
+    # create a spatial index if not present, it make subsequent queries much faster
+    index = table.lower().replace(" ","_")
+    query = """CREATE INDEX %s_gidx ON "%s"."%s" USING GIST ("%s")""" % (index, schema, table, geomname)
+    try:
+        header, data, error = executePostgisQuery(connection, query)
+    except:
+        pass
+    return
+
+
 def testPostgisTableExists(connection, schema, name):
     '''
     :param connection:
@@ -1696,7 +1712,7 @@ def testPostgisTableExists(connection, schema, name):
     '''
     query = """SELECT table_schema, table_name FROM information_schema.tables WHERE table_schema = '%s' AND table_name = '%s' """ % (schema, name)
     header, data, error = executePostgisQuery(connection, query)
-    if data != []:
+    if data:
         return True
     return False
 
@@ -1713,7 +1729,7 @@ def createPostgisTable(connection, schema, name, srid, attributes, types, geomet
             field_type = 'character varying'
         elif type in (QVariant.Bool,QVariant.Int,QVariant.LongLong,QVariant.UInt,QVariant.ULongLong): # field type is INTEGER
             field_type = 'integer'
-        elif type==QVariant.Double: # field type is DOUBLE
+        elif type == QVariant.Double: # field type is DOUBLE
             field_type = 'double precision'
         fields.append('"%s" %s'% (attributes[i],field_type))
     # Get the geometry
@@ -1726,9 +1742,9 @@ def createPostgisTable(connection, schema, name, srid, attributes, types, geomet
         elif 'polygon' in geometrytype.lower():
             geometry = 'MULTIPOLYGON'
     #Create new table
-    fields=','.join(fields)
-    if len(fields)>0:
-        fields=', %s'%fields
+    fields = ','.join(fields)
+    if len(fields) > 0:
+        fields=', %s' % fields
     header, data, error = executePostgisQuery(connection,"""CREATE TABLE "%s"."%s" ( sid SERIAL NOT NULL PRIMARY KEY %s ) """ % (schema, name, fields))
     if error:
         res = False
@@ -1751,7 +1767,7 @@ def insertPostgisValues(connection, schema, name, attributes, values, coords=Non
     # get table srid and geometry column info
     query = """SELECT f_geometry_column,  type, srid FROM geometry_columns WHERE f_table_schema = '%s' AND f_table_name = '%s'""" % (schema, name)
     header, data, error = executePostgisQuery(connection, query)
-    if data != []:
+    if data:
         geometry_attr = data[0][0]
         geometry_type = data[0][1]
         srid = data[0][2]
