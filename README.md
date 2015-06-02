@@ -11,7 +11,7 @@ The “Attributes explorer” module supports the visual and statistical explora
 
 ## Where to find...
 * The toolkit source code can be downloaded from the 'esstoolkit' folder.
-* The latest release can be found in the 'releases' tab. The plugin is not yet available in the QGIS repositorym, installation instructions below.
+* The latest release can be found in the 'releases' tab. The plugin is not yet available in the QGIS plugins manager, installation instructions are below.
 * Documentation can be obtained from the 'documents' folder.
 * A sample dataset is in the 'data' folder, for experimenting with the plugin and following the documentation .
 
@@ -20,7 +20,7 @@ The “Attributes explorer” module supports the visual and statistical explora
 * depthmapXnet - [http://archtech.gr/varoudis/depthmapX/?dir=depthmapXnet](http://archtech.gr/varoudis/depthmapX/?dir=depthmapXnet)
 
 ## Installation
-At the moment, the plug-in is not available through the QGIS plugins repository. To install it you need to download and unzip the esstoolkit.zip file and copy the esstoolkit folder into the QGIS plugins directory:
+At the moment, the plug-in is not available through the QGIS plugins repository and plugins manager. To install it you need to download and unzip the esstoolkit.zip file and copy the esstoolkit folder into the QGIS plugins directory:
 * MS Windows: C:\Users\[your user name]\.qgis2\python\plugins\
 * Mac OSX: Users/[your user name]/.qgis2/python/plugins/
 * Linux: home/[your user name]/.qgis2/python/plugins/
