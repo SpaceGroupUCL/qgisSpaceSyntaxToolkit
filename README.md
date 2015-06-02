@@ -9,18 +9,26 @@ Currently the “Space Syntax Toolkit” consists of two modules: “Graph analy
 The “Graph analysis” module supports the verification and analysis of the spatial network model. This consists of an axial map layer, representing the urban street network, and an unlinks layer, indicating bridges and tunnels with no level crossing. The module offers a verification tool to check the geometric and topological integrity of each layer, helping correct any problems before running the analysis. The axial and segment analysis is performed in depthmapXnet, via a direct link from QGIS, which receives and prepares the results once the calculations are completed.
 The “Attributes explorer” module supports the visual and statistical exploration of the analysis results. It provides quick analysis of individual quantitative attributes of a selected layer, mapping the values using simplified symbology settings, displaying essential descriptive statistics, and plotting basic interactive charts (histogram and scatter plot).
 
-
 ## Where to find...
 * The toolkit source code can be downloaded from the 'esstoolkit' folder.
-* The latest packaged plug-in can be found in the 'downloads' folder. It includes installation instructions. At the moment it is not yet available as a QGIS managed plugin.
+* The latest release can be found in the 'releases' tab. The plugin is not yet available in the QGIS repositorym, installation instructions below.
 * Documentation can be obtained from the 'documents' folder.
 * A sample dataset is in the 'data' folder, for experimenting with the plugin and following the documentation .
 
 ## Requirements
 * QGIS (2.0 or above) - [http://www.qgis.org/en/site/](http://www.qgis.org/en/site/)
-
-The plugin has the following pre-requisites for complete functionality and optimal performance:
 * depthmapXnet - [http://archtech.gr/varoudis/depthmapX/?dir=depthmapXnet](http://archtech.gr/varoudis/depthmapX/?dir=depthmapXnet)
-* python igraph - [http://igraph.org/python/](http://igraph.org/python/). Binaries for Mac OSX can be found on the [official site](http://igraph.org/python/#downloads) and at the [Python package index](https://pypi.python.org/pypi/python-igraph). Binaries for MS Windoes are available from [Christoph Gohlke](http://www.lfd.uci.edu/~gohlke/pythonlibs/#python-igraph)
-* pyqtgraph - [http://www.pyqtgraph.org/](http://www.pyqtgraph.org/)
 
+## Installation
+At the moment, the plug-in is not available through the QGIS plugins repository. To install it you need to download and unzip the esstoolkit.zip file and copy the esstoolkit folder into the QGIS plugins directory:
+* MS Windows: C:\Users\[your user name]\.qgis2\python\plugins\
+* Mac OSX: Users/[your user name]/.qgis2/python/plugins/
+* Linux: home/[your user name]/.qgis2/python/plugins/
+
+This directory is in a hidden folder and you must make hidden files visible.
+Under Mac OSX, you can also open it in Finder by selecting 'Go > Go To Folder...' and typing '~/.qgis2/python/plugins/'.
+
+If you cannot find it it's because you haven't installed any QGIS plugins yet. You can either install one plugin, or create the 'python/plugins' folder manually.
+
+After copying the esstoolkit folder, once you start QGIS the 'Space Syntax Toolkit' plugin will be available in the plugin manager window. Check the box next to it to load the plugin and create the menu and toolbar buttons.
+To use any of the tools select the appropriate button in the plugins toolbar, or in the 'Space Syntax Toolkit' section of the 'Plugins' menu.

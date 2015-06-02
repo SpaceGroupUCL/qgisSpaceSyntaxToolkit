@@ -35,7 +35,7 @@ try:
     has_pydevd = True
 except ImportError, e:
     has_pydevd = False
-is_debug = True
+is_debug = False
 
 
 class UnlinksVerification(QThread):
