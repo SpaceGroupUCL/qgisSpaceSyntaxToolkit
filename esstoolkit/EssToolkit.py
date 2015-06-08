@@ -2,12 +2,15 @@
 """
 /***************************************************************************
  essToolkit
-                                 A QGIS plugin
+                            Space Syntax Toolkit
  Set of tools for essential space syntax network analysis and results exploration
                              -------------------
         begin                : 2014-04-01
         copyright            : (C) 2015, UCL
+        author               : Jorge Gil
+        author               : Jorge Gil
         email                : jorge.gil@ucl.ac.uk
+ ***************************************************************************/
 
 /***************************************************************************
  *                                                                         *
@@ -26,7 +29,7 @@ from qgis.core import *
 
 # Import the debug library
 # can set is_debug to False in release version
-is_debug = False
+is_debug = True
 try:
     import pydevd
     has_pydevd = True
@@ -69,6 +72,7 @@ class EssToolkit:
     def __init__(self, iface):
         # Save reference to the QGIS interface
         self.iface = iface
+        self.esst_toolbar = self.iface.addToolBar(u"Space Syntax Toolkit")
 
         # initialise plugin directory
         self.plugin_dir = os.path.dirname(__file__)
@@ -128,8 +132,8 @@ class EssToolkit:
         self.about_action.triggered.connect(self.about.show)
 
         # Add toolbar button and menu items
-        self.iface.addToolBarIcon(self.analysis_action)
-        self.iface.addToolBarIcon(self.explorer_action)
+        self.esst_toolbar.addAction(self.analysis_action)
+        self.esst_toolbar.addAction(self.explorer_action)
         self.iface.addPluginToMenu(u"&Space Syntax Toolkit", self.analysis_action)
         self.iface.addPluginToMenu(u"&Space Syntax Toolkit", self.explorer_action)
         self.iface.addPluginToMenu(u"&Space Syntax Toolkit", self.project_action)

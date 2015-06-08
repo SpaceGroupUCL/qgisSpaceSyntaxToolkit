@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
- essTools
-                                 A QGIS plugin
- Set of tools for space syntax network analysis and results exploration
+ essToolkit
+                            Space Syntax Toolkit
+ Set of tools for essential space syntax network analysis and results exploration
                               -------------------
         begin                : 2014-04-01
-        copyright            : (C) 2015 UCL, Jorge Gil
+        copyright            : (C) 2015, UCL
+        author               : Jorge Gil
         email                : jorge.gil@ucl.ac.uk
  ***************************************************************************/
 

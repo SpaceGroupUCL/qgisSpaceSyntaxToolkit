@@ -11,7 +11,7 @@
 name=Space Syntax Toolkit
 qgisMinimumVersion=2.0
 description=Collection of tools for spatial network analysis and data exploration.
-version=0.0.4
+version=0.0.5
 author=Jorge Gil, UCL
 email=jorge.gil@ucl.ac.uk
 
@@ -21,8 +21,12 @@ email=jorge.gil@ucl.ac.uk
 
 about=Dependencies: depthmapXnet
 category = Vector
-changelog=version 0.04:
+changelog=version 0.0.5:
+    *
+
+    version 0.0.4:
     * includes external Python packages
+    * postgis integration
     * minor bug fixes
 
     version 0.0.3:

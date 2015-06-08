@@ -2,11 +2,12 @@
 """
 /***************************************************************************
  essToolkit
-                                 A QGIS plugin
+                            Space Syntax Toolkit
  Set of tools for essential space syntax network analysis and results exploration
                              -------------------
         begin                : 2014-04-01
-        copyright            : (C) 2015 by Jorge Gil, UCL
+        copyright            : (C) 2015 by Jorge Gil\, UCL
+        author               : Jorge Gil\n        author               \: Jorge Gil
         email                : jorge.gil@ucl.ac.uk
  ***************************************************************************/
 

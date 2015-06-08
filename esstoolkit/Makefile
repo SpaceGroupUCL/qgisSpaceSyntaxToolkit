@@ -1,7 +1,7 @@
 #/***************************************************************************
-# esstdockingwindow
+# essToolkit
 #
-# Prototype interface for the ESSTools
+# Prototype interface for the ESSToolkit
 #                             -------------------
 #        begin                : 2014-01-21
 #        copyright            : (C) 2015 UCL, Jorge Gil
@@ -25,13 +25,13 @@ QGISDIR=.qgis2
 # Makefile for a PyQGIS plugin
 
 # translation
-SOURCES = EssTools.py ui_esstdockingwindow.py __init__.py esstdockingwindowdialog.py
+SOURCES = EssToolkit.py ui_esstdockingwindow.py __init__.py esstdockingwindowdialog.py
 #TRANSLATIONS = i18n/esstdockingwindow_en.ts
 TRANSLATIONS =
 
 # global
 
-PLUGINNAME = EssTools
+PLUGINNAME = EssToolkit
 
 PY_FILES = esstdockingwindow.py esstdockingwindowdialog.py __init__.py
 
