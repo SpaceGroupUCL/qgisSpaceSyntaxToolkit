@@ -66,7 +66,7 @@ class ExplorerTool(QObject):
         self.legend.itemAdded.connect(self.updateLayers)
         self.legend.itemRemoved.connect(self.updateLayers)
         self.iface.projectRead.connect(self.updateLayers)
-        #self.iface.newProjectCreated.connect(self.updateLayers)
+        self.iface.newProjectCreated.connect(self.updateLayers)
 
         # initialise attribute explorer classes
         self.attributeSymbology = AttributeSymbology(self.iface)
@@ -80,46 +80,37 @@ class ExplorerTool(QObject):
         self.attribute_values = []
         self.selection_values = []
         self.selection_ids = []
-        #self.layer_ids = dict()
         self.updateActionConnections(0)
-        #self.isVisible = False
         self.layer_display_settings = []
         self.layer_attributes = []
 
     def unload(self):
         if self.dlg.isVisible():
             # Disconnect signals from main program
-            #self.legend.currentLayerChanged.disconnect(self.updateLayerAttributes)
             self.legend.itemAdded.disconnect(self.updateLayers)
             self.legend.itemRemoved.disconnect(self.updateLayers)
             self.iface.projectRead.disconnect(self.updateLayers)
-            #self.iface.newProjectCreated.disconnect(self.updateLayers)
-        #self.isVisible = False
+            self.iface.newProjectCreated.disconnect(self.updateLayers)
         # clear stored values
         self.attribute_statistics = []
         self.bivariate_statistics = []
         self.attribute_values = []
         self.selection_values = []
-        #self.layer_ids = dict()
 
     def onShow(self):
         if self.dlg.isVisible():
             # Connect signals to QGIS interface
-            #self.legend.currentLayerChanged.connect(self.updateLayerAttributes)
             self.legend.itemAdded.connect(self.updateLayers)
             self.legend.itemRemoved.connect(self.updateLayers)
             self.iface.projectRead.connect(self.updateLayers)
-            #self.iface.newProjectCreated.connect(self.updateLayers)
+            self.iface.newProjectCreated.connect(self.updateLayers)
             self.updateLayers()
-            #self.isVisible = True
         else:
             # Disconnect signals to QGIS interface
-            #self.legend.currentLayerChanged.disconnect(self.updateLayerAttributes)
             self.legend.itemAdded.disconnect(self.updateLayers)
             self.legend.itemRemoved.disconnect(self.updateLayers)
             self.iface.projectRead.disconnect(self.updateLayers)
-            #self.iface.newProjectCreated.disconnect(self.updateLayers)
-            #self.isVisible = False
+            self.iface.newProjectCreated.disconnect(self.updateLayers)
 
     ##
     ## manage project and tool settings
@@ -158,11 +149,7 @@ class ExplorerTool(QObject):
     ## Manage layers and attributes
     ##
     def updateLayers(self):
-        #try:
-        # fixme: ?throws NoneType error occasionally when adding/removing layers. trapping it for now.
         layers = uf.getLegendLayers(self.iface)
-        #except:
-        #    layers = []
         has_numeric = []
         idx = 0
         if len(layers) > 0:
@@ -173,13 +160,12 @@ class ExplorerTool(QObject):
                         has_numeric.append(layer.name())
                         if self.current_layer and layer.name() == self.current_layer.name():
                             idx = len(has_numeric)
-                            #if not self.legend.isLayerVisible(layer):
-                            #    self.legend.setLayerVisible(layer, True)
-                            #    self.legend.setCurrentLayer(layer)
         if len(has_numeric) == 0:
             has_numeric.append("Open a vector layer with numeric fields")
+            self.dlg.lockLayerRefresh(True)
         else:
             has_numeric.insert(0,"Select layer to explore...")
+            self.dlg.lockLayerRefresh(False)
         self.dlg.setCurrentLayer(has_numeric,idx)
 
     def updateLayerAttributes(self):

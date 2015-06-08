@@ -63,7 +63,7 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
         # default symbology values
         self.colourRangeCombo.addItems(["Classic","Red - blue","Greyscale","Monochrome"]) #"Classic inflection"
         self.intervalTypeCombo.addItems(["Equal intervals","Quantiles","Natural breaks","Custom"]) #"Default NACh"
-        self.layerRefreshButton.hide()
+        #self.layerRefreshButton.hide()
         self.current_symbology = dict()
         #self.__clearSymbology()
 
@@ -149,6 +149,9 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
 
     def getCurrentLayer(self):
         return self.layerCombo.currentText()
+
+    def lockLayerRefresh(self, onoff):
+        self.layerRefreshButton.setDisabled(onoff)
 
     def setAttributesList(self, data):
         self.layer_attributes = data
