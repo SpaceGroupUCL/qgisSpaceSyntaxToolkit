@@ -518,7 +518,11 @@ class UnlinksIdUpdate(QThread):
             if 'spatialite' in datastore:
                 self.spatialiteUpdateIDs(connection, unlinktype)
             else:
-                self.postgisUpdateIDs(connection, unlinktype)
+                # get the layer id columns, required in postgis
+                if self.user_id == '' or self.axial_id == '':
+                    self.verificationError.emit("The unlinks layer needs an id attribute or primary key.")
+                else:
+                    self.postgisUpdateIDs(connection, unlinktype)
             connection.close()
         else:
             self.qgisUpdateIDs(unlinktype)
@@ -539,12 +543,16 @@ class UnlinksIdUpdate(QThread):
         axialgeom = uf.getSpatialiteGeometryColumn(connection, axialname)
         # add line id columns
         added = uf.addSpatialiteColumns(connection, unlinkname, ['line1','line2'], [QVariant.Int,QVariant.Int])
-        self.verificationProgress.emit(33)
+        self.verificationProgress.emit(22)
         # prepare variables for update query
         if self.user_id == '':
             unlinkid = 'ROWID'
         else:
             unlinkid = self.user_id
+            if not uf.isValidIdField(self.unlinks_layer, unlinkid):
+                # update unlink id column
+                query = 'UPDATE %s SET %s = ROWID' % (unlinkname, unlinkid)
+                header, data, error = uf.executeSpatialiteQuery(connection, query, commit=True)
         if self.axial_id == '':
             axialid = 'ROWID'
         else:
@@ -555,6 +563,7 @@ class UnlinksIdUpdate(QThread):
         else:
             operat_a = 'PtDistWithin'
             operat_b = ',%s' % self.threshold
+        self.verificationProgress.emit(33)
         # update line id columns
         query = 'UPDATE %s SET line1 = (SELECT c.line FROM (SELECT b.%s unlink, a.%s line FROM ' \
                 '%s a, %s b WHERE %s(a.%s,b.%s%s) ORDER BY b.%s, a.%s ASC)' \
@@ -572,12 +581,8 @@ class UnlinksIdUpdate(QThread):
         self.verificationProgress.emit(99)
 
     def postgisUpdateIDs(self, connection, unlinktype):
-        # get the layer id columns, required in postgis
-        if self.user_id == '' or self.axial_id == '':
-            return
-        else:
-            unlinkid = self.user_id
-            axialid = self.axial_id
+        unlinkid = self.user_id
+        axialid = self.axial_id
         # get the geometry column name and other properties
         unlinkinfo = uf.getPostgisLayerInfo(self.unlinks_layer)
         unlinkname = unlinkinfo['table']
@@ -626,9 +631,11 @@ class UnlinksIdUpdate(QThread):
         uf.addFields(self.unlinks_layer,['line1','line2'],[QVariant.Int,QVariant.Int])
         line1 = uf.getFieldIndex(self.unlinks_layer, 'line1')
         line2 = uf.getFieldIndex(self.unlinks_layer, 'line2')
+        update_id = False
         if self.user_id == '':
             features = self.unlinks_layer.getFeatures(QgsFeatureRequest().setSubsetOfAttributes([line1,line2]))
         else:
+            update_id = not uf.isValidIdField(self.unlinks_layer, self.user_id)
             field = uf.getFieldIndex(self.unlinks_layer, self.user_id)
             features = self.unlinks_layer.getFeatures(QgsFeatureRequest().setSubsetOfAttributes([field,line1,line2]))
         # run unlinks tests
@@ -654,8 +661,8 @@ class UnlinksIdUpdate(QThread):
             if self.axial_id == '':
                 request.setSubsetOfAttributes([])
             else:
-                field = uf.getFieldIndex(self.axial_layer, self.axial_id)
-                request.setSubsetOfAttributes([field])
+                ax_field = uf.getFieldIndex(self.axial_layer, self.axial_id)
+                request.setSubsetOfAttributes([ax_field])
             axiallines = self.axial_layer.getFeatures(request)
             progress += steps
             self.verificationProgress.emit(progress)
@@ -673,12 +680,14 @@ class UnlinksIdUpdate(QThread):
             # update line ids in unlinks table
             if len(intersects) > 0:
                 if len(intersects) == 1:
-                    attrs = {line1:intersects[0]}
+                    attrs = {line1: intersects[0]}
                     #feature.setAttribute(line1,intersects[0])
                 else:
-                    attrs = {line1:intersects[0],line2:intersects[1]}
+                    attrs = {line1: intersects[0],line2: intersects[1]}
                     #feature.setAttribute(line2,intersects[1])
-                self.unlinks_layer.dataProvider().changeAttributeValues({feature.id():attrs})
+            if update_id:
+                attrs[field] = feature.id()
+            self.unlinks_layer.dataProvider().changeAttributeValues({feature.id(): attrs})
             progress += steps
             self.verificationProgress.emit(progress)
         self.unlinks_layer.updateFields()

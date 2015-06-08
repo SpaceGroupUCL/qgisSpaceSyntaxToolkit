@@ -300,6 +300,22 @@ def getIdField(layer):
     return user_id
 
 
+def getIdFieldNames(layer):
+    user_ids = []
+    # first id will be the primary key
+    pk = layer.dataProvider().pkAttributeIndexes()
+    if len(pk) > 0:
+        user_ids.append(layer.dataProvider().fields().field(pk[0]).name())
+    # followed by other ids
+    names, idxs = getNumericFieldNames(layer)
+    standard_id = ("pk","pkuid","pkid","pk_id","pk id","sid","uid","fid","id","ref")
+    # look for user defined ID, take first found
+    for field in names:
+        if field.lower() in standard_id and field.lower() not in user_ids:
+            user_ids.append(field)
+    return user_ids
+
+
 def isValidIdField(layer, name):
     count = layer.featureCount()
     unique = getUniqueValuesNumber(layer, name)
@@ -320,8 +336,6 @@ def addFields(layer, names, types):
                 #add new field if it doesn't exist
                 if fields.indexFromName(name) == -1:
                     res = provider.addAttributes([QgsField(name, types[i])])
-                else:
-                    res = True
         #apply changes if any made
         if res:
             layer.updateFields()

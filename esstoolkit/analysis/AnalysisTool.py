@@ -323,7 +323,7 @@ class AnalysisTool(QObject):
         caps = None
         self.axial_id = uf.getIdField(axial)
         if self.axial_id == '':
-            self.iface.messageBar().pushMessage("Info", "The axial layer has invalid or duplicate values in the ID column. Using feature ids instead.", level=0, duration=3)
+            self.iface.messageBar().pushMessage("Info", "The axial layer has invalid values in the ID column. Using feature ids.", level=0, duration=3)
         # verify axial map
         if self.edit_mode == 0:
             # get ids (to match the object ids in the map)
@@ -342,7 +342,7 @@ class AnalysisTool(QObject):
             caps = unlinks.dataProvider().capabilities()
             self.user_ids['unlinks'] = uf.getIdField(unlinks)
             if self.user_ids['unlinks'] == '':
-                self.iface.messageBar().pushMessage("Info", "The unlinks layer invalid values in the ID column. Using feature ids.", level=0, duration=3)
+                self.iface.messageBar().pushMessage("Info", "The unlinks layer has invalid values in the ID column. Using feature ids.", level=0, duration=3)
             if unlinks.fieldNameIndex("line1") == -1 or unlinks.fieldNameIndex("line2") == -1:
                 self.iface.messageBar().pushMessage("Warning", "Line ID columns missing in unlinks layer, please 'Update IDs'.", level=1, duration=3)
                 return False
@@ -412,7 +412,9 @@ class AnalysisTool(QObject):
             if caps & QgsVectorDataProvider.ChangeAttributeValues:
                 self.dlg.lockAxialEditTab(True)
                 self.dlg.clearAxialProblems()
-                self.user_ids['unlinks'] = uf.getIdField(unlinks)
+                ids = uf.getIdFieldNames(unlinks)
+                if ids:
+                    self.user_ids['unlinks'] = ids[0]
                 self.verificationThread = UnlinksIdUpdate(self.iface.mainWindow(), self, unlinks, self.user_ids['unlinks'], axial, self.axial_id, settings['unlink_dist'])
         # update link line ids
         elif self.edit_mode == 2:
@@ -423,7 +425,9 @@ class AnalysisTool(QObject):
             if caps & QgsVectorDataProvider.ChangeAttributeValues:
                 self.dlg.lockAxialEditTab(True)
                 self.dlg.clearAxialProblems()
-                self.user_ids['links'] = uf.getIdField(links)
+                ids = uf.getIdFieldNames(links)
+                if ids:
+                    self.user_ids['links'] = ids[0]
                 # newfeature: update links ids
         # update origin line ids
         elif self.edit_mode == 3:
@@ -434,7 +438,9 @@ class AnalysisTool(QObject):
             if caps & QgsVectorDataProvider.ChangeAttributeValues:
                 self.dlg.lockAxialEditTab(True)
                 self.dlg.clearAxialProblems()
-                self.user_ids['origins'] = uf.getIdField(origins)
+                ids = uf.getIdFieldNames(origins)
+                if ids:
+                    self.user_ids['origins'] = ids[0]
                 # newfeature: update origins ids
         # prepare dialog
         self.dlg.lockLayerTab(True)
