@@ -60,8 +60,12 @@ class AttributeSymbology(QObject):
             # set symbol type and line width
             symbol = QgsSymbolV2.defaultSymbol(geometry)
             if symbol:
-                if symbol.type() == 1:
+                if symbol.type() == 1:  # line
                     symbol.setWidth(line_width)
+                if symbol.type() == 0:  # point
+                    symbol.setSize(line_width)
+                    #if ramp_type == 3:  # monochrome
+                    #    symbol.setScaleMethod(0)
                 renderer = QgsGraduatedSymbolRendererV2.createRenderer(layer, attribute, intervals, mode, symbol, ramp)
                 renderer.setMode(mode)
                 renderer.setSourceColorRamp(ramp)
@@ -113,18 +117,41 @@ class AttributeSymbology(QObject):
                     for i in range(0, symbol.symbolLayerCount()):
                         symbol.symbolLayer(i).setRenderingPass(render_pass)
                         render_pass += 1
-        # set the symbols with varying line width in the case of monochrome ramp
+        # set the symbols for monochrome ramp
+        # varying line width, point size or polygon pattern density
         # doesn't use data column because it's not scaled according to line width values
         # the width is calculated linearly between min and given value
         if renderer:
             if ramp_type == 3:
                 new_width = np.linspace(0.1, line_width, intervals)
+                step = intervals / 8.0  # this is usd for fill patterns
+                color = QColor(ramp.color(0).getRgb())  # same as above
                 for i in range(0, intervals):
                     symbol = renderer.symbols()[i]
                     if invert:
-                        symbol.setWidth(new_width[(intervals-1)-i])
+                        if symbol.type() == 1:  # line
+                            symbol.setWidth(new_width[(intervals-1)-i])
+                        if symbol.type() == 0:  # point
+                            symbol.setSize(new_width[(intervals-1)-i])
+                        if symbol.type() == 2:  # polygon
+                            dense = int(i / step)
+                            if dense == 0:
+                                style = 'solid'
+                            else:
+                                style = 'dense%s' % dense
+                            symbol = QgsFillSymbolV2.createSimple({'style': style, 'color': 'black'})
                     else:
-                        symbol.setWidth(new_width[i])
+                        if symbol.type() == 1:  # line
+                            symbol.setWidth(new_width[i])
+                        if symbol.type() == 0:  # point
+                            symbol.setSize(new_width[i])
+                        if symbol.type() == 2:  # polygon
+                            dense = int(i / step)
+                            if dense == 7:
+                                style = 'solid'
+                            else:
+                                style = 'dense%s' % (7 - dense)
+                            symbol = QgsFillSymbolV2.createSimple({'style': style, 'color': 'black'})
                     renderer.updateRangeSymbol(i, symbol)
         return renderer
 
@@ -148,7 +175,7 @@ class AttributeSymbology(QObject):
             else:
                 ramp = QgsVectorGradientColorRampV2(QColor(248, 248, 248, 255), QColor(0, 0, 0, 255), False)
         if colour_type == 3:  # monochrome
-            #depends on canvas background: if canvas is black, lines are white, and vice versa
+            #depends on canvas background: if canvas is black, symbols are white, and vice versa
             canvas = uf.getCanvasColour(self.iface)
             if canvas.value() < 80:
                 ramp = QgsVectorGradientColorRampV2(QColor(255, 255, 255, 255), QColor(255, 255, 255, 255), False)

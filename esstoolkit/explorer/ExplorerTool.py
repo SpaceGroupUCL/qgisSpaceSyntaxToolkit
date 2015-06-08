@@ -249,8 +249,7 @@ class ExplorerTool(QObject):
                     self.dlg.setAttributesList(self.layer_attributes)
                     self.dlg.setAttributesSymbology(self.layer_display_settings)
                     self.dlg.setCurrentAttribute(current_attribute)
-                    #
-                    self.updateSymbology()
+                    #self.updateSymbology()
                 else:
                     no_layer = True
             else:
