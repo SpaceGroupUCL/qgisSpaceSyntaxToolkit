@@ -73,7 +73,6 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
 
         # charts widgets
         self.lineLabel.hide()
-        self.boxplotCheck.hide()
         self.pLabel.hide()
         self.chartsProgressBar.hide()
         self.histogramCheck.setChecked(True)
@@ -112,7 +111,6 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
         self.bottomLimitText.editingFinished.connect(self.__bottomLimitTextChanged)
         # charts
         self.histogramCheck.clicked.connect(self.__histogramSelected)
-        self.boxplotCheck.clicked.connect(self.__boxplotSelected)
         self.scatterplotCheck.clicked.connect(self.__scatterplotSelected)
         self.yaxisCombo.currentIndexChanged.connect(self.yAxisChanged)
 
@@ -480,15 +478,9 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
         self.clearPlot()
         self.chartChanged.emit()
 
-    def __boxplotSelected(self):
-        self.__lockDependentGroup(True)
-        self.curr_chart = 1
-        self.clearPlot()
-        self.chartChanged.emit()
-
     def __scatterplotSelected(self):
         self.__lockDependentGroup(False)
-        self.curr_chart = 2
+        self.curr_chart = 1
         self.clearPlot()
         self.chartChanged.emit()
 
@@ -509,7 +501,7 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
             self.yaxisCombo.setToolTip('Select y axis attribute of scatter plot.')
 
     def yAxisChanged(self):
-        if self.curr_chart == 2:
+        if self.curr_chart == 1:
             self.yaxisCombo.setToolTip(self.yaxisCombo.itemText(self.yaxisCombo.currentIndex()))
             self.dependentChanged.emit()
 

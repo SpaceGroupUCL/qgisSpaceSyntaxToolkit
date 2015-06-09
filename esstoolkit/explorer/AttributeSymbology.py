@@ -64,8 +64,6 @@ class AttributeSymbology(QObject):
                     symbol.setWidth(line_width)
                 if symbol.type() == 0:  # point
                     symbol.setSize(line_width)
-                    #if ramp_type == 3:  # monochrome
-                    #    symbol.setScaleMethod(0)
                 renderer = QgsGraduatedSymbolRendererV2.createRenderer(layer, attribute, intervals, mode, symbol, ramp)
                 renderer.setMode(mode)
                 renderer.setSourceColorRamp(ramp)

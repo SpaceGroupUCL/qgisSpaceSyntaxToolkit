@@ -26,7 +26,7 @@
       <property name="orientation">
        <enum>Qt::Vertical</enum>
       </property>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <layout class="QVBoxLayout" name="attributesLayout" stretch="1,1,10">
         <item>
          <layout class="QHBoxLayout" name="layersLayout" stretch="5,0">
@@ -329,13 +329,6 @@
                 <widget class="QRadioButton" name="histogramCheck">
                  <property name="text">
                   <string>Histogram</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QRadioButton" name="boxplotCheck">
-                 <property name="text">
-                  <string>Box plot</string>
                  </property>
                 </widget>
                </item>

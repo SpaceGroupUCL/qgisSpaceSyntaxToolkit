@@ -54,12 +54,11 @@ class AttributeCharts(QObject):
         self.plot = plot
 
         if has_pyqtgraph:
+            self.hist_selection = pg.PlotCurveItem()
+            self.scatter_selection = []
             self.scatter = pg.ScatterPlotItem()
             self.region = pg.LinearRegionItem()
             #self.roi = None
-        # newfeature: support simple charts without pyqtgraph
-        else:
-            pass
 
     def drawHistogram(self, values, min, max, bins):
         # compute the histogram
@@ -78,9 +77,6 @@ class AttributeCharts(QObject):
             #self.region = pg.LinearRegionItem([min,min],bounds=[min, max])
             #self.region.sigRegionChanged.connect(self.getHistogramSelection)
             #self.plot.addItem(self.region)
-        # newfeature: support simple charts without pyqtgraph
-        else:
-            pass
 
     # newfeature: allow selection of items in chart and selecting them on the map
     def changedHistogramSelection(self):
@@ -88,23 +84,20 @@ class AttributeCharts(QObject):
         self.histogramSelected.emit(sel_min, sel_max)
 
     def setHistogramSelection(self, values, min, max, bins):
-        # compute the histogram
-        if bins >= 50:
-            bin = 51
-        else:
-            bin = bins+1
-        y, x = np.histogram(values, bins=np.linspace(min, max, num=bin))
-        # plot the chart
         if has_pyqtgraph:
-            sel_curve = pg.PlotCurveItem()
-            sel_curve.setData(x, y, stepMode=True, fillLevel=0, brush=(230, 0, 0), pen=pg.mkPen(None))
-            self.plot.addItem(sel_curve)
-        # newfeature: support simple charts without pyqtgraph
-        else:
-            pass
-
-    def drawBoxPlot(self, values):
-        pass
+            if len(values) > 0:
+                # compute the histogram
+                if bins >= 50:
+                    bin = 51
+                else:
+                    bin = bins+1
+                y, x = np.histogram(values, bins=np.linspace(min, max, num=bin))
+                # plot the selection chart
+                self.hist_selection = pg.PlotCurveItem()
+                self.hist_selection.setData(x, y, stepMode=True, fillLevel=0, brush=(230, 0, 0), pen=pg.mkPen(None))
+                self.plot.addItem(self.hist_selection)
+            elif self.hist_selection:
+                self.plot.removeItem(self.hist_selection)
 
     def drawScatterplot(self, xvalues, yvalues, ids, symbols=None):
         # plot the chart
@@ -118,10 +111,10 @@ class AttributeCharts(QObject):
                     x = xvalues[i]
                     y = yvalues[i]
                     symb = symbols[i]
-                    points.append({'x':x,'y':y,'data':id,'size':3,'pen':pg.mkPen(None), 'brush':symb})
+                    points.append({'x': x, 'y': y, 'data': id, 'size': 3, 'pen': pg.mkPen(None), 'brush': symb})
                 self.scatter.addPoints(points)
             else:
-                self.scatter.addPoints(x=xvalues,y=yvalues,data=ids,size=3,pen=pg.mkPen(None), brush=pg.mkBrush(235, 235, 235, 255))
+                self.scatter.addPoints(x=xvalues, y=yvalues, data=ids, size=3, pen=pg.mkPen(None), brush=pg.mkBrush(235, 235, 235, 255))
             self.plot.addItem(self.scatter)
             # newfeature: add the selection tool
             #self.scatter.sigClicked.connect(self.getScatterplotSelection)
@@ -135,21 +128,18 @@ class AttributeCharts(QObject):
             #self.plot.disableAutoRange('xy')
             #self.plot.autoRange()
 
-        # newfeature: support simple charts without pyqtgraph
-        else:
-            pass
-
-
     # newfeature: allow selection of items in chart and selecting them on the map
     def changedScatterplotSelection(self):
         ids = []
         self.scatterplotSelected.emit(ids)
 
     def setScatterplotSelection(self, ids):
-        points = []
-        #if has_pyqtgraph:
-            #for id in ids:
-                #self.scatter.points()[id].setPen('r',width=2)
-            #    points.append(self.scatter.points()[id])
-            #for point in points:
-            #    point.setPen('r',width=2)
+        if has_pyqtgraph:
+            if len(ids) > 0:
+                for id in ids:
+                    self.scatter.points()[id].setPen('r',width=3)
+                    self.scatter_selection.append(self.scatter.points()[id])
+            elif len(self.scatter_selection) > 0:
+                for point in self.scatter_selection:
+                    point.resetPen()
+                self.scatter_selection = []

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/Users/jorge/github/qgisSpaceSyntaxToolkit/esstoolkit/explorer/ui_Explorer.ui'
 #
-# Created: Mon Jun  8 23:10:58 2015
+# Created: Tue Jun  9 22:08:03 2015
 #      by: PyQt4 UI code generator 4.10.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -35,25 +35,25 @@ class Ui_ExplorerDialog(object):
         self.splitter = QtGui.QSplitter(self.explorerLayout)
         self.splitter.setOrientation(QtCore.Qt.Vertical)
         self.splitter.setObjectName(_fromUtf8("splitter"))
-        self.widget = QtGui.QWidget(self.splitter)
-        self.widget.setObjectName(_fromUtf8("widget"))
-        self.attributesLayout = QtGui.QVBoxLayout(self.widget)
+        self.layoutWidget = QtGui.QWidget(self.splitter)
+        self.layoutWidget.setObjectName(_fromUtf8("layoutWidget"))
+        self.attributesLayout = QtGui.QVBoxLayout(self.layoutWidget)
         self.attributesLayout.setMargin(0)
         self.attributesLayout.setObjectName(_fromUtf8("attributesLayout"))
         self.layersLayout = QtGui.QHBoxLayout()
         self.layersLayout.setObjectName(_fromUtf8("layersLayout"))
-        self.layerCombo = QtGui.QComboBox(self.widget)
+        self.layerCombo = QtGui.QComboBox(self.layoutWidget)
         self.layerCombo.setObjectName(_fromUtf8("layerCombo"))
         self.layersLayout.addWidget(self.layerCombo)
-        self.layerRefreshButton = QtGui.QPushButton(self.widget)
+        self.layerRefreshButton = QtGui.QPushButton(self.layoutWidget)
         self.layerRefreshButton.setObjectName(_fromUtf8("layerRefreshButton"))
         self.layersLayout.addWidget(self.layerRefreshButton)
         self.layersLayout.setStretch(0, 5)
         self.attributesLayout.addLayout(self.layersLayout)
-        self.attributesLabel = QtGui.QLabel(self.widget)
+        self.attributesLabel = QtGui.QLabel(self.layoutWidget)
         self.attributesLabel.setObjectName(_fromUtf8("attributesLabel"))
         self.attributesLayout.addWidget(self.attributesLabel)
-        self.attributesList = QtGui.QListWidget(self.widget)
+        self.attributesList = QtGui.QListWidget(self.layoutWidget)
         self.attributesList.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
         self.attributesList.setObjectName(_fromUtf8("attributesList"))
         self.attributesLayout.addWidget(self.attributesList)
@@ -192,9 +192,6 @@ class Ui_ExplorerDialog(object):
         self.histogramCheck = QtGui.QRadioButton(self.chartsTab)
         self.histogramCheck.setObjectName(_fromUtf8("histogramCheck"))
         self.chartSetupLayout.addWidget(self.histogramCheck)
-        self.boxplotCheck = QtGui.QRadioButton(self.chartsTab)
-        self.boxplotCheck.setObjectName(_fromUtf8("boxplotCheck"))
-        self.chartSetupLayout.addWidget(self.boxplotCheck)
         self.scatterplotCheck = QtGui.QRadioButton(self.chartsTab)
         self.scatterplotCheck.setObjectName(_fromUtf8("scatterplotCheck"))
         self.chartSetupLayout.addWidget(self.scatterplotCheck)
@@ -266,7 +263,6 @@ class Ui_ExplorerDialog(object):
         item.setText(_translate("ExplorerDialog", "Selection", None))
         self.explorerTabs.setTabText(self.explorerTabs.indexOf(self.statsTab), _translate("ExplorerDialog", "Stats", None))
         self.histogramCheck.setText(_translate("ExplorerDialog", "Histogram", None))
-        self.boxplotCheck.setText(_translate("ExplorerDialog", "Box plot", None))
         self.scatterplotCheck.setText(_translate("ExplorerDialog", "Scatter plot", None))
         self.yaxisLabel.setText(_translate("ExplorerDialog", "Y axis:", None))
         self.yaxisCombo.setToolTip(_translate("ExplorerDialog", "Select y axis attribute of scatter plot.", None))

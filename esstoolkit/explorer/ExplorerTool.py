@@ -34,8 +34,6 @@ from AttributeCharts import *
 from .. import utility_functions as uf
 
 import numpy as np
-#from operator import is_not
-#from functools import partial
 
 class ExplorerTool(QObject):
 
@@ -136,15 +134,6 @@ class ExplorerTool(QObject):
         self.project.writeSettings(symbology,"symbology/"+self.current_layer.name()+"/"+symbology["attribute"])
         #self.project.writeSettings(self.axial_analysis_settings,"stats")
 
-    def getToolkitSettings(self):
-        # pull relevant settings from settings manager: self.settings
-        # newfeature: get relevant settings from tool
-        pass
-
-    def updateToolkitSettings(self):
-        # newfeature: save layer edit settings to toolkit
-        pass
-
     ##
     ## Manage layers and attributes
     ##
@@ -154,7 +143,7 @@ class ExplorerTool(QObject):
         idx = 0
         if len(layers) > 0:
             for layer in layers:
-                if layer.type() == 0:  #VectorLayer
+                if layer.type() == 0:  # VectorLayer
                     fields = uf.getNumericFields(layer)
                     if len(fields) > 0:
                         has_numeric.append(layer.name())
@@ -249,7 +238,6 @@ class ExplorerTool(QObject):
             self.dlg.setCurrentAttribute(-1)
             self.dlg.lockTabs(True)
 
-
     def updateActionConnections(self, tab):
         # change signal connections to trigger actions depending on selected tab
         # disconnect stats and charts
@@ -260,7 +248,7 @@ class ExplorerTool(QObject):
             except Exception: pass
             try:
                 self.dlg.attributesList.currentRowChanged.disconnect(self.updateCharts)
-                self.iface.mapCanvas().selectionChanged.disconnect(self.updateCharts)
+                self.iface.mapCanvas().selectionChanged.disconnect(self.updateChartSelection)
             except Exception: pass
         # do not disconnect symbology as it just retrieves info and updates the display: required
         # connect calculate stats
@@ -271,7 +259,7 @@ class ExplorerTool(QObject):
             except Exception: pass
             try:
                 self.dlg.attributesList.currentRowChanged.disconnect(self.updateCharts)
-                self.iface.mapCanvas().selectionChanged.disconnect(self.updateCharts)
+                self.iface.mapCanvas().selectionChanged.disconnect(self.updateChartSelection)
             except Exception: pass
             self.updateStats()
         # connect calculate charts
@@ -282,10 +270,9 @@ class ExplorerTool(QObject):
             except Exception: pass
             try:
                 self.dlg.attributesList.currentRowChanged.connect(self.updateCharts)
-                self.iface.mapCanvas().selectionChanged.connect(self.updateCharts)
+                self.iface.mapCanvas().selectionChanged.connect(self.updateChartSelection)
             except Exception: pass
             self.updateCharts()
-
 
     ##
     ## Symbology actions
@@ -320,7 +307,6 @@ class ExplorerTool(QObject):
                 self.current_layer.triggerRepaint()
                 self.iface.mapCanvas().refresh()
                 self.legend.refreshLayerSymbology(self.current_layer)
-
 
     ##
     ## Stats actions
@@ -358,7 +344,6 @@ class ExplorerTool(QObject):
                 # update the dialog
                 self.dlg.setStats(stats, select_stats)
 
-
     ##
     ## Charts actions
     ##
@@ -376,24 +361,12 @@ class ExplorerTool(QObject):
                 values = self.attribute_values[idx]["values"]
                 ids = self.attribute_values[idx]["ids"]
                 bins = self.attribute_values[idx]["bins"]
-                # retrieve selection values
-                if self.current_layer.selectedFeatureCount() > 0:
-                    self.selection_values, self.selection_ids = uf.getFieldValues(self.current_layer, attribute["name"], null=False, selection=True)
-                else:
-                    self.selection_values = []
-                    self.selection_ids = []
-                sel_values = np.array(self.selection_values)
                 # plot charts and dependent variable stats
                 chart_type = self.dlg.getChartType()
+                # create a histogram
                 if chart_type == 0:
-                    # create a histogram
                     self.attributeCharts.drawHistogram(values, attribute["min"], attribute["max"], bins)
-                    # plot chart of selected objects
-                    if len(self.selection_values) > 0:
-                        self.attributeCharts.setHistogramSelection(sel_values, np.min(sel_values), np.max(sel_values), bins)
                 elif chart_type == 1:
-                    self.attributeCharts.drawBoxPlot(values)
-                elif chart_type == 2:
                     # create a scatter plot
                     current_dependent = self.dlg.getYAxisAttribute()
                     if current_dependent != current_attribute:
@@ -434,20 +407,39 @@ class ExplorerTool(QObject):
                         #else:
                         symbols = None
                         self.attributeCharts.drawScatterplot(values, yvalues, ids, symbols)
-                        # plot chart of selected objects
-                        if len(self.selection_values) > 0:
-                        #    indices = []
-                        #    for id in self.selection_ids:
-                        #        if id in ids:
-                        #            indices.append(ids.index(id))
-                            self.attributeCharts.setScatterplotSelection(self.selection_ids)
                     else:
                         self.dlg.clearDependentValues()
+                # retrieve selection values
+                if self.current_layer.selectedFeatureCount() > 0:
+                    self.updateChartSelection()
             else:
                 self.dlg.clearDependentValues()
         else:
             self.dlg.clearDependentValues()
 
+    def updateChartSelection(self):
+        if self.current_layer is not None:
+            current_attribute = self.dlg.getCurrentAttribute()
+            if current_attribute >= 0:
+                chart_type = self.dlg.getChartType()
+                if self.current_layer.selectedFeatureCount() > 0:
+                    attribute = self.layer_attributes[current_attribute]
+                    # retrieve selection values
+                    self.selection_values, self.selection_ids = uf.getFieldValues(self.current_layer, attribute["name"], null=False, selection=True)
+                    if chart_type == 0:
+                        idx = self.checkValuesAvailable(attribute)
+                        sel_values = np.array(self.selection_values)
+                        bins = self.attribute_values[idx]["bins"]
+                        self.attributeCharts.setHistogramSelection(sel_values, np.min(sel_values), np.max(sel_values), bins)
+                    if chart_type == 1:
+                        self.attributeCharts.setScatterplotSelection(self.selection_ids)
+                else:
+                    self.selection_values = []
+                    self.selection_ids = []
+                    if chart_type == 0:
+                        self.attributeCharts.setHistogramSelection([], 0, 0, 0)
+                    if chart_type == 1:
+                        self.attributeCharts.setScatterplotSelection([])
 
     ##
     ## General functions
@@ -459,7 +451,6 @@ class ExplorerTool(QObject):
                 idx = i
                 break
         return idx
-
 
     def retrieveAttributeValues(self, attribute):
         values, ids = uf.getFieldValues(self.current_layer, attribute["name"], null=False)
@@ -491,11 +482,3 @@ class ExplorerTool(QObject):
         attr["ids"] = ids
         attr["bins"] = uf.calcBins(values)
         self.attribute_values.append(attr)
-
-
-    def retrieveSelectionValues(self, attribute):
-        if self.current_layer.selectedFeatureCount() > 0:
-            self.selection_values, self.selection_ids = uf.getFieldValues(self.current_layer, attribute["name"], null=False, selection=True)
-        else:
-            self.selection_values = []
-            self.selection_ids = []
