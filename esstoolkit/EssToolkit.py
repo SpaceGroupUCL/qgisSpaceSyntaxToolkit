@@ -109,7 +109,6 @@ class EssToolkit:
         if has_pydevd and is_debug:
             pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True)
 
-
     def initGui(self):
         # Create action to start the modules
         icon = QIcon(os.path.dirname(__file__) + "/icons/project.png")
@@ -140,7 +139,6 @@ class EssToolkit:
         #self.iface.addPluginToMenu(u"&Space Syntax Toolkit", self.settings_action)
         #self.iface.addPluginToMenu(u"&Space Syntax Toolkit", self.help_action)
         self.iface.addPluginToMenu(u"&Space Syntax Toolkit", self.about_action)
-
 
     def showAnalysis(self):
         self.iface.removeDockWidget(self.explorer.dlg)
@@ -173,7 +171,6 @@ class EssToolkit:
 
     def showMessage(self, msg, lev, dur, type):
         self.iface.messageBar().pushMessage("Info",msg,level=lev,duration=dur)
-
 
 #
 class AboutDialog(QDialog, Ui_AboutDialog):

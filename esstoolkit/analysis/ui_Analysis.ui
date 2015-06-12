@@ -41,6 +41,9 @@
         <property name="readOnly">
          <bool>true</bool>
         </property>
+        <property name="placeholderText">
+         <string>specify for storing analysis results</string>
+        </property>
        </widget>
       </item>
       <item>

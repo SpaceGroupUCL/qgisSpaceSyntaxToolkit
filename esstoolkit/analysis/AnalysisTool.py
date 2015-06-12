@@ -145,16 +145,20 @@ class AnalysisTool(QObject):
         self.dlg.clearAxialProblems(2)
         self.dlg.clearAxialProblems(3)
         # update graph analysis
+        #self.dlg.clearAxialDepthmapTab()
         if self.axial_analysis_settings['type'] == 0:
             self.dlg.setDepthmapAxialAnalysis()
+            self.dlg.axialDepthmapAxialRadio.setChecked(True)
         elif self.axial_analysis_settings['type'] == 1:
             self.dlg.setDepthmapSegmentAnalysis()
+            self.dlg.axialDepthmapSegmentRadio.setChecked(True)
         self.dlg.setDepthmapRadiusText(self.axial_analysis_settings['rvalues'])
         self.dlg.setDepthmapWeighted(self.axial_analysis_settings['weight'])
         self.dlg.dlg_depthmap.setRadiusType(self.axial_analysis_settings['radius'])
         self.dlg.dlg_depthmap.setCalculateFull(self.axial_analysis_settings['fullset'])
         self.dlg.dlg_depthmap.setCalculateChoice(self.axial_analysis_settings['betweenness'])
         self.dlg.dlg_depthmap.setCalculateNorm(self.axial_analysis_settings['newnorm'])
+        self.dlg.dlg_depthmap.setRemoveStubs(self.axial_analysis_settings['stubs'])
 
     def updateProjectSettings(self):
         self.project.writeSettings(self.analysis_layers,"analysis")
@@ -665,7 +669,7 @@ class AnalysisTool(QObject):
             self.axial_analysis_settings['fullset'] = self.dlg.getAxialDepthmapFullset()
             self.axial_analysis_settings['betweenness'] = self.dlg.getAxialDepthmapChoice()
             self.axial_analysis_settings['newnorm'] = self.dlg.getAxialDepthmapNormalised()
-            self.axial_analysis_settings['stubs'] = 40 #self.dlg.getAxialDepthmapStubs()
+            self.axial_analysis_settings['stubs'] = self.dlg.getAxialDepthmapStubs()
 
             # check if output file/table already exists
             table_exists = False
@@ -711,12 +715,16 @@ class AnalysisTool(QObject):
             #self.dlg.lockAxialDepthmapTab(False)
 
     def compileDepthmapAnalysisSummary(self):
-        message = u"Running analysis for layer '%s':" % self.analysis_layers["map"]
+        message = u"Running analysis for map layer '%s':" % self.analysis_layers["map"]
+        if self.analysis_layers["unlinks"]:
+            message += u"\n   unlinks layer - '%s'" % self.analysis_layers["unlinks"]
         if self.axial_analysis_settings['type'] == 0:
             txt = "axial"
         else:
             txt = "segment"
         message += u"\n   analysis type - %s" % txt
+        if self.axial_analysis_settings['type'] == 1:
+            message += u"\n   stubs removal - %s %" % self.axial_analysis_settings['stubs']
         if self.axial_analysis_settings['distance'] == 0:
             txt = "topological"
         elif self.axial_analysis_settings['distance'] == 1:

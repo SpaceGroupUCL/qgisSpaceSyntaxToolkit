@@ -126,6 +126,7 @@ class DepthmapAnalysis(QObject):
         # segment analysis settings
         elif self.settings['type'] == 1:
             footer = "--layer--\ntype:3\n"
+            footer += "segment.stubs:" + str(self.settings['stubs']) + "\n"
             footer += "segment.betweenness:" + str(self.settings['betweenness']) + "\n"
             footer += "segment.fullAngular:" + "0" + "\n"
             footer += "segment.tulip:" + "1" + "\n"

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/Users/jorge/github/qgisSpaceSyntaxToolkit/esstoolkit/analysis/ui_Analysis.ui'
 #
-# Created: Thu Apr 16 16:09:35 2015
+# Created: Thu Jun 11 15:25:56 2015
 #      by: PyQt4 UI code generator 4.10.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -263,6 +263,7 @@ class Ui_AnalysisDialog(object):
     def retranslateUi(self, AnalysisDialog):
         AnalysisDialog.setWindowTitle(_translate("AnalysisDialog", "Graph Analysis", None))
         self.analysisDataLabel.setText(_translate("AnalysisDialog", "Data store", None))
+        self.analysisDataEdit.setPlaceholderText(_translate("AnalysisDialog", "specify for storing analysis results", None))
         self.analysisDataButton.setText(_translate("AnalysisDialog", "...", None))
         self.analysisMapLabel.setText(_translate("AnalysisDialog", "Layer", None))
         self.analysisNewMapButton.setText(_translate("AnalysisDialog", "New...", None))

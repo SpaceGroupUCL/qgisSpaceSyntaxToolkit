@@ -34,6 +34,7 @@ class DepthmapAdvancedDialog(QtGui.QDialog, Ui_DepthmapAdvancedDialog):
         # internal GUI signals
         self.axialDistanceCombo.currentIndexChanged.connect(self.setDistanceType)
         self.axialRadiusCombo.currentIndexChanged.connect(self.setRadiusType)
+        self.axialStubsEdit.editingFinished.connect(self.checkRemoveStubs)
 
         # hide unused UI buttons
         self.axialDistanceLabel.hide()
@@ -53,3 +54,16 @@ class DepthmapAdvancedDialog(QtGui.QDialog, Ui_DepthmapAdvancedDialog):
 
     def setCalculateChoice(self,onoff):
         self.axialCalculateChoiceCheck.setChecked(onoff)
+
+    def setRemoveStubs(self, value):
+        self.axialStubsEdit.clear()
+        self.axialStubsEdit.setText(str(value))
+
+    def checkRemoveStubs(self):
+        try:
+            int(self.axialStubsEdit.text())
+            self.closeButtonBox.button(QtGui.QDialogButtonBox.Ok).setDisabled(False)
+            self.closeButtonBox.button(QtGui.QDialogButtonBox.Ok).setToolTip('')
+        except ValueError:
+            self.closeButtonBox.button(QtGui.QDialogButtonBox.Ok).setDisabled(True)
+            self.closeButtonBox.button(QtGui.QDialogButtonBox.Ok).setToolTip('Please enter a valid stubs removal % (integer).')

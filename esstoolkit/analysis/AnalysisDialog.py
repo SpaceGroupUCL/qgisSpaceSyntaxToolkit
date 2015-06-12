@@ -40,14 +40,12 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
         self.setupUi(self)
 
         # define globals
-        self.layers_tab = 0
         self.layers = [{'idx':0,'name':''},{'idx':0,'name':''},{'idx':0,'name':''},{'idx':0,'name':''}]
         self.axial_verify_report = [{'progress':0,'summary':[],'filter':-1,'report':dict(),'nodes':[]}
             ,{'progress':0,'summary':[],'filter':-1,'report':dict(),'nodes':[]}
             ,{'progress':0,'summary':[],'filter':-1,'report':dict(),'nodes':[]}
             ,{'progress':0,'summary':[],'filter':-1,'report':dict(),'nodes':[]}]
         self.axial_verification_settings = {'ax_dist':1.0,'ax_min':1.0,'unlink_dist':5.0,'link_dist':1.0}
-        self.axial_analysis_type = 0
 
         self.dlg_depthmap = DepthmapAdvancedDialog()
         self.dlg_verify = VerificationSettingsDialog(self.axial_verification_settings)
@@ -68,12 +66,14 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
         self.axialDepthmapOutputText.editingFinished.connect(self.checkDepthmapInputText)
 
         # initialise
+        self.axial_analysis_type = 0
+        self.__selectLayerTab(1)
         self.lockAxialEditTab(False)
         self.lockAxialDepthmapTab(False)
         self.setDatastore('','')
         self.updateAxialVerifyReport()
         self.updateAxialDepthmapTab()
-        self.setDepthmapWeighted(0)
+        self.axialDepthmapWeightCheck.setChecked(False)
 
         # current UI restrictions
         self.analysisNewMapButton.hide()
@@ -205,14 +205,14 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
             self.clearAxialProblems()
             self.clearAxialVerifyReport()
         else:
+            self.axialDepthmapTab.setDisabled(False)
             self.axialEditTab.setDisabled(False)
             self.lockAxialEditTab(False)
-            self.axialDepthmapTab.setDisabled(False)
             self.updateAxialVerifyReport()
             # if the data store field is empty, use the same as the selected map layer
             if self.analysisDataEdit.text() == "":
                 self.updateDatastore.emit(self.layers[0]['name'])
-
+        #self.updateAxialDepthmapTab()
 
     #####
     # Functions of the edit layer tab
@@ -448,6 +448,7 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
         self.axialDepthmapCancelButton.setDisabled(not onoff)
 
     def clearAxialDepthmapTab(self):
+        self.axialDepthmapAxialRadio.setChecked(True)
         self.setDepthmapRadiusText('n')
         self.axialDepthmapOutputText.clear()
         self.axialDepthmapProgressBar.setValue(0)
@@ -515,12 +516,8 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
             self.dlg_depthmap.setCalculateChoice(settings['betweenness'])
         else:
             self.dlg_depthmap.setCalculateChoice(1)
-        if 'newnorm' in settings:
-            self.dlg_depthmap.setCalculateNorm(settings['newnorm'])
-        else:
-            self.dlg_depthmap.setCalculateNorm(1)
         # these settings are only available in segment analysis
-        if self.axial_analysis_type == 1:
+        if self.axial_analysis_type == 1:  # segment analysis
             self.dlg_depthmap.setDistanceType(1)
             self.dlg_depthmap.axialDistanceCombo.setDisabled(True)
             if 'radius' in settings:
@@ -528,14 +525,25 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
             else:
                 self.dlg_depthmap.setRadiusType(2)
             self.dlg_depthmap.axialRadiusCombo.setDisabled(False)
+            if 'newnorm' in settings:
+                self.dlg_depthmap.setCalculateNorm(settings['newnorm'])
+            else:
+                self.dlg_depthmap.setCalculateNorm(1)
             self.dlg_depthmap.axialCalculateNormCheck.setDisabled(False)
-        elif self.axial_analysis_type == 0:
+            if 'stubs' in settings:
+                self.dlg_depthmap.setRemoveStubs(settings['stubs'])
+            else:
+                self.dlg_depthmap.setRemoveStubs(40)
+            self.dlg_depthmap.axialStubsEdit.setDisabled(False)
+        elif self.axial_analysis_type == 0:  # axial analysis
             self.dlg_depthmap.setDistanceType(0)
             self.dlg_depthmap.axialDistanceCombo.setDisabled(True)
             self.dlg_depthmap.setRadiusType(0)
             self.dlg_depthmap.axialRadiusCombo.setDisabled(True)
             self.dlg_depthmap.setCalculateNorm(0)
             self.dlg_depthmap.axialCalculateNormCheck.setDisabled(True)
+            self.dlg_depthmap.setRemoveStubs(0)
+            self.dlg_depthmap.axialStubsEdit.setDisabled(True)
 
     def showAxialDepthmapAdvancedSettings(self):
         self.dlg_depthmap.show()
@@ -563,6 +571,9 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
             return 1
         else:
             return 0
+
+    def getAxialDepthmapStubs(self):
+        return self.dlg_depthmap.axialStubsEdit.text()
 
     def setAxialDepthmapCalculateTooltip(self, txt):
         self.axialDepthmapCalculateButton.setToolTip(txt)
