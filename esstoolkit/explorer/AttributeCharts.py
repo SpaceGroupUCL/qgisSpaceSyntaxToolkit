@@ -60,6 +60,8 @@ class AttributeCharts(QObject):
             self.region = pg.LinearRegionItem()
             #self.roi = None
 
+    #----
+    # Histogram functions
     def drawHistogram(self, values, min, max, bins):
         # compute the histogram
         if bins >= 50:
@@ -73,12 +75,12 @@ class AttributeCharts(QObject):
             self.plot.clear()
             curve.setData(x, y, stepMode=True, fillLevel=0, brush=(230, 230, 230), pen=pg.mkPen(None))
             self.plot.addItem(curve)
-            # newfeature: add the selection tool
-            #self.region = pg.LinearRegionItem([min,min],bounds=[min, max])
-            #self.region.sigRegionChanged.connect(self.getHistogramSelection)
-            #self.plot.addItem(self.region)
+            # add the selection tool
+            self.region = pg.LinearRegionItem([min,min],bounds=[min, max])
+            self.region.sigRegionChanged.connect(self.changedHistogramSelection)
+            self.plot.addItem(self.region)
 
-    # newfeature: allow selection of items in chart and selecting them on the map
+    # allow selection of items in chart and selecting them on the map
     def changedHistogramSelection(self):
         sel_min, sel_max = self.region.getRegion()
         self.histogramSelected.emit(sel_min, sel_max)
@@ -99,6 +101,8 @@ class AttributeCharts(QObject):
             elif self.hist_selection:
                 self.plot.removeItem(self.hist_selection)
 
+    #----
+    # Scatterplot functions
     def drawScatterplot(self, xvalues, yvalues, ids, symbols=None):
         # plot the chart
         if has_pyqtgraph:
