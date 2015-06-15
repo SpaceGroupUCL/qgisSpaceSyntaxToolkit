@@ -67,7 +67,7 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
 
         # initialise
         self.axial_analysis_type = 0
-        self.__selectLayerTab(1)
+        self.__selectLayerTab(0)
         self.lockAxialEditTab(False)
         self.lockAxialDepthmapTab(False)
         self.setDatastore('','')
