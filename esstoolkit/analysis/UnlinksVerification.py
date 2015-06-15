@@ -36,7 +36,7 @@ try:
     has_pydevd = True
 except ImportError, e:
     has_pydevd = False
-is_debug = False
+is_debug = True
 
 
 class UnlinksVerification(QThread):
@@ -305,7 +305,7 @@ class UnlinksVerification(QThread):
             self.unlink_errors['same line id'] = nodes
         progress += steps
         self.verificationProgress.emit(progress)
-        print "analyse no id: %s" % str(time.time()-start_time)
+        print "analyse same id: %s" % str(time.time()-start_time)
         # create temp table for intersection results
         if self.unlink_type in (QGis.Polygon, QGis.Line):
             operat_a = 'ST_Intersects'
@@ -314,7 +314,7 @@ class UnlinksVerification(QThread):
             operat_a = 'ST_DWithin'
             operat_b = ',%s' % threshold
         start_time = time.time()
-        query = """CREATE TEMP TABLE "temp_unlinks_result" AS SELECT a."%s" unlinkid, b."%s" lineid FROM "%s"."%s" a, "%s".""%s" b WHERE %s(a."%s",b."%s"%s)"""\
+        query = """CREATE TEMP TABLE "temp_unlinks_result" AS SELECT a."%s" unlinkid, b."%s" lineid FROM "%s"."%s" a, "%s"."%s" b WHERE %s(a."%s",b."%s"%s)"""\
                 % (unlinkid, axialid, unlinkschema, unlinkname, axialschema, axialname, operat_a, unlinkgeom, axialgeom, operat_b)
         header, data, error = uf.executePostgisQuery(connection, query, commit=True)
         progress += steps
@@ -322,8 +322,8 @@ class UnlinksVerification(QThread):
         print "temp unlinks result: %s" % str(time.time()-start_time)
         #'multiple lines'
         start_time = time.time()
-        query = 'SELECT "%s", line1, line2 FROM "%s"."%s" WHERE "%s"" IN (SELECT unlinkid FROM (SELECT unlinkid, count(unlinkid) freq '\
-                'FROM temp_unlinks_result GROUP BY unlinkid) WHERE freq > 2)' % (unlinkid, unlinkschema,  unlinkname, unlinkid)
+        query = 'SELECT "%s", line1, line2 FROM "%s"."%s" WHERE "%s" IN (SELECT unlinkid FROM (SELECT unlinkid, count(*) freq '\
+                'FROM temp_unlinks_result GROUP BY unlinkid) a WHERE freq > 2)' % (unlinkid, unlinkschema,  unlinkname, unlinkid)
         header, data, error = uf.executePostgisQuery(connection, query)
         if data:
             nodes = list(zip(*data)[0])
@@ -334,8 +334,8 @@ class UnlinksVerification(QThread):
         print "analyse multiple lines: %s" % str(time.time()-start_time)
         #'single line'
         start_time = time.time()
-        query = 'SELECT "%s", line1, line2 FROM "%s"."%s" WHERE "%s"" IN (SELECT unlinkid FROM (SELECT unlinkid, count(unlinkid) freq ' \
-                'FROM temp_unlinks_result GROUP BY unlinkid) WHERE freq = 1)' % (unlinkid, unlinkschema, unlinkname, unlinkid)
+        query = 'SELECT "%s", line1, line2 FROM "%s"."%s" WHERE "%s" IN (SELECT unlinkid FROM (SELECT unlinkid, count(*) freq ' \
+                'FROM temp_unlinks_result GROUP BY unlinkid) a WHERE freq = 1)' % (unlinkid, unlinkschema, unlinkname, unlinkid)
         header, data, error = uf.executePostgisQuery(connection, query)
         if data:
             nodes = list(zip(*data)[0])
@@ -346,7 +346,7 @@ class UnlinksVerification(QThread):
         print "analyse single lines: %s" % str(time.time()-start_time)
         #'no lines'
         start_time = time.time()
-        query = """SELECT "%s", line1, line2 FROM "%s"."%s" WHERE "%s"" NOT IN (SELECT unlinkid FROM temp_unlinks_result GROUP BY unlinkid)"""\
+        query = """SELECT "%s", line1, line2 FROM "%s"."%s" WHERE "%s" NOT IN (SELECT unlinkid FROM temp_unlinks_result GROUP BY unlinkid)"""\
                 % (unlinkid, unlinkschema, unlinkname, unlinkid)
         header, data, error = uf.executePostgisQuery(connection, query)
         if data:
@@ -625,7 +625,7 @@ class UnlinksIdUpdate(QThread):
 
     def qgisUpdateIDs(self, unlinktype):
         # create spatial index
-        #unlinksindex = createIndex(unlinks_layer)
+        unlinksindex = uf.createIndex(self.unlinks_layer)
         axialindex = uf.createIndex(self.axial_layer)
         # add line id columns if necessary
         uf.addFields(self.unlinks_layer,['line1','line2'],[QVariant.Int,QVariant.Int])
@@ -678,14 +678,12 @@ class UnlinksIdUpdate(QThread):
             progress += steps
             self.verificationProgress.emit(progress)
             # update line ids in unlinks table
-            if len(intersects) > 0:
-                if len(intersects) == 1:
-                    attrs = {line1: intersects[0]}
-                    #feature.setAttribute(line1,intersects[0])
-                else:
-                    attrs = {line1: intersects[0],line2: intersects[1]}
-                    #feature.setAttribute(line2,intersects[1])
-            if update_id:
+            attrs = {line1: NULL, line2: NULL}
+            if len(intersects) == 1:
+                attrs = {line1: intersects[0]}
+            elif len(intersects) > 1:
+                attrs = {line1: intersects[0], line2: intersects[1]}
+            if update_id and field:
                 attrs[field] = feature.id()
             self.unlinks_layer.dataProvider().changeAttributeValues({feature.id(): attrs})
             progress += steps

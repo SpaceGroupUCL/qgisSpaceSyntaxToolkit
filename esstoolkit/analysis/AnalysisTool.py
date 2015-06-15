@@ -715,16 +715,16 @@ class AnalysisTool(QObject):
             #self.dlg.lockAxialDepthmapTab(False)
 
     def compileDepthmapAnalysisSummary(self):
-        message = u"Running analysis for map layer '%s':" % self.analysis_layers["map"]
-        if self.analysis_layers["unlinks"]:
-            message += u"\n   unlinks layer - '%s'" % self.analysis_layers["unlinks"]
+        message = u"Running analysis for map layer '%s':" % self.analysis_layers['map']
+        if self.analysis_layers['unlinks']:
+            message += u"\n   unlinks layer - '%s'" % self.analysis_layers['unlinks']
         if self.axial_analysis_settings['type'] == 0:
             txt = "axial"
         else:
             txt = "segment"
         message += u"\n   analysis type - %s" % txt
         if self.axial_analysis_settings['type'] == 1:
-            message += u"\n   stubs removal - %s %" % self.axial_analysis_settings['stubs']
+            message += u"\n   stubs removal - %s" % self.axial_analysis_settings['stubs']
         if self.axial_analysis_settings['distance'] == 0:
             txt = "topological"
         elif self.axial_analysis_settings['distance'] == 1:

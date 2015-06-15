@@ -209,11 +209,12 @@ class AxialVerification(QThread):
                 islands = []
                 # get vertex ids
                 for i, cluster in enumerate(components):
+                    # identify orphans
                     if len(cluster) == 1:
                         node = g.vs[cluster]['fid'][0]
-                        if node not in self.axial_errors['orphan']:
-                            self.axial_errors['orphan'].append(node)
-                            self.problem_nodes.append(node)
+                        self.axial_errors['orphan'].append(node)
+                        self.problem_nodes.append(node)
+                    # identify islands
                     elif len(cluster) > 1 and len(cluster) != giant:
                         nodes = g.vs[cluster]['fid']
                         islands.append(nodes)
@@ -238,11 +239,12 @@ class AxialVerification(QThread):
                 islands = []
                 # get vertex ids
                 for cluster in components[1:len(components)]:
+                    # identify orphans
                     if len(cluster) == 1:
                         node = cluster[0]
-                        if node not in self.axial_errors['orphan']:
-                            self.axial_errors['orphan'].append(node)
-                            self.problem_nodes.append(node)
+                        self.axial_errors['orphan'].append(node)
+                        self.problem_nodes.append(node)
+                    # identify islands
                     elif len(cluster) > 1:
                         nodes = cluster
                         islands.append(nodes)
@@ -320,7 +322,7 @@ class AxialVerification(QThread):
             nodes = list(zip(*data)[0])
             self.problem_nodes.extend(nodes)
             self.axial_errors['short line'] = nodes
-        self.verificationProgress.emit(35)
+        self.verificationProgress.emit(40)
         if is_debug: print "analyse short: %s"%str(time.time()-start_time)
         # duplicate geometry
         if not self.running: return
@@ -333,7 +335,7 @@ class AxialVerification(QThread):
             nodes = list(zip(*data)[0])
             self.problem_nodes.extend(nodes)
             self.axial_errors['duplicate geometry'] = nodes
-        self.verificationProgress.emit(40)
+        self.verificationProgress.emit(60)
         if is_debug: print "analyse duplicate: %s"%str(time.time()-start_time)
         # geometry overlaps
         if not self.running: return
@@ -346,24 +348,10 @@ class AxialVerification(QThread):
             nodes = list(zip(*data)[0])
             self.problem_nodes.extend(nodes)
             self.axial_errors['overlap'] = nodes
-        self.verificationProgress.emit(60)
+        self.verificationProgress.emit(80)
         if is_debug: print "analyse overlap: %s"%str(time.time()-start_time)
         # the overlap function is very accurate and rare in GIS
         # an alternative function with buffer is too slow
-        # test for orphans
-        if not self.running: return
-        start_time = time.time()
-        query = 'SELECT "%s" FROM "%s" WHERE "%s" NOT IN (SELECT DISTINCT(a."%s") FROM "%s" a, "%s" b ' \
-            'WHERE a."%s" <> b."%s" AND ST_Intersects(a."%s",b."%s") '\
-            'AND a.ROWID IN (SELECT ROWID FROM SpatialIndex WHERE f_table_name="%s" AND search_frame=b."%s"))' \
-            %(idcol, axialname, idcol, idcol, axialname, axialname, idcol, idcol, geomname, geomname, axialname, geomname)
-        header, data, error = uf.executeSpatialiteQuery(connection, query)
-        if data:
-            nodes = list(zip(*data)[0])
-            self.problem_nodes.extend(nodes)
-            self.axial_errors['orphan'] = nodes
-        if is_debug: print "analyse orphans: %s"%str(time.time()-start_time)
-        self.verificationProgress.emit(80)
 
     def spatialiteBuildTopology(self, connection, axialname, geomname, unlinkname, linkname):
         # this function builds the axial map topology using spatialite. it's much faster.
@@ -468,7 +456,7 @@ class AxialVerification(QThread):
             nodes = list(zip(*data)[0])
             self.problem_nodes.extend(nodes)
             self.axial_errors['short line'] = nodes
-        self.verificationProgress.emit(35)
+        self.verificationProgress.emit(40)
         if is_debug: print "analyse short: %s" % str(time.time()-start_time)
         # duplicate geometry
         if not self.running: return
@@ -480,7 +468,7 @@ class AxialVerification(QThread):
             nodes = list(zip(*data)[0])
             self.problem_nodes.extend(nodes)
             self.axial_errors['duplicate geometry'] = nodes
-        self.verificationProgress.emit(40)
+        self.verificationProgress.emit(60)
         if is_debug: print "analyse duplicate: %s" % str(time.time()-start_time)
         # geometry overlaps
         if not self.running: return
@@ -492,23 +480,10 @@ class AxialVerification(QThread):
             nodes = list(zip(*data)[0])
             self.problem_nodes.extend(nodes)
             self.axial_errors['overlap'] = nodes
-        self.verificationProgress.emit(60)
+        self.verificationProgress.emit(80)
         if is_debug: print "analyse overlap: %s" % str(time.time()-start_time)
         # the overlap function is very accurate and rare in GIS
         # an alternative function with buffer is too slow
-        # test for orphans
-        if not self.running: return
-        start_time = time.time()
-        query = 'SELECT "%s" FROM "%s"."%s" WHERE "%s" NOT IN (SELECT DISTINCT(a."%s") FROM "%s"."%s" a, "%s"."%s" b ' \
-            'WHERE a."%s" <> b."%s" AND ST_Intersects(a."%s",b."%s")) '\
-            % (idcol, schema, axialname, idcol, idcol, schema, axialname, schema, axialname, idcol, idcol, geomname, geomname)
-        header, data, error = uf.executePostgisQuery(connection, query)
-        if data:
-            nodes = list(zip(*data)[0])
-            self.problem_nodes.extend(nodes)
-            self.axial_errors['orphan'] = nodes
-        if is_debug: print "analyse orphans: %s" % str(time.time()-start_time)
-        self.verificationProgress.emit(80)
 
     def postgisBuildTopology(self, connection, schema, axialname, geomname, unlinkschema, unlinkname, linkschema, linkname):
         # this function builds the axial map topology using spatialite. it's much faster.

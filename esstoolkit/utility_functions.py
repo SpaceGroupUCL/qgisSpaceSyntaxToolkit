@@ -1708,7 +1708,7 @@ def getPostgisGeometryColumn(connection, schema, table):
 
 
 def createPostgisSpatialIndex(connection, schema, table, geomname):
-    # create a spatial index if not present, it make subsequent queries much faster
+    # create a spatial index if not present, it makes subsequent queries much faster
     index = table.lower().replace(" ","_")
     query = """CREATE INDEX %s_gidx ON "%s"."%s" USING GIST ("%s")""" % (index, schema, table, geomname)
     try:
