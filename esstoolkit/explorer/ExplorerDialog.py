@@ -72,7 +72,6 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
         self.statisticsProgressBar.hide()
 
         # charts widgets
-        self.lineLabel.hide()
         self.pLabel.hide()
         self.chartsProgressBar.hide()
         self.histogramCheck.setChecked(True)
@@ -509,16 +508,16 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
         return self.yaxisCombo.currentIndex()
 
     def clearDependentValues(self):
-        self.rLabel.setText("r:")
-        self.pLabel.setText("p:")
-        self.r2Label.setText("r2:")
-        self.lineLabel.setText("line:")
+        self.rLabel.setText("r: ")
+        self.pLabel.setText("p: ")
+        self.r2Label.setText("r2: ")
+        self.lineLabel.setText("f(x)= ")
 
     def setCorrelation(self, stats):
-        self.rLabel.setText("r:"+str(stats["r"]))
-        self.pLabel.setText("p:"+str(stats["p"]))
-        self.r2Label.setText("r2:"+str(stats["r2"]))
-        self.lineLabel.setText("line:"+str(stats["line"]))
+        self.rLabel.setText("r: "+str(stats["r"]))
+        self.pLabel.setText("p: "+str(stats["p"]))
+        self.r2Label.setText("r2: "+str(stats["r2"]))
+        self.lineLabel.setText("f(x)= "+str(stats["line"]))
 
     def clearPlot(self):
         if has_pyqtgraph:

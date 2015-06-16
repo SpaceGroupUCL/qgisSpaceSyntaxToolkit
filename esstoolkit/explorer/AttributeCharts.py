@@ -26,6 +26,8 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from qgis.core import *
 
+from math import atan
+
 # try to import installed pyqtgraph, if not available use the one shipped with the esstoolkit
 try:
     import pyqtgraph as pg
@@ -54,6 +56,7 @@ class AttributeCharts(QObject):
         self.plot = plot
 
         if has_pyqtgraph:
+            self.plot.setClipToView(True)
             self.hist_selection = pg.PlotCurveItem()
             self.scatter_selection = []
             self.scatter = pg.ScatterPlotItem()
@@ -62,21 +65,22 @@ class AttributeCharts(QObject):
 
     #----
     # Histogram functions
-    def drawHistogram(self, values, min, max, bins):
+    def drawHistogram(self, values, xmin, xmax, bins):
         # compute the histogram
         if bins >= 50:
             bin = 51
         else:
             bin = bins+1
-        y, x = np.histogram(values, bins=np.linspace(min, max, num=bin))
+        y, x = np.histogram(values, bins=np.linspace(xmin, xmax, num=bin))
         # plot the chart
         if has_pyqtgraph:
             curve = pg.PlotCurveItem()
             self.plot.clear()
             curve.setData(x, y, stepMode=True, fillLevel=0, brush=(230, 230, 230), pen=pg.mkPen(None))
             self.plot.addItem(curve)
+            self.plot.setLimits(xMin=xmin, xMax=xmax, yMin=0, yMax=max(y))
             # add the selection tool
-            self.region = pg.LinearRegionItem([min,min],bounds=[min, max])
+            self.region = pg.LinearRegionItem([xmax,xmax],bounds=[xmin, xmax])
             self.region.sigRegionChanged.connect(self.changedHistogramSelection)
             self.plot.addItem(self.region)
 
@@ -85,7 +89,7 @@ class AttributeCharts(QObject):
         sel_min, sel_max = self.region.getRegion()
         self.histogramSelected.emit(sel_min, sel_max)
 
-    def setHistogramSelection(self, values, min, max, bins):
+    def setHistogramSelection(self, values, xmin, xmax, bins):
         if has_pyqtgraph:
             if len(values) > 0:
                 # compute the histogram
@@ -93,7 +97,7 @@ class AttributeCharts(QObject):
                     bin = 51
                 else:
                     bin = bins+1
-                y, x = np.histogram(values, bins=np.linspace(min, max, num=bin))
+                y, x = np.histogram(values, bins=np.linspace(xmin, xmax, num=bin))
                 # plot the selection chart
                 self.hist_selection = pg.PlotCurveItem()
                 self.hist_selection.setData(x, y, stepMode=True, fillLevel=0, brush=(230, 0, 0), pen=pg.mkPen(None))
@@ -103,7 +107,7 @@ class AttributeCharts(QObject):
 
     #----
     # Scatterplot functions
-    def drawScatterplot(self, xvalues, yvalues, ids, symbols=None):
+    def drawScatterplot(self, xvalues, xmin, xmax, yvalues, ymin, ymax, slope, intercept, ids, symbols=None):
         # plot the chart
         if has_pyqtgraph:
             self.scatter = pg.ScatterPlotItem()
@@ -120,17 +124,21 @@ class AttributeCharts(QObject):
             else:
                 self.scatter.addPoints(x=xvalues, y=yvalues, data=ids, size=3, pen=pg.mkPen(None), brush=pg.mkBrush(235, 235, 235, 255))
             self.plot.addItem(self.scatter)
+            self.plot.setLimits(xMin=xmin, xMax=xmax, yMin=ymin, yMax=ymax)
+            regress_line = pg.InfiniteLine()
+            regress_line.setAngle(atan(slope/1) * 180 / 3.1459)
+            regress_line.setValue((0,intercept))
+            regress_line.setPen(color='r', width=1.1)
+            self.plot.addItem(regress_line)
             # newfeature: add the selection tool
             #self.scatter.sigClicked.connect(self.getScatterplotSelection)
-            #minX = min(values)
-            #maxX = max(values)
-            #minY = min(yvalues)
-            #maxY = max(yvalues)
-            #self.roi = pg.PolyLineROI([[minX,minY],[maxX,minY],[maxX,maxY],[minX,maxY]], closed=True)
+            #self.roi = pg.PolyLineROI([[xmin, ymin],[xmax, ymin],[xmax, ymax],[xmin, ymax]], closed=True)
             #self.roi.sigRegionChangeFinished.connect(self.getRightPlotSelection)
             #self.plot.addItem(self.roi)
             #self.plot.disableAutoRange('xy')
             #self.plot.autoRange()
+            # add the regression line
+
 
     # newfeature: allow selection of items in chart and selecting them on the map
     def changedScatterplotSelection(self):

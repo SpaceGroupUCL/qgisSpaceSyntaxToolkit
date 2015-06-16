@@ -477,6 +477,8 @@ def roundNumber(num):
             rounded = round(num,2)
         elif (0.01 < num <= 1) or (-0.01 > num >= -1):
             rounded = round(num,4)
+        else:
+            rounded = round(num,6)
         return rounded
 
 
