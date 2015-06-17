@@ -137,7 +137,7 @@ class AttributeCharts(QObject):
             #self.roi.sigRegionChangeFinished.connect(self.getRightPlotSelection)
             #self.plot.addItem(self.roi)
             #self.plot.disableAutoRange('xy')
-            #self.plot.autoRange()
+            self.plot.autoRange()
 
 
     # newfeature: allow selection of items in chart and selecting them on the map

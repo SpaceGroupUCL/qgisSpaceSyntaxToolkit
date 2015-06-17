@@ -415,9 +415,13 @@ class ExplorerTool(QObject):
                         symbols = None
                     else:
                         dependent = self.layer_attributes[current_attribute]
-                        xvalues = values
-                        yvalues = values
-                        xids = ids
+                        # get non NULL values only
+                        if nulls:
+                            xids, xvalues, yvalues = self.retrieveValidAttributePairs(ids, values, values)
+                        else:
+                            xvalues = values
+                            yvalues = values
+                            xids = ids
                         # set default bi-variate stats
                         bistats = dict()
                         bistats['Layer'] = self.current_layer.name()
@@ -425,7 +429,7 @@ class ExplorerTool(QObject):
                         bistats['y'] = current_attribute
                         bistats['r'] = 1
                         bistats['slope'] = 1
-                        bistats['intercept'] = attribute['min']
+                        bistats['intercept'] = 0
                         bistats['r2'] = 1
                         bistats['p'] = 0
                         bistats['line'] = "%s + 1 * X" % bistats['intercept']

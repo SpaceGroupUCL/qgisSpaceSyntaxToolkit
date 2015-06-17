@@ -47,14 +47,14 @@ class AttributeSymbology(QObject):
         """
         geometry = layer.geometryType()
         # create a colour ramp based on colour range type, inverting symbols if required
-        ramp_type = int(settings["colour_range"])
-        invert = int(settings["invert_colour"])
+        ramp_type = int(settings['colour_range'])
+        invert = int(settings['invert_colour'])
         ramp = self.getColourRamp(ramp_type, invert)
-        line_width = float(settings["line_width"])
+        line_width = float(settings['line_width'])
         # calculate ranges: EqualInterval = 0; Quantile  = 1; Jenks = 2; StdDev = 3; Pretty = 4; Custom = 5
-        intervals = int(settings["intervals"])
-        mode = int(settings["interval_type"])
-        attribute = attribute_vals["name"]
+        intervals = int(settings['intervals'])
+        mode = int(settings['interval_type'])
+        attribute = attribute_vals['name']
         renderer = None
         if mode < 3:
             # set symbol type and line width
@@ -70,10 +70,10 @@ class AttributeSymbology(QObject):
         else:
             # calculate range values individually based on custom settings
             ranges = []
-            max_value = float(attribute_vals["max"])
-            min_value = float(attribute_vals["min"])
-            top_value = float(settings["top_value"])
-            bottom_value = float(settings["bottom_value"])
+            max_value = float(attribute_vals['max'])
+            min_value = float(attribute_vals['min'])
+            top_value = float(settings['top_value'])
+            bottom_value = float(settings['bottom_value'])
             # calculate number of ranges depending on top/bottom difference from max/min:
             # is there really a range there? Otherwise this will calculate 1 or even 2 ranges less
             calc_intervals = intervals + 1
@@ -102,7 +102,7 @@ class AttributeSymbology(QObject):
         # configure symbol levels to display in specific order
         # the classic "reds on top" from space syntax, or the reverse
         if renderer:
-            display_order = int(settings["display_order"])
+            display_order = int(settings['display_order'])
             renderer.setUsingSymbolLevels(True)
             render_pass = 0
             if display_order == 0:

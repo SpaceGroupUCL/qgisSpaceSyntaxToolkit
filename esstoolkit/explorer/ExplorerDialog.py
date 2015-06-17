@@ -156,7 +156,7 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
         self.attributesList.clear()
         if len(data) > 0:
             # get the names for the list
-            names = [attr["name"] for attr in self.layer_attributes]
+            names = [attr['name'] for attr in self.layer_attributes]
             self.attributesList.addItems(names)
             self.__setYAxisCombo(names)
             self.__lockColourControls(False)
@@ -183,23 +183,23 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
 
     def __loadDisplaySettings(self):
         attribute = self.layer_attributes[self.curr_attribute]
-        self.attribute_max = attribute["max"]
-        self.attribute_min = attribute["min"]
+        self.attribute_max = attribute['max']
+        self.attribute_min = attribute['min']
         # get current display settings
         settings = self.symbology_settings[self.curr_attribute]
         for key in settings.iterkeys():
             self.current_symbology[key] = settings[key]
         # update the interface
-        self.setColourRanges(int(self.current_symbology["colour_range"]))
-        self.setLineWidthSpin(float(self.current_symbology["line_width"]))
-        self.setInvertColour(int(self.current_symbology["invert_colour"]))
-        self.setDisplayOrder(int(self.current_symbology["display_order"]))
-        self.setIntervalSpin(int(self.current_symbology["intervals"]))
-        self.setIntervalType(int(self.current_symbology["interval_type"]))
-        self.setTopLimitSpin(abs(uf.convertNumeric(self.current_symbology["top_percent"])))
-        self.setTopLimitText(str(self.current_symbology["top_value"]))
-        self.setBottomLimitSpin(abs(uf.convertNumeric(self.current_symbology["bottom_percent"])))
-        self.setBottomLimitText(str(self.current_symbology["bottom_value"]))
+        self.setColourRanges(int(self.current_symbology['colour_range']))
+        self.setLineWidthSpin(float(self.current_symbology['line_width']))
+        self.setInvertColour(int(self.current_symbology['invert_colour']))
+        self.setDisplayOrder(int(self.current_symbology['display_order']))
+        self.setIntervalSpin(int(self.current_symbology['intervals']))
+        self.setIntervalType(int(self.current_symbology['interval_type']))
+        self.setTopLimitSpin(abs(uf.convertNumeric(self.current_symbology['top_percent'])))
+        self.setTopLimitText(str(self.current_symbology['top_value']))
+        self.setBottomLimitSpin(abs(uf.convertNumeric(self.current_symbology['bottom_percent'])))
+        self.setBottomLimitText(str(self.current_symbology['bottom_value']))
 
     def __clearSymbology(self):
         # set default current display settings
@@ -208,16 +208,16 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
         self.attribute_max = 0.0
         self.attribute_min = 0.0
         # update the interface
-        self.setColourRanges(int(self.current_symbology["colour_range"]))
-        self.setLineWidthSpin(float(self.current_symbology["line_width"]))
-        self.setInvertColour(int(self.current_symbology["invert_colour"]))
-        self.setDisplayOrder(int(self.current_symbology["display_order"]))
-        self.setIntervalSpin(int(self.current_symbology["intervals"]))
-        self.setIntervalType(int(self.current_symbology["interval_type"]))
-        self.setTopLimitSpin(abs(uf.convertNumeric(self.current_symbology["top_percent"])))
-        self.setTopLimitText(str(self.current_symbology["top_value"]))
-        self.setBottomLimitSpin(abs(uf.convertNumeric(self.current_symbology["bottom_percent"])))
-        self.setBottomLimitText(str(self.current_symbology["bottom_value"]))
+        self.setColourRanges(int(self.current_symbology['colour_range']))
+        self.setLineWidthSpin(float(self.current_symbology['line_width']))
+        self.setInvertColour(int(self.current_symbology['invert_colour']))
+        self.setDisplayOrder(int(self.current_symbology['display_order']))
+        self.setIntervalSpin(int(self.current_symbology['intervals']))
+        self.setIntervalType(int(self.current_symbology['interval_type']))
+        self.setTopLimitSpin(abs(uf.convertNumeric(self.current_symbology['top_percent'])))
+        self.setTopLimitText(str(self.current_symbology['top_value']))
+        self.setBottomLimitSpin(abs(uf.convertNumeric(self.current_symbology['bottom_percent'])))
+        self.setBottomLimitText(str(self.current_symbology['bottom_value']))
 
     def getUpdatedDisplaySettings(self):
         settings = dict()
@@ -234,21 +234,21 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
     # Symbology group
     #
     def __lockApplyButton(self, onoff):
-        if not onoff and self.current_symbology["top_value"] is not None and self.current_symbology["bottom_value"] is not None:
+        if not onoff and self.current_symbology['top_value'] is not None and self.current_symbology['bottom_value'] is not None:
             self.symbologyApplyButton.setDisabled(onoff)
         else:
             self.symbologyApplyButton.setDisabled(True)
 
     def __lockColourControls(self, onoff):
         #set all the colour and interval controls
-        if self.attributesList.count() == 0 or self.current_symbology["colour_range"] == 0:
+        if self.attributesList.count() == 0 or self.current_symbology['colour_range'] == 0:
             self.colourRangeCombo.setDisabled(onoff)
         self.invertColourCheck.setDisabled(onoff)
         self.displayOrderCombo.setDisabled(onoff)
         self.lineWidthSpin.setDisabled(onoff)
         self.intervalSpin.setDisabled(onoff)
         self.intervalTypeCombo.setDisabled(onoff)
-        if onoff == True or self.current_symbology["interval_type"] == 3:
+        if onoff == True or self.current_symbology['interval_type'] == 3:
             self.__lockCustomIntervalControls(onoff)
         self.__lockApplyButton(onoff)
 
@@ -267,7 +267,7 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
         self.__colourRangeSelected(idx)
 
     def __colourRangeSelected(self, idx):
-        self.current_symbology["colour_range"] = idx
+        self.current_symbology['colour_range'] = idx
         if idx > 4:
             self.__lockColourControls(True)
         else:
@@ -277,30 +277,30 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
         self.lineWidthSpin.setValue(value)
 
     def __lineWidthChanged(self, value):
-        self.current_symbology["line_width"] = value
+        self.current_symbology['line_width'] = value
 
     def setInvertColour(self, onoff):
         self.invertColourCheck.setChecked(onoff)
 
     def __invertColourChanged(self, onoff):
         if onoff:
-            self.current_symbology["invert_colour"] = 1
+            self.current_symbology['invert_colour'] = 1
         else:
-            self.current_symbology["invert_colour"] = 0
+            self.current_symbology['invert_colour'] = 0
 
     def setDisplayOrder(self, idx):
         self.displayOrderCombo.setCurrentIndex(idx)
         #self.__displayOrderSelected(idx)
 
     def __displayOrderSelected(self, idx):
-        self.current_symbology["display_order"] = idx
+        self.current_symbology['display_order'] = idx
 
     # Interval settings
     def setIntervalSpin(self, value):
         self.intervalSpin.setValue(value)
 
     def __intervalNumberChanged(self, value):
-        self.current_symbology["intervals"] = value
+        self.current_symbology['intervals'] = value
 
     def setIntervalType(self, idx):
         if idx > 0 and idx <= self.intervalTypeCombo.maxVisibleItems():
@@ -308,19 +308,19 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
         self.__intervalTypeChanged(idx)
 
     def __intervalTypeChanged(self, idx):
-        self.current_symbology["interval_type"] = idx
-        if self.current_symbology["interval_type"] == 3:
+        self.current_symbology['interval_type'] = idx
+        if self.current_symbology['interval_type'] == 3:
             if self.attribute_max == 'NULL' or self.attribute_min == 'NULL':
                 self.__lockCustomIntervalControls(True)
             else:
                 self.__lockCustomIntervalControls(False)
-                if self.current_symbology["top_value"] is None and self.current_symbology["top_value"] is None:
+                if self.current_symbology['top_value'] is None and self.current_symbology['top_value'] is None:
                     self.__lockApplyButton(True)
                 else:
                     self.__lockApplyButton(False)
         else:
             self.__lockCustomIntervalControls(True)
-            if self.current_symbology["interval_type"] == 4:
+            if self.current_symbology['interval_type'] == 4:
                 # implementation of default NACh ranges used by Bill Hillier and SSx Ltd
                 self.setTopLimitText("1.4")
                 self.__topLimitTextChanged()
@@ -332,10 +332,10 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
             self.__lockApplyButton(False)
 
     def __topLimitSpinClicked(self, value):
-        self.current_symbology["top_percent"] = value
+        self.current_symbology['top_percent'] = value
         if value < 100:
             # calculate spin absolute value
-            spin = ((self.attribute_max-self.attribute_min)*self.current_symbology["top_percent"]/100)+self.attribute_min
+            spin = ((self.attribute_max-self.attribute_min)*self.current_symbology['top_percent']/100)+self.attribute_min
         else:
             spin = self.attribute_max
         self.setTopLimitText(str(spin))
@@ -346,37 +346,37 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
         self.topLimitText.blockSignals(True)
         self.topLimitText.clear()
         self.topLimitText.setText(txt)
-        self.current_symbology["top_value"] = float(txt)
+        self.current_symbology['top_value'] = float(txt)
         self.topLimitText.blockSignals(False)
 
     def __topLimitTextChanged(self):
         value = self.topLimitText.text()
         if uf.isNumeric(value):
-            self.current_symbology["top_value"] = float(value)
-            if self.current_symbology["top_value"] >= self.current_symbology["bottom_value"] and self.current_symbology["top_value"] <= self.attribute_max:
+            self.current_symbology['top_value'] = float(value)
+            if self.current_symbology['top_value'] >= self.current_symbology['bottom_value'] and self.current_symbology['top_value'] <= self.attribute_max:
                 # calculate spin percentage
-                spin = abs(((self.current_symbology["top_value"]-self.attribute_min)/(self.attribute_max-self.attribute_min))*100)
+                spin = abs(((self.current_symbology['top_value']-self.attribute_min)/(self.attribute_max-self.attribute_min))*100)
                 self.setTopLimitSpin(spin)
                 self.bottomLimitSpin.setMaximum(spin)
                 self.__lockApplyButton(False)
             else:
-                self.current_symbology["top_value"] = None
+                self.current_symbology['top_value'] = None
                 self.__lockApplyButton(True)
         else:
-            self.current_symbology["top_value"] = None
+            self.current_symbology['top_value'] = None
             self.__lockApplyButton(True)
 
     def setTopLimitSpin(self, value):
         self.topLimitSpin.blockSignals(True)
         self.topLimitSpin.setValue(value)
-        self.current_symbology["top_percent"] = value
+        self.current_symbology['top_percent'] = value
         self.topLimitSpin.blockSignals(False)
 
     def __bottomLimitSpinClicked(self, value):
-        self.current_symbology["bottom_percent"] = value
+        self.current_symbology['bottom_percent'] = value
         if value > 0:
             # calculate spin absolute value
-            spin = ((self.attribute_max-self.attribute_min)*self.current_symbology["bottom_percent"]/100)+self.attribute_min
+            spin = ((self.attribute_max-self.attribute_min)*self.current_symbology['bottom_percent']/100)+self.attribute_min
         else:
             spin = self.attribute_min
         self.setBottomLimitText(str(spin))
@@ -387,30 +387,30 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
         self.bottomLimitText.blockSignals(True)
         self.bottomLimitText.clear()
         self.bottomLimitText.setText(txt)
-        self.current_symbology["bottom_value"] = float(txt)
+        self.current_symbology['bottom_value'] = float(txt)
         self.bottomLimitText.blockSignals(False)
 
     def __bottomLimitTextChanged(self):
         value = self.bottomLimitText.text()
         if uf.isNumeric(value):
-            self.current_symbology["bottom_value"] = float(value)
-            if self.current_symbology["bottom_value"] <= self.current_symbology["top_value"] and self.current_symbology["bottom_value"] >= self.attribute_min:
+            self.current_symbology['bottom_value'] = float(value)
+            if self.current_symbology['bottom_value'] <= self.current_symbology['top_value'] and self.current_symbology['bottom_value'] >= self.attribute_min:
                 # calculate spin percentage
-                spin = abs(((self.current_symbology["bottom_value"]-self.attribute_min)/(self.attribute_max-self.attribute_min))*100)
+                spin = abs(((self.current_symbology['bottom_value']-self.attribute_min)/(self.attribute_max-self.attribute_min))*100)
                 self.setBottomLimitSpin(spin)
                 self.topLimitSpin.setMinimum(spin)
                 self.__lockApplyButton(False)
             else:
-                self.current_symbology["bottom_value"] = None
+                self.current_symbology['bottom_value'] = None
                 self.__lockApplyButton(True)
         else:
-            self.current_symbology["bottom_value"] = None
+            self.current_symbology['bottom_value'] = None
             self.__lockApplyButton(True)
 
     def setBottomLimitSpin(self, value):
         self.bottomLimitSpin.blockSignals(True)
         self.bottomLimitSpin.setValue(value)
-        self.current_symbology["bottom_percent"] = value
+        self.current_symbology['bottom_percent'] = value
         self.bottomLimitSpin.blockSignals(False)
 
     #
