@@ -158,6 +158,15 @@ def reloadLayer(layer):
 #------------------------------
 # Field functions
 #------------------------------
+def fieldExists(layer, name):
+    fields = getFieldNames(layer)
+    if name in fields:
+        return True
+    else:
+        return False
+
+
+
 def getFieldNames(layer):
     fields_list = []
     if layer and layer.dataProvider():
@@ -244,7 +253,6 @@ def getUniqueValuesNumber(layer, name):
 
 def fieldHasNullValues(layer, name):
     if layer and fieldExists(layer, name):
-    # exclude fields that have some NULL values
         idx = getFieldIndex(layer, name)
         vals = layer.uniqueValues(idx,1)
         # depending on the provider list is empty or has NULL value in first position
@@ -263,24 +271,40 @@ def getFieldValues(layer, name, null=True, selection=False):
         else:
             request = QgsFeatureRequest().setSubsetOfAttributes([getFieldIndex(layer, name)])
             features = layer.getFeatures(request)
-        for feature in features:
-            val = feature.attribute(name)
-            if null:
-                attributes.append(val)
+        if null:
+            for feature in features:
+                attributes.append(feature.attribute(name))
                 ids.append(feature.id())
-            else:
+        else:
+            for feature in features:
+                val = feature.attribute(name)
                 if val != NULL:
                     attributes.append(val)
                     ids.append(feature.id())
     return attributes, ids
 
 
-def fieldExists(layer, name):
-    fields = getFieldNames(layer)
-    if name in fields:
-        return True
+def getFieldsListValues(layer, fieldnames, null=True, selection=False):
+    attributes = []
+    ids = []
+    fields = [field for field in fieldnames if fieldExists(layer, fieldnames)]
+    if selection:
+        features = layer.selectedFeatures()
     else:
-        return False
+        idx = [getFieldIndex(layer, field) for field in fields]
+        request = QgsFeatureRequest().setSubsetOfAttributes(idx)
+        features = layer.getFeatures(request)
+        if null:
+            for feature in features:
+                attributes.append(feature.attributes())
+                ids.append(feature.id())
+        else:
+            for feature in features:
+                val = feature.attributes()
+                if NULL not in val:
+                    attributes.append(val)
+                    ids.append(feature.id())
+    return zip(*attributes), ids
 
 
 def getIdField(layer):
