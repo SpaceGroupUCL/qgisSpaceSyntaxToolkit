@@ -125,10 +125,11 @@ class AttributeCharts(QObject):
                 self.scatter.addPoints(x=xvalues, y=yvalues, data=ids, size=3, pen=pg.mkPen(None), brush=pg.mkBrush(235, 235, 235, 255))
             self.plot.addItem(self.scatter)
             self.plot.setLimits(xMin=xmin, xMax=xmax, yMin=ymin, yMax=ymax)
+            # add the regression line
             regress_line = pg.InfiniteLine()
             regress_line.setAngle(atan(slope/1) * 180 / 3.1459)
             regress_line.setValue((0,intercept))
-            regress_line.setPen(color='r', width=1.1)
+            regress_line.setPen(color='r', width=1)
             self.plot.addItem(regress_line)
             # newfeature: add the selection tool
             #self.scatter.sigClicked.connect(self.getScatterplotSelection)
@@ -136,8 +137,7 @@ class AttributeCharts(QObject):
             #self.roi.sigRegionChangeFinished.connect(self.getRightPlotSelection)
             #self.plot.addItem(self.roi)
             #self.plot.disableAutoRange('xy')
-            #self.plot.autoRange()
-            # add the regression line
+            self.plot.autoRange()
 
 
     # newfeature: allow selection of items in chart and selecting them on the map

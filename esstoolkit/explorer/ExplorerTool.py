@@ -322,7 +322,7 @@ class ExplorerTool(QObject):
                     self.retrieveAttributeValues(attribute)
                     idx = len(self.attribute_statistics)-1
                 stats = self.attribute_statistics[idx]
-                # calculate stats of selected objects
+                # calculate stats of selected objects only
                 select_stats = None
                 if self.current_layer.selectedFeatureCount() > 0:
                     select_stats = dict()
@@ -376,8 +376,8 @@ class ExplorerTool(QObject):
                         if idx == -1:
                             self.retrieveAttributeValues(dependent)
                             idx = len(self.attribute_values)-1
-                        yvalues = self.attribute_values[idx]['values']
-                        yids = self.attribute_values[idx]['ids']
+                        dep_values = self.attribute_values[idx]['values']
+                        dep_ids = self.attribute_values[idx]['ids']
                         # check if it has already been calculated
                         idx = -1
                         for i, bistats in enumerate(self.bivariate_statistics):
@@ -385,33 +385,72 @@ class ExplorerTool(QObject):
                                 idx = i
                                 break
                         if idx == -1:
+                            # get non NULL value pairs
+                            xvalues = []
+                            yvalues = []
+                            xids = []
+                            for (i, id) in enumerate(ids):
+                                if id in set(dep_ids):
+                                    xids.append(id)
+                                    xvalues.append(values[i])
+                                    yvalues.append(dep_values[dep_ids.index(id)])
                             # calculate bi-variate stats
                             bistats = dict()
                             bistats['Layer'] = self.current_layer.name()
+                            bistats['xids'] = xids
                             bistats['x'] = current_attribute
+                            bistats['xvalues'] = xvalues
                             bistats['y'] = current_dependent
-                            bistats['r'] = uf.roundNumber(np.corrcoef(values, yvalues)[1][0])
-                            fit, residuals, rank, singular_values, rcond = np.polyfit(values, yvalues, 1, None, True, None, False)
-                            bistats['slope'] = uf.roundNumber(fit[0])
-                            bistats['intercept'] = uf.roundNumber(fit[1])
-                            bistats['r2'] = uf.roundNumber((1 - residuals[0] / (yvalues.size * yvalues.var())))
+                            bistats['yvalues'] = yvalues
+                            bistats['r'] = uf.roundNumber(np.corrcoef(xvalues, yvalues)[1][0])
+                            fit, residuals, rank, singular_values, rcond = np.polyfit(xvalues, yvalues, 1, None, True, None, False)
+                            bistats['slope'] = fit[0]
+                            bistats['intercept'] = fit[1]
+                            bistats['r2'] = uf.roundNumber((1 - residuals[0] / (len(yvalues) * np.var(yvalues))))
                             # fixme: pvalue calc not correct
                             bistats['p'] = 0 #roundNumber(calcPvalue(values,yvalues))
-                            bistats['line'] = "x * %s + %s" % (bistats['slope'], bistats['intercept'])
+                            if bistats['slope'] > 0:
+                                bistats['line'] = "%s + %s * X" % (bistats['intercept'], bistats['slope'])
+                            else:
+                                bistats['line'] = "%s %s * X" % (bistats['intercept'], bistats['slope'])
                             self.bivariate_statistics.append(bistats)
                         else:
                             bistats = self.bivariate_statistics[idx]
+                            xvalues = bistats['xvalues']
+                            yvalues = bistats['yvalues']
+                            xids = bistats['xids']
                         # update the dialog
                         self.dlg.setCorrelation(bistats)
-                        # plot chart
                         # fixme: get symbols from features
                         #if len(ids) <= 100:
                         #    symbols = uf.getAllFeatureSymbols(self.current_layer)
                         #else:
                         symbols = None
-                        self.attributeCharts.drawScatterplot(values, attribute['min'], attribute['max'], yvalues, dependent['min'], dependent['max'], bistats['slope'], bistats['intercept'], ids, symbols)
                     else:
-                        self.dlg.clearDependentValues()
+                        dependent = self.layer_attributes[current_attribute]
+                        xvalues = values
+                        yvalues = values
+                        xids = ids
+                        # calculate bi-variate stats
+                        bistats = dict()
+                        bistats['Layer'] = self.current_layer.name()
+                        bistats['xids'] = xids
+                        bistats['x'] = current_attribute
+                        bistats['xvalues'] = []
+                        bistats['y'] = current_attribute
+                        bistats['yvalues'] = []
+                        bistats['r'] = 1
+                        bistats['slope'] = 1
+                        bistats['intercept'] = attribute['min']
+                        bistats['r2'] = 1
+                        bistats['p'] = 0
+                        bistats['line'] = "%s + 1 * X" % bistats['intercept']
+                        # update the dialog
+                        self.dlg.setCorrelation(bistats)
+                        # fixme: get symbols from features
+                        symbols = None
+                    # plot chart
+                    self.attributeCharts.drawScatterplot(xvalues, attribute['min'], attribute['max'], yvalues, dependent['min'], dependent['max'], bistats['slope'], bistats['intercept'], xids, symbols)
                 # retrieve selection values
                 if self.current_layer.selectedFeatureCount() > 0:
                     self.updateChartSelection()
@@ -459,32 +498,37 @@ class ExplorerTool(QObject):
         return idx
 
     def retrieveAttributeValues(self, attribute):
-        values, ids = uf.getFieldValues(self.current_layer, attribute['name'], null=False)
-        #if not self.layer_ids.has_key(self.current_layer.name()):
-            # store retrieved ids for charts
-        #    self.layer_ids[self.current_layer.name()] = ids
-        # calculate the stats, rounding numbers that result from calculations
-        values = np.array(values)
-        stats = dict()
-        stats['Layer'] = self.current_layer.name()
-        stats['Attribute'] = attribute['name']
-        stats['Mean'] = uf.truncateNumber(np.nanmean(values))
-        stats['Std Dev'] = uf.truncateNumber(np.nanstd(values))
-        stats['Median'] = uf.truncateNumber(np.median(values))
-        stats['Minimum'] = np.nanmin(values)
-        stats['Maximum'] = np.nanmax(values)
-        stats['Range'] = uf.truncateNumber(stats['Maximum']-stats['Minimum'])
-        stats['1st Quart'] = uf.truncateNumber(np.percentile(values,25))
-        stats['3rd Quart'] = uf.truncateNumber(np.percentile(values,75))
-        stats['IQR'] = uf.truncateNumber(stats['3rd Quart']-stats['1st Quart'])
-        stats['Gini'] = uf.roundNumber(uf.calcGini(values))
-        # store the results
-        self.attribute_statistics.append(stats)
-        # store retrieved values for selection stats and charts
-        attr = dict()
-        attr['Layer'] = self.current_layer.name()
-        attr['Attribute'] = attribute['name']
-        attr['values'] = values
-        attr['ids'] = ids
-        attr['bins'] = uf.calcBins(values)
-        self.attribute_values.append(attr)
+        storage = self.current_layer.storageType()
+        if 'spatialite' in storage.lower():
+            #values, ids =
+            pass
+        elif 'postgresql' in storage.lower():
+            #values, ids =
+            pass
+        else:
+            values, ids = uf.getFieldValues(self.current_layer, attribute["name"], null=False)
+        if values and ids:
+            #values = np.array(values)
+            stats = dict()
+            stats['Layer'] = self.current_layer.name()
+            stats['Attribute'] = attribute['name']
+            stats['Mean'] = uf.truncateNumber(np.nanmean(values))
+            stats['Std Dev'] = uf.truncateNumber(np.nanstd(values))
+            stats['Median'] = uf.truncateNumber(np.median(values))
+            stats['Minimum'] = np.nanmin(values)
+            stats['Maximum'] = np.nanmax(values)
+            stats['Range'] = uf.truncateNumber(stats['Maximum']-stats['Minimum'])
+            stats['1st Quart'] = uf.truncateNumber(np.percentile(values,25))
+            stats['3rd Quart'] = uf.truncateNumber(np.percentile(values,75))
+            stats['IQR'] = uf.truncateNumber(stats['3rd Quart']-stats['1st Quart'])
+            stats['Gini'] = uf.roundNumber(uf.calcGini(values))
+            # store the results
+            self.attribute_statistics.append(stats)
+            # store retrieved values for selection stats and charts
+            attr = dict()
+            attr['Layer'] = self.current_layer.name()
+            attr['Attribute'] = attribute['name']
+            attr['values'] = values
+            attr['ids'] = ids
+            attr['bins'] = uf.calcBins(values)
+            self.attribute_values.append(attr)

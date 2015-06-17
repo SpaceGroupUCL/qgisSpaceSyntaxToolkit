@@ -511,13 +511,13 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
         self.rLabel.setText("r: ")
         self.pLabel.setText("p: ")
         self.r2Label.setText("r2: ")
-        self.lineLabel.setText("f(x)= ")
+        self.lineLabel.setText("Y = ")
 
     def setCorrelation(self, stats):
         self.rLabel.setText("r: "+str(stats["r"]))
         self.pLabel.setText("p: "+str(stats["p"]))
         self.r2Label.setText("r2: "+str(stats["r2"]))
-        self.lineLabel.setText("f(x)= "+str(stats["line"]))
+        self.lineLabel.setText("Y = "+str(stats["line"]))
 
     def clearPlot(self):
         if has_pyqtgraph:
