@@ -365,31 +365,43 @@
                <item>
                 <widget class="QLabel" name="rLabel">
                  <property name="text">
-                  <string>r:</string>
+                  <string>r: </string>
+                 </property>
+                 <property name="textInteractionFlags">
+                  <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
                  </property>
                 </widget>
                </item>
                <item>
                 <widget class="QLabel" name="pLabel">
                  <property name="text">
-                  <string>p:</string>
+                  <string>p: </string>
+                 </property>
+                 <property name="textInteractionFlags">
+                  <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
                  </property>
                 </widget>
                </item>
                <item>
                 <widget class="QLabel" name="r2Label">
                  <property name="text">
-                  <string>r2:</string>
+                  <string>r2: </string>
+                 </property>
+                 <property name="textInteractionFlags">
+                  <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
                  </property>
                 </widget>
                </item>
                <item>
                 <widget class="QLabel" name="lineLabel">
                  <property name="text">
-                  <string>line:</string>
+                  <string>f(x): </string>
                  </property>
                  <property name="wordWrap">
                   <bool>true</bool>
+                 </property>
+                 <property name="textInteractionFlags">
+                  <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
                  </property>
                 </widget>
                </item>

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/Users/jorge/github/qgisSpaceSyntaxToolkit/esstoolkit/explorer/ui_Explorer.ui'
 #
-# Created: Tue Jun  9 22:08:03 2015
+# Created: Tue Jun 16 01:41:58 2015
 #      by: PyQt4 UI code generator 4.10.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -208,16 +208,20 @@ class Ui_ExplorerDialog(object):
         self.yaxisCombo.setObjectName(_fromUtf8("yaxisCombo"))
         self.chartSetupLayout.addWidget(self.yaxisCombo)
         self.rLabel = QtGui.QLabel(self.chartsTab)
+        self.rLabel.setTextInteractionFlags(QtCore.Qt.LinksAccessibleByMouse|QtCore.Qt.TextSelectableByMouse)
         self.rLabel.setObjectName(_fromUtf8("rLabel"))
         self.chartSetupLayout.addWidget(self.rLabel)
         self.pLabel = QtGui.QLabel(self.chartsTab)
+        self.pLabel.setTextInteractionFlags(QtCore.Qt.LinksAccessibleByMouse|QtCore.Qt.TextSelectableByMouse)
         self.pLabel.setObjectName(_fromUtf8("pLabel"))
         self.chartSetupLayout.addWidget(self.pLabel)
         self.r2Label = QtGui.QLabel(self.chartsTab)
+        self.r2Label.setTextInteractionFlags(QtCore.Qt.LinksAccessibleByMouse|QtCore.Qt.TextSelectableByMouse)
         self.r2Label.setObjectName(_fromUtf8("r2Label"))
         self.chartSetupLayout.addWidget(self.r2Label)
         self.lineLabel = QtGui.QLabel(self.chartsTab)
         self.lineLabel.setWordWrap(True)
+        self.lineLabel.setTextInteractionFlags(QtCore.Qt.LinksAccessibleByMouse|QtCore.Qt.TextSelectableByMouse)
         self.lineLabel.setObjectName(_fromUtf8("lineLabel"))
         self.chartSetupLayout.addWidget(self.lineLabel)
         self.chartToolsLayout.addLayout(self.chartSetupLayout)
@@ -266,10 +270,10 @@ class Ui_ExplorerDialog(object):
         self.scatterplotCheck.setText(_translate("ExplorerDialog", "Scatter plot", None))
         self.yaxisLabel.setText(_translate("ExplorerDialog", "Y axis:", None))
         self.yaxisCombo.setToolTip(_translate("ExplorerDialog", "Select y axis attribute of scatter plot.", None))
-        self.rLabel.setText(_translate("ExplorerDialog", "r:", None))
-        self.pLabel.setText(_translate("ExplorerDialog", "p:", None))
-        self.r2Label.setText(_translate("ExplorerDialog", "r2:", None))
-        self.lineLabel.setText(_translate("ExplorerDialog", "line:", None))
+        self.rLabel.setText(_translate("ExplorerDialog", "r: ", None))
+        self.pLabel.setText(_translate("ExplorerDialog", "p: ", None))
+        self.r2Label.setText(_translate("ExplorerDialog", "r2: ", None))
+        self.lineLabel.setText(_translate("ExplorerDialog", "f(x): ", None))
         self.explorerTabs.setTabText(self.explorerTabs.indexOf(self.chartsTab), _translate("ExplorerDialog", "Charts", None))
 
 import resources_rc
