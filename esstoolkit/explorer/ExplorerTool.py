@@ -500,11 +500,11 @@ class ExplorerTool(QObject):
     def retrieveAttributeValues(self, attribute):
         storage = self.current_layer.storageType()
         if 'spatialite' in storage.lower():
-            #values, ids =
-            pass
+            #todo: retrieve values and ids using SQL query
+            values, ids = uf.getFieldValues(self.current_layer, attribute["name"], null=False)
         elif 'postgresql' in storage.lower():
-            #values, ids =
-            pass
+            #todo: retrieve values and ids using SQL query
+            values, ids = uf.getFieldValues(self.current_layer, attribute["name"], null=False)
         else:
             values, ids = uf.getFieldValues(self.current_layer, attribute["name"], null=False)
         if values and ids:
