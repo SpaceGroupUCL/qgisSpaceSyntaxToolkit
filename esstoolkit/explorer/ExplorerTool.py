@@ -72,6 +72,7 @@ class ExplorerTool(QObject):
         self.attributeCharts = AttributeCharts(self.iface, self.dlg.chartPlotWidget)
 
         # initialise internal globals
+        self.map_updated = False
         self.current_layer = None
         self.current_renderer = None
         self.attribute_statistics = []
@@ -139,7 +140,10 @@ class ExplorerTool(QObject):
     ## Manage layers and attributes
     ##
     def updateLayers(self):
-        layers = uf.getLegendLayers(self.iface)
+        try:
+            layers = uf.getLegendLayers(self.iface)
+        except:
+            layers = []
         has_numeric = []
         idx = 0
         if len(layers) > 0:
@@ -250,7 +254,9 @@ class ExplorerTool(QObject):
             except: pass
             try:
                 self.dlg.attributesList.currentRowChanged.disconnect(self.updateCharts)
-                self.iface.mapCanvas().selectionChanged.disconnect(self.updateChartSelection)
+                self.iface.mapCanvas().selectionChanged.disconnect(self.changedMapSelection)
+                self.attributeCharts.histogramSelected.disconnect(self.setMapSelection)
+                self.attributeCharts.scatterplotSelected.disconnect(self.setMapSelection)
             except: pass
         # do not disconnect symbology as it just retrieves info and updates the display: required
         # connect calculate stats
@@ -261,7 +267,9 @@ class ExplorerTool(QObject):
             except: pass
             try:
                 self.dlg.attributesList.currentRowChanged.disconnect(self.updateCharts)
-                self.iface.mapCanvas().selectionChanged.disconnect(self.updateChartSelection)
+                self.iface.mapCanvas().selectionChanged.disconnect(self.changedMapSelection)
+                self.attributeCharts.histogramSelected.disconnect(self.setMapSelection)
+                self.attributeCharts.scatterplotSelected.disconnect(self.setMapSelection)
             except: pass
             self.updateStats()
         # connect calculate charts
@@ -272,7 +280,9 @@ class ExplorerTool(QObject):
             except: pass
             try:
                 self.dlg.attributesList.currentRowChanged.connect(self.updateCharts)
-                self.iface.mapCanvas().selectionChanged.connect(self.updateChartSelection)
+                self.iface.mapCanvas().selectionChanged.connect(self.changedMapSelection)
+                self.attributeCharts.histogramSelected.connect(self.setMapSelection)
+                self.attributeCharts.scatterplotSelected.connect(self.setMapSelection)
             except: pass
             self.updateCharts()
 
@@ -442,39 +452,57 @@ class ExplorerTool(QObject):
                     self.attributeCharts.drawScatterplot(xvalues, attribute['min'], attribute['max'], yvalues, dependent['min'], dependent['max'], bistats['slope'], bistats['intercept'], xids, symbols)
                 # retrieve selection values
                 if self.current_layer.selectedFeatureCount() > 0:
+                    self.selection_values, self.selection_ids = uf.getFieldValues(self.current_layer, attribute['name'], null=False, selection=True)
                     self.updateChartSelection()
             else:
                 self.dlg.clearDependentValues()
         else:
             self.dlg.clearDependentValues()
 
+    def changedMapSelection(self):
+        if self.current_layer.name() == self.iface.activeLayer().name():
+            # retrieve selection values
+            current_attribute = self.dlg.getCurrentAttribute()
+            if current_attribute >= 0:
+                attribute = self.layer_attributes[current_attribute]
+                self.selection_values, self.selection_ids = uf.getFieldValues(self.current_layer, attribute['name'], null=False, selection=True)
+                self.updateChartSelection()
+
     def updateChartSelection(self):
         if self.current_layer is not None:
             current_attribute = self.dlg.getCurrentAttribute()
             if current_attribute >= 0:
                 chart_type = self.dlg.getChartType()
-                if self.current_layer.selectedFeatureCount() > 0:
-                    attribute = self.layer_attributes[current_attribute]
-                    # retrieve selection values
-                    if not self.selection_values:
-                        self.selection_values, self.selection_ids = uf.getFieldValues(self.current_layer, attribute['name'], null=False, selection=True)
+                attribute = self.layer_attributes[current_attribute]
+                if self.selection_ids:
+                    # select Histogram
                     if chart_type == 0:
-                        sel_values = np.array(self.selection_values)
                         idx = self.checkValuesAvailable(attribute)
                         bins = self.attribute_values[idx]['bins']
-                        self.attributeCharts.setHistogramSelection(sel_values, np.min(sel_values), np.max(sel_values), bins)
+                        self.attributeCharts.setHistogramSelection(self.selection_values,attribute['min'], attribute['max'], bins)
+
+                    # select scatter plot
                     if chart_type == 1:
                         self.attributeCharts.setScatterplotSelection(self.selection_ids)
                 else:
-                    self.selection_values = []
-                    self.selection_ids = []
                     if chart_type == 0:
-                        self.attributeCharts.setHistogramSelection([], 0, 0, 0)
+                        self.attributeCharts.setHistogramSelection([], 0, attribute['max'], 0)
                     if chart_type == 1:
                         self.attributeCharts.setScatterplotSelection([])
 
-    def updateMapSelection(self):
-        pass
+    def setMapSelection(self, selection):
+        if self.current_layer is not None:
+            current_attribute = self.dlg.getCurrentAttribute()
+            if current_attribute >= 0:
+                chart_type = self.dlg.getChartType()
+                features = {}
+                if chart_type == 0:
+                    features = uf.getFeaturesRangeValues(self.current_layer, self.layer_attributes[current_attribute]['name'], selection[0], selection[1])
+                elif chart_type == 1:
+                    features = uf.getFeaturesListValues(self.current_layer, self.layer_attributes[current_attribute]['name'], selection)
+                self.current_layer.setSelectedFeatures(features.keys())
+                self.selection_values = features.values()
+                self.selection_ids = features.keys()
 
     ##
     ## General functions

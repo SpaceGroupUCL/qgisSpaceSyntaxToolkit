@@ -46,7 +46,7 @@ from .. import utility_functions as uf
 
 
 class AttributeCharts(QObject):
-    histogramSelected = pyqtSignal(int, int)
+    histogramSelected = pyqtSignal(list)
     scatterplotSelected = pyqtSignal(list)
 
     def __init__(self, iface, plot):
@@ -81,16 +81,21 @@ class AttributeCharts(QObject):
             #self.plot.setLimits(xMin=xmin, xMax=xmax, yMin=0, yMax=max(y))
             # add the selection tool
             self.region = pg.LinearRegionItem([xmax,xmax],bounds=[xmin, xmax])
-            self.region.sigRegionChanged.connect(self.changedHistogramSelection)
+            self.region.sigRegionChangeFinished.connect(self.changedHistogramSelection)
             self.plot.addItem(self.region)
+            self.hist_selection = pg.PlotCurveItem()
+            self.plot.addItem(self.hist_selection)
+            self.clearHistogramSelection()
 
     # allow selection of items in chart and selecting them on the map
     def changedHistogramSelection(self):
         sel_min, sel_max = self.region.getRegion()
-        self.histogramSelected.emit(sel_min, sel_max)
+        #self.clearHistogramSelection()
+        self.histogramSelected.emit([sel_min, sel_max])
 
     def setHistogramSelection(self, values, xmin, xmax, bins):
         if has_pyqtgraph:
+            self.clearHistogramSelection()
             if len(values) > 0:
                 # compute the histogram
                 if bins >= 50:
@@ -102,8 +107,16 @@ class AttributeCharts(QObject):
                 self.hist_selection = pg.PlotCurveItem()
                 self.hist_selection.setData(x, y, stepMode=True, fillLevel=0, brush=(230, 0, 0), pen=pg.mkPen(None))
                 self.plot.addItem(self.hist_selection)
-            elif self.hist_selection:
+            else:
+                self.region.blockSignals(True)
+                self.region.setRegion((xmax,xmax))
+                self.region.blockSignals(False)
+
+    def clearHistogramSelection(self):
+        if has_pyqtgraph:
+            if self.hist_selection:
                 self.plot.removeItem(self.hist_selection)
+                self.hist_selection = pg.PlotCurveItem()
 
     #----
     # Scatterplot functions

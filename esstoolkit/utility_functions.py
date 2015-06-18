@@ -369,7 +369,7 @@ def addFields(layer, names, types):
 #------------------------------
 # Feature functions
 #------------------------------
-def getFeatureListIds(layer, name, values=list):
+def getFeaturesListValues(layer, name, values=list):
     features = {}
     if layer:
         if fieldExists(layer, name):
@@ -378,7 +378,20 @@ def getFeatureListIds(layer, name, values=list):
             for feature in iterator:
                 att = feature.attribute(name)
                 if att in values:
-                    features[att] = feature.id()
+                    features[feature.id()] = att
+    return features
+
+
+def getFeaturesRangeValues(layer, name, min, max):
+    features = {}
+    if layer:
+        if fieldExists(layer, name):
+            request = QgsFeatureRequest().setSubsetOfAttributes([getFieldIndex(layer, name)])
+            iterator = layer.getFeatures(request)
+            for feature in iterator:
+                att = feature.attribute(name)
+                if min <= att <= max:
+                    features[feature.id()] = att
     return features
 
 
@@ -819,9 +832,7 @@ def listSpatialiteConnections():
     res['path'] = [unicode(settings.value(u'%s/sqlitepath' % unicode(item))) for item in settings.childGroups()]
     settings.endGroup()
     #case: no connection available
-    if len(res['name']) < 1:
-        res = None
-    else:
+    if len(res['name']) > 0:
         #case: connections available
         #try to select directly last opened dataBase ()
         try:
@@ -836,17 +847,13 @@ def listSpatialiteConnections():
 
 
 def createSpatialiteConnection(name, path):
-    #connection = None
     try:
         settings=QSettings()
         settings.beginGroup('/SpatiaLite/connections')
         settings.setValue(u'%s/sqlitepath'%name,'%s'%path)
         settings.endGroup()
-
-        #connection=getSpatialiteConnection(path)
     except sqlite.OperationalError, error:
         pop_up_error("Unable to create connection to selected database: \n %s" % error)
-    #return connection
 
 
 def getSpatialiteConnection(path):

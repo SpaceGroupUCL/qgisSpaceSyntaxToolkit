@@ -602,8 +602,8 @@ class AnalysisTool(QObject):
                 if user_id == '':
                     layer.setSelectedFeatures(features)
                 else:
-                    ids = getFeatureListIds(layer,user_id,features)
-                    layer.setSelectedFeatures(ids.values())
+                    ids = uf.getFeaturesListValues(layer,user_id,features)
+                    layer.setSelectedFeatures(ids.keys())
             else:
                 layer.setSelectedFeatures([])
             if layer.selectedFeatureCount() > 0:
