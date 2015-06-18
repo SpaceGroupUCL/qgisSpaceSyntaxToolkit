@@ -262,7 +262,7 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
 
     # Colour settings
     def setColourRanges(self, idx):
-        if idx > 0 and idx <= self.colourRangeCombo.maxVisibleItems():
+        if idx > -1 and idx <= self.colourRangeCombo.maxVisibleItems():
             self.colourRangeCombo.setCurrentIndex(idx)
         self.__colourRangeSelected(idx)
 
