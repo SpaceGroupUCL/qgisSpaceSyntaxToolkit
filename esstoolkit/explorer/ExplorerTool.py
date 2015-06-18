@@ -179,7 +179,6 @@ class ExplorerTool(QObject):
                 # fixme: throws NoneType error occasionally when adding/removing layers. trapping it for now.
                 try:
                     numeric_fields, numeric_field_indices = uf.getNumericFieldNames(self.current_layer)
-                    #numeric_fields = getValidFieldNames(self.current_layer,type=(QVariant.Int, QVariant.LongLong, QVariant.Double, QVariant.UInt, QVariant.ULongLong),null="all")
                 except:
                     numeric_fields = []
                     numeric_field_indices = []
@@ -207,6 +206,8 @@ class ExplorerTool(QObject):
                             attribute_display['attribute'] = numeric_fields[i]
                             attribute_display['top_value'] = max_value
                             attribute_display['bottom_value'] = min_value
+                            if self.current_layer.geometryType() == 0:
+                                attribute_display['line_width'] = 2.5
                             self.layer_display_settings.append(attribute_display)
                     # get the current display attribute
                     attributes = self.current_layer.rendererV2().usedAttributes()

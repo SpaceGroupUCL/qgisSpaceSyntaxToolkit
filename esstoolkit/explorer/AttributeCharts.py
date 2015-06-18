@@ -129,7 +129,7 @@ class AttributeCharts(QObject):
             regress_line = pg.InfiniteLine()
             regress_line.setAngle(atan(slope/1) * 180 / 3.1459)
             regress_line.setValue((0,intercept))
-            regress_line.setPen(color='r', width=1)
+            regress_line.setPen(color='b', width=1)
             self.plot.addItem(regress_line)
             # newfeature: add the selection tool
             #self.scatter.sigClicked.connect(self.getScatterplotSelection)
