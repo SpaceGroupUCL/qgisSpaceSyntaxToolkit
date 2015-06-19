@@ -45,7 +45,7 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
     dependentChanged = QtCore.pyqtSignal()
     chartChanged = QtCore.pyqtSignal()
     addSelection = QtCore.pyqtSignal(bool)
-    regressionLineChanged = QtCore.pyqtSignal(bool)
+    showLinesChanged = QtCore.pyqtSignal(bool)
 
     def __init__(self, parent):
         QtGui.QDockWidget.__init__(self, parent)
@@ -114,7 +114,7 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
         self.histogramCheck.clicked.connect(self.__histogramSelected)
         self.scatterplotCheck.clicked.connect(self.__scatterplotSelected)
         self.yaxisCombo.currentIndexChanged.connect(self.yAxisChanged)
-        self.lineCheck.stateChanged.connect(self.__regressionLineChanged)
+        self.lineCheck.stateChanged.connect(self.__extraLinesChanged)
 
 
     #####
@@ -470,9 +470,11 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
         self.pLabel.setDisabled(onoff)
         self.r2Label.setDisabled(onoff)
         self.lineLabel.setDisabled(onoff)
-        self.lineCheck.setDisabled(onoff)
         if onoff:
             self.clearDependentValues()
+            self.lineCheck.setText("Selection lines")
+        else:
+            self.lineCheck.setText("Regression line")
 
     def __histogramSelected(self):
         self.__lockDependentGroup(True)
@@ -522,8 +524,8 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
         self.r2Label.setText("r2: "+str(stats["r2"]))
         self.lineLabel.setText("Y = "+str(stats["line"]))
 
-    def __regressionLineChanged(self, onoff):
-        self.regressionLineChanged.emit(onoff)
+    def __extraLinesChanged(self, onoff):
+        self.showLinesChanged.emit(onoff)
 
     def clearPlot(self):
         if has_pyqtgraph:

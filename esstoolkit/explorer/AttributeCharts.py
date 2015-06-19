@@ -57,6 +57,7 @@ class AttributeCharts(QObject):
         self.plot = plot
         self.add_selection = False
         self.just_selected = False
+        self.show_lines = True
 
         if has_pyqtgraph:
             self.plot.setClipToView(True)
@@ -88,7 +89,9 @@ class AttributeCharts(QObject):
             # add the selection tool
             self.region = pg.LinearRegionItem([xmax,xmax],bounds=[xmin, xmax])
             self.region.sigRegionChangeFinished.connect(self.changedHistogramSelection)
-            self.plot.addItem(self.region)
+            if self.show_lines:
+                self.plot.addItem(self.region)
+            # add the selection plot
             self.hist_selection = pg.PlotCurveItem()
             self.plot.addItem(self.hist_selection)
             self.clearHistogramSelection()
@@ -124,6 +127,13 @@ class AttributeCharts(QObject):
                 self.plot.removeItem(self.hist_selection)
                 self.hist_selection = pg.PlotCurveItem()
 
+    def showhideSelectionLines(self, onoff):
+        self.show_lines = onoff
+        if onoff:
+            self.plot.addItem(self.region)
+        else:
+            self.plot.removeItem(self.region)
+
     #----
     # Scatterplot functions
     def drawScatterplot(self, xvalues, xmin, xmax, yvalues, ymin, ymax, slope, intercept, ids, symbols=None):
@@ -151,7 +161,8 @@ class AttributeCharts(QObject):
             self.regress_line.setAngle(atan(slope/1) * 180 / 3.1459)
             self.regress_line.setValue((0,intercept))
             self.regress_line.setPen(color='b', width=1)
-            self.plot.addItem(self.regress_line)
+            if self.show_lines:
+                self.plot.addItem(self.regress_line)
             # newfeature: add the selection tool
             #self.roi = pg.PolyLineROI([[xmin, ymin],[xmax, ymin],[xmax, ymax],[xmin, ymax]], closed=True)
             #self.roi.sigRegionChangeFinished.connect(self.changedScatterPlotSelection)
@@ -159,11 +170,6 @@ class AttributeCharts(QObject):
             #self.plot.disableAutoRange('xy')
             self.plot.autoRange()
 
-    def showhideRegressionLine(self, onoff):
-        if onoff:
-            self.plot.addItem(self.regress_line)
-        else:
-            self.plot.removeItem(self.regress_line)
 
     # allow selection of items in chart and selecting them on the map
     def addToScatterplotSelection(self, onoff):
@@ -202,3 +208,10 @@ class AttributeCharts(QObject):
                 point.resetPen()
             self.selected_points = []
             self.scatter_selection = []
+
+    def showhideRegressionLine(self, onoff):
+        self.show_lines = onoff
+        if onoff:
+            self.plot.addItem(self.regress_line)
+        else:
+            self.plot.removeItem(self.regress_line)

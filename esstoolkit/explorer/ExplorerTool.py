@@ -255,7 +255,7 @@ class ExplorerTool(QObject):
             try:
                 self.dlg.attributesList.currentRowChanged.disconnect(self.updateCharts)
                 self.dlg.addSelection.disconnect(self.attributeCharts.addToScatterplotSelection)
-                self.dlg.regressionLineChanged.disconnect(self.attributeCharts.showhideRegressionLine)
+                self.dlg.showLinesChanged.disconnect(self.showhideChartLines)
                 self.iface.mapCanvas().selectionChanged.disconnect(self.changedMapSelection)
                 self.attributeCharts.histogramSelected.disconnect(self.setMapSelection)
                 self.attributeCharts.scatterplotSelected.disconnect(self.setMapSelection)
@@ -270,7 +270,7 @@ class ExplorerTool(QObject):
             try:
                 self.dlg.attributesList.currentRowChanged.disconnect(self.updateCharts)
                 self.dlg.addSelection.disconnect(self.attributeCharts.addToScatterplotSelection)
-                self.dlg.regressionLineChanged.disconnect(self.attributeCharts.showhideRegressionLine)
+                self.dlg.showLinesChanged.disconnect(self.showhideChartLines)
                 self.iface.mapCanvas().selectionChanged.disconnect(self.changedMapSelection)
                 self.attributeCharts.histogramSelected.disconnect(self.setMapSelection)
                 self.attributeCharts.scatterplotSelected.disconnect(self.setMapSelection)
@@ -285,7 +285,7 @@ class ExplorerTool(QObject):
             try:
                 self.dlg.attributesList.currentRowChanged.connect(self.updateCharts)
                 self.dlg.addSelection.connect(self.attributeCharts.addToScatterplotSelection)
-                self.dlg.regressionLineChanged.connect(self.attributeCharts.showhideRegressionLine)
+                self.dlg.showLinesChanged.connect(self.showhideChartLines)
                 self.iface.mapCanvas().selectionChanged.connect(self.changedMapSelection)
                 self.attributeCharts.histogramSelected.connect(self.setMapSelection)
                 self.attributeCharts.scatterplotSelected.connect(self.setMapSelection)
@@ -488,12 +488,12 @@ class ExplorerTool(QObject):
                         self.attributeCharts.setHistogramSelection(self.selection_values,attribute['min'], attribute['max'], bins)
 
                     # select scatter plot
-                    if chart_type == 1:
+                    elif chart_type == 1:
                         self.attributeCharts.setScatterplotIdSelection(self.selection_ids)
                 else:
                     if chart_type == 0:
                         self.attributeCharts.setHistogramSelection([], 0, attribute['max'], 0)
-                    if chart_type == 1:
+                    elif chart_type == 1:
                         self.attributeCharts.setScatterplotIdSelection([])
 
     def setMapSelection(self, selection):
@@ -501,15 +501,21 @@ class ExplorerTool(QObject):
             current_attribute = self.dlg.getCurrentAttribute()
             if current_attribute >= 0:
                 chart_type = self.dlg.getChartType()
-                features = {}
                 if chart_type == 0:
                     features = uf.getFeaturesRangeValues(self.current_layer, self.layer_attributes[current_attribute]['name'], selection[0], selection[1])
                     self.current_layer.setSelectedFeatures(features.keys())
                     self.selection_values = features.values()
                     self.selection_ids = features.keys()
                 elif chart_type == 1:
-                    #features = uf.getFeaturesListValues(self.current_layer, self.layer_attributes[current_attribute]['name'], selection)
                     self.current_layer.setSelectedFeatures(selection)
+
+    def showhideChartLines(self, onoff):
+        chart_type = self.dlg.getChartType()
+        if chart_type == 0:
+            self.attributeCharts.showhideSelectionLines(onoff)
+        elif chart_type == 1:
+            self.attributeCharts.showhideRegressionLine(onoff)
+
     ##
     ## General functions
     ##
