@@ -216,13 +216,15 @@ class AnalysisTool(QObject):
                 txt = 'SF: %s' % self.datastore['name']
                 path = self.datastore['path']
             # spatialite data store
-            elif self.datastore['type'] == 1 and self.datastore['name'] in uf.listSpatialiteConnections()['name'] and os.path.exists(self.datastore['path']):
-                txt = 'SL: %s' % self.datastore['name']
-                path = self.datastore['path']
+            elif self.datastore['type'] == 1 and len(uf.listSpatialiteConnections()) > 0:
+                if self.datastore['name'] in uf.listSpatialiteConnections()['name'] and os.path.exists(self.datastore['path']):
+                    txt = 'SL: %s' % self.datastore['name']
+                    path = self.datastore['path']
             # postgis data store
-            elif self.datastore['type'] == 2 and self.datastore['name'] in uf.listPostgisConnections():
-                txt = 'PG: %s (%s)' % (self.datastore['name'],self.datastore['schema'])
-                path = """dbname='%s' schema='%s'""" % (self.datastore['path'], self.datastore['schema'])
+            elif self.datastore['type'] == 2 and len(uf.listPostgisConnections()) > 0:
+                if self.datastore['name'] in uf.listPostgisConnections():
+                    txt = 'PG: %s (%s)' % (self.datastore['name'],self.datastore['schema'])
+                    path = """dbname='%s' schema='%s'""" % (self.datastore['path'], self.datastore['schema'])
         self.dlg.setDatastore(txt, path)
 
     def isDatastoreSet(self):

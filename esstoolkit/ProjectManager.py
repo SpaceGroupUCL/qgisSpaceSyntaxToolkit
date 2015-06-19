@@ -227,7 +227,7 @@ class ProjectDialog(QtGui.QDialog, Ui_ProjectDialog):
         self.settings = settings
         self.proj_settings = proj_settings
         self.datastores = dict()
-        self.datastore_type = None
+        self.datastore_type = 0
         self.datastore_idx = None
         self.datastore_name = None
         self.datastore_path = None
@@ -309,7 +309,7 @@ class ProjectDialog(QtGui.QDialog, Ui_ProjectDialog):
             except:
                 pass
         # populate list and select default datastore
-        if self.datastores:
+        if self.datastores and len(self.datastores['name']) > 0:
             self.setDatastore()
         else:
             self.clearDatastoreSelect()

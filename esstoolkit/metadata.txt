@@ -22,7 +22,15 @@ email=jorge.gil@ucl.ac.uk
 about=Dependencies: depthmapXnet
 category = Vector
 changelog=version 0.0.5:
-    *
+    * new toolbar
+    * improved point and polygon symbology
+    * fixed scatterplot with NULL values
+    * introduced chart selection
+    * regression line and r2 calculation
+    * show/hide chart lines (Mac OSX render bug)
+    * fixes to unlinks ids
+    * improvements to graph verification
+    * stubs removal added (needs latest dXn)
 
     version 0.0.4:
     * includes external Python packages

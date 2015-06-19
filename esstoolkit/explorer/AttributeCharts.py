@@ -86,7 +86,6 @@ class AttributeCharts(QObject):
             self.plot.clear()
             curve.setData(x, y, stepMode=True, fillLevel=0, brush=(230, 230, 230), pen=pg.mkPen(None))
             self.plot.addItem(curve)
-            #self.plot.setLimits(xMin=xmin, xMax=xmax, yMin=0, yMax=max(y))
             # add the selection tool
             self.region = pg.LinearRegionItem([xmax,xmax],bounds=[xmin, xmax])
             self.region.sigRegionChangeFinished.connect(self.changedHistogramSelection)
@@ -96,7 +95,6 @@ class AttributeCharts(QObject):
             self.hist_selection = pg.PlotCurveItem()
             self.plot.addItem(self.hist_selection)
             self.clearHistogramSelection()
-            #self.plot.autoRange()
 
     # allow selection of items in chart and selecting them on the map
     def changedHistogramSelection(self):
@@ -157,7 +155,6 @@ class AttributeCharts(QObject):
             # selection by direct click
             self.scatter.sigClicked.connect(self.changedScatterplotSelection)
             self.plot.addItem(self.scatter)
-            #self.plot.setLimits(xMin=xmin, xMax=xmax, yMin=ymin, yMax=ymax)
             # add the regression line
             self.regress_line = pg.InfiniteLine()
             self.regress_line.setAngle(atan(slope/1) * 180 / 3.1459)
@@ -170,8 +167,6 @@ class AttributeCharts(QObject):
             #self.roi.sigRegionChangeFinished.connect(self.changedScatterPlotSelection)
             #self.plot.addItem(self.roi)
             #self.plot.disableAutoRange('xy')
-            #self.plot.autoRange()
-
 
     # allow selection of items in chart and selecting them on the map
     def addToScatterplotSelection(self, onoff):
