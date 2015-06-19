@@ -255,6 +255,7 @@ class ExplorerTool(QObject):
             try:
                 self.dlg.attributesList.currentRowChanged.disconnect(self.updateCharts)
                 self.dlg.addSelection.disconnect(self.attributeCharts.addToScatterplotSelection)
+                self.dlg.regressionLineChanged.disconnect(self.attributeCharts.showhideRegressionLine)
                 self.iface.mapCanvas().selectionChanged.disconnect(self.changedMapSelection)
                 self.attributeCharts.histogramSelected.disconnect(self.setMapSelection)
                 self.attributeCharts.scatterplotSelected.disconnect(self.setMapSelection)
@@ -269,6 +270,7 @@ class ExplorerTool(QObject):
             try:
                 self.dlg.attributesList.currentRowChanged.disconnect(self.updateCharts)
                 self.dlg.addSelection.disconnect(self.attributeCharts.addToScatterplotSelection)
+                self.dlg.regressionLineChanged.disconnect(self.attributeCharts.showhideRegressionLine)
                 self.iface.mapCanvas().selectionChanged.disconnect(self.changedMapSelection)
                 self.attributeCharts.histogramSelected.disconnect(self.setMapSelection)
                 self.attributeCharts.scatterplotSelected.disconnect(self.setMapSelection)
@@ -283,6 +285,7 @@ class ExplorerTool(QObject):
             try:
                 self.dlg.attributesList.currentRowChanged.connect(self.updateCharts)
                 self.dlg.addSelection.connect(self.attributeCharts.addToScatterplotSelection)
+                self.dlg.regressionLineChanged.connect(self.attributeCharts.showhideRegressionLine)
                 self.iface.mapCanvas().selectionChanged.connect(self.changedMapSelection)
                 self.attributeCharts.histogramSelected.connect(self.setMapSelection)
                 self.attributeCharts.scatterplotSelected.connect(self.setMapSelection)

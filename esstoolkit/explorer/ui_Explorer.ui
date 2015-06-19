@@ -66,7 +66,7 @@
         <attribute name="title">
          <string>Symbology</string>
         </attribute>
-        <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,0">
+        <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,0,0">
          <property name="spacing">
           <number>-1</number>
          </property>
@@ -234,6 +234,19 @@
           </layout>
          </item>
          <item>
+          <spacer name="verticalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
           <widget class="QPushButton" name="symbologyApplyButton">
            <property name="text">
             <string>Apply Symbology</string>
@@ -322,7 +335,7 @@
          <item>
           <layout class="QHBoxLayout" name="chartsLayout" stretch="0">
            <item>
-            <layout class="QVBoxLayout" name="chartToolsLayout" stretch="0,3">
+            <layout class="QVBoxLayout" name="chartToolsLayout" stretch="0,3,0">
              <item>
               <layout class="QVBoxLayout" name="chartSetupLayout">
                <item>
@@ -419,6 +432,16 @@
                 </size>
                </property>
               </spacer>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="lineCheck">
+               <property name="text">
+                <string>Regression line</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
              </item>
             </layout>
            </item>

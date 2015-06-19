@@ -45,6 +45,7 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
     dependentChanged = QtCore.pyqtSignal()
     chartChanged = QtCore.pyqtSignal()
     addSelection = QtCore.pyqtSignal(bool)
+    regressionLineChanged = QtCore.pyqtSignal(bool)
 
     def __init__(self, parent):
         QtGui.QDockWidget.__init__(self, parent)
@@ -75,6 +76,7 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
         self.pLabel.hide()
         self.chartsProgressBar.hide()
         self.histogramCheck.setChecked(True)
+        self.lineCheck.setChecked(True)
         self.__lockDependentGroup(True)
         # add a pyqtgraph Plotwidget if the package is available, otherwise use a plain graphics view for painting on
         if has_pyqtgraph:
@@ -112,6 +114,7 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
         self.histogramCheck.clicked.connect(self.__histogramSelected)
         self.scatterplotCheck.clicked.connect(self.__scatterplotSelected)
         self.yaxisCombo.currentIndexChanged.connect(self.yAxisChanged)
+        self.lineCheck.stateChanged.connect(self.__regressionLineChanged)
 
 
     #####
@@ -467,6 +470,7 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
         self.pLabel.setDisabled(onoff)
         self.r2Label.setDisabled(onoff)
         self.lineLabel.setDisabled(onoff)
+        self.lineCheck.setDisabled(onoff)
         if onoff:
             self.clearDependentValues()
 
@@ -517,6 +521,9 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
         self.pLabel.setText("p: "+str(stats["p"]))
         self.r2Label.setText("r2: "+str(stats["r2"]))
         self.lineLabel.setText("Y = "+str(stats["line"]))
+
+    def __regressionLineChanged(self, onoff):
+        self.regressionLineChanged.emit(onoff)
 
     def clearPlot(self):
         if has_pyqtgraph:

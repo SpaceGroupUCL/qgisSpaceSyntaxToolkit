@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/Users/jorge/github/qgisSpaceSyntaxToolkit/esstoolkit/explorer/ui_Explorer.ui'
 #
-# Created: Tue Jun 16 01:41:58 2015
+# Created: Fri Jun 19 09:32:15 2015
 #      by: PyQt4 UI code generator 4.10.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -143,6 +143,8 @@ class Ui_ExplorerDialog(object):
         self.intervalsLayout.addWidget(self.intervalSpin, 0, 1, 1, 1)
         self.intervalsLayout.setColumnStretch(2, 1)
         self.verticalLayout_2.addLayout(self.intervalsLayout)
+        spacerItem = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
+        self.verticalLayout_2.addItem(spacerItem)
         self.symbologyApplyButton = QtGui.QPushButton(self.symbologyTab)
         self.symbologyApplyButton.setObjectName(_fromUtf8("symbologyApplyButton"))
         self.verticalLayout_2.addWidget(self.symbologyApplyButton)
@@ -225,8 +227,12 @@ class Ui_ExplorerDialog(object):
         self.lineLabel.setObjectName(_fromUtf8("lineLabel"))
         self.chartSetupLayout.addWidget(self.lineLabel)
         self.chartToolsLayout.addLayout(self.chartSetupLayout)
-        spacerItem = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
-        self.chartToolsLayout.addItem(spacerItem)
+        spacerItem1 = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
+        self.chartToolsLayout.addItem(spacerItem1)
+        self.lineCheck = QtGui.QCheckBox(self.chartsTab)
+        self.lineCheck.setChecked(True)
+        self.lineCheck.setObjectName(_fromUtf8("lineCheck"))
+        self.chartToolsLayout.addWidget(self.lineCheck)
         self.chartToolsLayout.setStretch(1, 3)
         self.chartsLayout.addLayout(self.chartToolsLayout)
         self.verticalLayout_4.addLayout(self.chartsLayout)
@@ -274,6 +280,7 @@ class Ui_ExplorerDialog(object):
         self.pLabel.setText(_translate("ExplorerDialog", "p: ", None))
         self.r2Label.setText(_translate("ExplorerDialog", "r2: ", None))
         self.lineLabel.setText(_translate("ExplorerDialog", "f(x): ", None))
+        self.lineCheck.setText(_translate("ExplorerDialog", "Regression line", None))
         self.explorerTabs.setTabText(self.explorerTabs.indexOf(self.chartsTab), _translate("ExplorerDialog", "Charts", None))
 
 import resources_rc

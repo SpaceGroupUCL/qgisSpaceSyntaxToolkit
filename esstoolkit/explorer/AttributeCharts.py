@@ -27,6 +27,7 @@ from PyQt4.QtGui import *
 from qgis.core import *
 
 from math import atan
+import time
 
 # try to import installed pyqtgraph, if not available use the one shipped with the esstoolkit
 try:
@@ -55,14 +56,17 @@ class AttributeCharts(QObject):
         self.iface = iface
         self.plot = plot
         self.add_selection = False
+        self.just_selected = False
 
         if has_pyqtgraph:
             self.plot.setClipToView(True)
             self.hist_selection = pg.PlotCurveItem()
             self.scatter_selection = []
             self.scatter = pg.ScatterPlotItem()
+            self.scatter_points = {}
             self.region = pg.LinearRegionItem()
             self.selected_points = []
+            self.regress_line = pg.InfiniteLine()
             #self.roi = None
 
     #----
@@ -143,11 +147,11 @@ class AttributeCharts(QObject):
             self.plot.addItem(self.scatter)
             #self.plot.setLimits(xMin=xmin, xMax=xmax, yMin=ymin, yMax=ymax)
             # add the regression line
-            regress_line = pg.InfiniteLine()
-            regress_line.setAngle(atan(slope/1) * 180 / 3.1459)
-            regress_line.setValue((0,intercept))
-            regress_line.setPen(color='b', width=1)
-            self.plot.addItem(regress_line)
+            self.regress_line = pg.InfiniteLine()
+            self.regress_line.setAngle(atan(slope/1) * 180 / 3.1459)
+            self.regress_line.setValue((0,intercept))
+            self.regress_line.setPen(color='b', width=1)
+            self.plot.addItem(self.regress_line)
             # newfeature: add the selection tool
             #self.roi = pg.PolyLineROI([[xmin, ymin],[xmax, ymin],[xmax, ymax],[xmin, ymax]], closed=True)
             #self.roi.sigRegionChangeFinished.connect(self.changedScatterPlotSelection)
@@ -155,6 +159,11 @@ class AttributeCharts(QObject):
             #self.plot.disableAutoRange('xy')
             self.plot.autoRange()
 
+    def showhideRegressionLine(self, onoff):
+        if onoff:
+            self.plot.addItem(self.regress_line)
+        else:
+            self.plot.removeItem(self.regress_line)
 
     # allow selection of items in chart and selecting them on the map
     def addToScatterplotSelection(self, onoff):
@@ -166,26 +175,26 @@ class AttributeCharts(QObject):
             # get clicked points
             if not self.add_selection:
                 self.clearScatterplotSelection()
-            self.selected_points.extend(points)
             # set points for scatter
-            for point in self.selected_points:
-                #point.setPen('r',width=3)
+            for point in points:
+                self.selected_points.append(point)
+                point.setPen('r',width=3)
                 self.scatter_selection.append(point.data())
             # send ids for map
+            self.just_selected = True  #is used to block a second update
             self.scatterplotSelected.emit(self.scatter_selection)
 
     def setScatterplotIdSelection(self, ids):
         if has_pyqtgraph:
-            self.clearScatterplotSelection()
-            if len(ids) > 0:
-                for id in ids:
-                    point = self.scatter.points()[id]
-                    point.setPen('r',width=3)
-                    self.selected_points.append(point)
-                    self.scatter_selection.append(id)
-            else:  # temporary fail safe measure
-                self.selected_points = []
-                self.scatter_selection = []
+            if not self.just_selected:
+                self.clearScatterplotSelection()
+                if len(ids) > 0:
+                    for id in ids:
+                        point = self.scatter.points()[id]
+                        point.setPen('r',width=3)
+                        self.selected_points.append(point)
+                        self.scatter_selection.append(id)
+            self.just_selected = False
 
     def clearScatterplotSelection(self):
         if has_pyqtgraph:
