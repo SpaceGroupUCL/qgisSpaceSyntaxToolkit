@@ -254,6 +254,7 @@ class ExplorerTool(QObject):
             except: pass
             try:
                 self.dlg.attributesList.currentRowChanged.disconnect(self.updateCharts)
+                self.dlg.addSelection.disconnect(self.attributeCharts.addToScatterplotSelection)
                 self.iface.mapCanvas().selectionChanged.disconnect(self.changedMapSelection)
                 self.attributeCharts.histogramSelected.disconnect(self.setMapSelection)
                 self.attributeCharts.scatterplotSelected.disconnect(self.setMapSelection)
@@ -267,6 +268,7 @@ class ExplorerTool(QObject):
             except: pass
             try:
                 self.dlg.attributesList.currentRowChanged.disconnect(self.updateCharts)
+                self.dlg.addSelection.disconnect(self.attributeCharts.addToScatterplotSelection)
                 self.iface.mapCanvas().selectionChanged.disconnect(self.changedMapSelection)
                 self.attributeCharts.histogramSelected.disconnect(self.setMapSelection)
                 self.attributeCharts.scatterplotSelected.disconnect(self.setMapSelection)
@@ -280,6 +282,7 @@ class ExplorerTool(QObject):
             except: pass
             try:
                 self.dlg.attributesList.currentRowChanged.connect(self.updateCharts)
+                self.dlg.addSelection.connect(self.attributeCharts.addToScatterplotSelection)
                 self.iface.mapCanvas().selectionChanged.connect(self.changedMapSelection)
                 self.attributeCharts.histogramSelected.connect(self.setMapSelection)
                 self.attributeCharts.scatterplotSelected.connect(self.setMapSelection)
@@ -483,12 +486,12 @@ class ExplorerTool(QObject):
 
                     # select scatter plot
                     if chart_type == 1:
-                        self.attributeCharts.setScatterplotSelection(self.selection_ids)
+                        self.attributeCharts.setScatterplotIdSelection(self.selection_ids)
                 else:
                     if chart_type == 0:
                         self.attributeCharts.setHistogramSelection([], 0, attribute['max'], 0)
                     if chart_type == 1:
-                        self.attributeCharts.setScatterplotSelection([])
+                        self.attributeCharts.setScatterplotIdSelection([])
 
     def setMapSelection(self, selection):
         if self.current_layer is not None:
@@ -498,12 +501,12 @@ class ExplorerTool(QObject):
                 features = {}
                 if chart_type == 0:
                     features = uf.getFeaturesRangeValues(self.current_layer, self.layer_attributes[current_attribute]['name'], selection[0], selection[1])
+                    self.current_layer.setSelectedFeatures(features.keys())
+                    self.selection_values = features.values()
+                    self.selection_ids = features.keys()
                 elif chart_type == 1:
-                    features = uf.getFeaturesListValues(self.current_layer, self.layer_attributes[current_attribute]['name'], selection)
-                self.current_layer.setSelectedFeatures(features.keys())
-                self.selection_values = features.values()
-                self.selection_ids = features.keys()
-
+                    #features = uf.getFeaturesListValues(self.current_layer, self.layer_attributes[current_attribute]['name'], selection)
+                    self.current_layer.setSelectedFeatures(selection)
     ##
     ## General functions
     ##

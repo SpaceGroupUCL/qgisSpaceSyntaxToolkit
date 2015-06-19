@@ -54,6 +54,7 @@ class AttributeCharts(QObject):
 
         self.iface = iface
         self.plot = plot
+        self.add_selection = False
 
         if has_pyqtgraph:
             self.plot.setClipToView(True)
@@ -61,6 +62,7 @@ class AttributeCharts(QObject):
             self.scatter_selection = []
             self.scatter = pg.ScatterPlotItem()
             self.region = pg.LinearRegionItem()
+            self.selected_points = []
             #self.roi = None
 
     #----
@@ -132,10 +134,12 @@ class AttributeCharts(QObject):
                     x = xvalues[i]
                     y = yvalues[i]
                     symb = symbols[i]
-                    points.append({'x': x, 'y': y, 'data': id, 'size': 3, 'pen': pg.mkPen(None), 'brush': symb})
+                    points.append({'pos': (x,y), 'data': id, 'size': 3, 'pen': pg.mkPen(None), 'brush': symb})
                 self.scatter.addPoints(points)
             else:
                 self.scatter.addPoints(x=xvalues, y=yvalues, data=ids, size=3, pen=pg.mkPen(None), brush=pg.mkBrush(235, 235, 235, 255))
+            # selection by direct click
+            self.scatter.sigClicked.connect(self.changedScatterplotSelection)
             self.plot.addItem(self.scatter)
             #self.plot.setLimits(xMin=xmin, xMax=xmax, yMin=ymin, yMax=ymax)
             # add the regression line
@@ -145,26 +149,47 @@ class AttributeCharts(QObject):
             regress_line.setPen(color='b', width=1)
             self.plot.addItem(regress_line)
             # newfeature: add the selection tool
-            #self.scatter.sigClicked.connect(self.getScatterplotSelection)
             #self.roi = pg.PolyLineROI([[xmin, ymin],[xmax, ymin],[xmax, ymax],[xmin, ymax]], closed=True)
-            #self.roi.sigRegionChangeFinished.connect(self.getRightPlotSelection)
+            #self.roi.sigRegionChangeFinished.connect(self.changedScatterPlotSelection)
             #self.plot.addItem(self.roi)
             #self.plot.disableAutoRange('xy')
             self.plot.autoRange()
 
 
-    # newfeature: allow selection of items in chart and selecting them on the map
-    def changedScatterplotSelection(self):
-        ids = []
-        self.scatterplotSelected.emit(ids)
+    # allow selection of items in chart and selecting them on the map
+    def addToScatterplotSelection(self, onoff):
+        # switch shift key modifier
+        self.add_selection = onoff
 
-    def setScatterplotSelection(self, ids):
+    def changedScatterplotSelection(self, plot, points):
         if has_pyqtgraph:
+            # get clicked points
+            if not self.add_selection:
+                self.clearScatterplotSelection()
+            self.selected_points.extend(points)
+            # set points for scatter
+            for point in self.selected_points:
+                #point.setPen('r',width=3)
+                self.scatter_selection.append(point.data())
+            # send ids for map
+            self.scatterplotSelected.emit(self.scatter_selection)
+
+    def setScatterplotIdSelection(self, ids):
+        if has_pyqtgraph:
+            self.clearScatterplotSelection()
             if len(ids) > 0:
                 for id in ids:
-                    self.scatter.points()[id].setPen('r',width=3)
-                    self.scatter_selection.append(self.scatter.points()[id])
-            elif len(self.scatter_selection) > 0:
-                for point in self.scatter_selection:
-                    point.resetPen()
+                    point = self.scatter.points()[id]
+                    point.setPen('r',width=3)
+                    self.selected_points.append(point)
+                    self.scatter_selection.append(id)
+            else:  # temporary fail safe measure
+                self.selected_points = []
                 self.scatter_selection = []
+
+    def clearScatterplotSelection(self):
+        if has_pyqtgraph:
+            for point in self.selected_points:
+                point.resetPen()
+            self.selected_points = []
+            self.scatter_selection = []

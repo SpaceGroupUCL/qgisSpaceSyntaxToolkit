@@ -125,7 +125,6 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
         if QKeyEvent.key() == QtCore.Qt.Key_Shift:
             self.addSelection.emit(False)
 
-
     # Layer and attributes group
     #
     def __refreshLayers(self):
@@ -522,5 +521,3 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
     def clearPlot(self):
         if has_pyqtgraph:
             self.chartPlotWidget.clear()
-        else:
-            pass
