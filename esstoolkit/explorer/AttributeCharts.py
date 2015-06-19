@@ -61,6 +61,7 @@ class AttributeCharts(QObject):
 
         if has_pyqtgraph:
             self.plot.setClipToView(True)
+            self.plot.enableAutoRange(enable=True)
             self.hist_selection = pg.PlotCurveItem()
             self.scatter_selection = []
             self.scatter = pg.ScatterPlotItem()
@@ -95,6 +96,7 @@ class AttributeCharts(QObject):
             self.hist_selection = pg.PlotCurveItem()
             self.plot.addItem(self.hist_selection)
             self.clearHistogramSelection()
+            #self.plot.autoRange()
 
     # allow selection of items in chart and selecting them on the map
     def changedHistogramSelection(self):
@@ -168,7 +170,7 @@ class AttributeCharts(QObject):
             #self.roi.sigRegionChangeFinished.connect(self.changedScatterPlotSelection)
             #self.plot.addItem(self.roi)
             #self.plot.disableAutoRange('xy')
-            self.plot.autoRange()
+            #self.plot.autoRange()
 
 
     # allow selection of items in chart and selecting them on the map
