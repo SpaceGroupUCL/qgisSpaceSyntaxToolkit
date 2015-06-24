@@ -21,7 +21,10 @@ email=jorge.gil@ucl.ac.uk
 
 about=Dependencies: depthmapXnet
 category = Vector
-changelog=version 0.0.5:
+changelog=version 0.1.0:
+    * several bug fixes
+
+    version 0.0.5:
     * new toolbar
     * improved point and polygon symbology
     * fixed scatterplot with NULL values

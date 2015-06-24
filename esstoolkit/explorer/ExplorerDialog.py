@@ -149,6 +149,9 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
     def getCurrentLayer(self):
         return self.layerCombo.currentText()
 
+    def getCurrentTab(self):
+        return self.explorerTabs.currentIndex()
+
     def lockLayerRefresh(self, onoff):
         self.layerRefreshButton.setDisabled(onoff)
 
@@ -305,7 +308,7 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
         self.current_symbology['intervals'] = value
 
     def setIntervalType(self, idx):
-        if idx > 0 and idx <= self.intervalTypeCombo.maxVisibleItems():
+        if idx > -1 and idx <= self.intervalTypeCombo.maxVisibleItems():
             self.intervalTypeCombo.setCurrentIndex(idx)
         self.__intervalTypeChanged(idx)
 

@@ -62,7 +62,9 @@ class AttributeSymbology(QObject):
             if symbol:
                 if symbol.type() == 1:  # line
                     symbol.setWidth(line_width)
-                if symbol.type() == 0:  # point
+                elif symbol.type() == 2:  # line
+                    symbol = QgsFillSymbolV2.createSimple({'style': 'solid', 'color': 'black', 'width_border': '%s' % line_width})
+                elif symbol.type() == 0:  # point
                     symbol.setSize(line_width)
                 renderer = QgsGraduatedSymbolRendererV2.createRenderer(layer, attribute, intervals, mode, symbol, ramp)
                 renderer.setMode(mode)
@@ -129,27 +131,27 @@ class AttributeSymbology(QObject):
                     if invert:
                         if symbol.type() == 1:  # line
                             symbol.setWidth(new_width[(intervals-1)-i])
-                        if symbol.type() == 0:  # point
+                        elif symbol.type() == 0:  # point
                             symbol.setSize(new_width[(intervals-1)-i])
-                        if symbol.type() == 2:  # polygon
+                        elif symbol.type() == 2:  # polygon
                             dense = int(i / step)
                             if dense == 0:
                                 style = 'solid'
                             else:
                                 style = 'dense%s' % dense
-                            symbol = QgsFillSymbolV2.createSimple({'style': style, 'color': 'black'})
+                            symbol = QgsFillSymbolV2.createSimple({'style': style, 'color': 'black', 'width_border': '%s' % new_width[(intervals-1)-i]})
                     else:
                         if symbol.type() == 1:  # line
                             symbol.setWidth(new_width[i])
-                        if symbol.type() == 0:  # point
+                        elif symbol.type() == 0:  # point
                             symbol.setSize(new_width[i])
-                        if symbol.type() == 2:  # polygon
+                        elif symbol.type() == 2:  # polygon
                             dense = int(i / step)
                             if dense == 7:
                                 style = 'solid'
                             else:
                                 style = 'dense%s' % (7 - dense)
-                            symbol = QgsFillSymbolV2.createSimple({'style': style, 'color': 'black'})
+                            symbol = QgsFillSymbolV2.createSimple({'style': style, 'color': 'black', 'width_border': '%s' % new_width[i]})
                     renderer.updateRangeSymbol(i, symbol)
         return renderer
 

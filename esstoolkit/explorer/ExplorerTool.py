@@ -169,12 +169,24 @@ class ExplorerTool(QObject):
         layer = self.dlg.getCurrentLayer()
         if layer not in ("","Open a vector layer with numeric fields","Select layer to explore..."):
             if self.current_layer is None or self.current_layer.name() != layer:
+                self.update_attributtes = True
+                # disconnect eventual slots with the previous layer
+                if self.current_layer:
+                    try:
+                        self.current_layer.selectionChanged.disconnect(self.updateStats)
+                    except: pass
+                    try:
+                        self.current_layer.selectionChanged.disconnect(self.changedMapSelection)
+                    except: pass
                 # fixme: throws NoneType error occasionally when adding/removing layers. trapping it for now.
                 try:
                     self.current_layer = uf.getLegendLayerByName(self.iface, layer)
+                    if self.dlg.getCurrentTab() == 1:
+                        self.current_layer.selectionChanged.connect(self.updateStats)
+                    elif self.dlg.getCurrentTab() == 2:
+                        self.current_layer.selectionChanged.connect(self.changedMapSelection)
                 except:
                     self.current_layer = None
-            self.update_attributtes = True
         # get layer attributes
         if self.current_layer and self.update_attributtes:
             if not self.legend.isLayerVisible(self.current_layer):
@@ -238,6 +250,14 @@ class ExplorerTool(QObject):
         else:
             no_layer = True
         if no_layer:
+            # disconnect eventual slots with the previous layer
+            if self.current_layer:
+                try:
+                    self.current_layer.selectionChanged.disconnect(self.updateStats)
+                except: pass
+                try:
+                    self.current_layer.selectionChanged.disconnect(self.changedMapSelection)
+                except: pass
             self.current_layer = None #QgsVectorLayer()
             self.dlg.setAttributesList([])
             self.dlg.setAttributesSymbology([])
@@ -250,13 +270,15 @@ class ExplorerTool(QObject):
         if tab == 0:
             try:
                 self.dlg.attributesList.currentRowChanged.disconnect(self.updateStats)
-                self.iface.mapCanvas().selectionChanged.disconnect(self.updateStats)
+                if self.current_layer is not None:
+                    self.current_layer.selectionChanged.disconnect(self.updateStats)
             except: pass
             try:
+                if self.current_layer is not None:
+                    self.current_layer.selectionChanged.disconnect(self.changedMapSelection)
                 self.dlg.attributesList.currentRowChanged.disconnect(self.updateCharts)
                 self.dlg.addSelection.disconnect(self.attributeCharts.addToScatterplotSelection)
                 self.dlg.showLinesChanged.disconnect(self.showhideChartLines)
-                self.iface.mapCanvas().selectionChanged.disconnect(self.changedMapSelection)
                 self.attributeCharts.histogramSelected.disconnect(self.setMapSelection)
                 self.attributeCharts.scatterplotSelected.disconnect(self.setMapSelection)
             except: pass
@@ -264,14 +286,16 @@ class ExplorerTool(QObject):
         # connect calculate stats
         elif tab == 1:
             try:
+                if self.current_layer is not None:
+                    self.current_layer.selectionChanged.connect(self.updateStats)
                 self.dlg.attributesList.currentRowChanged.connect(self.updateStats)
-                self.iface.mapCanvas().selectionChanged.connect(self.updateStats)
             except: pass
             try:
+                if self.current_layer is not None:
+                    self.current_layer.selectionChanged.disconnect(self.changedMapSelection)
                 self.dlg.attributesList.currentRowChanged.disconnect(self.updateCharts)
                 self.dlg.addSelection.disconnect(self.attributeCharts.addToScatterplotSelection)
                 self.dlg.showLinesChanged.disconnect(self.showhideChartLines)
-                self.iface.mapCanvas().selectionChanged.disconnect(self.changedMapSelection)
                 self.attributeCharts.histogramSelected.disconnect(self.setMapSelection)
                 self.attributeCharts.scatterplotSelected.disconnect(self.setMapSelection)
             except: pass
@@ -280,13 +304,15 @@ class ExplorerTool(QObject):
         elif tab == 2:
             try:
                 self.dlg.attributesList.currentRowChanged.disconnect(self.updateStats)
-                self.iface.mapCanvas().selectionChanged.disconnect(self.updateStats)
+                if self.current_layer is not None:
+                    self.current_layer.selectionChanged.disconnect(self.updateStats)
             except: pass
             try:
+                if self.current_layer is not None:
+                    self.current_layer.selectionChanged.connect(self.changedMapSelection)
                 self.dlg.attributesList.currentRowChanged.connect(self.updateCharts)
                 self.dlg.addSelection.connect(self.attributeCharts.addToScatterplotSelection)
                 self.dlg.showLinesChanged.connect(self.showhideChartLines)
-                self.iface.mapCanvas().selectionChanged.connect(self.changedMapSelection)
                 self.attributeCharts.histogramSelected.connect(self.setMapSelection)
                 self.attributeCharts.scatterplotSelected.connect(self.setMapSelection)
             except: pass
@@ -466,7 +492,7 @@ class ExplorerTool(QObject):
             self.dlg.clearDependentValues()
 
     def changedMapSelection(self):
-        if self.current_layer.name() == self.iface.activeLayer().name():
+        if self.current_layer is not None:
             # retrieve selection values
             current_attribute = self.dlg.getCurrentAttribute()
             if current_attribute >= 0:
