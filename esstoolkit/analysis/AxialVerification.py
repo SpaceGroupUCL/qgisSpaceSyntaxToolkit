@@ -57,21 +57,21 @@ class AxialVerification(QThread):
     verificationProgress = pyqtSignal(int)
     verificationError = pyqtSignal(str)
 
-    def __init__( self, parentThread, parentObject, settings, axial, id, unlinks, links):
-        QThread.__init__( self, parentThread)
+    def __init__(self, parentThread, parentObject, settings, axial, uid, unlinks, links):
+        QThread.__init__(self, parentThread)
         self.parent = parentObject
         self.running = False
         self.verification_settings = settings
         self.axial_layer = axial
         self.unlinks_layer = unlinks
         self.links_layer = links
-        self.user_id = id
+        self.user_id = uid
 
         # verification globals
         self.problem_nodes = []
         # error types to identify:
-        self.axial_errors = {'orphan':[],'island':[],'short line':[],'invalid geometry':[],'polyline':[],\
-                            'coinciding points':[],'small line':[],'duplicate geometry':[],'overlap':[]}
+        self.axial_errors = {'orphan': [], 'island': [], 'short line': [], 'invalid geometry': [], 'polyline': [],
+                            'coinciding points': [], 'small line': [], 'duplicate geometry': [], 'overlap': []}
 
     def run(self):
         if has_pydevd and is_debug:
@@ -80,7 +80,7 @@ class AxialVerification(QThread):
         # reset all the errors
         self.problem_nodes = []
         for k, v in self.axial_errors.iteritems():
-            self.axial_errors[k]=[]
+            self.axial_errors[k] = []
         provider = self.axial_layer.storageType()
         #caps = self.axial_layer.dataProvider().capabilities()
         graph_links = []
@@ -111,9 +111,9 @@ class AxialVerification(QThread):
             # get the geometry column name and other properties
             # always check if the operation has been cancelled before proceeding.
             # this would come up only once if the thread was based on a loop, to break it.
-            if not self.running: return
+            if not self.running:
+                return
             start_time = time.time()
-            geomname = ''
             # could use this generic but I want to force a spatial index
             #geomname = uf.getDBLayerGeometryColumn(self.axial_layer)
             connection = uf.getDBLayerConnection(self.axial_layer)
@@ -124,7 +124,7 @@ class AxialVerification(QThread):
                 geomname = uf.getPostgisGeometryColumn(connection, layerinfo['schema'], axialname)
                 # todo: ensure that it has a spatial index
                 #uf.createPostgisSpatialIndex(onnection, layerinfo['schema'], axialname, geomname)
-            if is_debug: print "Preparing the map: %s"%str(time.time()-start_time)
+            if is_debug: print "Preparing the map: %s" % str(time.time() - start_time)
             self.verificationProgress.emit(5)
             # analyse the geometry
             if not self.running or not geomname:
@@ -134,33 +134,37 @@ class AxialVerification(QThread):
                 self.spatialiteTestGeometry(connection, axialname, geomname)
             else:
                 self.postgisTestGeometry(connection, layerinfo['schema'], axialname, geomname)
-            if is_debug: print "Analysing geometry: %s"%str(time.time()-start_time)
+            if is_debug: print "Analysing geometry: %s" % str(time.time() - start_time)
             self.verificationProgress.emit(80)
             # build the topology
-            if not self.running: return
+            if not self.running:
+                return
             if has_igraph or has_networkx:
                 start_time = time.time()
                 if 'spatialite' in datastore:
                     graph_links = self.spatialiteBuildTopology(connection, axialname, geomname, unlinkname, linkname)
                 else:
                     graph_links = self.postgisBuildTopology(connection, layerinfo['schema'], axialname, geomname, unlinkschema, unlinkname, linkschema, linkname)
-                if is_debug: print "Building topology: %s"%str(time.time()-start_time)
+                if is_debug: print "Building topology: %s" % str(time.time() - start_time)
             self.verificationProgress.emit(90)
             connection.close()
         else:
             # create spatial index
-            if not self.running: return
+            if not self.running:
+                return
             start_time = time.time()
             index = uf.createIndex(self.axial_layer)
-            if is_debug: print "Creating spatial index: %s"%str(time.time()-start_time)
+            if is_debug: print "Creating spatial index: %s" % str(time.time() - start_time)
             self.verificationProgress.emit(5)
             # analyse the geometry and topology
-            if not self.running: return
+            if not self.running:
+                return
             start_time = time.time()
             graph_links = self.qgisGeometryTopologyTest(self.axial_layer, index, self.unlinks_layer, self.links_layer)
-            if is_debug: print "Analysing geometry and topology: %s"%str(time.time()-start_time)
+            if is_debug: print "Analysing geometry and topology: %s" % str(time.time() - start_time)
         # analyse the topology with igraph or networkx
-        if not self.running: return
+        if not self.running:
+            return
         if len(graph_links) > 0 and (has_igraph or has_networkx):
             start_time = time.time()
             # get axial node ids
@@ -173,7 +177,7 @@ class AxialVerification(QThread):
                 self.igraphTestTopology(graph_links, axialids)
             elif has_networkx:
                 self.networkxTestTopology(graph_links, axialids)
-            if is_debug: print "Analysing topology: %s"%str(time.time()-start_time)
+            if is_debug: print "Analysing topology: %s" % str(time.time() - start_time)
         self.verificationProgress.emit(100)
         # return the results
         self.problem_nodes = list(set(self.problem_nodes))
@@ -222,7 +226,7 @@ class AxialVerification(QThread):
                 # add results to the list of problems
                 if islands:
                     self.axial_errors['island'] = islands
-            if is_debug: print "analyse orphans/islands: %s"%str(time.time()-start_time)
+            if is_debug: print "analyse orphans/islands: %s" % str(time.time() - start_time)
         return True
 
     def networkxTestTopology(self, graph_links, graph_nodes):
@@ -252,7 +256,7 @@ class AxialVerification(QThread):
                 # add results to the list of problems
                 if islands:
                     self.axial_errors['island'] = islands
-            if is_debug: print "analyse orphans/islands: %s"%str(time.time()-start_time)
+            if is_debug: print "analyse orphans/islands: %s" % str(time.time() - start_time)
         return True
 
     # spatialite based functions
@@ -275,7 +279,7 @@ class AxialVerification(QThread):
             self.problem_nodes.extend(nodes)
             self.axial_errors['invalid geometry'] = nodes
         self.verificationProgress.emit(10)
-        if is_debug: print "analyse valid: %s"%str(time.time()-start_time)
+        if is_debug: print "analyse valid: %s" % str(time.time()-start_time)
         # geometry is polyline
         if not self.running: return
         start_time = time.time()
@@ -286,7 +290,7 @@ class AxialVerification(QThread):
             self.problem_nodes.extend(nodes)
             self.axial_errors['polyline'] = nodes
         self.verificationProgress.emit(15)
-        if is_debug: print "analyse polyline: %s"%str(time.time()-start_time)
+        if is_debug: print "analyse polyline: %s" % str(time.time()-start_time)
         # has two coinciding points
         if not self.running: return
         start_time = time.time()
@@ -297,7 +301,7 @@ class AxialVerification(QThread):
             self.problem_nodes.extend(nodes)
             self.axial_errors['coinciding points'] = nodes
         self.verificationProgress.emit(20)
-        if is_debug: print "analyse coinciding: %s"%str(time.time()-start_time)
+        if is_debug: print "analyse coinciding: %s" % str(time.time()-start_time)
         # small lines, with small length
         if not self.running: return
         start_time = time.time()
@@ -308,14 +312,14 @@ class AxialVerification(QThread):
             self.problem_nodes.extend(nodes)
             self.axial_errors['small line'] = nodes
         self.verificationProgress.emit(25)
-        if is_debug: print "analyse small: %s"%str(time.time()-start_time)
+        if is_debug: print "analyse small: %s" % str(time.time()-start_time)
         # short lines, just about touch without intersecting
         if not self.running: return
         start_time = time.time()
         query = 'SELECT a."%s" FROM "%s" a, "%s" b WHERE a."%s" <> b."%s" AND NOT ST_Intersects(a."%s",b."%s") AND ' \
                 '(PtDistWithin(ST_StartPoint(a."%s"),b."%s",%s) OR PtDistWithin(ST_EndPoint(a."%s"),b."%s",%s)) ' \
                 'AND a.ROWID IN (SELECT ROWID FROM SpatialIndex WHERE f_table_name="%s" AND search_frame=b."%s")' \
-                %(idcol, axialname, axialname, idcol, idcol, geomname, geomname, geomname, geomname, threshold,
+                % (idcol, axialname, axialname, idcol, idcol, geomname, geomname, geomname, geomname, threshold,
                   geomname, geomname, threshold, axialname, geomname)
         header, data, error = uf.executeSpatialiteQuery(connection, query)
         if data:
@@ -329,7 +333,7 @@ class AxialVerification(QThread):
         start_time = time.time()
         query = 'SELECT a."%s" FROM "%s" a, "%s" b WHERE a."%s" <> b."%s" AND ST_Equals(a."%s",b."%s") ' \
                 'AND a.ROWID IN (SELECT ROWID FROM SpatialIndex WHERE f_table_name="%s" AND search_frame=b."%s")' \
-                %(idcol, axialname, axialname, idcol, idcol, geomname, geomname, axialname, geomname)
+                % (idcol, axialname, axialname, idcol, idcol, geomname, geomname, axialname, geomname)
         header, data, error = uf.executeSpatialiteQuery(connection, query)
         if data:
             nodes = list(zip(*data)[0])
@@ -342,7 +346,7 @@ class AxialVerification(QThread):
         start_time = time.time()
         query = 'SELECT a."%s" FROM "%s" a, "%s" b WHERE a."%s" <> b."%s" AND NOT ST_Equals(a."%s",b."%s") AND ST_Overlaps(a."%s",b."%s") ' \
             'AND a.ROWID IN (SELECT ROWID FROM SpatialIndex WHERE f_table_name="%s" AND search_frame=b."%s")' \
-            %(idcol, axialname, axialname, idcol, idcol, geomname, geomname, geomname, geomname, axialname, geomname)
+            % (idcol, axialname, axialname, idcol, idcol, geomname, geomname, geomname, geomname, axialname, geomname)
         header, data, error = uf.executeSpatialiteQuery(connection, query)
         if data:
             nodes = list(zip(*data)[0])
@@ -371,7 +375,7 @@ class AxialVerification(QThread):
                 'CASE WHEN a."%s" > b."%s" THEN a."%s" ELSE b."%s" END AS greatest_col ' \
                 'FROM "%s" a, "%s" b WHERE a."%s" <> b."%s" AND Intersects(a."%s",b."%s") ' \
                 'AND a.ROWID IN (SELECT ROWID FROM SpatialIndex WHERE f_table_name="%s" AND search_frame=b."%s")' \
-                %(graphname, idcol, idcol, idcol, idcol, idcol, idcol, idcol, idcol, axialname, axialname, idcol, idcol,
+                % (graphname, idcol, idcol, idcol, idcol, idcol, idcol, idcol, idcol, axialname, axialname, idcol, idcol,
                   geomname, geomname, axialname, geomname)
         header, data, error = uf.executeSpatialiteQuery(connection, query, commit=True)
         if is_debug: print "Building the graph: %s"%str(time.time()-start_time)
@@ -381,7 +385,7 @@ class AxialVerification(QThread):
                 start_time = time.time()
                 query = 'DELETE FROM %s WHERE cast(a_fid as text)||"_"||cast(b_fid as text) in (SELECT cast(line1 as text)||"_"||cast(line2 as text) FROM "%s") ' \
                         'OR cast(b_fid as text)||"_"||cast(a_fid as text) in (SELECT cast(line1 as text)||"_"||cast(line2 as text) FROM "%s")' \
-                        %(graphname, unlinkname, unlinkname)
+                        % (graphname, unlinkname, unlinkname)
                 header, data, error = uf.executeSpatialiteQuery(connection, query, commit=True)
                 if is_debug: print "Unlinking the graph: %s"%str(time.time()-start_time)
         # newfeature: implement inserting links
@@ -557,25 +561,25 @@ class AxialVerification(QThread):
             has_problem = False
             geom = feature.geometry()
             if self.user_id == '':
-                id = feature.id()
+                fid = feature.id()
             else:
-                id = feature.attribute(self.user_id)
+                fid = feature.attribute(self.user_id)
             # geometry is valid (generally)
             if not geom.isGeosValid() or geom.isGeosEmpty():
                 has_problem = True
-                self.axial_errors['invalid geometry'].append(id)
+                self.axial_errors['invalid geometry'].append(fid)
             # geometry is polyline
             if len(geom.asPolyline()) > 2:
                 has_problem = True
-                self.axial_errors['polyline'].append(id)
+                self.axial_errors['polyline'].append(fid)
             # has two coinciding points
             if geom.length() == 0:
                 has_problem = True
-                self.axial_errors['coinciding points'].append(id)
+                self.axial_errors['coinciding points'].append(fid)
             # small lines, with small length
             if geom.length() < length:
                 has_problem = True
-                self.axial_errors['small line'].append(id)
+                self.axial_errors['small line'].append(fid)
             # testing against other lines in the layer
             buff = None
             if threshold > 0:
@@ -607,26 +611,26 @@ class AxialVerification(QThread):
                     id_b = target.id()
                 else:
                     id_b = target.attribute(self.user_id)
-                if not id_b == id:
+                if not id_b == fid:
                     # duplicate geometry
                     if geom.isGeosEqual(geom_b):
                         has_problem = True
-                        self.axial_errors['duplicate geometry'].append(id)
+                        self.axial_errors['duplicate geometry'].append(fid)
                     # geometry overlaps
                     if geom.overlaps(geom_b):
                         has_problem = True
-                        self.axial_errors['overlap'].append(id)
+                        self.axial_errors['overlap'].append(fid)
                     # short lines, just about touch without intersecting
                     if (geom_b.intersects(start_buff) or geom_b.intersects(end_buff)) and not geom_b.intersects(geom):
                         has_problem = True
-                        self.axial_errors['short line'].append(id)
+                        self.axial_errors['short line'].append(fid)
                     if geom.intersects(geom_b):
                         # check if in the unlinks
-                        if (id,id_b) not in unlinks_list and (id_b,id) not in unlinks_list:
+                        if (id,id_b) not in unlinks_list and (id_b, fid) not in unlinks_list:
                             # build the topology
                             if has_igraph or has_networkx:
                                 #axial_links.append((uf.convertNumeric(id),uf.convertNumeric(id_b)))
-                                axial_links.append((id,id_b))
+                                axial_links.append((id, id_b))
                             # test orphans
                             if orphan:
                                 orphan = False

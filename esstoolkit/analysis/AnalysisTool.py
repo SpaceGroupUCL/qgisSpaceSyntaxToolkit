@@ -91,13 +91,12 @@ class AnalysisTool(QObject):
         self.timer.timeout.connect(self.checkDepthmapAnalysisProgress)
 
         # define analysis data structures
-        self.analysis_layers = {'map': "",'unlinks': "",'links': "",'origins': ""}
-        self.axial_analysis_settings = {'type': 0,'distance': 0,'radius': 0,'rvalues': "n",'output': "",
-                                        'fullset': 0,'betweenness': 1,'newnorm': 1,'weight': 0,'weightBy': "",
+        self.analysis_layers = {'map': "", 'unlinks': "", 'links': "", 'origins': ""}
+        self.axial_analysis_settings = {'type': 0, 'distance': 0, 'radius': 0, 'rvalues': "n", 'output': "",
+                                        'fullset': 0, 'betweenness': 1, 'newnorm': 1, 'weight': 0, 'weightBy': "",
                                         'stubs': 40, 'id': ""}
-        self.user_ids = {'map': "",'unlinks': "",'links': "",'origins': ""}
+        self.user_ids = {'map': "", 'unlinks': "", 'links': "", 'origins': ""}
         self.analysis_output = ""
-
 
     def unload(self):
         if self.isVisible:
@@ -131,14 +130,13 @@ class AnalysisTool(QObject):
                 self.iface.newProjectCreated.disconnect(self.updateLayers)
             self.isVisible = False
 
-
     ##
     ## manage project and tool settings
     ##
     def getProjectSettings(self):
         # pull relevant settings from project manager
-        self.project.readSettings(self.analysis_layers,"analysis")
-        self.project.readSettings(self.axial_analysis_settings,"depthmap")
+        self.project.readSettings(self.analysis_layers, "analysis")
+        self.project.readSettings(self.axial_analysis_settings, "depthmap")
         # update UI
         self.dlg.clearAxialProblems(0)
         self.dlg.clearAxialProblems(1)
@@ -161,15 +159,15 @@ class AnalysisTool(QObject):
         self.dlg.dlg_depthmap.setRemoveStubs(self.axial_analysis_settings['stubs'])
 
     def updateProjectSettings(self):
-        self.project.writeSettings(self.analysis_layers,"analysis")
-        self.project.writeSettings(self.axial_analysis_settings,"depthmap")
+        self.project.writeSettings(self.analysis_layers, "analysis")
+        self.project.writeSettings(self.axial_analysis_settings, "depthmap")
 
     def changeDatastore(self):
         #signal from UI if data store button is clicked
         self.editDatastoreSettings.emit()
 
     def updateDatastore(self, name):
-        new_datastore = {'name':'','path':'','type':-1,'schema':'','crs':''}
+        new_datastore = {'name': '', 'path': '', 'type': -1, 'schema': '', 'crs': ''}
         layer = uf.getLegendLayerByName(self.iface, name)
         if layer:
             new_datastore['crs'] = layer.crs().postgisSrid()
@@ -183,7 +181,7 @@ class AnalysisTool(QObject):
                 new_datastore['path'] = layerinfo['database']
                 new_datastore['schema'] = layerinfo['schema']
                 new_datastore['name'] = layerinfo['connection']
-            elif 'memory?' not in layer.storageType(): #'Shapefile'
+            elif 'memory?' not in layer.storageType():  # 'Shapefile'
                 new_datastore['type'] = 0
                 new_datastore['path'] = uf.getLayerPath(layer)
                 new_datastore['name'] = os.path.basename(new_datastore['path'])
@@ -196,7 +194,7 @@ class AnalysisTool(QObject):
             return
 
     def clearDatastore(self):
-        new_datastore = {'name':'','path':'','type':-1,'schema':'','crs':''}
+        new_datastore = {'name': '', 'path': '', 'type': -1, 'schema': '', 'crs': ''}
         self.project.writeSettings(new_datastore, 'datastore')
         self.setDatastore()
 
@@ -223,7 +221,7 @@ class AnalysisTool(QObject):
             # postgis data store
             elif self.datastore['type'] == 2 and len(uf.listPostgisConnections()) > 0:
                 if self.datastore['name'] in uf.listPostgisConnections():
-                    txt = 'PG: %s (%s)' % (self.datastore['name'],self.datastore['schema'])
+                    txt = 'PG: %s (%s)' % (self.datastore['name'], self.datastore['schema'])
                     path = """dbname='%s' schema='%s'""" % (self.datastore['path'], self.datastore['schema'])
         self.dlg.setDatastore(txt, path)
 

@@ -40,12 +40,12 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
         self.setupUi(self)
 
         # define globals
-        self.layers = [{'idx':0,'name':''},{'idx':0,'name':''},{'idx':0,'name':''},{'idx':0,'name':''}]
-        self.axial_verify_report = [{'progress':0,'summary':[],'filter':-1,'report':dict(),'nodes':[]}
-            ,{'progress':0,'summary':[],'filter':-1,'report':dict(),'nodes':[]}
-            ,{'progress':0,'summary':[],'filter':-1,'report':dict(),'nodes':[]}
-            ,{'progress':0,'summary':[],'filter':-1,'report':dict(),'nodes':[]}]
-        self.axial_verification_settings = {'ax_dist':1.0,'ax_min':1.0,'unlink_dist':5.0,'link_dist':1.0}
+        self.layers = [{'idx': 0, 'name': ''},{'idx': 0, 'name': ''},{'idx': 0, 'name': ''},{'idx': 0, 'name': ''}]
+        self.axial_verify_report = [{'progress': 0, 'summary': [], 'filter': -1, 'report': dict(), 'nodes': []}
+                                    , {'progress': 0, 'summary': [], 'filter': -1, 'report': dict(), 'nodes': []}
+                                    , {'progress': 0, 'summary': [], 'filter': -1, 'report': dict(), 'nodes': []}
+                                    , {'progress': 0, 'summary': [], 'filter': -1, 'report': dict(), 'nodes': []}]
+        self.axial_verification_settings = {'ax_dist': 1.0, 'ax_min': 1.0, 'unlink_dist': 5.0, 'link_dist': 1.0}
 
         self.dlg_depthmap = DepthmapAdvancedDialog()
         self.dlg_verify = VerificationSettingsDialog(self.axial_verification_settings)
@@ -70,9 +70,10 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
         self.__selectLayerTab(0)
         self.lockAxialEditTab(False)
         self.lockAxialDepthmapTab(False)
-        self.setDatastore('','')
+        self.setDatastore('', '')
         self.updateAxialVerifyReport()
         self.updateAxialDepthmapTab()
+        self.setDepthmapRadiusText('n')
         self.axialDepthmapWeightCheck.setChecked(False)
 
         # current UI restrictions
@@ -80,10 +81,10 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
         self.analysisNewUnlinksButton.hide()
         self.analysisNewLinksButton.hide()
         self.analysisNewOriginsButton.hide()
-        self.analysisLayersTabs.setTabEnabled(2,False)
-        self.analysisLayersTabs.setTabToolTip(2,'Feature currently unavailable')
-        self.analysisLayersTabs.setTabEnabled(3,False)
-        self.analysisLayersTabs.setTabToolTip(3,'Feature currently unavailable')
+        self.analysisLayersTabs.setTabEnabled(2, False)
+        self.analysisLayersTabs.setTabToolTip(2, 'Feature currently unavailable')
+        self.analysisLayersTabs.setTabEnabled(3, False)
+        self.analysisLayersTabs.setTabToolTip(3, 'Feature currently unavailable')
 
     #####
     # General functions of the analysis dialog
@@ -105,10 +106,10 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
     def lockLayerTab(self, onoff):
         self.analysisLayersTabs.setDisabled(onoff)
 
-    def setMapLayers(self, list, idx):
+    def setMapLayers(self, names, idx):
         layers = ['-----']
-        if list:
-            layers.extend(list)
+        if names:
+            layers.extend(names)
         self.analysisMapCombo.clear()
         self.analysisMapCombo.addItems(layers)
         self.analysisMapCombo.setCurrentIndex(idx+1)
@@ -116,7 +117,6 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
         self.layers[0]['name'] = layers[idx+1]
         if idx == -1:
             self.clearAxialProblems()
-            #self.selectMapLayer()
 
     def selectMapLayer(self):
         self.layers[0]['idx'] = self.analysisMapCombo.currentIndex()
@@ -126,10 +126,10 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
         self.updateAnalysisTabs()
         self.updateAxialDepthmapTab()
 
-    def setUnlinksLayers(self, list, idx):
+    def setUnlinksLayers(self, names, idx):
         layers = ['-----']
-        if list:
-            layers.extend(list)
+        if names:
+            layers.extend(names)
         self.analysisUnlinksCombo.clear()
         self.analysisUnlinksCombo.addItems(layers)
         self.analysisUnlinksCombo.setCurrentIndex(idx+1)
@@ -145,10 +145,10 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
         self.clearAxialProblems()
         self.updateAnalysisTabs()
 
-    def setLinksLayers(self, list, idx):
+    def setLinksLayers(self, names, idx):
         layers = ['-----']
-        if list:
-            layers.extend(list)
+        if names:
+            layers.extend(names)
         self.analysisLinksCombo.clear()
         self.analysisLinksCombo.addItems(layers)
         self.analysisLinksCombo.setCurrentIndex(idx+1)
@@ -164,10 +164,10 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
         self.clearAxialProblems()
         self.updateAnalysisTabs()
 
-    def setOriginsLayers(self, list, idx):
+    def setOriginsLayers(self, names, idx):
         layers = ['-----']
-        if list:
-            layers.extend(list)
+        if names:
+            layers.extend(names)
         self.analysisOriginsCombo.clear()
         self.analysisOriginsCombo.addItems(layers)
         self.analysisOriginsCombo.setCurrentIndex(idx+1)
@@ -188,10 +188,14 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
         for i, layer in enumerate(self.layers):
             name = layer['name']
             if name != '-----':
-                if i == 0: layers['map'] = name
-                elif i == 1: layers['unlinks'] = name
-                elif i == 2: layers['links'] = name
-                elif i == 3: layers['origins'] = name
+                if i == 0:
+                    layers['map'] = name
+                elif i == 1:
+                    layers['unlinks'] = name
+                elif i == 2:
+                    layers['links'] = name
+                elif i == 3:
+                    layers['origins'] = name
         return layers
 
     def updateAnalysisTabs(self):
@@ -229,8 +233,8 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
     def updateAxialVerifyReport(self):
         d = self.axial_verify_report[self.layers_tab]
         self.axialVerifyProgressBar.setValue(d['progress'])
-        self.setAxialProblems(d['report'],d['nodes'])
-        self.setAxialProblemsFilter(d['summary'],d['filter'])
+        self.setAxialProblems(d['report'], d['nodes'])
+        self.setAxialProblemsFilter(d['summary'], d['filter'])
         if len(d['nodes']) > 0:
             self.axialReportFilterCombo.setDisabled(False)
             self.axialReportList.setDisabled(False)
@@ -260,9 +264,9 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
         self.axialVerifyProgressBar.setValue(value)
         self.axialVerifyProgressBar.setRange(0, maximum)
 
-    def setAxialProblemsFilter(self, list, idx=0):
+    def setAxialProblemsFilter(self, problems, idx=0):
         self.axialReportFilterCombo.clear()
-        self.axial_verify_report[self.layers_tab]['summary'] = list
+        self.axial_verify_report[self.layers_tab]['summary'] = problems
         self.axialReportFilterCombo.addItems(list)
         self.axial_verify_report[self.layers_tab]['filter'] = idx
         self.axialReportFilterCombo.setCurrentIndex(idx)
@@ -328,7 +332,7 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
                     problems.append((problem, ', '.join(errors)))
             elif select == "island":
                 for i, v in enumerate(report[select]):
-                    ids = [str(id) for id in v]
+                    ids = [str(fid) for fid in v]
                     problems.append((i, ','.join(ids)))
             elif select == "no problems found!":
                 return
@@ -400,10 +404,10 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
         rows = sorted(set(rows))
         if self.getAxialProblemsFilter() == "island":
             for i in rows:
-                ids.extend(self.axialReportList.item(i,1).text().split(','))
+                ids.extend(self.axialReportList.item(i, 1).text().split(','))
         else:
             for i in rows:
-                ids.append(self.axialReportList.item(i,0).text())
+                ids.append(self.axialReportList.item(i, 0).text())
         return ids
 
     def getAxialEditSettings(self):
@@ -412,20 +416,18 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
     def showAxialEditSettings(self):
         self.dlg_verify.show()
 
-
     #####
     # Functions of the depthmapX remote tab
     #####
-    def updateAxialDepthmapTab(self,settings=dict):
-        #self.axialDepthmapCalculateWeightCheck.setChecked(0)
-        # update weights combo box
+    def updateAxialDepthmapTab(self, settings=dict):
         if self.layers[0]['idx'] > 0:
+            # update weights combo box
             layer = uf.getLayerByName(self.layers[0]['name'])
             txt, idxs = uf.getNumericFieldNames(layer)
             if self.axial_analysis_type == 0:
-                txt.insert(0,"Line Length")
+                txt.insert(0, "Line Length")
             elif self.axial_analysis_type == 1:
-                txt.insert(0,"Segment Length")
+                txt.insert(0, "Segment Length")
             self.setDepthmapWeightAttributes(txt)
             # switch widgets on/off
             if self.axial_analysis_type == 0:
@@ -507,7 +509,7 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
     def getAxialDepthmapOutputTable(self):
         return self.axialDepthmapOutputText.text()
 
-    def updateAxialDepthmapAdvancedSettings(self, settings={}):
+    def updateAxialDepthmapAdvancedSettings(self, settings=dict):
         if 'fullset' in settings:
             self.dlg_depthmap.setCalculateFull(settings['fullset'])
         else:

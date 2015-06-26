@@ -606,9 +606,9 @@ class ExplorerTool(QObject):
         # fixme: pvalue calc not correct
         bistats['p'] = 0
         if bistats['slope'] > 0:
-            bistats['line'] = "%s + %s * X" % (bistats['intercept'], bistats['slope'])
+            bistats['line'] = "%s + %s * X" % (uf.roundNumber(bistats['intercept']), uf.roundNumber(bistats['slope']))
         else:
-            bistats['line'] = "%s %s * X" % (bistats['intercept'], bistats['slope'])
+            bistats['line'] = "%s - %s * X" % (uf.roundNumber(abs(bistats['intercept'])), uf.roundNumber(bistats['slope']))
         self.bivariate_statistics.append(bistats)
 
     def retrieveValidAttributePairs(self, ids, values, dep_values):

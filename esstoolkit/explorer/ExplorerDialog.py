@@ -441,11 +441,11 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
         # update the interface
         for row in range(self.statisticsTable.rowCount()):
             label = self.statisticsTable.item(row,0).text()
-            if stats.has_key(label):
+            if label in stats:
                 item = QtGui.QTableWidgetItem(str(stats[label]))
                 self.statisticsTable.setItem(row, 1, item)
             if selection:
-                if selection.has_key(label):
+                if label in selection:
                     item = QtGui.QTableWidgetItem(str(selection[label]))
                     self.statisticsTable.setItem(row, 2, item)
             else:

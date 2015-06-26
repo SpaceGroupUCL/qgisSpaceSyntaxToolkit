@@ -22,7 +22,8 @@ email=jorge.gil@ucl.ac.uk
 about=Dependencies: depthmapXnet
 category = Vector
 changelog=version 0.1.0:
-    * several bug fixes
+    * small bug fixes
+    * minor enhancements
 
     version 0.0.5:
     * new toolbar
