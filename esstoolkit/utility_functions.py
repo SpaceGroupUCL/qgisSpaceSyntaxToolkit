@@ -1531,13 +1531,15 @@ def createPostgisConnectionSetting(name, connection=None):
         if 'host' in connection:
             settings.setValue(u'%s/host' % name,u'%s' % connection['host'])
         if 'port' in connection:
-             settings.setValue(u'%s/port' % name,u'%s' % connection['port'])
+            settings.setValue(u'%s/port' % name,u'%s' % connection['port'])
         if 'dbname' in connection:
-             settings.setValue(u'%s/database' % name,u'%s' % connection['dbname'])
+            settings.setValue(u'%s/database' % name,u'%s' % connection['dbname'])
         if 'user' in connection:
-             settings.setValue(u'%s/username' % name,u'%s' % connection['user'])
+            settings.setValue(u'%s/saveUsername' % name,u'%s' % "true")
+            settings.setValue(u'%s/username' % name,u'%s' % connection['user'])
         if 'password' in connection:
-             settings.setValue(u'%s/password' % name,u'%s' % connection['password'])
+            settings.setValue(u'%s/savePassword' % name,u'%s' % "true")
+            settings.setValue(u'%s/password' % name,u'%s' % connection['password'])
     settings.endGroup()
 
 
