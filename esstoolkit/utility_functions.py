@@ -850,7 +850,7 @@ def createSpatialiteConnection(name, path):
     try:
         settings=QSettings()
         settings.beginGroup('/SpatiaLite/connections')
-        settings.setValue(u'%s/sqlitepath'%name,'%s'%path)
+        settings.setValue(u'%s/sqlitepath' % name, '%s' % path)
         settings.endGroup()
     except sqlite.OperationalError, error:
         pop_up_error("Unable to create connection to selected database: \n %s" % error)
@@ -1528,15 +1528,15 @@ def createPostgisConnectionSetting(name, connection=None):
     settings=QSettings()
     settings.beginGroup('/PostgreSQL/connections')
     if connection and isinstance(connection, dict):
-        if 'host' in connection.keys():
+        if 'host' in connection:
             settings.setValue(u'%s/host' % name,u'%s' % connection['host'])
-        if 'port' in connection.keys():
+        if 'port' in connection:
              settings.setValue(u'%s/port' % name,u'%s' % connection['port'])
-        if 'dbname' in connection.keys():
+        if 'dbname' in connection:
              settings.setValue(u'%s/database' % name,u'%s' % connection['dbname'])
-        if 'user' in connection.keys():
+        if 'user' in connection:
              settings.setValue(u'%s/username' % name,u'%s' % connection['user'])
-        if 'password' in connection.keys():
+        if 'password' in connection:
              settings.setValue(u'%s/password' % name,u'%s' % connection['password'])
     settings.endGroup()
 

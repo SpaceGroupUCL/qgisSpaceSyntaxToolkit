@@ -194,10 +194,13 @@ class AttributeCharts(QObject):
                 if len(ids) > 0:
                     for id in ids:
                         point = self.scatter.points()[id]
-                        point.setPen('r',width=3)
+                        point.setPen('r', width=3)
                         self.selected_points.append(point)
                         self.scatter_selection.append(id)
             self.just_selected = False
+
+    def setScatterplotSelection(self, xvalues, yvalues, ids):
+        pass
 
     def clearScatterplotSelection(self):
         if has_pyqtgraph:

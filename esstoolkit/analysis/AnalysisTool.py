@@ -97,6 +97,7 @@ class AnalysisTool(QObject):
                                         'stubs': 40, 'id': ""}
         self.user_ids = {'map': "", 'unlinks': "", 'links': "", 'origins': ""}
         self.analysis_output = ""
+        self.getProjectSettings()
 
     def unload(self):
         if self.isVisible:
@@ -116,7 +117,6 @@ class AnalysisTool(QObject):
             self.iface.projectRead.connect(self.updateLayers)
             self.iface.projectRead.connect(self.getProjectSettings)
             self.iface.newProjectCreated.connect(self.updateLayers)
-            self.getProjectSettings()
             self.updateLayers()
             self.setDatastore()
             self.isVisible = True
@@ -143,20 +143,7 @@ class AnalysisTool(QObject):
         self.dlg.clearAxialProblems(2)
         self.dlg.clearAxialProblems(3)
         # update graph analysis
-        #self.dlg.clearAxialDepthmapTab()
-        if self.axial_analysis_settings['type'] == 0:
-            self.dlg.setDepthmapAxialAnalysis()
-            self.dlg.axialDepthmapAxialRadio.setChecked(True)
-        elif self.axial_analysis_settings['type'] == 1:
-            self.dlg.setDepthmapSegmentAnalysis()
-            self.dlg.axialDepthmapSegmentRadio.setChecked(True)
-        self.dlg.setDepthmapRadiusText(self.axial_analysis_settings['rvalues'])
-        self.dlg.setDepthmapWeighted(self.axial_analysis_settings['weight'])
-        self.dlg.dlg_depthmap.setRadiusType(self.axial_analysis_settings['radius'])
-        self.dlg.dlg_depthmap.setCalculateFull(self.axial_analysis_settings['fullset'])
-        self.dlg.dlg_depthmap.setCalculateChoice(self.axial_analysis_settings['betweenness'])
-        self.dlg.dlg_depthmap.setCalculateNorm(self.axial_analysis_settings['newnorm'])
-        self.dlg.dlg_depthmap.setRemoveStubs(self.axial_analysis_settings['stubs'])
+        self.dlg.setAxialDepthmapTab(self.axial_analysis_settings)
 
     def updateProjectSettings(self):
         self.project.writeSettings(self.analysis_layers, "analysis")
@@ -173,14 +160,25 @@ class AnalysisTool(QObject):
             new_datastore['crs'] = layer.crs().postgisSrid()
             if 'SpatiaLite' in layer.storageType():
                 new_datastore['type'] = 1
-                new_datastore['path'] = uf.getLayerPath(layer)
-                new_datastore['name'] = os.path.basename(new_datastore['path'])
+                path = uf.getLayerPath(layer)
+                dbname = os.path.basename(path)
+                new_datastore['path'] = path
+                new_datastore['name'] = dbname
+                # create a new connection if not exists
+                conn = uf.listSpatialiteConnections()
+                if path not in conn['path']:
+                    uf.createSpatialiteConnection(dbname, path)
             elif 'PostGIS' in layer.storageType():
                 new_datastore['type'] = 2
                 layerinfo = uf.getPostgisLayerInfo(layer)
                 new_datastore['path'] = layerinfo['database']
                 new_datastore['schema'] = layerinfo['schema']
-                new_datastore['name'] = layerinfo['connection']
+                if 'connection' in layerinfo:
+                    new_datastore['name'] = layerinfo['connection']
+                else:
+                    # create a new connection if not exists
+                    uf.createPostgisConnectionSetting(layerinfo['database'], uf.getPostgisConnectionInfo(layer))
+                    new_datastore['name'] = layerinfo['database']
             elif 'memory?' not in layer.storageType():  # 'Shapefile'
                 new_datastore['type'] = 0
                 new_datastore['path'] = uf.getLayerPath(layer)
@@ -271,6 +269,11 @@ class AnalysisTool(QObject):
         unlinks_list = []
         links_list = []
         origins_list = []
+        # default selection
+        analysis_map = -1
+        analysis_unlinks = -1
+        analysis_links = -1
+        analysis_origins = -1
         layers = uf.getLegendLayers(self.iface, 'all', 'all')
         if layers:
             for layer in layers:
@@ -281,30 +284,28 @@ class AnalysisTool(QObject):
                     if layer.geometryType() == 1: # line geometry
                         map_list.append(layer.name())
                         links_list.append(layer.name())
-        # default selection
-        analysis_map = -1
-        analysis_unlinks = -1
-        analysis_links = -1
-        analysis_origins = -1
-        # settings preference
-        if self.analysis_layers['map'] in map_list:
-            analysis_map = map_list.index(self.analysis_layers['map'])
-        if self.analysis_layers['unlinks'] in unlinks_list:
-            analysis_unlinks = unlinks_list.index(self.analysis_layers['unlinks'])
-        if self.analysis_layers['links'] in links_list:
-            analysis_links = links_list.index(self.analysis_layers['links'])
-        if self.analysis_layers['origins'] in origins_list:
-            analysis_origins = origins_list.index(self.analysis_layers['origins'])
-        # current selection
-        selected_layers = self.dlg.getAnalysisLayers()
-        if selected_layers['map'] != '' and selected_layers['map'] in map_list:
-            analysis_map = map_list.index(selected_layers['map'])
-        if selected_layers['unlinks'] != '' and selected_layers['unlinks'] in unlinks_list:
-            analysis_unlinks = unlinks_list.index(selected_layers['unlinks'])
-        if selected_layers['links'] != '' and selected_layers['links'] in links_list:
-            analysis_links = links_list.index(selected_layers['links'])
-        if selected_layers['origins'] != '' and selected_layers['origins'] in origins_list:
-            analysis_origins = origins_list.index(selected_layers['origins'])
+            # settings preference
+            if self.analysis_layers['map'] in map_list:
+                analysis_map = map_list.index(self.analysis_layers['map'])
+            if self.analysis_layers['unlinks'] in unlinks_list:
+                analysis_unlinks = unlinks_list.index(self.analysis_layers['unlinks'])
+            if self.analysis_layers['links'] in links_list:
+                analysis_links = links_list.index(self.analysis_layers['links'])
+            if self.analysis_layers['origins'] in origins_list:
+                analysis_origins = origins_list.index(self.analysis_layers['origins'])
+            # current selection
+            selected_layers = self.dlg.getAnalysisLayers()
+            if selected_layers['map'] != '' and selected_layers['map'] in map_list:
+                analysis_map = map_list.index(selected_layers['map'])
+            if selected_layers['unlinks'] != '' and selected_layers['unlinks'] in unlinks_list:
+                analysis_unlinks = unlinks_list.index(selected_layers['unlinks'])
+            if selected_layers['links'] != '' and selected_layers['links'] in links_list:
+                analysis_links = links_list.index(selected_layers['links'])
+            if selected_layers['origins'] != '' and selected_layers['origins'] in origins_list:
+                analysis_origins = origins_list.index(selected_layers['origins'])
+        else:
+            self.dlg.clearAxialDepthmapTab()
+
         # update UI
         self.dlg.setMapLayers(map_list, analysis_map)
         self.dlg.setUnlinksLayers(unlinks_list, analysis_unlinks)
@@ -312,6 +313,8 @@ class AnalysisTool(QObject):
         self.dlg.setOriginsLayers(origins_list, analysis_origins)
         self.dlg.updateAnalysisTabs()
         self.dlg.updateAxialDepthmapTab()
+
+
 
     ##
     ## Layer verification functions

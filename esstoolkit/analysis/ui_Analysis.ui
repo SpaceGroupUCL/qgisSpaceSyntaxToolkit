@@ -35,6 +35,9 @@
       </item>
       <item>
        <widget class="QLineEdit" name="analysisDataEdit">
+        <property name="text">
+         <string>specify for storing analysis results</string>
+        </property>
         <property name="frame">
          <bool>false</bool>
         </property>
