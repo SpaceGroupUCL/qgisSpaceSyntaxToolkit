@@ -262,49 +262,65 @@ def fieldHasNullValues(layer, name):
             return False
 
 
-def getFieldValues(layer, name, null=True, selection=False):
+def getFieldValues(layer, fieldname, null=True, selection=False):
     attributes = []
     ids = []
-    if fieldExists(layer, name):
+    #field_values = {}
+    if fieldExists(layer, fieldname):
         if selection:
             features = layer.selectedFeatures()
         else:
-            request = QgsFeatureRequest().setSubsetOfAttributes([getFieldIndex(layer, name)])
+            request = QgsFeatureRequest().setSubsetOfAttributes([getFieldIndex(layer, fieldname)])
             features = layer.getFeatures(request)
         if null:
             for feature in features:
-                attributes.append(feature.attribute(name))
+                #field_values[str(feature.id())] = feature.attribute(fieldname)
+                attributes.append(feature.attribute(fieldname))
                 ids.append(feature.id())
         else:
             for feature in features:
-                val = feature.attribute(name)
+                val = feature.attribute(fieldname)
                 if val != NULL:
+                    #field_values[str(feature.id())] = val
                     attributes.append(val)
                     ids.append(feature.id())
+        #field_values['id'] = ids
+        #field_values[fieldname] = attributes
     return attributes, ids
 
 
 def getFieldsListValues(layer, fieldnames, null=True, selection=False):
     attributes = []
     ids = []
-    fields = [field for field in fieldnames if fieldExists(layer, fieldnames)]
+    field_values = {}
+    fields = [field for field in fieldnames if fieldExists(layer, field)]
+    idx = [getFieldIndex(layer, field) for field in fields]
     if selection:
         features = layer.selectedFeatures()
     else:
-        idx = [getFieldIndex(layer, field) for field in fields]
         request = QgsFeatureRequest().setSubsetOfAttributes(idx)
         features = layer.getFeatures(request)
+    if features:
         if null:
             for feature in features:
-                attributes.append(feature.attributes())
+                val = [feature.attributes()[i] for i in idx]
+                attributes.append(val)
                 ids.append(feature.id())
         else:
             for feature in features:
-                val = feature.attributes()
-                if NULL not in val:
+                val = [feature.attributes()[i] for i in idx]
+                if False not in [False for x in val if x == NULL]:
                     attributes.append(val)
                     ids.append(feature.id())
-    return zip(*attributes), ids
+        field_values['id'] = ids
+        values = zip(*attributes)
+        for seq, field in enumerate(fields):
+            field_values[str(field)] = values[seq]
+    else:
+        field_values['id'] = []
+        for field in fields:
+            field_values[str(field)] = []
+    return field_values
 
 
 def getIdField(layer):

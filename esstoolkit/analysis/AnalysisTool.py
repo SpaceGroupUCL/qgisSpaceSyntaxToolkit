@@ -576,7 +576,6 @@ class AnalysisTool(QObject):
             layer = uf.getLegendLayerByName(self.iface,name)
         if layer:
             # get layer ids
-            #self.user_id = getIdField(layer)
             if user_id == '':
                 self.all_ids = layer.allFeatureIds()
             else:

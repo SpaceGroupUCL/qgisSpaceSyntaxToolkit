@@ -8,7 +8,6 @@
         begin                : 2014-04-01
         copyright            : (C) 2015, UCL
         author               : Jorge Gil
-        author               : Jorge Gil
         email                : jorge.gil@ucl.ac.uk
  ***************************************************************************/
 

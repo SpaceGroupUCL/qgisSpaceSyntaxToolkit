@@ -78,6 +78,7 @@ class ExplorerTool(QObject):
         self.attribute_statistics = []
         self.bivariate_statistics = []
         self.attribute_values = []
+        self.dependent_values = []
         self.selection_values = []
         self.selection_ids = []
         self.updateActionConnections(0)
@@ -210,8 +211,8 @@ class ExplorerTool(QObject):
                         if max_value != NULL and min_value != NULL:
                             # set the layer's attribute info
                             attribute_info = dict()
-                            attribute_info['id']=index
-                            attribute_info['name']=numeric_fields[i]
+                            attribute_info['id'] = index
+                            attribute_info['name'] = numeric_fields[i]
                             attribute_info['max'] = max_value
                             attribute_info['min'] = min_value
                             self.layer_attributes.append(attribute_info)
@@ -413,7 +414,11 @@ class ExplorerTool(QObject):
                 # create a histogram
                 if chart_type == 0:
                     self.attributeCharts.drawHistogram(values, attribute['min'], attribute['max'], bins)
-
+                    # retrieve selection values
+                    if self.current_layer.selectedFeatureCount() > 0:
+                        self.selection_values, self.selection_ids = uf.getFieldValues(self.current_layer, attribute['name'], null=False, selection=True)
+                        #self.selection_values = field_values.values()
+                        #self.selection_ids = field_values.keys()
                 # create a scatter plot
                 elif chart_type == 1:
                     current_dependent = self.dlg.getYAxisAttribute()
@@ -482,10 +487,13 @@ class ExplorerTool(QObject):
                         symbols = None
                     # plot chart
                     self.attributeCharts.drawScatterplot(xvalues, attribute['min'], attribute['max'], yvalues, dependent['min'], dependent['max'], bistats['slope'], bistats['intercept'], xids, symbols)
-                # retrieve selection values
-                if self.current_layer.selectedFeatureCount() > 0:
-                    self.selection_values, self.selection_ids = uf.getFieldValues(self.current_layer, attribute['name'], null=False, selection=True)
-                    self.updateChartSelection()
+                    # retrieve selection values
+                    if self.current_layer.selectedFeatureCount() > 0:
+                        field_values = uf.getFieldsListValues(self.current_layer, [attribute['name'], dependent['name']], null=False, selection=True)
+                        self.selection_values = field_values[attribute['name']]
+                        self.dependent_values = field_values[dependent['name']]
+                        self.selection_ids = field_values['id']
+                self.updateChartSelection()
             else:
                 self.dlg.clearDependentValues()
         else:
@@ -497,7 +505,18 @@ class ExplorerTool(QObject):
             current_attribute = self.dlg.getCurrentAttribute()
             if current_attribute >= 0:
                 attribute = self.layer_attributes[current_attribute]
-                self.selection_values, self.selection_ids = uf.getFieldValues(self.current_layer, attribute['name'], null=False, selection=True)
+                chart_type = self.dlg.getChartType()
+                if chart_type == 0:
+                    self.selection_values, self.selection_ids = uf.getFieldValues(self.current_layer, attribute['name'], null=False, selection=True)
+                    #self.selection_values = field_values.values()
+                    #self.selection_ids = field_values.keys()
+                elif chart_type == 1:
+                    current_dependent = self.dlg.getYAxisAttribute()
+                    dependent = self.layer_attributes[current_dependent]
+                    field_values = uf.getFieldsListValues(self.current_layer, [attribute['name'], dependent['name']], null=False, selection=True)
+                    self.selection_values = field_values[attribute['name']]
+                    self.dependent_values = field_values[dependent['name']]
+                    self.selection_ids = field_values['id']
                 self.updateChartSelection()
 
     def updateChartSelection(self):
@@ -511,16 +530,18 @@ class ExplorerTool(QObject):
                     if chart_type == 0:
                         idx = self.checkValuesAvailable(attribute)
                         bins = self.attribute_values[idx]['bins']
-                        self.attributeCharts.setHistogramSelection(self.selection_values,attribute['min'], attribute['max'], bins)
+                        self.attributeCharts.setHistogramSelection(self.selection_values, attribute['min'], attribute['max'], bins)
 
                     # select scatter plot
                     elif chart_type == 1:
-                        self.attributeCharts.setScatterplotIdSelection(self.selection_ids)
+                        #self.attributeCharts.setScatterplotIdSelection(self.selection_ids)
+                        self.attributeCharts.setScatterplotSelection(self.selection_values, self.dependent_values, self.selection_ids)
                 else:
                     if chart_type == 0:
-                        self.attributeCharts.setHistogramSelection([], 0, attribute['max'], 0)
+                        self.attributeCharts.setHistogramSelection([], attribute['max'], attribute['max'], 0)
                     elif chart_type == 1:
-                        self.attributeCharts.setScatterplotIdSelection([])
+                        #self.attributeCharts.setScatterplotIdSelection([])
+                        self.attributeCharts.setScatterplotSelection([], [], [])
 
     def setMapSelection(self, selection):
         if self.current_layer is not None:

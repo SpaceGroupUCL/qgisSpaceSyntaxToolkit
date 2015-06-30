@@ -67,7 +67,8 @@ class AttributeCharts(QObject):
             self.scatter = pg.ScatterPlotItem()
             self.scatter_points = {}
             self.region = pg.LinearRegionItem()
-            self.selected_points = []
+            #self.selected_points = []
+            self.selected_points = pg.ScatterPlotItem()
             self.regress_line = pg.InfiniteLine()
             #self.roi = None
 
@@ -92,14 +93,15 @@ class AttributeCharts(QObject):
             if self.show_lines:
                 self.plot.addItem(self.region)
             # add the selection plot
+            self.clearHistogramSelection()
             self.hist_selection = pg.PlotCurveItem()
             self.plot.addItem(self.hist_selection)
-            self.clearHistogramSelection()
 
     # allow selection of items in chart and selecting them on the map
     def changedHistogramSelection(self):
         sel_min, sel_max = self.region.getRegion()
-        #self.clearHistogramSelection()
+        # use to indicate the selection comes from the chart
+        self.just_selected = True
         self.histogramSelected.emit([sel_min, sel_max])
 
     def setHistogramSelection(self, values, xmin, xmax, bins):
@@ -116,16 +118,24 @@ class AttributeCharts(QObject):
                 self.hist_selection = pg.PlotCurveItem()
                 self.hist_selection.setData(x, y, stepMode=True, fillLevel=0, brush=(230, 0, 0), pen=pg.mkPen(None))
                 self.plot.addItem(self.hist_selection)
+                if self.just_selected:
+                    # if the selection comes from the chart leave the selection region in place
+                    self.just_selected = False
+                else:
+                    # if the selection comes from the map the values are not continuous: reset selection region
+                    self.region.blockSignals(True)
+                    self.region.setRegion((xmax, xmax))
+                    self.region.blockSignals(False)
             else:
+                # reset selection region
                 self.region.blockSignals(True)
-                self.region.setRegion((xmax,xmax))
+                self.region.setRegion((xmax, xmax))
                 self.region.blockSignals(False)
 
     def clearHistogramSelection(self):
         if has_pyqtgraph:
             if self.hist_selection:
                 self.plot.removeItem(self.hist_selection)
-                self.hist_selection = pg.PlotCurveItem()
 
     def showhideSelectionLines(self, onoff):
         self.show_lines = onoff
@@ -179,35 +189,29 @@ class AttributeCharts(QObject):
             if not self.add_selection:
                 self.clearScatterplotSelection()
             # set points for scatter
-            for point in points:
-                self.selected_points.append(point)
-                point.setPen('r',width=3)
-                self.scatter_selection.append(point.data())
+            self.scatter_selection = [point.data() for point in points]
+            # indicate that selection was made on the chart
+            self.just_selected = True
             # send ids for map
-            self.just_selected = True  #is used to block a second update
             self.scatterplotSelected.emit(self.scatter_selection)
 
-    def setScatterplotIdSelection(self, ids):
-        if has_pyqtgraph:
-            if not self.just_selected:
-                self.clearScatterplotSelection()
-                if len(ids) > 0:
-                    for id in ids:
-                        point = self.scatter.points()[id]
-                        point.setPen('r', width=3)
-                        self.selected_points.append(point)
-                        self.scatter_selection.append(id)
-            self.just_selected = False
-
     def setScatterplotSelection(self, xvalues, yvalues, ids):
-        pass
+        if has_pyqtgraph:
+            #if not self.just_selected:
+            self.clearScatterplotSelection()
+            if len(ids) > 0:
+                self.scatter_selection = [fid for fid in ids]
+                self.selected_points = pg.ScatterPlotItem()
+                self.selected_points.addPoints(x=xvalues, y=yvalues, data=ids, size=3, pen=pg.mkPen('r', width=1), brush=pg.mkBrush(235, 0, 0, 255))
+                self.plot.addItem(self.selected_points)
+            self.just_selected = False
 
     def clearScatterplotSelection(self):
         if has_pyqtgraph:
-            for point in self.selected_points:
-                point.resetPen()
-            self.selected_points = []
-            self.scatter_selection = []
+            if self.selected_points:
+                self.plot.removeItem(self.selected_points)
+                self.selected_points = pg.ScatterPlotItem()
+                self.scatter_selection = []
 
     def showhideRegressionLine(self, onoff):
         self.show_lines = onoff
