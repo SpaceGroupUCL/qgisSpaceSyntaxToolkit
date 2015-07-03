@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/Users/jorge/Dropbox/UCL/Development/C_Implementation/esstools/ui_Project.ui'
+# Form implementation generated from reading ui file '/Users/jorge/github/qgisSpaceSyntaxToolkit/esstoolkit/ui_Project.ui'
 #
-# Created: Thu Jun 19 16:22:29 2014
+# Created: Fri Jul  3 20:13:55 2015
 #      by: PyQt4 UI code generator 4.10.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,6 +26,7 @@ except AttributeError:
 class Ui_ProjectDialog(object):
     def setupUi(self, ProjectDialog):
         ProjectDialog.setObjectName(_fromUtf8("ProjectDialog"))
+        ProjectDialog.setWindowModality(QtCore.Qt.ApplicationModal)
         ProjectDialog.resize(350, 220)
         ProjectDialog.setMinimumSize(QtCore.QSize(320, 220))
         self.verticalLayout = QtGui.QVBoxLayout(ProjectDialog)

@@ -255,15 +255,6 @@ class AnalysisTool(QObject):
             self.iface.messageBar().pushMessage("Info", "Select a 'Data store' to save analysis results.", level=0, duration=5)
         return is_set
 
-    def getToolkitSettings(self):
-        # pull relevant settings from settings manager: self.settings
-        # todo: get relevant settings from tool
-        pass
-
-    def updateToolkitSettings(self):
-        # todo: save layer edit settings to toolkit
-        pass
-
     ##
     ## Manage layers
     ##

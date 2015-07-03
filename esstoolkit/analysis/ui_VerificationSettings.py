@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/Users/jorge/Dropbox/UCL/Development/C_Implementation/esstools/analysis/ui_VerificationSettings.ui'
+# Form implementation generated from reading ui file '/Users/jorge/github/qgisSpaceSyntaxToolkit/esstoolkit/analysis/ui_VerificationSettings.ui'
 #
-# Created: Sat Jul 19 10:29:23 2014
+# Created: Fri Jul  3 20:13:34 2015
 #      by: PyQt4 UI code generator 4.10.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,6 +26,7 @@ except AttributeError:
 class Ui_VerificationSettingsDialog(object):
     def setupUi(self, VerificationSettingsDialog):
         VerificationSettingsDialog.setObjectName(_fromUtf8("VerificationSettingsDialog"))
+        VerificationSettingsDialog.setWindowModality(QtCore.Qt.ApplicationModal)
         VerificationSettingsDialog.resize(320, 180)
         VerificationSettingsDialog.setMinimumSize(QtCore.QSize(320, 180))
         self.gridLayout = QtGui.QGridLayout(VerificationSettingsDialog)

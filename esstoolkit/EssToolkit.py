@@ -125,9 +125,9 @@ class EssToolkit:
         #icon = QIcon(os.path.dirname(__file__) + "/icons/help.png")
         #self.help_action = QAction(icon, u"Help", self.iface.mainWindow())
         #self.help_action.triggered.connect(self.showHelp)
-        icon = QIcon(os.path.dirname(__file__) + "/icons/about.png")
-        self.about_action = QAction(icon, u"About", self.iface.mainWindow())
-        self.about_action.triggered.connect(self.about.show)
+        #icon = QIcon(os.path.dirname(__file__) + "/icons/about.png")
+        #self.about_action = QAction(icon, u"About", self.iface.mainWindow())
+        #self.about_action.triggered.connect(self.about.show)
 
         # Add toolbar button and menu items
         self.esst_toolbar.addAction(self.analysis_action)
@@ -137,7 +137,7 @@ class EssToolkit:
         self.iface.addPluginToVectorMenu(u"&Space Syntax Toolkit", self.project_action)
         #self.iface.addPluginToVectorMenu(u"&Space Syntax Toolkit", self.settings_action)
         #self.iface.addPluginToVectorMenu(u"&Space Syntax Toolkit", self.help_action)
-        self.iface.addPluginToVectorMenu(u"&Space Syntax Toolkit", self.about_action)
+        #self.iface.addPluginToVectorMenu(u"&Space Syntax Toolkit", self.about_action)
 
     def showAnalysis(self):
         #self.iface.removeDockWidget(self.explorer.dlg)
@@ -157,8 +157,8 @@ class EssToolkit:
         self.iface.removePluginVectorMenu(u"&Space Syntax Toolkit", self.explorer_action)
         self.iface.removePluginVectorMenu(u"&Space Syntax Toolkit", self.project_action)
         #self.iface.removePluginVectorMenu(u"&Space Syntax Toolkit", self.settings_action)
-        self.iface.removePluginVectorMenu(u"&Space Syntax Toolkit", self.about_action)
         #self.iface.removePluginVectorMenu(u"&Space Syntax Toolkit", self.help_action)
+        #self.iface.removePluginVectorMenu(u"&Space Syntax Toolkit", self.about_action)
 
         # Remove the toolbar buttons
         self.iface.removeToolBarIcon(self.analysis_action)

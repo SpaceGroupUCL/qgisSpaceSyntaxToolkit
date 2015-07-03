@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/Users/jorge/github/qgisSpaceSyntaxToolkit/esstoolkit/ui_Settings.ui'
 #
-# Created: Mon May 11 16:38:29 2015
+# Created: Fri Jul  3 20:14:00 2015
 #      by: PyQt4 UI code generator 4.10.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,6 +26,7 @@ except AttributeError:
 class Ui_SettingsDialog(object):
     def setupUi(self, SettingsDialog):
         SettingsDialog.setObjectName(_fromUtf8("SettingsDialog"))
+        SettingsDialog.setWindowModality(QtCore.Qt.ApplicationModal)
         SettingsDialog.resize(320, 375)
         SettingsDialog.setMinimumSize(QtCore.QSize(320, 230))
         self.verticalLayout_2 = QtGui.QVBoxLayout(SettingsDialog)

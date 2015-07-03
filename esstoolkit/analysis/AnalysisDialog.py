@@ -560,7 +560,9 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
         if self.axial_analysis_type == 1:  # segment analysis
             self.dlg_depthmap.setDistanceType(1)
             self.dlg_depthmap.axialDistanceCombo.setDisabled(True)
+            self.dlg_depthmap.setRadiusType(2)
             self.dlg_depthmap.axialRadiusCombo.setDisabled(False)
+            #self.dlg_depthmap.setCalculateNorm(True)
             self.dlg_depthmap.axialCalculateNormCheck.setDisabled(False)
             self.dlg_depthmap.axialStubsEdit.setDisabled(False)
         elif self.axial_analysis_type == 0:  # and axial analysis alternative

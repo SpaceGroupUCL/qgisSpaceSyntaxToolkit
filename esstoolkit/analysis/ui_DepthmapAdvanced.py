@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/Users/jorge/github/qgisSpaceSyntaxToolkit/esstoolkit/analysis/ui_DepthmapAdvanced.ui'
 #
-# Created: Fri Jun 12 10:33:43 2015
+# Created: Fri Jul  3 20:13:40 2015
 #      by: PyQt4 UI code generator 4.10.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,6 +26,7 @@ except AttributeError:
 class Ui_DepthmapAdvancedDialog(object):
     def setupUi(self, DepthmapAdvancedDialog):
         DepthmapAdvancedDialog.setObjectName(_fromUtf8("DepthmapAdvancedDialog"))
+        DepthmapAdvancedDialog.setWindowModality(QtCore.Qt.ApplicationModal)
         DepthmapAdvancedDialog.resize(280, 230)
         DepthmapAdvancedDialog.setMinimumSize(QtCore.QSize(280, 230))
         self.gridLayout = QtGui.QGridLayout(DepthmapAdvancedDialog)
