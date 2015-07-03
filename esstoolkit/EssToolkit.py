@@ -132,19 +132,19 @@ class EssToolkit:
         # Add toolbar button and menu items
         self.esst_toolbar.addAction(self.analysis_action)
         self.esst_toolbar.addAction(self.explorer_action)
-        self.iface.addPluginToMenu(u"&Space Syntax Toolkit", self.analysis_action)
-        self.iface.addPluginToMenu(u"&Space Syntax Toolkit", self.explorer_action)
-        self.iface.addPluginToMenu(u"&Space Syntax Toolkit", self.project_action)
-        #self.iface.addPluginToMenu(u"&Space Syntax Toolkit", self.settings_action)
-        #self.iface.addPluginToMenu(u"&Space Syntax Toolkit", self.help_action)
-        self.iface.addPluginToMenu(u"&Space Syntax Toolkit", self.about_action)
+        self.iface.addPluginToVectorMenu(u"&Space Syntax Toolkit", self.analysis_action)
+        self.iface.addPluginToVectorMenu(u"&Space Syntax Toolkit", self.explorer_action)
+        self.iface.addPluginToVectorMenu(u"&Space Syntax Toolkit", self.project_action)
+        #self.iface.addPluginToVectorMenu(u"&Space Syntax Toolkit", self.settings_action)
+        #self.iface.addPluginToVectorMenu(u"&Space Syntax Toolkit", self.help_action)
+        self.iface.addPluginToVectorMenu(u"&Space Syntax Toolkit", self.about_action)
 
     def showAnalysis(self):
-        self.iface.removeDockWidget(self.explorer.dlg)
+        #self.iface.removeDockWidget(self.explorer.dlg)
         self.iface.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.analysis.dlg)
 
     def showExplorer(self):
-        self.iface.removeDockWidget(self.analysis.dlg)
+        #self.iface.removeDockWidget(self.analysis.dlg)
         self.iface.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.explorer.dlg)
 
     def showHelp(self):
@@ -153,12 +153,12 @@ class EssToolkit:
 
     def unload(self):
         # Remove the plugin menu item and icon
-        self.iface.removePluginMenu(u"&Space Syntax Toolkit", self.analysis_action)
-        self.iface.removePluginMenu(u"&Space Syntax Toolkit", self.explorer_action)
-        self.iface.removePluginMenu(u"&Space Syntax Toolkit", self.project_action)
-        #self.iface.removePluginMenu(u"&Space Syntax Toolkit", self.settings_action)
-        self.iface.removePluginMenu(u"&Space Syntax Toolkit", self.about_action)
-        #self.iface.removePluginMenu(u"&Space Syntax Toolkit", self.help_action)
+        self.iface.removePluginVectorMenu(u"&Space Syntax Toolkit", self.analysis_action)
+        self.iface.removePluginVectorMenu(u"&Space Syntax Toolkit", self.explorer_action)
+        self.iface.removePluginVectorMenu(u"&Space Syntax Toolkit", self.project_action)
+        #self.iface.removePluginVectorMenu(u"&Space Syntax Toolkit", self.settings_action)
+        self.iface.removePluginVectorMenu(u"&Space Syntax Toolkit", self.about_action)
+        #self.iface.removePluginVectorMenu(u"&Space Syntax Toolkit", self.help_action)
 
         # Remove the toolbar buttons
         self.iface.removeToolBarIcon(self.analysis_action)

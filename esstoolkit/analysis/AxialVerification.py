@@ -30,12 +30,6 @@ from .. import utility_functions as uf
 
 import time
 
-try:
-    import igraph as ig
-    has_igraph = False
-except (ImportError, NameError), e:
-    has_igraph = False
-
 # try to import installed networx, if not available use the one shipped with the esstoolkit
 try:
     import networkx as nx
@@ -139,7 +133,7 @@ class AxialVerification(QThread):
             # build the topology
             if not self.running:
                 return
-            if has_igraph or has_networkx:
+            if has_networkx:
                 start_time = time.time()
                 if 'spatialite' in datastore:
                     graph_links = self.spatialiteBuildTopology(connection, axialname, geomname, unlinkname, linkname)
@@ -165,18 +159,15 @@ class AxialVerification(QThread):
         # analyse the topology with igraph or networkx
         if not self.running:
             return
-        if len(graph_links) > 0 and (has_igraph or has_networkx):
+        if len(graph_links) > 0 and has_networkx:
             start_time = time.time()
             # get axial node ids
             if self.user_id == '':
                 axialids = self.axial_layer.allFeatureIds()
             else:
                 axialids, ids = uf.getFieldValues(self.axial_layer, self.user_id)
-            # uses igraph to test islands. looks for orphans with the geometry test
-            if has_igraph:
-                self.igraphTestTopology(graph_links, axialids)
-            elif has_networkx:
-                self.networkxTestTopology(graph_links, axialids)
+            # uses networkx to test islands. looks for orphans with the geometry test
+            self.networkxTestTopology(graph_links, axialids)
             if is_debug: print "Analysing topology: %s" % str(time.time() - start_time)
         self.verificationProgress.emit(100)
         # return the results
@@ -188,51 +179,12 @@ class AxialVerification(QThread):
         self.running = False
         self.exit()
 
-    def igraphTestTopology(self, graph_links, graph_nodes):
-        # create an igraph graph object and store the axial links
-        try:
-            g = ig.Graph(graph_links)
-        except:
-            return False
-        # ideally g would be created with a list of edges based on 0 indexed and continuous vertices
-        # but sqlite rowid is 1 indexed and might have gaps as it is a unique and persistent numbering
-        # igraph adds 0 and other missing vertices, these must be identified and removed
-        to_delete = []
-        for v in g.vs:
-            if v.index not in graph_nodes:
-                to_delete.append(v.index)
-        g.delete_vertices(to_delete)
-        # deleting 0 reassigns all the indices, and creates a new 0.
-        # the vertex reference to use to identify features must be a fid attribute
-        g.vs["fid"] = graph_nodes
-        if not g.is_connected():
-            start_time = time.time()
-            components = g.components()
-            if components.__len__ > 1:
-                giant = components.giant().vcount()
-                islands = []
-                # get vertex ids
-                for i, cluster in enumerate(components):
-                    # identify orphans
-                    if len(cluster) == 1:
-                        node = g.vs[cluster]['fid'][0]
-                        self.axial_errors['orphan'].append(node)
-                        self.problem_nodes.append(node)
-                    # identify islands
-                    elif len(cluster) > 1 and len(cluster) != giant:
-                        nodes = g.vs[cluster]['fid']
-                        islands.append(nodes)
-                        self.problem_nodes.extend(nodes)
-                # add results to the list of problems
-                if islands:
-                    self.axial_errors['island'] = islands
-            if is_debug: print "analyse orphans/islands: %s" % str(time.time() - start_time)
-        return True
-
     def networkxTestTopology(self, graph_links, graph_nodes):
         # create a networkx graph object and store the axial links
         try:
-            g = nx.Graph(graph_links)
+            g = nx.Graph()
+            g.add_nodes_from(graph_nodes)
+            g.add_edges_from(graph_links)
         except:
             return False
         # networkx just accepts all sorts of node ids... no need to fix
@@ -368,7 +320,7 @@ class AxialVerification(QThread):
         header, data, error = uf.executeSpatialiteQuery(connection,"""DROP TABLE IF EXISTS "%s" """ % graphname)
         start_time = time.time()
         # create a new temporary table
-        query = """CREATE TEMP TABLE %s (pk_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, a_fid INTEGER, b_fid INTEGER)"""%(graphname)
+        query = """CREATE TEMP TABLE %s (pk_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, a_fid INTEGER, b_fid INTEGER)""" % (graphname)
         header, data, error = uf.executeSpatialiteQuery(connection, query)
         # calculate edges from intersecting feature pairs
         query = 'INSERT INTO %s (a_fid, b_fid) SELECT DISTINCT CASE WHEN a."%s" < b."%s" THEN a."%s" ELSE b."%s" END AS least_col, ' \
@@ -381,13 +333,15 @@ class AxialVerification(QThread):
         if is_debug: print "Building the graph: %s"%str(time.time()-start_time)
         # eliminate unlinks
         if unlinkname:
-            if uf.fieldExists(uf.getLayerByName(unlinkname),'line1') and uf.fieldExists(uf.getLayerByName(unlinkname),'line2'):
+            if uf.fieldExists(self.unlinks_layer,'line1') and uf.fieldExists(self.unlinks_layer,'line2'):
                 start_time = time.time()
                 query = 'DELETE FROM %s WHERE cast(a_fid as text)||"_"||cast(b_fid as text) in (SELECT cast(line1 as text)||"_"||cast(line2 as text) FROM "%s") ' \
                         'OR cast(b_fid as text)||"_"||cast(a_fid as text) in (SELECT cast(line1 as text)||"_"||cast(line2 as text) FROM "%s")' \
                         % (graphname, unlinkname, unlinkname)
                 header, data, error = uf.executeSpatialiteQuery(connection, query, commit=True)
                 if is_debug: print "Unlinking the graph: %s"%str(time.time()-start_time)
+            else:
+                self.verificationError.emit("The unlinks layer is not ready. Please update its line ID columns.")
         # newfeature: implement inserting links
         # return all the links to build the graph
         query = """SELECT a_fid, b_fid FROM "%s";"""%(graphname)
@@ -511,13 +465,15 @@ class AxialVerification(QThread):
         if is_debug: print "Building the graph: %s" % str(time.time()-start_time)
         # eliminate unlinks
         if unlinkname:
-            if uf.fieldExists(uf.getLayerByName(unlinkname),'line1') and uf.fieldExists(uf.getLayerByName(unlinkname),'line2'):
+            if uf.fieldExists(self.unlinks_layer,'line1') and uf.fieldExists(self.unlinks_layer,'line2'):
                 start_time = time.time()
                 query = 'DELETE FROM %s WHERE a_fid::text||"_"||b_fid::text in (SELECT line1::||"_"||line2::text FROM "%s"."%s") ' \
                         'OR b_fid::text||"_"||a_fid::text in (SELECT line1::text)||"_"||line2::text FROM "%s"."%s")' \
                         % (graphname, unlinkschema, unlinkname, unlinkschema, unlinkname)
                 header, data, error = uf.executePostgisQuery(connection, query, commit=True)
                 if is_debug: print "Unlinking the graph: %s" % str(time.time()-start_time)
+            else:
+                self.verificationError.emit("The unlinks layer is not ready. Please update its line ID columns.")
         # newfeature: implement inserting links
         # return all the links to build the graph
         query = """SELECT a_fid, b_fid FROM %s""" % graphname
@@ -603,7 +559,6 @@ class AxialVerification(QThread):
                 field = uf.getFieldIndex(axial, self.user_id)
                 request.setSubsetOfAttributes([field])
             targets = axial.getFeatures(request)
-            orphan = True
             for target in targets:
                 if not self.running: break
                 geom_b = target.geometry()
@@ -626,19 +581,12 @@ class AxialVerification(QThread):
                         self.axial_errors['short line'].append(fid)
                     if geom.intersects(geom_b):
                         # check if in the unlinks
-                        if (id,id_b) not in unlinks_list and (id_b, fid) not in unlinks_list:
+                        if (fid, id_b) not in unlinks_list and (id_b, fid) not in unlinks_list:
                             # build the topology
-                            if has_igraph or has_networkx:
-                                #axial_links.append((uf.convertNumeric(id),uf.convertNumeric(id_b)))
-                                axial_links.append((id, id_b))
-                            # test orphans
-                            if orphan:
-                                orphan = False
-            if orphan:
-                has_problem = True
-                self.axial_errors['orphan'].append(id)
+                            if has_networkx:
+                                axial_links.append((fid, id_b))
             if has_problem:
-                self.problem_nodes.append(id)
+                self.problem_nodes.append(fid)
             progress += steps
             self.verificationProgress.emit(int(progress))
         return axial_links

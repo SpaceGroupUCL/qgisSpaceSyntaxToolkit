@@ -35,6 +35,9 @@
       </item>
       <item>
        <widget class="QLineEdit" name="analysisDataEdit">
+        <property name="acceptDrops">
+         <bool>false</bool>
+        </property>
         <property name="text">
          <string>specify for storing analysis results</string>
         </property>

@@ -395,6 +395,11 @@ class ProjectDialog(QtGui.QDialog, Ui_ProjectDialog):
         path = ""
         name = ""
         if self.datastore_type == 0:
+            path = QtGui.QFileDialog.getExistingDirectory(self, "Select shape files folder", lastDir)
+            if path.strip()!="":
+                path = unicode(path)
+                name = os.path.basename(path)
+        elif self.datastore_type == 1:
             path = QtGui.QFileDialog.getOpenFileName(self, "Open Spatialite data base", lastDir, "Spatialite (*.sqlite *.db)")
             if path.strip()!="":
                 path = unicode(path)
@@ -408,11 +413,6 @@ class ProjectDialog(QtGui.QDialog, Ui_ProjectDialog):
                         uf.createSpatialiteConnection(name, path)
                 else:
                     uf.createSpatialiteConnection(name, path)
-        elif self.datastore_type == 1:
-            path = QtGui.QFileDialog.getExistingDirectory(self, "Select shape files folder", lastDir)
-            if path.strip()!="":
-                path = unicode(path)
-                name = os.path.basename(path)
         if name != "" and path != "":
             self.appendDatastoreList(name,path)
             self.setDatastore()

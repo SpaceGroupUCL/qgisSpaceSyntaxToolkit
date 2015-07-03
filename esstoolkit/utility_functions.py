@@ -166,7 +166,6 @@ def fieldExists(layer, name):
         return False
 
 
-
 def getFieldNames(layer):
     fields_list = []
     if layer and layer.dataProvider():
@@ -908,7 +907,7 @@ def executeSpatialiteQuery(connection, query, params=(), commit=False):
             connection.commit()
     except sqlite.Error, error:
         connection.rollback()
-        pop_up_error("The SQL query seems to be invalid. \n %s" % error)
+        pop_up_error("The SQL query seems to be invalid. \n %s" % query)
     cursor.close()
     #return the result even if empty
     return header, data, error

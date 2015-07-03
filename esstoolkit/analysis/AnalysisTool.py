@@ -314,8 +314,6 @@ class AnalysisTool(QObject):
         self.dlg.updateAnalysisTabs()
         self.dlg.updateAxialDepthmapTab()
 
-
-
     ##
     ## Layer verification functions
     ##
@@ -387,6 +385,7 @@ class AnalysisTool(QObject):
         self.dlg.lockLayerTab(True)
         self.dlg.setAxialVerifyProgressbar(0,100)
         self.dlg.lockAxialEditTab(True)
+        self.dlg.clearAxialVerifyReport()
         self.dlg.clearAxialProblems()
         if self.verificationThread:
             self.verificationThread.verificationFinished.connect(self.processAxialVerificationResults)
@@ -453,6 +452,7 @@ class AnalysisTool(QObject):
         self.dlg.lockLayerTab(True)
         self.dlg.setAxialVerifyProgressbar(0,100)
         self.dlg.lockAxialEditTab(True)
+        self.dlg.clearAxialVerifyReport()
         self.dlg.clearAxialProblems()
         if self.verificationThread:
             self.verificationThread.verificationFinished.connect(self.processAxialIdUpdateResults)

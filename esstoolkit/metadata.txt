@@ -11,7 +11,7 @@
 name=Space Syntax Toolkit
 qgisMinimumVersion=2.0
 description=Collection of tools for spatial network analysis and data exploration.
-version=0.0.5
+version=0.1.0
 author=Jorge Gil, UCL
 email=jorge.gil@ucl.ac.uk
 
@@ -19,37 +19,38 @@ email=jorge.gil@ucl.ac.uk
 
 # Optional items:
 
-about=Dependencies: depthmapXnet
+about=The “Space Syntax Toolkit” is a QGIS plug-in for spatial network and statistical analysis.
+    It provides a front-end for the depthmapX software within QGIS, offering user friendly space syntax analysis workflows in a GIS environment.
+    It is primarily aimed at supporting the standard space syntax methodology, and enhancing its workflows with standard GIS data, analysis and visualisation features.
+    However, the added functionality can be of general benefit to QGIS users by introducing new tools for exploratory spatial data analysis.
+    The plug-in is being developed at the Space Syntax Laboratory, The Bartlett, UCL.
+    Dependencies: For network analysis requires depthmapXnet. It can be downloaded from: http://archtech.gr/varoudis/depthmapX/?dir=depthmapXnet
 category = Vector
-changelog=version 0.1.0:
+changelog=
+    0.1.0 - First public release:
+    * faster scatter plot selection
     * small bug fixes
     * minor enhancements
-
-    version 0.0.5:
+    0.0.5 beta:
     * new toolbar
     * improved point and polygon symbology
-    * fixed scatterplot with NULL values
+    * fixed scatter plot with NULL values
     * introduced chart selection
     * regression line and r2 calculation
     * show/hide chart lines (Mac OSX render bug)
     * fixes to unlinks ids
     * improvements to graph verification
     * stubs removal added (needs latest dXn)
-
-    version 0.0.4:
+    0.0.4 beta:
     * includes external Python packages
     * postgis integration
     * minor bug fixes
-
-    version 0.0.3:
+    0.0.3 beta:
     * more bug fixes
     * round values in statistics panels
-
-    version 0.0.2:
+    0.0.2 beta:
     * bug fixes
-    * performance enhancements
-
-    version 0.0.1:
+    * per beta:
     * initial release for UCL and affiliates
 
 # tags are comma separated with spaces allowed
@@ -60,7 +61,7 @@ tracker=https://github.com/SpaceGroupUCL/qgisSpaceSyntaxToolkit/issues
 repository=https://github.com/SpaceGroupUCL/qgisSpaceSyntaxToolkit/tree/master/esstoolkit
 icon=icons/esst_logo.png
 # experimental flag
-experimental=True
+experimental=False
 
 # deprecated flag (applies to the whole plugin, not just a single version
 deprecated=False

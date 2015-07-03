@@ -134,13 +134,13 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
         self.layers[1]['idx'] = idx+1
         self.layers[1]['name'] = layers[idx+1]
         if idx == -1:
-            self.clearAxialProblems()
+            self.clearAxialProblems(1)
 
     def selectUnlinksLayer(self):
         self.layers[1]['name'] = self.analysisUnlinksCombo.currentText()
         self.layers[1]['idx'] = self.analysisUnlinksCombo.currentIndex()
         # update the UI
-        self.clearAxialProblems()
+        self.clearAxialProblems(1)
         self.updateAnalysisTabs()
 
     def setLinksLayers(self, names, idx):
@@ -153,13 +153,13 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
         self.layers[2]['idx'] = idx+1
         self.layers[2]['name'] = layers[idx+1]
         if idx == -1:
-            self.clearAxialProblems()
+            self.clearAxialProblems(2)
 
     def selectLinksLayer(self):
         self.layers[2]['name'] = self.analysisLinksCombo.currentText()
         self.layers[2]['idx'] = self.analysisLinksCombo.currentIndex()
         # update the UI
-        self.clearAxialProblems()
+        self.clearAxialProblems(2)
         self.updateAnalysisTabs()
 
     def setOriginsLayers(self, names, idx):
@@ -172,13 +172,13 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
         self.layers[3]['idx'] = idx+1
         self.layers[3]['name'] = layers[idx+1]
         if idx == -1:
-            self.clearAxialProblems()
+            self.clearAxialProblems(3)
 
     def selectOriginsLayer(self):
         self.layers[3]['name'] = self.analysisOriginsCombo.currentText()
         self.layers[3]['idx'] = self.analysisOriginsCombo.currentIndex()
         # update the UI
-        self.clearAxialProblems()
+        self.clearAxialProblems(3)
         self.updateAnalysisTabs()
 
     def getAnalysisLayers(self):
