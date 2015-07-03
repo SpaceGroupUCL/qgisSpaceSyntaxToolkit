@@ -191,8 +191,6 @@ class DepthmapAnalysis(QObject):
                         axial_data += str(f.id()) + "\t"
                         axial_data += str(f.geometry().vertexAt(0).x()) + "\t" + str(f.geometry().vertexAt(0).y()) + "\t"
                         axial_data += str(f.geometry().vertexAt(1).x()) + "\t" + str(f.geometry().vertexAt(1).y()) + "\n"
-            if not f.geometry().isGeosValid():
-                axial_data = ''
             return axial_data
         except:
             self.showMessage("Exporting axial map failed.", 'Error', lev=3, dur=5)

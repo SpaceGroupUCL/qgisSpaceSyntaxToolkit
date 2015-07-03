@@ -1091,6 +1091,8 @@ def insertSpatialiteValues(connection, name, attributes, values, coords=None):
         connection.commit()
         #create spatial index
         header, data, error = executeSpatialiteQuery(connection,"""SELECT CreateSpatialIndex("%s", '%s') """ % (tablename,'geometry'))
+    else:
+        connection.rollback()
     return res
 
 
@@ -1116,10 +1118,13 @@ def addSpatialiteColumns(connection, name, columns, types):
                     break
                 else:
                     res = True
-    query = """SELECT UpdateLayerStatistics("%s")""" % name
-    header, data, error = executeSpatialiteQuery(connection,query, commit=True)
-    #Commit changes to connection:
-    connection.commit()
+    if res:
+        #Commit changes to connection:
+        connection.commit()
+        query = """SELECT UpdateLayerStatistics("%s")""" % name
+        header, data, error = executeSpatialiteQuery(connection,query, commit=True)
+    else:
+        connection.rollback()
     return res
 
 
@@ -1172,8 +1177,12 @@ def addSpatialiteAttributes(connection, name, id, attributes, types, values):
                     res = False
                     break
         if res:
+            #Commit changes to connection:
+            connection.commit()
             query = """SELECT UpdateLayerStatistics("%s")""" % name
-            header, data, error = executeSpatialiteQuery(connection, query, commit=True)
+            header, data, error = executeSpatialiteQuery(connection,query, commit=True)
+        else:
+            connection.rollback()
     return res
 
 

@@ -46,7 +46,7 @@ class ProjectManager(QtCore.QObject):
         self.datastore = {'name':'','type':0,'path':'','schema':'','crs':''}
         self.__loadSettings()
 
-        self.dlg = ProjectDialog(self.proj_settings, self.settings)
+        self.dlg = ProjectDialog(self.iface, self.proj_settings, self.settings)
 
         # set up GUI signals
         #for the buttonbox we must use old style connections, or else use simple buttons
@@ -217,13 +217,14 @@ class ProjectManager(QtCore.QObject):
 class ProjectDialog(QtGui.QDialog, Ui_ProjectDialog):
     saveDatastoreSettings = QtCore.pyqtSignal(dict)
 
-    def __init__(self, proj_settings, settings):
+    def __init__(self, iface, proj_settings, settings):
 
         QtGui.QDialog.__init__(self)
 
         # Set up the user interface from Designer.
         self.setupUi(self)
 
+        self.iface = iface
         self.settings = settings
         self.proj_settings = proj_settings
         self.datastores = dict()
@@ -394,6 +395,7 @@ class ProjectDialog(QtGui.QDialog, Ui_ProjectDialog):
             lastDir = ""
         path = ""
         name = ""
+        append = True
         if self.datastore_type == 0:
             path = QtGui.QFileDialog.getExistingDirectory(self, "Select shape files folder", lastDir)
             if path.strip()!="":
@@ -405,19 +407,18 @@ class ProjectDialog(QtGui.QDialog, Ui_ProjectDialog):
                 path = unicode(path)
                 name = os.path.basename(path)
                 #check if datastore with same name exists
-                if self.datastores:
-                    if name in self.datastores['name']:
-                        self.iface.messageBar().pushMessage("Error","A database already exists with the same name.",level = 1,duration = 5)
-                    #if not, create new connection in registry
-                    else:
-                        uf.createSpatialiteConnection(name, path)
+                if self.datastores and name in self.datastores['name']:
+                    self.iface.messageBar().pushMessage("Error","A database already exists with the same name.",level = 1,duration = 5)
+                    append = False
+                #if not, create new connection in registry
                 else:
                     uf.createSpatialiteConnection(name, path)
-        if name != "" and path != "":
-            self.appendDatastoreList(name,path)
-            self.setDatastore()
+        if path != "" and name != "":
             #store the path used
             self.settings.setLastDir(path)
+            if append:
+                self.appendDatastoreList(name, path)
+                self.setDatastore()
 
     def newDatastore(self):
         lastDir = self.settings.getLastDir()
@@ -425,7 +426,13 @@ class ProjectDialog(QtGui.QDialog, Ui_ProjectDialog):
             lastDir = ""
         path = ""
         name = ""
+        append = True
         if self.datastore_type == 0:
+            path = QtGui.QFileDialog.getExistingDirectory(self, "Select shape files folder ", lastDir)
+            if path.strip()!="":
+                path = unicode(path)
+                name = os.path.basename(path)
+        elif self.datastore_type == 1:
             path = QtGui.QFileDialog.getSaveFileName(self, "Create Spatialite data base", lastDir, "Spatialite (*.sqlite *.db)")
             if path.strip()!="":
                 path = unicode(path)
@@ -437,16 +444,12 @@ class ProjectDialog(QtGui.QDialog, Ui_ProjectDialog):
                 else:
                     uf.createSpatialiteConnection(name, path)
                     uf.createSpatialiteDatabase(path)
-        if self.datastore_type == 1:
-            path = QtGui.QFileDialog.getExistingDirectory(self, "Select shape files folder ", lastDir)
-            if path.strip()!="":
-                path = unicode(path)
-                name = os.path.basename(path)
         if path != "" and name != "":
-            self.appendDatastoreList(name,path)
-            self.setDatastore()
             #store the path used
             self.settings.setLastDir(path)
+            if append:
+                self.appendDatastoreList(name, path)
+                self.setDatastore()
 
     def updateSettings(self):
         # this is just a quick hack for now... not clean, will revise for a more generic project manager

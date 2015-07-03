@@ -212,8 +212,14 @@ class AnalysisTool(QObject):
                 txt = 'SF: %s' % self.datastore['name']
                 path = self.datastore['path']
             # spatialite data store
-            elif self.datastore['type'] == 1 and len(uf.listSpatialiteConnections()) > 0:
-                if self.datastore['name'] in uf.listSpatialiteConnections()['name'] and os.path.exists(self.datastore['path']):
+            elif self.datastore['type'] == 1 and os.path.exists(self.datastore['path']):
+                sl_connections = uf.listSpatialiteConnections()
+                if len(sl_connections) > 0:
+                    if self.datastore['name'] in sl_connections['name'] and self.datastore['path'] == sl_connections['path'][sl_connections['name'].index(self.datastore['name'])]:
+                        txt = 'SL: %s' % self.datastore['name']
+                        path = self.datastore['path']
+                else:
+                    uf.createSpatialiteConnection(self.datastore['name'],self.datastore['path'])
                     txt = 'SL: %s' % self.datastore['name']
                     path = self.datastore['path']
             # postgis data store
