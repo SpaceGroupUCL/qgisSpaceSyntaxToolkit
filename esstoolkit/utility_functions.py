@@ -979,8 +979,8 @@ def getSpatialiteGeometryColumn(connection, name):
 def testSpatialiteTableExists(connection, name):
     '''check if name already exists in the database
     '''
-    #tablename = name.lower().replace(" ","_")
-    query = """SELECT name FROM sqlite_master WHERE type='table' AND name = '%s' """ % name
+    tablename = name.lower()#.replace(" ","_")
+    query = """SELECT name FROM sqlite_master WHERE type='table' AND lower(name) = '%s' """ % tablename
     header, data, error = executePostgisQuery(connection, query)
     if data != []:
         return True
