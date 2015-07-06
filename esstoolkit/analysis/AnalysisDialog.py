@@ -433,9 +433,11 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
                 self.setDepthmapRadiusText("n")
             # project use of weights
             if 'weight' in settings:
-                self.setDepthmapWeighted(settings['weight'])
+                self.axialDepthmapWeightCheck.setChecked(settings['weight'])
+                #self.setDepthmapWeighted(settings['weight'])
             else:
-                self.setDepthmapWeighted(False)
+                self.axialDepthmapWeightCheck.setChecked(False)
+                #self.setDepthmapWeighted(0)
             # project output name
             if 'output' in settings:
                 self.setAxialDepthmapOutputTable(settings['output'])
@@ -493,6 +495,11 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
         self.axialDepthmapCalculateButton.setDisabled(onoff)
         self.axialDepthmapSettingsButton.setDisabled(onoff)
         self.axialDepthmapCancelButton.setDisabled(not onoff)
+        self.axialDepthmapWeightCheck.setDisabled(onoff)
+        if onoff:
+            self.axialDepthmapWeightCheck.setDisabled(onoff)
+        else:
+            self.setDepthmapWeighted(self.getDepthmapWeighted())
 
     def clearAxialDepthmapTab(self):
         self.axialDepthmapAxialRadio.setChecked(True)

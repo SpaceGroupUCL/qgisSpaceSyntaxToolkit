@@ -153,8 +153,6 @@ class DepthmapAnalysis(QObject):
                 footer += "acp.unlinks:" + str(unlinks_data) + "\n"
             footer += "--end--\n"
             command = header + axial_data + footer
-        elif self.settings['type'] == 2:
-            command = ''
         return command
 
     def prepareAxialMap(self, ref='', weight=''):
@@ -245,19 +243,23 @@ class DepthmapAnalysis(QObject):
 
     def getWeightPosition(self,name):
         pos = -1
-        new_name = name
         names = []
+        weight_name = name.title()
         if self.settings['type'] == 0:
             names.extend(self.axial_default)
         elif self.settings['type'] == 1:
             names.extend(self.segment_default)
-            # depthmapX assumes that the weight column is an axial property.
-            new_name = "Axial "+name
-        new_name = new_name.title()
-        if new_name not in names:
-            names.append(new_name)
+            # depthmapX creates a weight column as an axial property. to remove later
+            weight_name = "Axial %s" % weight_name
+        if weight_name not in names:
+            names.append(weight_name)
         names.sort()
-        pos = names.index(new_name)
+        # this is an exception, segment length is not an attribute in the axial table
+        # but one of the defaults made available in the weights drop down. The original name must be used
+        if name == "Segment Length":
+            pos = names.index(name)
+        else:
+            pos = names.index(weight_name)
         return pos
 
     def parseRadii(self, txt):
@@ -303,6 +305,9 @@ class DepthmapAnalysis(QObject):
             weight_by = self.settings['weightBy'].title() + ' 1'
             if weight_by.title() in attributes:
                 exclusions.append(attributes.index(weight_by))
+            # also remove the invalid "Axial Segment Length" attribute
+            if "Axial Segment Length" in attributes:
+                exclusions.append(attributes.index("Axial Segment Length"))
         # remove attributes and values from lists
         if len(exclusions) > 0:
             exclusions.sort(reverse=True)
@@ -317,7 +322,10 @@ class DepthmapAnalysis(QObject):
             attributes[idx] = "Axial Id"
         if "Id" in attributes:
             idx = attributes.index("Id")
-            attributes[idx] = "Axial Id"
+            if self.settings['type'] == 1:
+                attributes[idx] = "Axial Id"
+            else:
+                attributes[idx] = self.axial_id
         # remove spaces
         attributes = [x.replace(" ","_") for x in attributes]
         # get data type of attributes

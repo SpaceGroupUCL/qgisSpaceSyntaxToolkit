@@ -167,7 +167,7 @@
               <number>0</number>
              </property>
              <property name="text">
-              <string>Top %</string>
+              <string>Top:</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -184,7 +184,7 @@
            <item row="2" column="0">
             <widget class="QLabel" name="bottomLimitLabel">
              <property name="text">
-              <string>Bottom %</string>
+              <string>Bottom:</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>

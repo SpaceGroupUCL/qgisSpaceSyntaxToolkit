@@ -185,11 +185,14 @@ class AttributeCharts(QObject):
 
     def changedScatterplotSelection(self, plot, points):
         if has_pyqtgraph:
+            # set points for scatter
+            ids = [point.data() for point in points]
             # get clicked points
             if not self.add_selection:
                 self.clearScatterplotSelection()
-            # set points for scatter
-            self.scatter_selection = [point.data() for point in points]
+                self.scatter_selection = ids
+            else:
+                self.scatter_selection.extend(ids)
             # indicate that selection was made on the chart
             self.just_selected = True
             # send ids for map

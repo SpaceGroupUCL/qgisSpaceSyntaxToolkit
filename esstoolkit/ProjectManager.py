@@ -353,7 +353,6 @@ class ProjectDialog(QtGui.QDialog, Ui_ProjectDialog):
         self.dataSelectLabel.setDisabled(False)
         # set the previous datastore
         self.dataSelectCombo.setCurrentIndex(self.datastores['idx'])
-        self.dataSelectCombo.setToolTip(self.datastores['path'][self.datastores['idx']])
         self.selectDatastore()
 
     def selectDatastore(self):
@@ -361,6 +360,7 @@ class ProjectDialog(QtGui.QDialog, Ui_ProjectDialog):
             self.datastore_idx = self.dataSelectCombo.currentIndex()
             self.datastore_name = self.datastores['name'][self.datastore_idx]
             self.datastore_path = self.datastores['path'][self.datastore_idx]
+            self.dataSelectCombo.setToolTip(self.datastores['path'][self.datastore_idx])
             #update schemas accordingly
             if self.datastore_type == 2:
                 self.loadSchemaList(self.datastore_name)

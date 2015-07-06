@@ -157,6 +157,8 @@ class AttributeSymbology(QObject):
 
     def getColourRamp(self, colour_type, invert):
         ramp = None
+        # grey and monochrome depend on canvas colour: if canvas is black or dark, symbols are white, and vice versa
+        canvas = uf.getCanvasColour(self.iface)
         if colour_type == 0:  # classic space syntax
             if invert:
                 ramp = QgsVectorGradientColorRampV2(QColor(255, 0, 0, 255), QColor(0, 0, 255, 255), False)
@@ -170,13 +172,11 @@ class AttributeSymbology(QObject):
             else:
                 ramp = QgsVectorGradientColorRampV2(QColor(0, 0, 255, 255), QColor(255, 0, 0, 255), False, [QgsGradientStop(0.5, QColor(255, 255, 255, 255))])
         if colour_type == 2:  # grey scale
-            if invert:
+            if (invert and canvas.value() >= 80) or (not invert and canvas.value() < 80):
                 ramp = QgsVectorGradientColorRampV2(QColor(0, 0, 0, 255), QColor(248, 248, 248, 255), False)
             else:
                 ramp = QgsVectorGradientColorRampV2(QColor(248, 248, 248, 255), QColor(0, 0, 0, 255), False)
         if colour_type == 3:  # monochrome
-            #depends on canvas background: if canvas is black, symbols are white, and vice versa
-            canvas = uf.getCanvasColour(self.iface)
             if canvas.value() < 80:
                 ramp = QgsVectorGradientColorRampV2(QColor(255, 255, 255, 255), QColor(255, 255, 255, 255), False)
             else:

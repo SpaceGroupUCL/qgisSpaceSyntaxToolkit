@@ -1160,12 +1160,14 @@ def addSpatialiteAttributes(connection, name, id, attributes, types, values):
         for j, attr in enumerate(attributes):
             if attr in fields.keys() and attr != id:
                 attr_index[attr] = j
+            # the id attribute is identified but kept separate, not updated
             elif attr == id:
                 attr_id = j
         # get values for attributes
         for val in values:
             new_values = []
             for attr in attr_index.iterkeys():
+                # add quotes if inserting a text value
                 if types[attr_index[attr]] in (QVariant.Char,QVariant.String):
                     new_values.append("""'%s' = '%s'""" % (attr,val[attr_index[attr]]))
                 else:

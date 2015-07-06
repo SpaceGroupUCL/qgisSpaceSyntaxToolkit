@@ -744,7 +744,7 @@ class AnalysisTool(QObject):
             message += u"\n   calculate choice"
         if self.axial_analysis_settings['fullset'] == 1:
             message += u"\n   include advanced measures"
-        if self.axial_analysis_settings['newnorm'] == 1:
+        if self.axial_analysis_settings['type'] == 1 and self.axial_analysis_settings['newnorm'] == 1:
             message += u"\n   calculate NACH and NAIN"
         message += u"\n\nStart: %s\n..." % self.start_time.strftime("%d/%m/%Y %H:%M:%S")
         return message

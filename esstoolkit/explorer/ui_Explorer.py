@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/Users/jorge/github/qgisSpaceSyntaxToolkit/esstoolkit/explorer/ui_Explorer.ui'
 #
-# Created: Fri Jun 19 09:32:15 2015
+# Created: Sun Jul  5 19:05:04 2015
 #      by: PyQt4 UI code generator 4.10.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -259,9 +259,9 @@ class Ui_ExplorerDialog(object):
         self.displayOrderCombo.setItemText(1, _translate("ExplorerDialog", "Display bottom level first", None))
         self.invertColourCheck.setText(_translate("ExplorerDialog", "Invert", None))
         self.intervalLabel.setText(_translate("ExplorerDialog", "Intervals:", None))
-        self.topLimitLabel.setText(_translate("ExplorerDialog", "Top %", None))
+        self.topLimitLabel.setText(_translate("ExplorerDialog", "Top:", None))
         self.topLimitText.setText(_translate("ExplorerDialog", "Maximum", None))
-        self.bottomLimitLabel.setText(_translate("ExplorerDialog", "Bottom %", None))
+        self.bottomLimitLabel.setText(_translate("ExplorerDialog", "Bottom:", None))
         self.bottomLimitText.setText(_translate("ExplorerDialog", "Minimum", None))
         self.symbologyApplyButton.setText(_translate("ExplorerDialog", "Apply Symbology", None))
         self.explorerTabs.setTabText(self.explorerTabs.indexOf(self.symbologyTab), _translate("ExplorerDialog", "Symbology", None))

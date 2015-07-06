@@ -368,14 +368,14 @@ class ExplorerTool(QObject):
                     idx = len(self.attribute_statistics)-1
                 stats = self.attribute_statistics[idx]
                 # calculate stats of selected objects only
-                select_stats = None
+                select_stats = dict()
                 if self.current_layer.selectedFeatureCount() > 0:
-                    select_stats = dict()
-                    if not self.selection_values:
-                        self.selection_values, self.selection_ids = uf.getFieldValues(self.current_layer, attribute['name'], null=False, selection=True)
-                    sel_values = np.array(self.selection_values)
+                    self.selection_values, self.selection_ids = uf.getFieldValues(self.current_layer, attribute['name'], null=False, selection=True)
+                    sel_values = [val for val in self.selection_values if val != NULL]
+                    select_stats['Number'] = len(sel_values)
                     select_stats['Mean'] = uf.truncateNumber(np.mean(sel_values))
                     select_stats['Std Dev'] = uf.truncateNumber(np.std(sel_values))
+                    select_stats['Variance'] = uf.truncateNumber(np.var(sel_values))
                     select_stats['Median'] = uf.truncateNumber(np.median(sel_values))
                     select_stats['Minimum'] = np.min(sel_values)
                     select_stats['Maximum'] = np.max(sel_values)
@@ -592,8 +592,10 @@ class ExplorerTool(QObject):
             stats = dict()
             stats['Layer'] = self.current_layer.name()
             stats['Attribute'] = attribute['name']
+            stats['Number'] = len(clean_values)
             stats['Mean'] = uf.truncateNumber(np.mean(clean_values))
             stats['Std Dev'] = uf.truncateNumber(np.std(clean_values))
+            stats['Variance'] = uf.truncateNumber(np.var(clean_values))
             stats['Median'] = uf.truncateNumber(np.median(clean_values))
             stats['Minimum'] = np.min(clean_values)
             stats['Maximum'] = np.max(clean_values)

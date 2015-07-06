@@ -63,7 +63,7 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
 
         # default symbology values
         self.colourRangeCombo.addItems(["Classic","Red - blue","Greyscale","Monochrome"]) #"Classic inflection"
-        self.intervalTypeCombo.addItems(["Equal intervals","Quantiles","Natural breaks","Custom"]) #"Default NACh"
+        self.intervalTypeCombo.addItems(["Equal intervals","Quantiles","Natural breaks","Custom (Equal)"]) #"Default NACh"
         #self.layerRefreshButton.hide()
         self.current_symbology = dict()
         #self.__clearSymbology()
@@ -423,21 +423,21 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
     #
     def __addStatsLabels(self):
         self.statisticsTable.setHorizontalHeaderLabels(["Statistic","Value","Selection"])
-        self.statisticsTable.setRowCount(10)
-        self.statisticsTable.setItem(0,0,QtGui.QTableWidgetItem("Mean"))
-        self.statisticsTable.setItem(1,0,QtGui.QTableWidgetItem("Std Dev"))
-        self.statisticsTable.setItem(2,0,QtGui.QTableWidgetItem("Median"))
-        self.statisticsTable.setItem(3,0,QtGui.QTableWidgetItem("Minimum"))
-        self.statisticsTable.setItem(4,0,QtGui.QTableWidgetItem("Maximum"))
-        self.statisticsTable.setItem(5,0,QtGui.QTableWidgetItem("Range"))
-        self.statisticsTable.setItem(6,0,QtGui.QTableWidgetItem("1st Quart"))
-        self.statisticsTable.setItem(7,0,QtGui.QTableWidgetItem("3rd Quart"))
-        self.statisticsTable.setItem(8,0,QtGui.QTableWidgetItem("IQR"))
-        self.statisticsTable.setItem(9,0,QtGui.QTableWidgetItem("Gini"))
+        self.statisticsTable.setRowCount(12)
+        self.statisticsTable.setItem(0,0,QtGui.QTableWidgetItem("Number"))
+        self.statisticsTable.setItem(1,0,QtGui.QTableWidgetItem("Mean"))
+        self.statisticsTable.setItem(2,0,QtGui.QTableWidgetItem("Std Dev"))
+        self.statisticsTable.setItem(3,0,QtGui.QTableWidgetItem("Variance"))
+        self.statisticsTable.setItem(4,0,QtGui.QTableWidgetItem("Median"))
+        self.statisticsTable.setItem(5,0,QtGui.QTableWidgetItem("Minimum"))
+        self.statisticsTable.setItem(6,0,QtGui.QTableWidgetItem("Maximum"))
+        self.statisticsTable.setItem(7,0,QtGui.QTableWidgetItem("Range"))
+        self.statisticsTable.setItem(8,0,QtGui.QTableWidgetItem("1st Quart"))
+        self.statisticsTable.setItem(9,0,QtGui.QTableWidgetItem("3rd Quart"))
+        self.statisticsTable.setItem(10,0,QtGui.QTableWidgetItem("IQR"))
+        self.statisticsTable.setItem(11,0,QtGui.QTableWidgetItem("Gini"))
 
     def setStats(self, stats, selection):
-        #self.statisticsTable.clear()
-        #self.__addStatsLabels()
         # update the interface
         for row in range(self.statisticsTable.rowCount()):
             label = self.statisticsTable.item(row,0).text()
