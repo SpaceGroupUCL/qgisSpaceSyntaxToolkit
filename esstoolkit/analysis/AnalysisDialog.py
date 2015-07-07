@@ -568,16 +568,20 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
             self.dlg_depthmap.setDistanceType(1)
             self.dlg_depthmap.axialDistanceCombo.setDisabled(True)
             self.dlg_depthmap.setRadiusType(2)
+            self.dlg_depthmap.axialRadiusLabel.setDisabled(False)
             self.dlg_depthmap.axialRadiusCombo.setDisabled(False)
             #self.dlg_depthmap.setCalculateNorm(True)
             self.dlg_depthmap.axialCalculateNormCheck.setDisabled(False)
+            self.dlg_depthmap.axialStubsLabel.setDisabled(False)
             self.dlg_depthmap.axialStubsEdit.setDisabled(False)
         elif self.axial_analysis_type == 0:  # and axial analysis alternative
             self.dlg_depthmap.setDistanceType(0)
             self.dlg_depthmap.axialDistanceCombo.setDisabled(True)
             self.dlg_depthmap.setRadiusType(0)
+            self.dlg_depthmap.axialRadiusLabel.setDisabled(True)
             self.dlg_depthmap.axialRadiusCombo.setDisabled(True)
             self.dlg_depthmap.axialCalculateNormCheck.setDisabled(True)
+            self.dlg_depthmap.axialStubsLabel.setDisabled(True)
             self.dlg_depthmap.axialStubsEdit.setDisabled(True)
 
     def showAxialDepthmapAdvancedSettings(self):
