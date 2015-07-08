@@ -69,10 +69,6 @@ from . import utility_functions as uf
 class EssToolkit:
 
     def __init__(self, iface):
-        # Save reference to the QGIS interface
-        self.iface = iface
-        self.esst_toolbar = self.iface.addToolBar(u"Space Syntax Toolkit")
-
         # initialise plugin directory
         self.plugin_dir = os.path.dirname(__file__)
         # initialize locale
@@ -86,13 +82,15 @@ class EssToolkit:
             if QtCore.qVersion() > '4.3.3':
                 QtCore.QCoreApplication.installTranslator(self.translator)
 
+        # Save reference to the QGIS interface
+        self.iface = iface
+        self.esst_toolbar = self.iface.addToolBar(u"Space Syntax Toolkit")
+
         # initialise base modules and interface actions
         self.settings = SettingsManager(self.iface)
         self.settings_action = None
         self.project = ProjectManager(self.iface, self.settings)
         self.project_action = None
-        self.about_action = None
-        self.help_action = None
 
         # initialise the tool modules and interface actions
         self.analysis = AnalysisTool.AnalysisTool(self.iface, self.settings, self.project)
@@ -101,6 +99,8 @@ class EssToolkit:
         self.explorer_action = None
         # Create other dialogs
         self.about = AboutDialog()
+        self.about_action = None
+        self.help_action = None
 
         # initialise default events
         #self.project.loadSettings()
@@ -139,12 +139,16 @@ class EssToolkit:
         #self.iface.addPluginToVectorMenu(u"&Space Syntax Toolkit", self.help_action)
         #self.iface.addPluginToVectorMenu(u"&Space Syntax Toolkit", self.about_action)
 
+        # Load the modules
+        self.analysis.load()
+        self.explorer.load()
+
     def showAnalysis(self):
-        #self.iface.removeDockWidget(self.explorer.dlg)
+        self.iface.removeDockWidget(self.explorer.dlg)
         self.iface.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.analysis.dlg)
 
     def showExplorer(self):
-        #self.iface.removeDockWidget(self.analysis.dlg)
+        self.iface.removeDockWidget(self.analysis.dlg)
         self.iface.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.explorer.dlg)
 
     def showHelp(self):
@@ -167,6 +171,10 @@ class EssToolkit:
         # Remove the dialogs
         self.iface.removeDockWidget(self.analysis.dlg)
         self.iface.removeDockWidget(self.explorer.dlg)
+
+        # Unload the modules
+        self.analysis.unload()
+        self.explorer.unload()
 
     def showMessage(self, msg, lev, dur, type):
         self.iface.messageBar().pushMessage("Info",msg,level=lev,duration=dur)

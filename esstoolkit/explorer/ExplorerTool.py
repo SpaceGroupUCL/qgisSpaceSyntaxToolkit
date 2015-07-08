@@ -46,6 +46,7 @@ class ExplorerTool(QObject):
         self.project = project
         self.legend = self.iface.legendInterface()
 
+    def load(self):
         # initialise UI
         self.dlg = ExplorerDialog(self.iface.mainWindow())
 

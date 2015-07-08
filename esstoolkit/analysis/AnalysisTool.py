@@ -53,6 +53,7 @@ class AnalysisTool(QObject):
         self.project = project
         self.legend = self.iface.legendInterface()
 
+    def load(self):
         # initialise UI
         self.dlg = AnalysisDialog(self.iface.mainWindow())
 
