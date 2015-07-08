@@ -926,7 +926,7 @@ class AnalysisTool(QObject):
                             res = False
             else:
                 res = uf.addPostgisAttributes(connection, schema, table, id, attributes, types, values)
-                # the spatialite layer needs to be removed and re-inserted to display changes
+                # the postgis layer needs to be removed and re-inserted to display changes
                 if res:
                     QgsMapLayerRegistry.instance().removeMapLayer(analysis_layer.id())
                     new_layer = uf.getPostgisLayer(connection, self.datastore['name'], schema, table)

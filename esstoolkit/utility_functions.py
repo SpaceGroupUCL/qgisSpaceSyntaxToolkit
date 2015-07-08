@@ -1934,6 +1934,7 @@ def addPostgisAttributes(connection, schema, name, id, attributes, types, values
         for val in values:
             new_values = []
             for attr in attr_index.iterkeys():
+                # add quotes if inserting a text value
                 if types[attr_index[attr]] in (QVariant.Char,QVariant.String):
                     new_values.append(""" "%s" = '%s'""" % (attr,val[attr_index[attr]]))
                 else:
@@ -1946,4 +1947,6 @@ def addPostgisAttributes(connection, schema, name, id, attributes, types, values
                     break
         if res:
             connection.commit()
+        else:
+            connection.rollback()
     return res
