@@ -202,7 +202,7 @@ class AxialVerification(QThread):
                         self.problem_nodes.append(node)
                     # identify islands
                     elif len(cluster) > 1:
-                        nodes = cluster
+                        nodes = list(cluster)
                         islands.append(nodes)
                         self.problem_nodes.extend(nodes)
                 # add results to the list of problems
