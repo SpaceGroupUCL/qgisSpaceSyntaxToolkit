@@ -194,10 +194,10 @@ class AxialVerification(QThread):
             if len(components) > 1:
                 islands = []
                 # get vertex ids
-                for cluster in components[1:len(components)]:
+                for cluster in components[1:len(components)]:  #excludes the first giant component
                     # identify orphans
                     if len(cluster) == 1:
-                        node = cluster[0]
+                        node = cluster.pop()
                         self.axial_errors['orphan'].append(node)
                         self.problem_nodes.append(node)
                     # identify islands
@@ -520,6 +520,12 @@ class AxialVerification(QThread):
                 fid = feature.id()
             else:
                 fid = feature.attribute(self.user_id)
+            # has no geometry, skip rest of the checks
+            if not geom:
+                self.axial_errors['invalid geometry'].append(fid)
+                self.problem_nodes.append(fid)
+                progress += steps
+                continue
             # geometry is valid (generally)
             if not geom.isGeosValid() or geom.isGeosEmpty():
                 has_problem = True
