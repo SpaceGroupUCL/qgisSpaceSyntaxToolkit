@@ -412,9 +412,9 @@ class DepthmapAnalysis(QObject):
             for i, j in enumerate(td):
                 try:
                     if i < len(nc):
-                        val = (float(feat[nc[i]])**1.2)/float(feat[j])
+                        val = (float(feat[nc[i]])**1.2)/(float(feat[j])+2.0)
                     else:
-                        val = (float(feat[nc[i-len(nc)]])**1.2)/float(feat[j])
+                        val = (float(feat[nc[i-len(nc)]])**1.2)/(float(feat[j])+2.0)
                     calc_values.append(val)
                 except:
                     calc_values.append(NULL)
