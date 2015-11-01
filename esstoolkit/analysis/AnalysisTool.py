@@ -632,7 +632,7 @@ class AnalysisTool(QObject):
         result = self.socket.connectSocket(connection['host'],connection['port'])
         # if connection fails give warning and stop analysis
         if result != '':
-            self.iface.messageBar().pushMessage("Info","Make sure depthmapX is running.", level=0, duration=4)
+            self.iface.messageBar().pushMessage("Info","Make sure depthmapXnet is running.", level=0, duration=4)
             connected = False
             self.socket.closeSocket()
         else:
@@ -703,7 +703,7 @@ class AnalysisTool(QObject):
                 # print message in results window
                 self.dlg.writeAxialDepthmapReport(message)
                 self.dlg.lockAxialDepthmapTab(True)
-                self.iface.messageBar().pushMessage("Info", "Do not close QGIS or depthmapX while the analysis is running!", level=0, duration=5)
+                self.iface.messageBar().pushMessage("Info", "Do not close QGIS or depthmapXnet while the analysis is running!", level=0, duration=5)
                 # start the analysis by sending the command and starting the timer
                 bytessent = self.socket.sendData(command)
                 #timer to check if results are ready, in milliseconds
@@ -983,10 +983,6 @@ class MySocket(QObject):
     def isReady(self):
         try:
             to_read, to_write, exception = select.select([self.sock],[],[self.sock], 0)
-            #print 'r: ' + str(to_read)
-            #print 'w: ' + str(to_write)
-            #print 'x: ' + str(exception)
-            #if to_read or to_write:
             if exception:
                 waiting = False
             else:
