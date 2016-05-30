@@ -23,7 +23,8 @@ about=The “Space Syntax Toolkit” is a QGIS plug-in for spatial network and s
     It provides a front-end for the depthmapX software within QGIS, offering user friendly space syntax analysis workflows in a GIS environment.
     It is primarily aimed at supporting the standard space syntax methodology, and enhancing its workflows with standard GIS data, analysis and visualisation features.
     However, the added functionality can be of general benefit to QGIS users by introducing new tools for exploratory spatial data analysis.
-    The plug-in is being developed at the Space Syntax Laboratory, The Bartlett, UCL.
+    The plug-in was originally developed at the Space Syntax Laboratory, The Bartlett, UCL.
+    Mailing list: spacesyntax-toolkit@jiscmail.ac.uk
     Dependencies: For network analysis requires depthmapXnet. It can be downloaded from: http://archtech.gr/varoudis/depthmapX/?dir=depthmapXnet
 category = Vector
 changelog=
