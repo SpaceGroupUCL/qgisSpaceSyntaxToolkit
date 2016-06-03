@@ -3,6 +3,10 @@ qgisSpaceSyntaxToolkit
 
 # Space Syntax Toolkit for QGIS
 
+## News
+03.06.20106 – Subscribe to the new [Space Syntax Toolkit mailing list on JISCMAIL](https://www.jiscmail.ac.uk/cgi-bin/webadmin?A0=SPACESYNTAX-TOOLKIT) for discussions, suggestions, and the latest news. You can send an e-mail to the list (spacesyntax-toolkit at jiscmail.ac.uk) if you need support using the toolkit.
+
+## About
 The “Space Syntax Toolkit” is a [QGIS](http://www.qgis.org/en/site/) plug-in for spatial network and statistical analysis. It provides a front-end for the [depthmapX](https://varoudis.github.io/depthmapX/) software within QGIS, offering user friendly space syntax analysis workflows in a GIS environment. It is primarily aimed at supporting the standard space syntax methodology, and enhancing its workflows with standard GIS data, analysis and visualisation features. However, the added functionality can be of general benefit to QGIS users by introducing new tools for exploratory spatial data analysis. The plug-in was originally developed by Jorge Gil for the Space Syntax Laboratory, The Bartlett, UCL.
 
 Currently the “Space Syntax Toolkit” consists of two modules: “Graph analysis” and “Attributes explorer”.
@@ -13,8 +17,8 @@ The “Attributes explorer” module supports the visual and statistical explora
 The plug-in can be installed from the QGIS Plugins Manager, and updates become automatically available once submitted to the QGIS plugins repository.
 
 ## Support
-If you encounter problems when using the software, check the documentation and the current issues list for solutions. If it's a new problem, please add an issue to the list.
-You can also subscribe to the Space Syntax Toolkit mailing list on JISCMAIL for the latest news and discussions, and send an e-mail to the list (spacesyntax-toolkit at jiscmail.ac.uk) if you need support with the toolkit.
+If you encounter problems when using the software, please check the documentation and the current issues list for solutions. If it's a new problem, you can add the issue to the list.
+If you need help using the toolkit in your space syntax research, you can send an e-mail to the mailing list (spacesyntax-toolkit at jiscmail.ac.uk) for support from the user community.
 
 ## Software Requirements
 * QGIS (2.0 or above) - [http://www.qgis.org/en/site/](http://www.qgis.org/en/site/)
