@@ -4,7 +4,7 @@ qgisSpaceSyntaxToolkit
 # Space Syntax Toolkit for QGIS
 
 ## News
-03.06.20106 – Subscribe to the new [Space Syntax Toolkit mailing list on JISCMAIL](https://www.jiscmail.ac.uk/cgi-bin/webadmin?A0=SPACESYNTAX-TOOLKIT) for discussions, suggestions, and the latest news. You can send an e-mail to the list (spacesyntax-toolkit at jiscmail.ac.uk) if you need support using the toolkit.
+03.06.2016 – Subscribe to the new [Space Syntax Toolkit mailing list on JISCMAIL](https://www.jiscmail.ac.uk/cgi-bin/webadmin?A0=SPACESYNTAX-TOOLKIT) for discussions, suggestions, and the latest news. You can send an e-mail to the list (spacesyntax-toolkit at jiscmail.ac.uk) if you need support using the toolkit.
 
 ## About
 The “Space Syntax Toolkit” is a [QGIS](http://www.qgis.org/en/site/) plug-in for spatial network and statistical analysis. It provides a front-end for the [depthmapX](https://varoudis.github.io/depthmapX/) software within QGIS, offering user friendly space syntax analysis workflows in a GIS environment. It is primarily aimed at supporting the standard space syntax methodology, and enhancing its workflows with standard GIS data, analysis and visualisation features. However, the added functionality can be of general benefit to QGIS users by introducing new tools for exploratory spatial data analysis. The plug-in was originally developed by Jorge Gil for the Space Syntax Laboratory, The Bartlett, UCL.
