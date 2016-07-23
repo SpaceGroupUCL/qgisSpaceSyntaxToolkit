@@ -63,7 +63,7 @@ changelog=
     * initial release for UCL and affiliates
 
 # tags are comma separated with spaces allowed
-tags= network analysis,spatial analysis,numeric attribute visualisation
+tags= network analysis,spatial analysis,numeric attribute visualisation, space syntax
 
 homepage=https://github.com/SpaceGroupUCL/qgisSpaceSyntaxToolkit
 tracker=https://github.com/SpaceGroupUCL/qgisSpaceSyntaxToolkit/issues
