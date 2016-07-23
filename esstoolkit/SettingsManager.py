@@ -48,7 +48,8 @@ class SettingsManager(QObject):
 
     def setLastDir(self, path):
         settings = QSettings()
-        settings.setValue("/esst/lastUsedDir", QFileInfo(path).filePath())
+        save_path = QFileInfo(path).filePath()
+        settings.setValue("/esst/lastUsedDir", save_path)
 
 class SettingsDialog(QDialog, Ui_SettingsDialog):
     def __init__(self):

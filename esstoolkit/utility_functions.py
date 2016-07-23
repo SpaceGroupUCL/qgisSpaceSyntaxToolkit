@@ -1317,7 +1317,7 @@ def copyLayerToShapeFile(layer, path, name):
         geometry = None
     srid = layer.crs()
     # create an instance of vector file writer, which will create the vector file.
-    writer = QgsVectorFileWriter(filename, "CP1250", fields, geometry, srid, "ESRI Shapefile")
+    writer = QgsVectorFileWriter(filename, "System", fields, geometry, srid, "ESRI Shapefile")
     if writer.hasError() != QgsVectorFileWriter.NoError:
         print "Error when creating shapefile: ", writer.hasError()
         return None
@@ -1345,10 +1345,10 @@ def createShapeFileFullLayer(path, name, srid, attributes, types, values, coords
     writer = None
     if len(coords) == 2:
         type = 'point'
-        writer = QgsVectorFileWriter(filename, "CP1250", fields, QGis.WKBPoint, srid, "ESRI Shapefile")
+        writer = QgsVectorFileWriter(filename, "System", fields, QGis.WKBPoint, srid, "ESRI Shapefile")
     elif len(coords) == 4:
         type = 'line'
-        writer = QgsVectorFileWriter(filename, "CP1250", fields, QGis.WKBLineString, srid, "ESRI Shapefile")
+        writer = QgsVectorFileWriter(filename, "System", fields, QGis.WKBLineString, srid, "ESRI Shapefile")
     if writer.hasError() != QgsVectorFileWriter.NoError:
         print "Error when creating shapefile: ", writer.hasError()
         return None
@@ -1391,11 +1391,11 @@ def createShapeFileLayer(path, name, srid, attributes, types, geometrytype):
     # create an instance of vector file writer, which will create the vector file.
     writer = None
     if 'point' in geometrytype.lower():
-        writer = QgsVectorFileWriter(filename, "CP1250", fields, QGis.WKBPoint, srid, "ESRI Shapefile")
+        writer = QgsVectorFileWriter(filename, "System", fields, QGis.WKBPoint, srid, "ESRI Shapefile")
     elif 'line' in geometrytype.lower():
-        writer = QgsVectorFileWriter(filename, "CP1250", fields, QGis.WKBLineString, srid, "ESRI Shapefile")
+        writer = QgsVectorFileWriter(filename, "System", fields, QGis.WKBLineString, srid, "ESRI Shapefile")
     elif 'polygon' in geometrytype.lower():
-        writer = QgsVectorFileWriter(filename, "CP1250", fields, QGis.WKBPolygon, srid, "ESRI Shapefile")
+        writer = QgsVectorFileWriter(filename, "System", fields, QGis.WKBPolygon, srid, "ESRI Shapefile")
     if writer.hasError() != QgsVectorFileWriter.NoError:
         print "Error when creating shapefile: ", writer.hasError()
         return None

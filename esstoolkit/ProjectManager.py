@@ -167,7 +167,7 @@ class ProjectManager(QtCore.QObject):
         try:
             for key in settings.iterkeys():
                 val = settings[key]
-                self.proj.writeEntry('esst', position+str(key), str(val))
+                self.proj.writeEntry('esst', position+str(key), val)
             self.settingsUpdated.emit()
             return True
         except:
