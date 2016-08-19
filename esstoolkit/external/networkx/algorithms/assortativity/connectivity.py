@@ -49,7 +49,7 @@ def average_degree_connectivity(G, source="in+out", target="in+out",
     The average degree connectivity is the average nearest neighbor degree of
     nodes with degree k. For weighted graphs, an analogous measure can
     be computed using the weighted average neighbors degree defined in
-    [1]_, for a node `i`, as:
+    [1]_, for a node `i`, as
 
     .. math::
 
@@ -69,8 +69,9 @@ def average_degree_connectivity(G, source="in+out", target="in+out",
     target : "in"|"out"|"in+out" (default:"in+out"
        Directed graphs only. Use "in"- or "out"-degree for target node.
 
-    nodes: list or iterable (optional)
-        Compute neighbor connectivity for these nodes. The default is all nodes.
+    nodes : list or iterable (optional)
+        Compute neighbor connectivity for these nodes. The default is all
+        nodes.
 
     weight : string or None, optional (default=None)
        The edge attribute that holds the numerical value used as a weight.
@@ -78,7 +79,7 @@ def average_degree_connectivity(G, source="in+out", target="in+out",
 
     Returns
     -------
-    d: dict
+    d : dict
        A dictionary keyed by degree k with the value of average connectivity.
 
     Examples
@@ -96,8 +97,8 @@ def average_degree_connectivity(G, source="in+out", target="in+out",
 
     Notes
     -----
-    This algorithm is sometimes called "k nearest neighbors' and is also
-    available as `k_nearest_neighbors`.
+    This algorithm is sometimes called "k nearest neighbors" and is also
+    available as ``k_nearest_neighbors``.
 
     References
     ----------
@@ -109,16 +110,16 @@ def average_degree_connectivity(G, source="in+out", target="in+out",
     target_degree = G.degree
     neighbors = G.neighbors
     if G.is_directed():
-        direction = {'out':G.out_degree,
-                     'in':G.in_degree,
+        direction = {'out': G.out_degree,
+                     'in': G.in_degree,
                      'in+out': G.degree}
         source_degree = direction[source]
         target_degree = direction[target]
         if source == 'in':
-            neighbors=G.predecessors
+            neighbors = G.predecessors
         elif source == 'out':
-            neighbors=G.successors
+            neighbors = G.successors
     return _avg_deg_conn(G, neighbors, source_degree, target_degree,
                          nodes=nodes, weight=weight)
 
-k_nearest_neighbors=average_degree_connectivity
+k_nearest_neighbors = average_degree_connectivity

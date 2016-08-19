@@ -42,7 +42,7 @@ def rich_club_coefficient(G, normalized=True, Q=100):
     0.4
 
     Notes
-    ------
+    -----
     The rich club definition and algorithm are found in [1]_.  This
     algorithm ignores any edge weights and is not defined for directed
     graphs or graphs with parallel edges or self loops.
@@ -84,7 +84,7 @@ def _compute_rc(G):
     deghist = nx.degree_histogram(G)
     total = sum(deghist)
     # number of nodes with degree > k (omit last entry which is zero)
-    nks = [total-cs for cs in nx.utils.cumulative_sum(deghist) if total-cs > 1]
+    nks = [total-cs for cs in nx.utils.accumulate(deghist) if total-cs > 1]
     deg=G.degree()
     edge_degrees=sorted(sorted((deg[u],deg[v])) for u,v in G.edges_iter()) 
     ek=G.number_of_edges()

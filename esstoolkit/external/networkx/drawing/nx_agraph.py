@@ -7,15 +7,17 @@ Interface to pygraphviz AGraph class.
 
 Examples
 --------
->>> G=nx.complete_graph(5)
->>> A=nx.to_agraph(G)
->>> H=nx.from_agraph(A)
+>>> G = nx.complete_graph(5)
+>>> A = nx.nx_agraph.to_agraph(G)
+>>> H = nx.nx_agraph.from_agraph(A)
 
 See Also
 --------
-Pygraphviz: http://networkx.lanl.gov/pygraphviz
+Pygraphviz: http://pygraphviz.github.io/
 """
-#    Copyright (C) 2004-2012 by
+# Author: Aric Hagberg (hagberg@lanl.gov)
+
+#    Copyright (C) 2004-2016 by
 #    Aric Hagberg <hagberg@lanl.gov>
 #    Dan Schult <dschult@colgate.edu>
 #    Pieter Swart <swart@lanl.gov>
@@ -25,7 +27,7 @@ import os
 import sys
 import tempfile
 import networkx as nx
-__author__ = """Aric Hagberg (hagberg@lanl.gov)"""
+
 __all__ = ['from_agraph', 'to_agraph',
            'write_dot', 'read_dot',
            'graphviz_layout',
@@ -45,10 +47,10 @@ def from_agraph(A,create_using=None):
 
     Examples
     --------
-    >>> K5=nx.complete_graph(5)
-    >>> A=nx.to_agraph(K5)
-    >>> G=nx.from_agraph(A)
-    >>> G=nx.from_agraph(A)
+    >>> K5 = nx.complete_graph(5)
+    >>> A = nx.nx_agraph.to_agraph(K5)
+    >>> G = nx.nx_agraph.from_agraph(A)
+    >>> G = nx.nx_agraph.from_agraph(A)
 
 
     Notes
@@ -116,8 +118,8 @@ def to_agraph(N):
 
     Examples
     --------
-    >>> K5=nx.complete_graph(5)
-    >>> A=nx.to_agraph(K5)
+    >>> K5 = nx.complete_graph(5)
+    >>> A = nx.nx_agraph.to_agraph(K5)
 
     Notes
     -----
@@ -130,8 +132,7 @@ def to_agraph(N):
         import pygraphviz
     except ImportError:
         raise ImportError('requires pygraphviz ',
-                          'http://networkx.lanl.gov/pygraphviz ',
-                          '(not available for Python3)')
+                          'http://pygraphviz.github.io/')
     directed=N.is_directed()
     strict=N.number_of_selfloops()==0 and not N.is_multigraph()
     A=pygraphviz.AGraph(name=N.name,strict=strict,directed=directed)
@@ -173,8 +174,7 @@ def write_dot(G,path):
         import pygraphviz
     except ImportError:
         raise ImportError('requires pygraphviz ',
-                          'http://networkx.lanl.gov/pygraphviz ',
-                          '(not available for Python3)')
+                          'http://pygraphviz.github.io/')
     A=to_agraph(G)
     A.write(path)
     A.clear()
@@ -192,8 +192,7 @@ def read_dot(path):
         import pygraphviz
     except ImportError:
         raise ImportError('read_dot() requires pygraphviz ',
-                          'http://networkx.lanl.gov/pygraphviz ',
-                          '(not available for Python3)')
+                          'http://pygraphviz.github.io/')
     A=pygraphviz.AGraph(file=path)
     return from_agraph(A)
 
@@ -217,9 +216,9 @@ def graphviz_layout(G,prog='neato',root=None, args=''):
 
     Examples
     --------
-    >>> G=nx.petersen_graph()
-    >>> pos=nx.graphviz_layout(G)
-    >>> pos=nx.graphviz_layout(G,prog='dot')
+    >>> G = nx.petersen_graph()
+    >>> pos = nx.nx_agraph.graphviz_layout(G)
+    >>> pos = nx.nx_agraph.graphviz_layout(G, prog='dot')
 
     Notes
     -----
@@ -247,17 +246,16 @@ def pygraphviz_layout(G,prog='neato',root=None, args=''):
 
     Examples
     --------
-    >>> G=nx.petersen_graph()
-    >>> pos=nx.graphviz_layout(G)
-    >>> pos=nx.graphviz_layout(G,prog='dot')
+    >>> G = nx.petersen_graph()
+    >>> pos = nx.nx_agraph.graphviz_layout(G)
+    >>> pos = nx.nx_agraph.graphviz_layout(G, prog='dot')
 
     """
     try:
         import pygraphviz
     except ImportError:
         raise ImportError('requires pygraphviz ',
-                          'http://networkx.lanl.gov/pygraphviz ',
-                          '(not available for Python3)')
+                          'http://pygraphviz.github.io/')
     if root is not None:
         args+="-Groot=%s"%root
     A=to_agraph(G)

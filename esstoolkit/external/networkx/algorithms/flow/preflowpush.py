@@ -102,7 +102,7 @@ def preflow_push_impl(G, s, t, capacity, residual, global_relabel_freq,
             push(s, u, flow)
 
     # Partition nodes into levels.
-    levels = [Level() for i in range(2 * n - 1)]
+    levels = [Level() for i in range(2 * n)]
     for u in R:
         if u != s and u != t:
             level = levels[R_node[u]['height']]
@@ -356,7 +356,6 @@ def preflow_push(G, s, t, capacity='capacity', residual=None,
     :meth:`maximum_flow`
     :meth:`minimum_cut`
     :meth:`edmonds_karp`
-    :meth:`ford_fulkerson`
     :meth:`shortest_augmenting_path`
 
     Notes

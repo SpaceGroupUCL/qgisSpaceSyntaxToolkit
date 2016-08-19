@@ -25,7 +25,7 @@ adjacency list (anything following the # in a line is a comment)::
 __author__ = '\n'.join(['Aric Hagberg <hagberg@lanl.gov>',
                         'Dan Schult <dschult@colgate.edu>',
                         'Loïc Séguin-C. <loicseguin@gmail.com>'])
-#    Copyright (C) 2004-2013 by
+#    Copyright (C) 2004-2015 by
 #    Aric Hagberg <hagberg@lanl.gov>
 #    Dan Schult <dschult@colgate.edu>
 #    Pieter Swart <swart@lanl.gov>
@@ -310,5 +310,6 @@ def read_adjlist(path, comments="#", delimiter=None, create_using=None,
 # fixture for nose tests
 def teardown_module(module):
     import os
-    os.unlink('test.adjlist')
-    os.unlink('test.adjlist.gz')
+    for fname in ['test.adjlist', 'test.adjlist.gz']:
+        if os.path.isfile(fname):
+            os.unlink(fname)

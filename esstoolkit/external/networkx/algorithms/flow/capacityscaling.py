@@ -128,7 +128,7 @@ def _build_flow_dict(G, R, capacity, weight):
 
 def capacity_scaling(G, demand='demand', capacity='capacity', weight='weight',
                      heap=BinaryHeap):
-    """Find a minimum cost flow satisfying all demands in digraph G.
+    r"""Find a minimum cost flow satisfying all demands in digraph G.
 
     This is a capacity scaling successive shortest augmenting path algorithm.
 
@@ -178,16 +178,14 @@ def capacity_scaling(G, demand='demand', capacity='capacity', weight='weight',
 
     Returns
     -------
-    flowCost: integer
+    flowCost : integer
         Cost of a minimum cost flow satisfying all demands.
 
-    flowDict: dictionary
-        Dictionary of dictionaries keyed by nodes such that
-        flowDict[u][v] is the flow edge (u, v) if G is a digraph.
-
-        Dictionary of dictionaries of dictionaries keyed by nodes such that
-        flowDict[u][v][key] is the flow edge (u, v, key) if G is a
-        multidigraph.
+    flowDict : dictionary
+        If G is a DiGraph, a dict-of-dicts keyed by nodes such that
+        flowDict[u][v] is the flow edge (u, v).
+        If G is a MultiDiGraph, a dict-of-dictsof-dicts keyed by nodes
+        so that flowDict[u][v][key] is the flow edge (u, v, key).
 
     Raises
     ------
@@ -197,6 +195,7 @@ def capacity_scaling(G, demand='demand', capacity='capacity', weight='weight',
 
     NetworkXUnfeasible
         This exception is raised in the following situations:
+
             * The sum of the demands is not zero. Then, there is no
               flow satisfying all demands.
             * There is no flow satisfying all demand.
@@ -344,27 +343,31 @@ def capacity_scaling(G, demand='demand', capacity='capacity', weight='weight',
                     d_v = d_u + wmin - p_u + R_node[v]['potential']
                     if h_insert(v, d_v):
                         pred[v] = (u, kmin, emin)
-            if t is None:
+            if t is not None:
+                # Augment Δ units of flow from s to t.
+                while u != s:
+                    v = u
+                    u, k, e = pred[v]
+                    e['flow'] += delta
+                    R_succ[v][u][(k[0], not k[1])]['flow'] -= delta
+                # Account node excess and deficit.
+                R_node[s]['excess'] -= delta
+                R_node[t]['excess'] += delta
+                if R_node[s]['excess'] < delta:
+                    S_remove(s)
+                if R_node[t]['excess'] > -delta:
+                    T_remove(t)
+                # Update node potentials.
+                d_t = d[t]
+                for u, d_u in d.items():
+                    R_node[u]['potential'] -= d_u - d_t
+            else:
                 # Path not found.
-                raise nx.NetworkXUnfeasible('No flow satisfying all demands.')
-            # Augment Δ units of flow from s to t.
-            while u != s:
-                v = u
-                u, k, e = pred[v]
-                e['flow'] += delta
-                R_succ[v][u][(k[0], not k[1])]['flow'] -= delta
-            # Account node excess and deficit.
-            R_node[s]['excess'] -= delta
-            R_node[t]['excess'] += delta
-            if R_node[s]['excess'] < delta:
                 S_remove(s)
-            if R_node[t]['excess'] > -delta:
-                T_remove(t)
-            # Update node potentials.
-            d_t = d[t]
-            for u, d_u in d.items():
-                R_node[u]['potential'] -= d_u - d_t
         delta //= 2
+
+    if any(R.node[u]['excess'] != 0 for u in R):
+        raise nx.NetworkXUnfeasible('No flow satisfying all demands.')
 
     # Calculate the flow cost.
     for u in R:

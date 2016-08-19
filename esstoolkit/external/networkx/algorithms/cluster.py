@@ -7,7 +7,7 @@ __author__ = """\n""".join(['Aric Hagberg <aric.hagberg@gmail.com>',
                             'Dan Schult (dschult@colgate.edu)',
                             'Pieter Swart (swart@lanl.gov)',
                             'Jordi Torrents <jtorrents@milnou.net>'])
-#    Copyright (C) 2004-2011 by 
+#    Copyright (C) 2004-2015 by 
 #    Aric Hagberg <hagberg@lanl.gov>
 #    Dan Schult <dschult@colgate.edu>
 #    Pieter Swart <swart@lanl.gov>
@@ -136,7 +136,7 @@ def average_clustering(G, nodes=None, weight=None, count_zeros=True):
        The edge attribute that holds the numerical value used as a weight.
        If None, then each edge has weight 1.
 
-    count_zeros : bool (default=False)       
+    count_zeros : bool
        If False include only the nodes with nonzero clustering in the average.
 
     Returns

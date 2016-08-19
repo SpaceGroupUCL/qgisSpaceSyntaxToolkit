@@ -3,7 +3,7 @@
 Matching
 ********
 """
-#    Copyright (C) 2004-2008 by
+#    Copyright (C) 2004-2015 by
 #    Aric Hagberg <hagberg@lanl.gov>
 #    Dan Schult <dschult@colgate.edu>
 #    Pieter Swart <swart@lanl.gov>
@@ -78,7 +78,7 @@ def max_weight_matching(G, maxcardinality=False):
 
 
     Notes
-    ------
+    -----
     If G has edges with 'weight' attribute the edge data are used as
     weight values else the weights are assumed to be 1.
 
@@ -92,6 +92,9 @@ def max_weight_matching(G, maxcardinality=False):
     This method is based on the "blossom" method for finding augmenting
     paths and the "primal-dual" method for finding a matching of maximum
     weight, both methods invented by Jack Edmonds [1]_.
+
+    Bipartite graphs can also be matched using the functions present in
+    :mod:`networkx.algorithms.bipartite.matching`.
 
     References
     ----------

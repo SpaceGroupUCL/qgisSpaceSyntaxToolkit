@@ -13,7 +13,7 @@ Create a graph with a single edge from a dictionary of dictionaries
 
 See Also
 --------
-nx_pygraphviz, nx_pydot
+nx_agraph, nx_pydot
 """
 #    Copyright (C) 2006-2013 by
 #    Aric Hagberg <hagberg@lanl.gov>
@@ -40,14 +40,12 @@ def _prep_create_using(create_using):
 
     """
     if create_using is None:
-        G=nx.Graph()
-    else:
-        G=create_using
-        try:
-            G.clear()
-        except:
-            raise TypeError("Input graph is not a networkx graph type")
-    return G
+        return nx.Graph()
+    try:
+        create_using.clear()
+    except:
+        raise TypeError("Input graph is not a networkx graph type")
+    return create_using
 
 def to_networkx_graph(data,create_using=None,multigraph_input=False):
     """Make a NetworkX graph from a known data structure.
@@ -102,7 +100,7 @@ def to_networkx_graph(data,create_using=None,multigraph_input=False):
     # pygraphviz  agraph
     if hasattr(data,"is_strict"):
         try:
-            return nx.from_agraph(data,create_using=create_using)
+            return nx.nx_agraph.from_agraph(data,create_using=create_using)
         except:
             raise nx.NetworkXError("Input is not a correct pygraphviz graph.")
 
@@ -126,6 +124,19 @@ def to_networkx_graph(data,create_using=None,multigraph_input=False):
             return from_edgelist(data,create_using=create_using)
         except:
             raise nx.NetworkXError("Input is not a valid edge list")
+
+    # Pandas DataFrame
+    try:
+        import pandas as pd
+        if isinstance(data, pd.DataFrame):
+            try:
+                return nx.from_pandas_dataframe(data, create_using=create_using)
+            except:
+                msg = "Input is not a correct Pandas DataFrame."
+                raise nx.NetworkXError(msg)
+    except ImportError:
+        msg = 'pandas not found, skipping conversion test.'
+        warnings.warn(msg, ImportWarning)
 
     # numpy matrix or ndarray
     try:

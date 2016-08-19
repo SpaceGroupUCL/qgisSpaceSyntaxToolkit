@@ -1,7 +1,7 @@
 """
 Betweenness centrality measures for subsets of nodes.
 """
-#    Copyright (C) 2004-2011 by 
+#    Copyright (C) 2004-2015 by 
 #    Aric Hagberg <hagberg@lanl.gov>
 #    Dan Schult <dschult@colgate.edu>
 #    Pieter Swart <swart@lanl.gov>
@@ -24,7 +24,7 @@ from networkx.algorithms.centrality.betweenness import\
 def betweenness_centrality_subset(G,sources,targets,
                                   normalized=False,
                                   weight=None):
-    """Compute betweenness centrality for a subset of nodes.
+    r"""Compute betweenness centrality for a subset of nodes.
 
     .. math::
 
@@ -106,7 +106,7 @@ def betweenness_centrality_subset(G,sources,targets,
 def edge_betweenness_centrality_subset(G,sources,targets,
                                        normalized=False,
                                        weight=None):
-    """Compute betweenness centrality for edges for a subset of nodes.
+    r"""Compute betweenness centrality for edges for a subset of nodes.
 
     .. math::
 

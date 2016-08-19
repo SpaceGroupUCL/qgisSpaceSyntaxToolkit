@@ -1,7 +1,7 @@
 """
 Adjacency matrix and incidence matrix of graphs.
 """
-#    Copyright (C) 2004-2013 by
+#    Copyright (C) 2004-2015 by
 #    Aric Hagberg <hagberg@lanl.gov>
 #    Dan Schult <dschult@colgate.edu>
 #    Pieter Swart <swart@lanl.gov>
@@ -126,6 +126,8 @@ def adjacency_matrix(G, nodelist=None, weight='weight'):
 
     Notes
     -----
+    For directed graphs, entry i,j corresponds to an edge from i to j.
+    
     If you want a pure Python adjacency matrix representation try
     networkx.convert.to_dict_of_dicts which will return a
     dictionary-of-dictionaries format that can be addressed as a

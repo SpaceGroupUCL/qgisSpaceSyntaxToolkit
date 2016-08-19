@@ -28,7 +28,7 @@ from qgis.core import *
 
 # Import the debug library
 # can set is_debug to False in release version
-is_debug = True
+is_debug = False
 try:
     import pydevd
     has_pydevd = True
@@ -106,7 +106,7 @@ class EssToolkit:
         #self.project.loadSettings()
 
         if has_pydevd and is_debug:
-            pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True)
+            pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True, suspend=False)
 
     def initGui(self):
         # Create action to start the modules

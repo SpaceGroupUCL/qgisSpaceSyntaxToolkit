@@ -19,7 +19,7 @@ import networkx as nx
 
 def min_cost_flow_cost(G, demand = 'demand', capacity = 'capacity',
                         weight = 'weight'):
-    """Find the cost of a minimum cost flow satisfying all demands in digraph G.
+    r"""Find the cost of a minimum cost flow satisfying all demands in digraph G.
 
     G is a digraph with edge costs and capacities and in which nodes
     have demand, i.e., they want to send or receive some amount of
@@ -34,7 +34,7 @@ def min_cost_flow_cost(G, demand = 'demand', capacity = 'capacity',
         DiGraph on which a minimum cost flow satisfying all demands is
         to be found.
 
-    demand: string
+    demand : string
         Nodes of the graph G are expected to have an attribute demand
         that indicates how much flow a node wants to send (negative
         demand) or receive (positive demand). Note that the sum of the
@@ -42,13 +42,13 @@ def min_cost_flow_cost(G, demand = 'demand', capacity = 'capacity',
         this attribute is not present, a node is considered to have 0
         demand. Default value: 'demand'.
 
-    capacity: string
+    capacity : string
         Edges of the graph G are expected to have an attribute capacity
         that indicates how much flow the edge can support. If this
         attribute is not present, the edge is considered to have
         infinite capacity. Default value: 'capacity'.
 
-    weight: string
+    weight : string
         Edges of the graph G are expected to have an attribute weight
         that indicates the cost incurred by sending one unit of flow on
         that edge. If not present, the weight is considered to be 0.
@@ -56,7 +56,7 @@ def min_cost_flow_cost(G, demand = 'demand', capacity = 'capacity',
 
     Returns
     -------
-    flowCost: integer, float
+    flowCost : integer, float
         Cost of a minimum cost flow satisfying all demands.
 
     Raises
@@ -67,6 +67,7 @@ def min_cost_flow_cost(G, demand = 'demand', capacity = 'capacity',
 
     NetworkXUnfeasible
         This exception is raised in the following situations:
+
             * The sum of the demands is not zero. Then, there is no
               flow satisfying all demands.
             * There is no flow satisfying all demand.
@@ -102,7 +103,7 @@ def min_cost_flow_cost(G, demand = 'demand', capacity = 'capacity',
 
 def min_cost_flow(G, demand = 'demand', capacity = 'capacity',
                   weight = 'weight'):
-    """Return a minimum cost flow satisfying all demands in digraph G.
+    r"""Return a minimum cost flow satisfying all demands in digraph G.
 
     G is a digraph with edge costs and capacities and in which nodes
     have demand, i.e., they want to send or receive some amount of
@@ -117,7 +118,7 @@ def min_cost_flow(G, demand = 'demand', capacity = 'capacity',
         DiGraph on which a minimum cost flow satisfying all demands is
         to be found.
 
-    demand: string
+    demand : string
         Nodes of the graph G are expected to have an attribute demand
         that indicates how much flow a node wants to send (negative
         demand) or receive (positive demand). Note that the sum of the
@@ -125,13 +126,13 @@ def min_cost_flow(G, demand = 'demand', capacity = 'capacity',
         this attribute is not present, a node is considered to have 0
         demand. Default value: 'demand'.
 
-    capacity: string
+    capacity : string
         Edges of the graph G are expected to have an attribute capacity
         that indicates how much flow the edge can support. If this
         attribute is not present, the edge is considered to have
         infinite capacity. Default value: 'capacity'.
 
-    weight: string
+    weight : string
         Edges of the graph G are expected to have an attribute weight
         that indicates the cost incurred by sending one unit of flow on
         that edge. If not present, the weight is considered to be 0.
@@ -139,7 +140,7 @@ def min_cost_flow(G, demand = 'demand', capacity = 'capacity',
 
     Returns
     -------
-    flowDict: dictionary
+    flowDict : dictionary
         Dictionary of dictionaries keyed by nodes such that
         flowDict[u][v] is the flow edge (u, v).
 
@@ -151,6 +152,7 @@ def min_cost_flow(G, demand = 'demand', capacity = 'capacity',
 
     NetworkXUnfeasible
         This exception is raised in the following situations:
+
             * The sum of the demands is not zero. Then, there is no
               flow satisfying all demands.
             * There is no flow satisfying all demand.
@@ -195,19 +197,19 @@ def cost_of_flow(G, flowDict, weight = 'weight'):
         DiGraph on which a minimum cost flow satisfying all demands is
         to be found.
 
-    weight: string
+    weight : string
         Edges of the graph G are expected to have an attribute weight
         that indicates the cost incurred by sending one unit of flow on
         that edge. If not present, the weight is considered to be 0.
         Default value: 'weight'.
 
-    flowDict: dictionary
+    flowDict : dictionary
         Dictionary of dictionaries keyed by nodes such that
         flowDict[u][v] is the flow edge (u, v).
 
     Returns
     -------
-    cost: Integer, float
+    cost : Integer, float
         The total cost of the flow. This is given by the sum over all
         edges of the product of the edge's flow and the edge's weight.
 
@@ -271,8 +273,7 @@ def max_flow_min_cost(G, s, t, capacity = 'capacity', weight = 'weight'):
 
     See also
     --------
-    cost_of_flow, ford_fulkerson, min_cost_flow, min_cost_flow_cost,
-    network_simplex
+    cost_of_flow, min_cost_flow, min_cost_flow_cost, network_simplex
 
     Examples
     --------
@@ -290,13 +291,13 @@ def max_flow_min_cost(G, s, t, capacity = 'capacity', weight = 'weight'):
     ...                   (6, 7, {'weight': 8}),
     ...                   (7, 4, {'capacity': 6, 'weight': 6})])
     >>> mincostFlow = nx.max_flow_min_cost(G, 1, 7)
-    >>> nx.cost_of_flow(G, mincostFlow)
+    >>> mincost = nx.cost_of_flow(G, mincostFlow)
+    >>> mincost
     373
-    >>> from networkx.algorithms.flow import ford_fulkerson
-    >>> R = ford_fulkerson(G, 1, 7)
-    >>> maxFlow = R.graph['flow_dict']
-    >>> nx.cost_of_flow(G, maxFlow)
-    428
+    >>> from networkx.algorithms.flow import maximum_flow
+    >>> maxFlow = maximum_flow(G, 1, 7)[1]
+    >>> nx.cost_of_flow(G, maxFlow) >= mincost
+    True
     >>> mincostFlowValue = (sum((mincostFlow[u][7] for u in G.predecessors(7)))
     ...                     - sum((mincostFlow[7][v] for v in G.successors(7))))
     >>> mincostFlowValue == nx.maximum_flow_value(G, 1, 7)
