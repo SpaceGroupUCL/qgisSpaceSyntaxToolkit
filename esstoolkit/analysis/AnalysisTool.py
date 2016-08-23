@@ -232,10 +232,10 @@ class AnalysisTool(QObject):
 
     def isDatastoreSet(self):
         is_set = False
-        name = self.datastore['name']
-        path = self.datastore['path']
-        schema = self.datastore['schema']
         if self.datastore:
+            name = self.datastore['name']
+            path = self.datastore['path']
+            schema = self.datastore['schema']
             if name == "":
                 self.clearDatastore()
                 self.iface.messageBar().pushMessage("Info", "Select a 'Data store' to save analysis results.", level=0, duration=5)
