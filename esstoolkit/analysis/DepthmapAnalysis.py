@@ -169,26 +169,34 @@ class DepthmapAnalysis(QObject):
                 if weight not in defaults:
                     for f in features:
                         axial_data += str(f.attribute(ref)) + "\t"
-                        axial_data += str(f.geometry().vertexAt(0).x()) + "\t" + str(f.geometry().vertexAt(0).y()) + "\t"
-                        axial_data += str(f.geometry().vertexAt(1).x()) + "\t" + str(f.geometry().vertexAt(1).y()) + "\t"
+                        axial_data += str(f.geometry().vertexAt(0).x()) + "\t" +\
+                                      str(f.geometry().vertexAt(0).y()) + "\t"
+                        axial_data += str(f.geometry().vertexAt(1).x()) + "\t" +\
+                                      str(f.geometry().vertexAt(1).y()) + "\t"
                         axial_data += str(f.attribute(weight)) + "\n"
                 else:
                     for f in features:
                         axial_data += str(f.attribute(ref)) + "\t"
-                        axial_data += str(f.geometry().vertexAt(0).x()) + "\t" + str(f.geometry().vertexAt(0).y()) + "\t"
-                        axial_data += str(f.geometry().vertexAt(1).x()) + "\t" + str(f.geometry().vertexAt(1).y()) + "\n"
+                        axial_data += str(f.geometry().vertexAt(0).x()) + "\t" +\
+                                      str(f.geometry().vertexAt(0).y()) + "\t"
+                        axial_data += str(f.geometry().vertexAt(1).x()) + "\t" +\
+                                      str(f.geometry().vertexAt(1).y()) + "\n"
             else:
                 if weight not in defaults:
                     for f in features:
                         axial_data += str(f.id()) + "\t"
-                        axial_data += str(f.geometry().vertexAt(0).x()) + "\t" + str(f.geometry().vertexAt(0).y()) + "\t"
-                        axial_data += str(f.geometry().vertexAt(1).x()) + "\t" + str(f.geometry().vertexAt(1).y()) + "\t"
+                        axial_data += str(f.geometry().vertexAt(0).x()) + "\t" +\
+                                      str(f.geometry().vertexAt(0).y()) + "\t"
+                        axial_data += str(f.geometry().vertexAt(1).x()) + "\t" +\
+                                      str(f.geometry().vertexAt(1).y()) + "\t"
                         axial_data += str(f.attribute(weight)) + "\n"
                 else:
                     for f in features:
                         axial_data += str(f.id()) + "\t"
-                        axial_data += str(f.geometry().vertexAt(0).x()) + "\t" + str(f.geometry().vertexAt(0).y()) + "\t"
-                        axial_data += str(f.geometry().vertexAt(1).x()) + "\t" + str(f.geometry().vertexAt(1).y()) + "\n"
+                        axial_data += str(f.geometry().vertexAt(0).x()) + "\t" +\
+                                      str(f.geometry().vertexAt(0).y()) + "\t"
+                        axial_data += str(f.geometry().vertexAt(1).x()) + "\t" +\
+                                      str(f.geometry().vertexAt(1).y()) + "\n"
             return axial_data
         except:
             self.showMessage("Exporting axial map failed.", 'Error', lev=3, dur=5)

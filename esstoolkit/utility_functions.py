@@ -534,13 +534,19 @@ def roundNumber(num):
         return rounded
 
 
-def truncateNumber(num,digits=9):
+def truncateNumberString(num,digits=9):
     if isNumeric(num):
         truncated = str(num)
         if '.' in truncated:
             truncated = truncated[:digits]
             truncated = truncated.rstrip('0').rstrip('.')
         return convertNumeric(truncated)
+
+
+def truncateNumber(num,digits=9):
+    if isNumeric(num):
+        truncated = math.floor(num * 10 ** digits) / 10 ** digits
+        return truncated
 
 
 # function found here http://www.power-quant.com/?q=node/85
