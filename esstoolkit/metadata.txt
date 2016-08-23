@@ -11,7 +11,7 @@
 name=Space Syntax Toolkit
 qgisMinimumVersion=2.0
 description=Collection of tools for spatial network analysis and data exploration.
-version=0.1.3
+version=0.1.4
 author=Jorge Gil, UCL
 email=jorge.gil@ucl.ac.uk
 
