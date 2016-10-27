@@ -879,8 +879,6 @@ class AnalysisTool(QObject):
                 if 'CH' in attr:
                     idx = attributes.index(attr)
                     types[idx] = QVariant.Double
-                    for val in values:
-                        val[idx] = round(val)
             # write a new file
             if 'shapefile' not in provider.lower() or create_table:
                 new_layer = uf.createShapeFileFullLayer(path, table, srid, attributes, types, values, coords)
