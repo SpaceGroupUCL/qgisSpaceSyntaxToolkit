@@ -350,8 +350,9 @@ class DepthmapAnalysis(QObject):
                 data_type = QVariant.String
             elif type(data).__name__ == 'float':
                 data_type = QVariant.Double
-            # define the attributes, using name and type
+            # store the attributes type
             types.append(data_type)
+        # get coords
         coords = [attributes.index('x1'), attributes.index('y1'), attributes.index('x2'), attributes.index('y2')]
         # calculate new normalised variables
         if self.settings['type'] == 1 and self.settings['newnorm'] == 1:
