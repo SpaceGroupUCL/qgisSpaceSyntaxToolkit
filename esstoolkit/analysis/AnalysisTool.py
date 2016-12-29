@@ -874,12 +874,19 @@ class AnalysisTool(QObject):
         if self.datastore['type'] == 0:
             if uf.getLayerPath(analysis_layer) != path or analysis_layer.name() != table:
                 create_table = True
+            # convert type of choice columns to float
+            for attr in attributes:
+                if 'CH' in attr:
+                    idx = attributes.index(attr)
+                    types[idx] = QVariant.Double
+            # write a new file
             if 'shapefile' not in provider.lower() or create_table:
                 new_layer = uf.createShapeFileFullLayer(path, table, srid, attributes, types, values, coords)
                 if new_layer:
                     res = True
                 else:
                     res = False
+            # or append to an existing file
             else:
                 res = uf.addShapeFileAttributes(analysis_layer, attributes, types, values)
         # spatialite data store

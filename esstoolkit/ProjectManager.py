@@ -278,8 +278,6 @@ class ProjectDialog(QtGui.QDialog, Ui_ProjectDialog):
         elif self.datastore_type == 2:
             self.dataNewButton.setDisabled(True)
             self.dataOpenButton.setDisabled(True)
-            self.schemaCombo.setDisabled(False)
-            self.schemaLabel.setDisabled(False)
 
         # update datastores according to type
         self.loadDatastoreList()
@@ -292,9 +290,10 @@ class ProjectDialog(QtGui.QDialog, Ui_ProjectDialog):
             self.datastores = uf.listSpatialiteConnections()
         elif self.datastore_type == 2:
             con_settings = uf.getPostgisConnectionSettings()
-            self.datastores['name'] = [con['name'] for con in con_settings]
-            self.datastores['idx'] = self.datastores['name'].index(uf.getPostgisSelectedConnection())
-            self.datastores['path'] = [con['database'] for con in con_settings]
+            if len(con_settings) > 0:
+                self.datastores['name'] = [con['name'] for con in con_settings]
+                self.datastores['idx'] = self.datastores['name'].index(uf.getPostgisSelectedConnection())
+                self.datastores['path'] = [con['database'] for con in con_settings]
         # identify datastore from settings
         try:
             data_type = int(self.proj_settings["datastore/type"])
@@ -363,6 +362,8 @@ class ProjectDialog(QtGui.QDialog, Ui_ProjectDialog):
             self.dataSelectCombo.setToolTip(self.datastores['path'][self.datastore_idx])
             #update schemas accordingly
             if self.datastore_type == 2:
+                self.schemaCombo.setDisabled(False)
+                self.schemaLabel.setDisabled(False)
                 self.loadSchemaList(self.datastore_name)
 
     def loadSchemaList(self, name):
