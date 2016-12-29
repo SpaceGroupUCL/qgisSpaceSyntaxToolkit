@@ -42,8 +42,6 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
         # define globals
         self.layers = [{'idx': 0, 'name': ''},{'idx': 0, 'name': ''},{'idx': 0, 'name': ''},{'idx': 0, 'name': ''}]
         self.axial_verify_report = [{'progress': 0, 'summary': [], 'filter': -1, 'report': dict(), 'nodes': []}
-                                    , {'progress': 0, 'summary': [], 'filter': -1, 'report': dict(), 'nodes': []}
-                                    , {'progress': 0, 'summary': [], 'filter': -1, 'report': dict(), 'nodes': []}
                                     , {'progress': 0, 'summary': [], 'filter': -1, 'report': dict(), 'nodes': []}]
         self.axial_verification_settings = {'ax_dist': 1.0, 'ax_min': 1.0, 'unlink_dist': 5.0, 'link_dist': 1.0}
 
@@ -54,8 +52,6 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
         self.analysisLayersTabs.currentChanged.connect(self.__selectLayerTab)
         self.analysisMapCombo.activated.connect(self.selectMapLayer)
         self.analysisUnlinksCombo.activated.connect(self.selectUnlinksLayer)
-        self.analysisLinksCombo.activated.connect(self.selectLinksLayer)
-        self.analysisOriginsCombo.activated.connect(self.selectOriginsLayer)
         self.axialVerifySettingsButton.clicked.connect(self.showAxialEditSettings)
         self.axialReportFilterCombo.activated.connect(self.selectAxialProblemsFilter)
         self.axialDepthmapWeightCheck.toggled.connect(self.setDepthmapWeighted)
@@ -74,15 +70,6 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
         self.updateAxialVerifyReport()
         self.clearAxialDepthmapTab()
 
-        # current UI restrictions
-        self.analysisNewMapButton.hide()
-        self.analysisNewUnlinksButton.hide()
-        self.analysisNewLinksButton.hide()
-        self.analysisNewOriginsButton.hide()
-        self.analysisLayersTabs.setTabEnabled(2, False)
-        self.analysisLayersTabs.setTabToolTip(2, 'Feature currently unavailable')
-        self.analysisLayersTabs.setTabEnabled(3, False)
-        self.analysisLayersTabs.setTabToolTip(3, 'Feature currently unavailable')
 
     #####
     # General functions of the analysis dialog
@@ -143,46 +130,9 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
         self.clearAxialProblems(1)
         self.updateAnalysisTabs()
 
-    def setLinksLayers(self, names, idx):
-        layers = ['-----']
-        if names:
-            layers.extend(names)
-        self.analysisLinksCombo.clear()
-        self.analysisLinksCombo.addItems(layers)
-        self.analysisLinksCombo.setCurrentIndex(idx+1)
-        self.layers[2]['idx'] = idx+1
-        self.layers[2]['name'] = layers[idx+1]
-        if idx == -1:
-            self.clearAxialProblems(2)
-
-    def selectLinksLayer(self):
-        self.layers[2]['name'] = self.analysisLinksCombo.currentText()
-        self.layers[2]['idx'] = self.analysisLinksCombo.currentIndex()
-        # update the UI
-        self.clearAxialProblems(2)
-        self.updateAnalysisTabs()
-
-    def setOriginsLayers(self, names, idx):
-        layers = ['-----']
-        if names:
-            layers.extend(names)
-        self.analysisOriginsCombo.clear()
-        self.analysisOriginsCombo.addItems(layers)
-        self.analysisOriginsCombo.setCurrentIndex(idx+1)
-        self.layers[3]['idx'] = idx+1
-        self.layers[3]['name'] = layers[idx+1]
-        if idx == -1:
-            self.clearAxialProblems(3)
-
-    def selectOriginsLayer(self):
-        self.layers[3]['name'] = self.analysisOriginsCombo.currentText()
-        self.layers[3]['idx'] = self.analysisOriginsCombo.currentIndex()
-        # update the UI
-        self.clearAxialProblems(3)
-        self.updateAnalysisTabs()
 
     def getAnalysisLayers(self):
-        layers = {'map':'','unlinks':'','links':'','origins':''}
+        layers = {'map':'','unlinks':''}
         for i, layer in enumerate(self.layers):
             name = layer['name']
             if name != '-----':
@@ -190,10 +140,6 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
                     layers['map'] = name
                 elif i == 1:
                     layers['unlinks'] = name
-                elif i == 2:
-                    layers['links'] = name
-                elif i == 3:
-                    layers['origins'] = name
         return layers
 
     def updateAnalysisTabs(self):

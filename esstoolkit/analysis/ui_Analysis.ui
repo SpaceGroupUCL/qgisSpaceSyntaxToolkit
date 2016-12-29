@@ -73,7 +73,7 @@
        <attribute name="title">
         <string>Map</string>
        </attribute>
-       <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="0,4,0">
+       <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="0,4">
         <property name="leftMargin">
          <number>12</number>
         </property>
@@ -100,20 +100,13 @@
           </property>
          </widget>
         </item>
-        <item>
-         <widget class="QPushButton" name="analysisNewMapButton">
-          <property name="text">
-           <string>New...</string>
-          </property>
-         </widget>
-        </item>
        </layout>
       </widget>
       <widget class="QWidget" name="analysisUnlinksTab">
        <attribute name="title">
         <string>Unlinks</string>
        </attribute>
-       <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="0,3,0">
+       <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="0,3">
         <property name="leftMargin">
          <number>12</number>
         </property>
@@ -137,93 +130,6 @@
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="analysisNewUnlinksButton">
-          <property name="text">
-           <string>New...</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="analysisLinksTab">
-       <attribute name="title">
-        <string>Links</string>
-       </attribute>
-       <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0,3,0">
-        <property name="leftMargin">
-         <number>12</number>
-        </property>
-        <property name="rightMargin">
-         <number>12</number>
-        </property>
-        <property name="bottomMargin">
-         <number>12</number>
-        </property>
-        <item>
-         <widget class="QLabel" name="analysisLinksLabel">
-          <property name="text">
-           <string>Layer</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QComboBox" name="analysisLinksCombo">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="analysisNewLinksButton">
-          <property name="text">
-           <string>New...</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="analysisOriginsTab">
-       <attribute name="title">
-        <string>Origins</string>
-       </attribute>
-       <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,3,0">
-        <property name="leftMargin">
-         <number>12</number>
-        </property>
-        <property name="rightMargin">
-         <number>12</number>
-        </property>
-        <property name="bottomMargin">
-         <number>12</number>
-        </property>
-        <item>
-         <widget class="QLabel" name="analysisOriginsLabel">
-          <property name="text">
-           <string>Layer</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QComboBox" name="analysisOriginsCombo">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="analysisNewOriginsButton">
-          <property name="text">
-           <string>New...</string>
           </property>
          </widget>
         </item>
