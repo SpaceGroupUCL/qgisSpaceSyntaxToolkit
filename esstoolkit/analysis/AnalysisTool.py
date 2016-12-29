@@ -90,7 +90,7 @@ class AnalysisTool(QObject):
         self.timer.timeout.connect(self.checkDepthmapAnalysisProgress)
 
         # define analysis data structures
-        self.analysis_layers = {'map': "", 'unlinks': ""}
+        self.analysis_layers = {'map': "", 'unlinks': "", 'map_type': 0}
         self.axial_analysis_settings = {'type': 0, 'distance': 0, 'radius': 0, 'rvalues': "n", 'output': "",
                                         'fullset': 0, 'betweenness': 1, 'newnorm': 1, 'weight': 0, 'weightBy': "",
                                         'stubs': 40, 'id': ""}
@@ -264,6 +264,7 @@ class AnalysisTool(QObject):
         # default selection
         analysis_map = -1
         analysis_unlinks = -1
+        map_type = 0
         layers = uf.getLegendLayers(self.iface, 'all', 'all')
         if layers:
             for layer in layers:
@@ -275,19 +276,21 @@ class AnalysisTool(QObject):
             # settings preference
             if self.analysis_layers['map'] in map_list:
                 analysis_map = map_list.index(self.analysis_layers['map'])
+                map_type = self.analysis_layers['map_type']
             if self.analysis_layers['unlinks'] in unlinks_list:
                 analysis_unlinks = unlinks_list.index(self.analysis_layers['unlinks'])
             # current selection
             selected_layers = self.dlg.getAnalysisLayers()
             if selected_layers['map'] != '' and selected_layers['map'] in map_list:
                 analysis_map = map_list.index(selected_layers['map'])
+                map_type = 0
             if selected_layers['unlinks'] != '' and selected_layers['unlinks'] in unlinks_list:
                 analysis_unlinks = unlinks_list.index(selected_layers['unlinks'])
         else:
             self.dlg.clearAxialDepthmapTab()
 
         # update UI
-        self.dlg.setMapLayers(map_list, analysis_map)
+        self.dlg.setMapLayers(map_list, analysis_map, map_type)
         self.dlg.setUnlinksLayers(unlinks_list, analysis_unlinks)
         self.dlg.updateAnalysisTabs()
         self.dlg.updateAxialDepthmapTab()
