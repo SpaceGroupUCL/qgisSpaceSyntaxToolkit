@@ -39,8 +39,6 @@ class DepthmapAnalysis(QObject):
 
         #initialise global variables
         self.axial_layer = None
-        self.unlinks_layer = None
-        self.links_layer = None
         self.origins_layer = None
         self.datastore = None
         self.settings = None
@@ -64,14 +62,6 @@ class DepthmapAnalysis(QObject):
             self.unlinks_layer = uf.getLegendLayerByName(self.iface, layers['unlinks'])
         else:
             self.unlinks_layer = ''
-        if layers['links'] != '':
-            self.links_layer = uf.getLegendLayerByName(self.iface, layers['links'])
-        else:
-            self.links_layer = ''
-        if layers['origins'] != '':
-            self.origins_layer = uf.getLegendLayerByName(self.iface, layers['origins'])
-        else:
-            self.origins_layer = ''
         #
         # prepare analysis layers
         if self.settings['weight']:
@@ -94,14 +84,6 @@ class DepthmapAnalysis(QObject):
             unlinks_data = self.prepareUnlinks()
         else:
             unlinks_data = ''
-        if self.links_layer:
-            links_data = self.prepareLinks()
-        else:
-            links_data = ''
-        if self.origins_layer:
-            origins_data = self.prepareOrigins()
-        else:
-            origins_data = ''
         radii = self.settings['rvalues']
         #
         # prepare analysis user settings
@@ -320,28 +302,6 @@ class DepthmapAnalysis(QObject):
         if unlinks_data != '':
             unlinks_data = unlinks_data[:-1]
         return unlinks_data
-
-    def prepareLinks(self):
-        links_data = ''
-        try:
-            features = self.links_layer.getFeatures()
-            for f in features:
-                links_data += str(f.attribute('line1')) + ',' + str(f.attribute('line2')) + ';'
-        except:
-            self.showMessage("Exporting links failed.", 'Warning',lev=1, dur=5)
-            links_data = ''
-        return links_data
-
-    def prepareOrigins(self):
-        origins_data = ''
-        try:
-            features = self.origins_layer.getFeatures()
-            for f in features:
-                origins_data += str(f.attribute('lineId')) + ';'
-        except:
-            self.showMessage("Exporting origins failed.", 'Warning',lev=1, dur=5)
-            origins_data = ''
-        return origins_data
 
     def getWeightPosition(self,name):
         pos = -1
