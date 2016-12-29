@@ -73,10 +73,11 @@ class DepthmapAnalysis(QObject):
             self.axial_id = self.settings['id']
         else:
             self.axial_id = uf.getIdField(self.axial_layer)
-        #if self.settings['type'] in (0,1):
-        #    axial_data = self.prepareAxialMap(self.axial_id, weight_by)
-        #else:
-        axial_data = self.prepareSegmentMap(self.axial_id, weight_by)
+        if self.settings['type'] in (0,1):
+            axial_data = self.prepareAxialMap(self.axial_id, weight_by)
+        else:
+            #axial_data = self.prepareAxialMap(self.axial_id, weight_by)
+            axial_data = self.prepareSegmentMap(self.axial_id, weight_by)
         if axial_data == '':
             self.showMessage("The axial layer is not ready for analysis: verify its geometry first.", 'Info', lev=1, dur=5)
             return ''
@@ -141,7 +142,6 @@ class DepthmapAnalysis(QObject):
         # segment analysis settings, data only
         elif self.settings['type'] == 2:
             footer = "--layer--\ntype:4\n"
-            footer = "--layer--\ntype:3\n"
             footer += "segment.stubs:" + str(self.settings['stubs']) + "\n"
             footer += "segment.betweenness:" + str(self.settings['betweenness']) + "\n"
             footer += "segment.fullAngular:" + "0" + "\n"
@@ -232,9 +232,9 @@ class DepthmapAnalysis(QObject):
             if ref != '':
                 if weight not in defaults:
                     for f in features:
-                        segment_data += str(f.attribute(ref)) + "\t"
                         nr = 0
                         while f.geometry().vertexIdFromVertexNr(nr+1,vid):
+                            segment_data += str(f.attribute(ref)) + "\t"
                             segment_data += str(f.geometry().vertexAt(nr).x()) + "\t" +\
                                           str(f.geometry().vertexAt(nr).y()) + "\t"
                             segment_data += str(f.geometry().vertexAt(nr+1).x()) + "\t" +\
@@ -243,9 +243,9 @@ class DepthmapAnalysis(QObject):
                             nr += 1
                 else:
                     for f in features:
-                        segment_data += str(f.attribute(ref)) + "\t"
                         nr = 0
                         while f.geometry().vertexIdFromVertexNr(nr+1,vid):
+                            segment_data += str(f.attribute(ref)) + "\t"
                             segment_data += str(f.geometry().vertexAt(nr).x()) + "\t" +\
                                           str(f.geometry().vertexAt(nr).y()) + "\t"
                             segment_data += str(f.geometry().vertexAt(nr+1).x()) + "\t" +\
@@ -254,9 +254,9 @@ class DepthmapAnalysis(QObject):
             else:
                 if weight not in defaults:
                     for f in features:
-                        segment_data += str(f.id()) + "\t"
                         nr = 0
                         while f.geometry().vertexIdFromVertexNr(nr+1,vid):
+                            segment_data += str(f.id()) + "\t"
                             segment_data += str(f.geometry().vertexAt(nr).x()) + "\t" +\
                                           str(f.geometry().vertexAt(nr).y()) + "\t"
                             segment_data += str(f.geometry().vertexAt(nr+1).x()) + "\t" +\
@@ -265,9 +265,9 @@ class DepthmapAnalysis(QObject):
                             nr += 1
                 else:
                     for f in features:
-                        segment_data += str(f.id()) + "\t"
                         nr = 0
                         while f.geometry().vertexIdFromVertexNr(nr+1,vid):
+                            segment_data += str(f.id()) + "\t"
                             segment_data += str(f.geometry().vertexAt(nr).x()) + "\t" +\
                                           str(f.geometry().vertexAt(nr).y()) + "\t"
                             segment_data += str(f.geometry().vertexAt(nr+1).x()) + "\t" +\
@@ -544,7 +544,7 @@ class DepthmapAnalysis(QObject):
                 weight_by = self.settings['weightBy']
             else:
                 weight_by = ''
-            self.axial_thread = ExportAxialMap(self.iface.mainWindow(), self, self.axial_layer, self.user_id, weight_by)
+            self.axial_thread = ExportMap(self.iface.mainWindow(), self, self.axial_layer, self.user_id, weight_by)
         #else:
         #    self.axial_thread = ImportAxialMap(self.iface.mainWindow(), self, result)
         # put it in separate thread
@@ -555,9 +555,9 @@ class DepthmapAnalysis(QObject):
 
 
 #####
-#class to extract the model geometry for input in Depthmap.
+# class to extract the model geometry for input in Depthmap.
 # can be slow with large models and need to run it in separate thread
-class ExportAxialMap(QThread):
+class ExportMap(QThread):
     def __init__(self, parent_thread, parent_object, layer, ref='', weight=''):
         QThread.__init__(self, parent_thread)
         self.parent = parent_object
@@ -567,37 +567,59 @@ class ExportAxialMap(QThread):
         self.weight = weight
 
     def run(self):
-        axial_layer = ''
+        segment_data = ''
         try:
-            features = self.layer.getFeatures()
-            if self.id in self.layer.dataProvider().fields():
+            features = self.axial_layer.getFeatures()
+            # I leave all the if clauses outside the for loop to gain some speed
+            vid = QgsVertexId()
+            if self.id != '':
                 if self.weight != '':
                     for f in features:
-                        axial_layer += str(f.attribute(self.id)) + "\t"
-                        axial_layer += str(f.geometry().vertexAt(0).x()) + "\t" + str(f.geometry().vertexAt(0).y()) + "\t"
-                        axial_layer += str(f.geometry().vertexAt(1).x()) + "\t" + str(f.geometry().vertexAt(1).y()) + "\t"
-                        axial_layer += str(f.attribute(self.weight)) + "\n"
+                        nr = 0
+                        while f.geometry().vertexIdFromVertexNr(nr+1,vid):
+                            segment_data += str(f.attribute(self.id)) + "\t"
+                            segment_data += str(f.geometry().vertexAt(nr).x()) + "\t" +\
+                                          str(f.geometry().vertexAt(nr).y()) + "\t"
+                            segment_data += str(f.geometry().vertexAt(nr+1).x()) + "\t" +\
+                                          str(f.geometry().vertexAt(nr+1).y()) + "\t"
+                            segment_data += str(f.attribute(self.weight)) + "\n"
+                            nr += 1
                 else:
                     for f in features:
-                        axial_layer += str(f.attribute(self.id)) + "\t"
-                        axial_layer += str(f.geometry().vertexAt(0).x()) + "\t" + str(f.geometry().vertexAt(0).y()) + "\t"
-                        axial_layer += str(f.geometry().vertexAt(1).x()) + "\t" + str(f.geometry().vertexAt(1).y()) + "\n"
+                        nr = 0
+                        while f.geometry().vertexIdFromVertexNr(nr+1,vid):
+                            segment_data += str(f.attribute(self.id)) + "\t"
+                            segment_data += str(f.geometry().vertexAt(nr).x()) + "\t" +\
+                                          str(f.geometry().vertexAt(nr).y()) + "\t"
+                            segment_data += str(f.geometry().vertexAt(nr+1).x()) + "\t" +\
+                                          str(f.geometry().vertexAt(nr+1).y()) + "\n"
+                            nr += 1
             else:
                 if self.weight != '':
                     for f in features:
-                        axial_layer += str(f.id()) + "\t"
-                        axial_layer += str(f.geometry().vertexAt(0).x()) + "\t" + str(f.geometry().vertexAt(0).y()) + "\t"
-                        axial_layer += str(f.geometry().vertexAt(1).x()) + "\t" + str(f.geometry().vertexAt(1).y()) + "\t"
-                        axial_layer += str(f.attribute(self.weight)) + "\n"
+                        nr = 0
+                        while f.geometry().vertexIdFromVertexNr(nr+1,vid):
+                            segment_data += str(f.id()) + "\t"
+                            segment_data += str(f.geometry().vertexAt(nr).x()) + "\t" +\
+                                          str(f.geometry().vertexAt(nr).y()) + "\t"
+                            segment_data += str(f.geometry().vertexAt(nr+1).x()) + "\t" +\
+                                          str(f.geometry().vertexAt(nr+1).y()) + "\t"
+                            segment_data += str(f.attribute(self.weight)) + "\n"
+                            nr += 1
                 else:
                     for f in features:
-                        axial_layer += str(f.id()) + "\t"
-                        axial_layer += str(f.geometry().vertexAt(0).x()) + "\t" + str(f.geometry().vertexAt(0).y()) + "\t"
-                        axial_layer += str(f.geometry().vertexAt(1).x()) + "\t" + str(f.geometry().vertexAt(1).y()) + "\n"
+                        nr = 0
+                        while f.geometry().vertexIdFromVertexNr(nr+1,vid):
+                            segment_data += str(f.id()) + "\t"
+                            segment_data += str(f.geometry().vertexAt(nr).x()) + "\t" +\
+                                          str(f.geometry().vertexAt(nr).y()) + "\t"
+                            segment_data += str(f.geometry().vertexAt(nr+1).x()) + "\t" +\
+                                          str(f.geometry().vertexAt(nr+1).y()) + "\n"
+                            nr += 1
             self.status.emit('Model exported for analysis.')
-            self.result.emit(axial_layer)
+            self.result.emit(segment_data)
         except:
-            self.error.emit('Exporting model failed.')
+            self.error.emit('Exporting segment map failed.')
 
     def stop(self):
         self.abort = True
