@@ -99,6 +99,16 @@ class EssToolkit:
         self.explorer_action = None
         # Create other dialogs
         self.about = AboutDialog()
+        about_msg = (
+        'The "Space Syntax Toolkit" was originally developed at the Space Syntax Laboratory, '
+        'the Bartlett School of Architecture, University College London (UCL).\n\n'
+        'Author: Jorge Gil\n\n'
+        'Contributors: Tasos Varoudis\n\n'
+        'Contact: jorge.gil@ucl.ac.uk\n\n'
+        'Released under GNU Licence version 3')
+        self.about.messageText.setText(about_msg)
+        self.about.logoLabel.setPixmap(QPixmap(os.path.dirname(__file__) + '/icons/ucl.png'))
+        self.about.logoLabel.setScaledContents(True)
         self.about_action = None
         self.help_action = None
 
@@ -125,9 +135,9 @@ class EssToolkit:
         #icon = QIcon(os.path.dirname(__file__) + "/icons/help.png")
         #self.help_action = QAction(icon, u"Help", self.iface.mainWindow())
         #self.help_action.triggered.connect(self.showHelp)
-        #icon = QIcon(os.path.dirname(__file__) + "/icons/about.png")
-        #self.about_action = QAction(icon, u"About", self.iface.mainWindow())
-        #self.about_action.triggered.connect(self.about.show)
+        icon = QIcon(os.path.dirname(__file__) + "/icons/about.png")
+        self.about_action = QAction(icon, u"About", self.iface.mainWindow())
+        self.about_action.triggered.connect(self.about.show)
 
         # Add toolbar button and menu items
         self.esst_toolbar.addAction(self.analysis_action)
@@ -137,7 +147,7 @@ class EssToolkit:
         self.iface.addPluginToVectorMenu(u"&Space Syntax Toolkit", self.project_action)
         #self.iface.addPluginToVectorMenu(u"&Space Syntax Toolkit", self.settings_action)
         #self.iface.addPluginToVectorMenu(u"&Space Syntax Toolkit", self.help_action)
-        #self.iface.addPluginToVectorMenu(u"&Space Syntax Toolkit", self.about_action)
+        self.iface.addPluginToVectorMenu(u"&Space Syntax Toolkit", self.about_action)
 
         # Load the modules
         self.analysis.load()
@@ -162,7 +172,7 @@ class EssToolkit:
         self.iface.removePluginVectorMenu(u"&Space Syntax Toolkit", self.project_action)
         #self.iface.removePluginVectorMenu(u"&Space Syntax Toolkit", self.settings_action)
         #self.iface.removePluginVectorMenu(u"&Space Syntax Toolkit", self.help_action)
-        #self.iface.removePluginVectorMenu(u"&Space Syntax Toolkit", self.about_action)
+        self.iface.removePluginVectorMenu(u"&Space Syntax Toolkit", self.about_action)
 
         # Remove the toolbar buttons
         self.iface.removeToolBarIcon(self.analysis_action)
