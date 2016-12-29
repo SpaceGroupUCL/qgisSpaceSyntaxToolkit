@@ -44,13 +44,14 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
         self.axial_verify_report = [{'progress': 0, 'summary': [], 'filter': -1, 'report': dict(), 'nodes': []}
                                     , {'progress': 0, 'summary': [], 'filter': -1, 'report': dict(), 'nodes': []}]
         self.axial_verification_settings = {'ax_dist': 1.0, 'ax_min': 1.0, 'unlink_dist': 5.0, 'link_dist': 1.0}
-
+        self.segmented_mode = 0
         self.dlg_depthmap = DepthmapAdvancedDialog()
         self.dlg_verify = VerificationSettingsDialog(self.axial_verification_settings)
 
         # set up internal GUI signals
         self.analysisLayersTabs.currentChanged.connect(self.__selectLayerTab)
         self.analysisMapCombo.activated.connect(self.selectMapLayer)
+        self.analysisMapSegmentCheck.stateChanged.connect(self.setSegmentedMode)
         self.analysisUnlinksCombo.activated.connect(self.selectUnlinksLayer)
         self.axialVerifySettingsButton.clicked.connect(self.showAxialEditSettings)
         self.axialReportFilterCombo.activated.connect(self.selectAxialProblemsFilter)
@@ -111,6 +112,12 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
         self.updateAnalysisTabs()
         self.updateAxialDepthmapTab()
 
+    def setSegmentedMode(self, mode):
+        self.segmented_mode = mode
+
+    def getSegmentedMode(self):
+        return self.segmented_mode
+
     def setUnlinksLayers(self, names, idx):
         layers = ['-----']
         if names:
@@ -163,7 +170,7 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
         #self.updateAxialDepthmapTab()
 
     #####
-    # Functions of the edit layer tab
+    # Functions of the verify layer tab
     #####
     def lockAxialEditTab(self, onoff):
         self.axialVerifyButton.setDisabled(onoff)
