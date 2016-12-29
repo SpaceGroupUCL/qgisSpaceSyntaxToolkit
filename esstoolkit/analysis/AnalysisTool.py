@@ -563,10 +563,17 @@ class AnalysisTool(QObject):
             self.dlg.clearAxialDepthmapReport()
             # get selected layers
             self.analysis_layers = self.dlg.getAnalysisLayers()
+            # get analysis type based on map and axial/segment choice
+            if self.dlg.getDepthmapAnalysisType() == 0:
+                self.axial_analysis_settings['type'] = 0
+            else:
+                if self.dlg.getSegmentedMode() == 0:
+                    self.axial_analysis_settings['type'] = 1
+                else:
+                    self.axial_analysis_settings['type'] = 2
             # get the basic analysis settings
             analysis_layer = uf.getLegendLayerByName(self.iface, self.analysis_layers['map'])
             self.axial_analysis_settings['id'] = uf.getIdField(analysis_layer)
-            self.axial_analysis_settings['type'] = self.dlg.getDepthmapAnalysisType()
             self.axial_analysis_settings['weight'] = self.dlg.getDepthmapWeighted()
             self.axial_analysis_settings['weightBy'] = self.dlg.getDepthmapWeightAttribute()
             txt = self.depthmapAnalysis.parseRadii(self.dlg.getDepthmapRadiusText())
@@ -625,8 +632,6 @@ class AnalysisTool(QObject):
                 self.running_analysis = 'axial'
             else:
                 self.dlg.writeAxialDepthmapReport("Unable to run this analysis. Please check the input layer and analysis settings.")
-                #self.iface.messageBar().pushMessage("Error","Unable to run this space syntax analysis.", level=2, duration=4)
-            #self.dlg.lockAxialDepthmapTab(False)
 
     def compileDepthmapAnalysisSummary(self):
         message = u"Running analysis for map layer '%s':" % self.analysis_layers['map']
@@ -634,8 +639,10 @@ class AnalysisTool(QObject):
             message += u"\n   unlinks layer - '%s'" % self.analysis_layers['unlinks']
         if self.axial_analysis_settings['type'] == 0:
             txt = "axial"
-        else:
+        elif self.axial_analysis_settings['type'] == 1:
             txt = "segment"
+        elif self.axial_analysis_settings['type'] == 2:
+            txt = "segment input"
         message += u"\n   analysis type - %s" % txt
         if self.axial_analysis_settings['type'] == 1:
             message += u"\n   stubs removal - %s" % self.axial_analysis_settings['stubs']
@@ -659,7 +666,7 @@ class AnalysisTool(QObject):
             message += u"\n   calculate choice"
         if self.axial_analysis_settings['fullset'] == 1:
             message += u"\n   include advanced measures"
-        if self.axial_analysis_settings['type'] == 1 and self.axial_analysis_settings['newnorm'] == 1:
+        if self.axial_analysis_settings['type'] in (1, 2) and self.axial_analysis_settings['newnorm'] == 1:
             message += u"\n   calculate NACH and NAIN"
         message += u"\n\nStart: %s\n..." % self.start_time.strftime("%d/%m/%Y %H:%M:%S")
         return message
