@@ -366,18 +366,10 @@ class DepthmapAnalysis(QObject):
         if self.settings['weight']:
             weight_by = self.settings['weightBy'].title() + ' 1'
             if weight_by.title() in attributes:
-                exclusions.append(attributes.index(weight_by))
+                exclusions.append(attributes.index(weight_by.title()))
             # also remove the invalid "Axial Segment Length" attribute
             if "Axial Segment Length" in attributes:
                 exclusions.append(attributes.index("Axial Segment Length"))
-        # remove attributes and values from lists
-        if len(exclusions) > 0:
-            exclusions.sort(reverse=True)
-            values = zip(*values)
-            for i in exclusions:
-                attributes.pop(i)
-                values.pop(i)
-            values = zip(*values)
         # replace axial ref by axial id
         if "Axial Ref" in attributes:
             idx = attributes.index("Axial Ref")
@@ -386,8 +378,18 @@ class DepthmapAnalysis(QObject):
             idx = attributes.index("Id")
             if self.settings['type'] == 1:
                 attributes[idx] = "Axial Id"
+            elif self.axial_id in attributes:
+                attributes[idx] = "Axial Id"
             else:
                 attributes[idx] = self.axial_id
+        # remove attributes and values from lists
+        if len(exclusions) > 0:
+            exclusions.sort(reverse=True)
+            values = zip(*values)
+            for i in exclusions:
+                attributes.pop(i)
+                values.pop(i)
+            values = zip(*values)
         # remove spaces
         attributes = [x.replace(" ","_") for x in attributes]
         # get data type of attributes
