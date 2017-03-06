@@ -9,9 +9,9 @@
 
 [general]
 name=Space Syntax Toolkit
-qgisMinimumVersion=2.0
+qgisMinimumVersion=2.14
 description=Collection of tools for spatial network analysis and data exploration.
-version=0.1.5
+version=0.1.6
 author=Jorge Gil, UCL
 email=jorge.gil@ucl.ac.uk
 
@@ -25,9 +25,12 @@ about=The “Space Syntax Toolkit” is a QGIS plug-in for spatial network and s
     However, the added functionality can be of general benefit to QGIS users by introducing new tools for exploratory spatial data analysis.
     The plug-in was originally developed at the Space Syntax Laboratory, The Bartlett, UCL.
     Mailing list: spacesyntax-toolkit@jiscmail.ac.uk
-    Dependencies: For network analysis requires depthmapXnet. It can be downloaded from: http://archtech.gr/varoudis/depthmapX/?dir=depthmapXnet
+    Dependencies: For network analysis requires depthmapXnet 0.35. It can be downloaded from: http://archtech.gr/varoudis/depthmapX/?dir=depthmapXnet
 category = Vector
 changelog=
+    0.1.6 -
+    * analyse segment and road centre line maps without segmentation of input
+    * fix #143 duplicate id column names would caused one to be dropped
     0.1.5 -
     * fix #141 support large numbers in shape files by using double instead of int
     * fix #140 datastore dialog works when no Postgis connection is present

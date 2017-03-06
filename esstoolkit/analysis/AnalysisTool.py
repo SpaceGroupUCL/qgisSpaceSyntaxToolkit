@@ -30,8 +30,6 @@ from qgis.core import *
 from AnalysisDialog import AnalysisDialog
 from AxialVerification import *
 from UnlinksVerification import *
-from LinksVerification import *
-from OriginsVerification import *
 from DepthmapAnalysis import *
 
 from .. import utility_functions as uf
@@ -92,11 +90,11 @@ class AnalysisTool(QObject):
         self.timer.timeout.connect(self.checkDepthmapAnalysisProgress)
 
         # define analysis data structures
-        self.analysis_layers = {'map': "", 'unlinks': "", 'links': "", 'origins': ""}
+        self.analysis_layers = {'map': "", 'unlinks': "", 'map_type': 0}
         self.axial_analysis_settings = {'type': 0, 'distance': 0, 'radius': 0, 'rvalues': "n", 'output': "",
                                         'fullset': 0, 'betweenness': 1, 'newnorm': 1, 'weight': 0, 'weightBy': "",
                                         'stubs': 40, 'id': ""}
-        self.user_ids = {'map': "", 'unlinks': "", 'links': "", 'origins': ""}
+        self.user_ids = {'map': "", 'unlinks': ""}
         self.analysis_output = ""
         self.getProjectSettings()
 
@@ -141,8 +139,6 @@ class AnalysisTool(QObject):
         # update UI
         self.dlg.clearAxialProblems(0)
         self.dlg.clearAxialProblems(1)
-        self.dlg.clearAxialProblems(2)
-        self.dlg.clearAxialProblems(3)
         # update graph analysis
         self.dlg.setAxialDepthmapTab(self.axial_analysis_settings)
 
@@ -265,50 +261,37 @@ class AnalysisTool(QObject):
         # layer names by geometry type
         map_list = []
         unlinks_list = []
-        links_list = []
-        origins_list = []
         # default selection
         analysis_map = -1
         analysis_unlinks = -1
-        analysis_links = -1
-        analysis_origins = -1
+        map_type = 0
         layers = uf.getLegendLayers(self.iface, 'all', 'all')
         if layers:
             for layer in layers:
                 # checks if the layer is projected. Geographic coordinates are not supported
                 if layer.hasGeometryType() and uf.isLayerProjected(layer):
-                    origins_list.append(layer.name())
                     unlinks_list.append(layer.name())
                     if layer.geometryType() == 1: # line geometry
                         map_list.append(layer.name())
-                        links_list.append(layer.name())
             # settings preference
             if self.analysis_layers['map'] in map_list:
                 analysis_map = map_list.index(self.analysis_layers['map'])
+                map_type = self.analysis_layers['map_type']
             if self.analysis_layers['unlinks'] in unlinks_list:
                 analysis_unlinks = unlinks_list.index(self.analysis_layers['unlinks'])
-            if self.analysis_layers['links'] in links_list:
-                analysis_links = links_list.index(self.analysis_layers['links'])
-            if self.analysis_layers['origins'] in origins_list:
-                analysis_origins = origins_list.index(self.analysis_layers['origins'])
             # current selection
             selected_layers = self.dlg.getAnalysisLayers()
             if selected_layers['map'] != '' and selected_layers['map'] in map_list:
                 analysis_map = map_list.index(selected_layers['map'])
+                map_type = 0
             if selected_layers['unlinks'] != '' and selected_layers['unlinks'] in unlinks_list:
                 analysis_unlinks = unlinks_list.index(selected_layers['unlinks'])
-            if selected_layers['links'] != '' and selected_layers['links'] in links_list:
-                analysis_links = links_list.index(selected_layers['links'])
-            if selected_layers['origins'] != '' and selected_layers['origins'] in origins_list:
-                analysis_origins = origins_list.index(selected_layers['origins'])
         else:
             self.dlg.clearAxialDepthmapTab()
 
         # update UI
-        self.dlg.setMapLayers(map_list, analysis_map)
+        self.dlg.setMapLayers(map_list, analysis_map, map_type)
         self.dlg.setUnlinksLayers(unlinks_list, analysis_unlinks)
-        self.dlg.setLinksLayers(links_list, analysis_links)
-        self.dlg.setOriginsLayers(origins_list, analysis_origins)
         self.dlg.updateAnalysisTabs()
         self.dlg.updateAxialDepthmapTab()
 
@@ -320,8 +303,6 @@ class AnalysisTool(QObject):
         self.analysis_layers = self.dlg.getAnalysisLayers()
         axial = uf.getLegendLayerByName(self.iface, self.analysis_layers['map'])
         unlinks = uf.getLegendLayerByName(self.iface, self.analysis_layers['unlinks'])
-        links = uf.getLegendLayerByName(self.iface, self.analysis_layers['links'])
-        origins = uf.getLegendLayerByName(self.iface, self.analysis_layers['origins'])
         settings = self.dlg.getAxialEditSettings()
         caps = None
         self.axial_id = uf.getIdField(axial)
@@ -351,32 +332,6 @@ class AnalysisTool(QObject):
                 return False
             else:
                 self.verificationThread = UnlinksVerification( self.iface.mainWindow(), self, settings, axial, self.axial_id, unlinks, self.user_ids['unlinks'])
-        # verify links
-        elif self.edit_mode == 2:
-            if links and (axial.storageType() != links.storageType()):
-                self.iface.messageBar().pushMessage("Warning","All layers must be in the same file format.", level=1, duration=3)
-                return False
-            caps = links.dataProvider().capabilities()
-            self.user_ids['links'] = uf.getIdField(links)
-            if self.user_ids['links'] == '':
-                self.iface.messageBar().pushMessage("Info", "The links layer has invalid values in the ID column. Using feature ids.", level=0, duration=3)
-            if links.fieldNameIndex("line1") == -1 or links.fieldNameIndex("line2") == -1:
-                self.iface.messageBar().pushMessage("Warning", "Line ID columns missing in links layer, please 'Update IDs'.", level=1, duration=3)
-                return False
-            # newfeature: check links validity
-        # verify origins
-        elif self.edit_mode == 3:
-            if origins and (axial.storageType() != origins.storageType()):
-                self.iface.messageBar().pushMessage("Warning","All layers must be in the same file format.", level=1, duration=3)
-                return False
-            caps = origins.dataProvider().capabilities()
-            self.user_ids['origins'] = uf.getIdField(origins)
-            if self.user_ids['origins'] == '':
-                self.iface.messageBar().pushMessage("Info", "The origins layer has invalid values in the ID column. Using feature ids.", level=0, duration=3)
-            if unlinks.fieldNameIndex("lineid") == -1:
-                self.iface.messageBar().pushMessage("Warning", "Line ID columns missing in origins layer, please 'Update IDs'.", level=1, duration=3)
-                return False
-            # newfeature: check origins validity (for step depth and isovists)
         if not caps & QgsVectorDataProvider.AddFeatures:
             self.iface.messageBar().pushMessage("Info","To edit the selected layer, change to another file format.", level=0, duration=3)
         #prepare dialog
@@ -397,8 +352,6 @@ class AnalysisTool(QObject):
         self.analysis_layers = self.dlg.getAnalysisLayers()
         axial = uf.getLegendLayerByName(self.iface, self.analysis_layers['map'])
         unlinks = uf.getLegendLayerByName(self.iface, self.analysis_layers['unlinks'])
-        links = uf.getLegendLayerByName(self.iface, self.analysis_layers['links'])
-        origins = uf.getLegendLayerByName(self.iface, self.analysis_layers['origins'])
         settings = self.dlg.getAxialEditSettings()
         self.axial_id = uf.getIdField(axial)
         if self.axial_id == '':
@@ -420,32 +373,6 @@ class AnalysisTool(QObject):
                 if ids:
                     self.user_ids['unlinks'] = ids[0]
                 self.verificationThread = UnlinksIdUpdate(self.iface.mainWindow(), self, unlinks, self.user_ids['unlinks'], axial, self.axial_id, settings['unlink_dist'])
-        # update link line ids
-        elif self.edit_mode == 2:
-            if links and (axial.storageType() != links.storageType()):
-                self.iface.messageBar().pushMessage("Error","The selected layers must be in the same file format.", level=1, duration=5)
-                return False
-            caps = links.dataProvider().capabilities()
-            if caps & QgsVectorDataProvider.ChangeAttributeValues:
-                self.dlg.lockAxialEditTab(True)
-                self.dlg.clearAxialProblems()
-                ids = uf.getIdFieldNames(links)
-                if ids:
-                    self.user_ids['links'] = ids[0]
-                # newfeature: update links ids
-        # update origin line ids
-        elif self.edit_mode == 3:
-            if origins and (axial.storageType() != origins.storageType()):
-                self.iface.messageBar().pushMessage("Error","The selected layers must be in the same file format.", level=1, duration=5)
-                return False
-            caps = origins.dataProvider().capabilities()
-            if caps & QgsVectorDataProvider.ChangeAttributeValues:
-                self.dlg.lockAxialEditTab(True)
-                self.dlg.clearAxialProblems()
-                ids = uf.getIdFieldNames(origins)
-                if ids:
-                    self.user_ids['origins'] = ids[0]
-                # newfeature: update origins ids
         # prepare dialog
         self.dlg.lockLayerTab(True)
         self.dlg.setAxialVerifyProgressbar(0,100)
@@ -489,10 +416,6 @@ class AnalysisTool(QObject):
                 layer = uf.getLegendLayerByName(self.iface, self.analysis_layers['map'])
             elif self.edit_mode == 1:
                 layer = uf.getLegendLayerByName(self.iface, self.analysis_layers['unlinks'])
-            elif self.edit_mode == 2:
-                layer = uf.getLegendLayerByName(self.iface, self.analysis_layers['links'])
-            else:
-                layer = uf.getLegendLayerByName(self.iface, self.analysis_layers['origins'])
             connection = uf.getDBLayerConnection(layer)
             if self.datastore['type'] == 1:
                 cols = uf.listSpatialiteColumns(connection, layer.name())
@@ -506,7 +429,7 @@ class AnalysisTool(QObject):
             if len(layer.dataProvider().fields()) == len(cols)-1:
                 layer.dataProvider().reloadData()
             else:
-                reloadLayer(layer)
+                uf.reloadLayer(layer)
         self.dlg.setAxialProblemsFilter(["Layer IDs updated"])
         self.dlg.lockLayerTab(False)
         self.dlg.lockAxialEditTab(False)
@@ -564,12 +487,6 @@ class AnalysisTool(QObject):
         elif idx == 1:
             name = layers['unlinks']
             user_id = self.user_ids['unlinks']
-        elif idx == 2:
-            name = layers['links']
-            user_id = self.user_ids['links']
-        elif idx == 3:
-            name = layers['origins']
-            user_id = self.user_ids['origins']
         if name:
             layer = uf.getLegendLayerByName(self.iface,name)
         if layer:
@@ -649,10 +566,17 @@ class AnalysisTool(QObject):
             self.dlg.clearAxialDepthmapReport()
             # get selected layers
             self.analysis_layers = self.dlg.getAnalysisLayers()
+            # get analysis type based on map and axial/segment choice
+            if self.dlg.getDepthmapAnalysisType() == 0:
+                self.axial_analysis_settings['type'] = 0
+            else:
+                if self.dlg.getSegmentedMode() == 0:
+                    self.axial_analysis_settings['type'] = 1
+                else:
+                    self.axial_analysis_settings['type'] = 2
             # get the basic analysis settings
             analysis_layer = uf.getLegendLayerByName(self.iface, self.analysis_layers['map'])
             self.axial_analysis_settings['id'] = uf.getIdField(analysis_layer)
-            self.axial_analysis_settings['type'] = self.dlg.getDepthmapAnalysisType()
             self.axial_analysis_settings['weight'] = self.dlg.getDepthmapWeighted()
             self.axial_analysis_settings['weightBy'] = self.dlg.getDepthmapWeightAttribute()
             txt = self.depthmapAnalysis.parseRadii(self.dlg.getDepthmapRadiusText())
@@ -711,8 +635,6 @@ class AnalysisTool(QObject):
                 self.running_analysis = 'axial'
             else:
                 self.dlg.writeAxialDepthmapReport("Unable to run this analysis. Please check the input layer and analysis settings.")
-                #self.iface.messageBar().pushMessage("Error","Unable to run this space syntax analysis.", level=2, duration=4)
-            #self.dlg.lockAxialDepthmapTab(False)
 
     def compileDepthmapAnalysisSummary(self):
         message = u"Running analysis for map layer '%s':" % self.analysis_layers['map']
@@ -720,8 +642,10 @@ class AnalysisTool(QObject):
             message += u"\n   unlinks layer - '%s'" % self.analysis_layers['unlinks']
         if self.axial_analysis_settings['type'] == 0:
             txt = "axial"
-        else:
+        elif self.axial_analysis_settings['type'] == 1:
             txt = "segment"
+        elif self.axial_analysis_settings['type'] == 2:
+            txt = "segment input"
         message += u"\n   analysis type - %s" % txt
         if self.axial_analysis_settings['type'] == 1:
             message += u"\n   stubs removal - %s" % self.axial_analysis_settings['stubs']
@@ -745,7 +669,7 @@ class AnalysisTool(QObject):
             message += u"\n   calculate choice"
         if self.axial_analysis_settings['fullset'] == 1:
             message += u"\n   include advanced measures"
-        if self.axial_analysis_settings['type'] == 1 and self.axial_analysis_settings['newnorm'] == 1:
+        if self.axial_analysis_settings['type'] in (1, 2) and self.axial_analysis_settings['newnorm'] == 1:
             message += u"\n   calculate NACH and NAIN"
         message += u"\n\nStart: %s\n..." % self.start_time.strftime("%d/%m/%Y %H:%M:%S")
         return message

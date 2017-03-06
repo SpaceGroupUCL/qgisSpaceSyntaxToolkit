@@ -40,22 +40,19 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
         self.setupUi(self)
 
         # define globals
-        self.layers = [{'idx': 0, 'name': ''},{'idx': 0, 'name': ''},{'idx': 0, 'name': ''},{'idx': 0, 'name': ''}]
+        self.layers = [{'idx': 0, 'name': ''},{'idx': 0, 'name': ''}]
         self.axial_verify_report = [{'progress': 0, 'summary': [], 'filter': -1, 'report': dict(), 'nodes': []}
-                                    , {'progress': 0, 'summary': [], 'filter': -1, 'report': dict(), 'nodes': []}
-                                    , {'progress': 0, 'summary': [], 'filter': -1, 'report': dict(), 'nodes': []}
                                     , {'progress': 0, 'summary': [], 'filter': -1, 'report': dict(), 'nodes': []}]
         self.axial_verification_settings = {'ax_dist': 1.0, 'ax_min': 1.0, 'unlink_dist': 5.0, 'link_dist': 1.0}
-
+        self.segmented_mode = 0
         self.dlg_depthmap = DepthmapAdvancedDialog()
         self.dlg_verify = VerificationSettingsDialog(self.axial_verification_settings)
 
         # set up internal GUI signals
         self.analysisLayersTabs.currentChanged.connect(self.__selectLayerTab)
         self.analysisMapCombo.activated.connect(self.selectMapLayer)
+        self.analysisMapSegmentCheck.stateChanged.connect(self.setSegmentedMode)
         self.analysisUnlinksCombo.activated.connect(self.selectUnlinksLayer)
-        self.analysisLinksCombo.activated.connect(self.selectLinksLayer)
-        self.analysisOriginsCombo.activated.connect(self.selectOriginsLayer)
         self.axialVerifySettingsButton.clicked.connect(self.showAxialEditSettings)
         self.axialReportFilterCombo.activated.connect(self.selectAxialProblemsFilter)
         self.axialDepthmapWeightCheck.toggled.connect(self.setDepthmapWeighted)
@@ -74,15 +71,6 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
         self.updateAxialVerifyReport()
         self.clearAxialDepthmapTab()
 
-        # current UI restrictions
-        self.analysisNewMapButton.hide()
-        self.analysisNewUnlinksButton.hide()
-        self.analysisNewLinksButton.hide()
-        self.analysisNewOriginsButton.hide()
-        self.analysisLayersTabs.setTabEnabled(2, False)
-        self.analysisLayersTabs.setTabToolTip(2, 'Feature currently unavailable')
-        self.analysisLayersTabs.setTabEnabled(3, False)
-        self.analysisLayersTabs.setTabToolTip(3, 'Feature currently unavailable')
 
     #####
     # General functions of the analysis dialog
@@ -104,7 +92,7 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
     def lockLayerTab(self, onoff):
         self.analysisLayersTabs.setDisabled(onoff)
 
-    def setMapLayers(self, names, idx):
+    def setMapLayers(self, names, idx, map_type):
         layers = ['-----']
         if names:
             layers.extend(names)
@@ -113,6 +101,7 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
         self.analysisMapCombo.setCurrentIndex(idx+1)
         self.layers[0]['idx'] = idx+1
         self.layers[0]['name'] = layers[idx+1]
+        self.selectSegmentedMode(map_type)
         if idx == -1:
             self.clearAxialProblems()
 
@@ -120,9 +109,24 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
         self.layers[0]['idx'] = self.analysisMapCombo.currentIndex()
         self.layers[0]['name'] = self.analysisMapCombo.currentText()
         # update the UI
+        self.selectSegmentedMode(0)
         self.clearAxialProblems()
         self.updateAnalysisTabs()
         self.updateAxialDepthmapTab()
+
+    def setSegmentedMode(self, mode):
+        self.segmented_mode = mode
+        if self.axial_analysis_type != 0:
+            self.setDepthmapSegmentAnalysis()
+
+    def selectSegmentedMode(self, mode):
+        if mode == 2:
+            self.analysisMapSegmentCheck.setChecked(True)
+        else:
+            self.analysisMapSegmentCheck.setChecked(False)
+
+    def getSegmentedMode(self):
+        return self.segmented_mode
 
     def setUnlinksLayers(self, names, idx):
         layers = ['-----']
@@ -143,46 +147,9 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
         self.clearAxialProblems(1)
         self.updateAnalysisTabs()
 
-    def setLinksLayers(self, names, idx):
-        layers = ['-----']
-        if names:
-            layers.extend(names)
-        self.analysisLinksCombo.clear()
-        self.analysisLinksCombo.addItems(layers)
-        self.analysisLinksCombo.setCurrentIndex(idx+1)
-        self.layers[2]['idx'] = idx+1
-        self.layers[2]['name'] = layers[idx+1]
-        if idx == -1:
-            self.clearAxialProblems(2)
-
-    def selectLinksLayer(self):
-        self.layers[2]['name'] = self.analysisLinksCombo.currentText()
-        self.layers[2]['idx'] = self.analysisLinksCombo.currentIndex()
-        # update the UI
-        self.clearAxialProblems(2)
-        self.updateAnalysisTabs()
-
-    def setOriginsLayers(self, names, idx):
-        layers = ['-----']
-        if names:
-            layers.extend(names)
-        self.analysisOriginsCombo.clear()
-        self.analysisOriginsCombo.addItems(layers)
-        self.analysisOriginsCombo.setCurrentIndex(idx+1)
-        self.layers[3]['idx'] = idx+1
-        self.layers[3]['name'] = layers[idx+1]
-        if idx == -1:
-            self.clearAxialProblems(3)
-
-    def selectOriginsLayer(self):
-        self.layers[3]['name'] = self.analysisOriginsCombo.currentText()
-        self.layers[3]['idx'] = self.analysisOriginsCombo.currentIndex()
-        # update the UI
-        self.clearAxialProblems(3)
-        self.updateAnalysisTabs()
 
     def getAnalysisLayers(self):
-        layers = {'map':'','unlinks':'','links':'','origins':''}
+        layers = {'map':'','unlinks':'','map_type':0}
         for i, layer in enumerate(self.layers):
             name = layer['name']
             if name != '-----':
@@ -190,15 +157,12 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
                     layers['map'] = name
                 elif i == 1:
                     layers['unlinks'] = name
-                elif i == 2:
-                    layers['links'] = name
-                elif i == 3:
-                    layers['origins'] = name
+        layers['map_type'] = self.segmented_mode
         return layers
 
     def updateAnalysisTabs(self):
         index = self.layers[self.layers_tab]['idx']
-        # must have a map layer to verify unlinks, links and origins
+        # must have a map layer to verify unlinks
         axindex = self.layers[0]['idx']
         if axindex < 1:
             self.axialDepthmapTab.setDisabled(True)
@@ -217,7 +181,7 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
         #self.updateAxialDepthmapTab()
 
     #####
-    # Functions of the edit layer tab
+    # Functions of the verify layer tab
     #####
     def lockAxialEditTab(self, onoff):
         self.axialVerifyButton.setDisabled(onoff)
@@ -426,6 +390,9 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
                     self.axialDepthmapAxialRadio.setChecked(True)
                 elif settings['type'] == 1:
                     self.axialDepthmapSegmentRadio.setChecked(True)
+                elif settings['type'] == 2:
+                    self.axialDepthmapSegmentRadio.setChecked(True)
+                    self.selectSegmentedMode(2)
             # if project specifies radii set them, for same type of analysis
             if 'rvalues' in settings:
                 self.setDepthmapRadiusText(settings['rvalues'])
@@ -479,6 +446,8 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
             elif self.axial_analysis_type == 1:
                 self.setAxialDepthmapOutputTable(self.layers[0]['name']+'_segment')
                 txt.insert(0, "Segment Length")
+            elif self.axial_analysis_type == 2:
+                self.setAxialDepthmapOutputTable(self.layers[0]['name']+'_analysis')
             self.setDepthmapWeightAttributes(txt)
             self.updateAxialDepthmapAdvancedSettings()
         else:
@@ -515,7 +484,10 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
         self.updateAxialDepthmapTab()
 
     def setDepthmapSegmentAnalysis(self):
-        self.axial_analysis_type = 1
+        if self.getSegmentedMode() == 0:
+            self.axial_analysis_type = 1
+        else:
+            self.axial_analysis_type = 2
         self.setDepthmapRadiusText('n')
         self.updateAxialDepthmapTab()
 
