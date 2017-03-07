@@ -314,7 +314,7 @@ class AnalysisTool(QObject):
             self.user_ids['map'] = "%s" % self.axial_id
             if axial.geometryType() == QGis.Line:
                 caps = axial.dataProvider().capabilities()
-                self.verificationThread = AxialVerification(self.iface.mainWindow(), self, settings, axial, self.user_ids['map'], unlinks, links)
+                self.verificationThread = AxialVerification(self.iface.mainWindow(), self, settings, axial, self.user_ids['map'], unlinks)
             else:
                 self.iface.messageBar().pushMessage("Info","Select an axial lines map layer.", level=0, duration=3)
                 return False

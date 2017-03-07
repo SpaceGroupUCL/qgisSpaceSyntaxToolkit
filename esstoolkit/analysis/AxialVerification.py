@@ -51,14 +51,13 @@ class AxialVerification(QThread):
     verificationProgress = pyqtSignal(int)
     verificationError = pyqtSignal(str)
 
-    def __init__(self, parentThread, parentObject, settings, axial, uid, unlinks, links):
+    def __init__(self, parentThread, parentObject, settings, axial, uid, unlinks):
         QThread.__init__(self, parentThread)
         self.parent = parentObject
         self.running = False
         self.verification_settings = settings
         self.axial_layer = axial
         self.unlinks_layer = unlinks
-        self.links_layer = links
         self.user_id = uid
 
         # verification globals
@@ -90,15 +89,6 @@ class AxialVerification(QThread):
                     return
                 if 'postgresql' in datastore:
                     unlinkschema = uf.getPostgisLayerInfo(self.unlinks_layer)['schema']
-            linkname = ''
-            linkschema = ''
-            if self.links_layer:
-                linkname = uf.getDBLayerTableName(self.links_layer)
-                if not uf.testSameDatabase([self.links_layer, self.axial_layer]):
-                    self.verificationError.emit("The map layer must be in the same database as the links layer.")
-                    return
-                if 'postgresql' in datastore:
-                    linkschema = uf.getPostgisLayerInfo(self.links_layer)['schema']
             axialname = uf.getDBLayerTableName(self.axial_layer)
             if self.user_id == '':
                 self.user_id = uf.getDBLayerPrimaryKey(self.axial_layer)
@@ -154,7 +144,7 @@ class AxialVerification(QThread):
             if not self.running:
                 return
             start_time = time.time()
-            graph_links = self.qgisGeometryTopologyTest(self.axial_layer, index, self.unlinks_layer, self.links_layer)
+            graph_links = self.qgisGeometryTopologyTest(self.axial_layer, index, self.unlinks_layer)
             if is_debug: print "Analysing geometry and topology: %s" % str(time.time() - start_time)
         # analyse the topology with igraph or networkx
         if not self.running:
@@ -443,7 +433,7 @@ class AxialVerification(QThread):
         # the overlap function is very accurate and rare in GIS
         # an alternative function with buffer is too slow
 
-    def postgisBuildTopology(self, connection, schema, axialname, geomname, unlinkschema, unlinkname, linkschema, linkname):
+    def postgisBuildTopology(self, connection, schema, axialname, geomname, unlinkschema, unlinkname):
         # this function builds the axial map topology using spatialite. it's much faster.
         idcol = self.user_id
         if idcol == '':
@@ -474,7 +464,6 @@ class AxialVerification(QThread):
                 if is_debug: print "Unlinking the graph: %s" % str(time.time()-start_time)
             else:
                 self.verificationError.emit("The unlinks layer is not ready. Please update its line ID columns.")
-        # newfeature: implement inserting links
         # return all the links to build the graph
         query = """SELECT a_fid, b_fid FROM %s""" % graphname
         header, data, error = uf.executePostgisQuery(connection, query)
@@ -482,7 +471,7 @@ class AxialVerification(QThread):
 
     # QGIS based functions
     #
-    def qgisGeometryTopologyTest(self, axial, index, unlinks, links):
+    def qgisGeometryTopologyTest(self, axial, index, unlinks):
         # this function checks the geometric validity of geometry using QGIS
         length = self.verification_settings['ax_min']
         threshold = self.verification_settings['ax_dist']
@@ -496,12 +485,6 @@ class AxialVerification(QThread):
                 features = unlinks.getFeatures(QgsFeatureRequest().setSubsetOfAttributes(['line1','line2'],unlinks.pendingFields()))
                 for feature in features:
                     unlinks_list.append((feature.attribute('line1'),feature.attribute('line2')))
-        # get links pairs
-        if not self.running: return
-        if links:
-            features = links.getFeatures(QgsFeatureRequest().setSubsetOfAttributes(['line1','line2'],links.pendingFields()))
-            for feature in features:
-                links_list.append((feature.attribute('line1'),feature.attribute('line2')))
         if not self.running: return
         if self.user_id == '':
             features = axial.getFeatures(QgsFeatureRequest().setSubsetOfAttributes([]))
