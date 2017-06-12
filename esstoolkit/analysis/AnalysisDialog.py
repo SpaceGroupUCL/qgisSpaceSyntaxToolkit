@@ -40,11 +40,10 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
         self.setupUi(self)
 
         # define globals
-        self.layers = [{'idx': 0, 'name': ''},{'idx': 0, 'name': ''}]
+        self.layers = [{'idx': 0, 'name': '', 'map_type': 0},{'idx': 0, 'name': ''}]
         self.axial_verify_report = [{'progress': 0, 'summary': [], 'filter': -1, 'report': dict(), 'nodes': []}
                                     , {'progress': 0, 'summary': [], 'filter': -1, 'report': dict(), 'nodes': []}]
         self.axial_verification_settings = {'ax_dist': 1.0, 'ax_min': 1.0, 'unlink_dist': 5.0, 'link_dist': 1.0}
-        self.segmented_mode = 0
         self.dlg_depthmap = DepthmapAdvancedDialog()
         self.dlg_verify = VerificationSettingsDialog(self.axial_verification_settings)
 
@@ -108,14 +107,23 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
     def selectMapLayer(self):
         self.layers[0]['idx'] = self.analysisMapCombo.currentIndex()
         self.layers[0]['name'] = self.analysisMapCombo.currentText()
+        self.layers[0]['map_type'] = 0
         # update the UI
-        self.selectSegmentedMode(0)
+        self.selectSegmentedMode(self.layers[0]['map_type'])
         self.clearAxialProblems()
         self.updateAnalysisTabs()
         self.updateAxialDepthmapTab()
 
     def setSegmentedMode(self, mode):
-        self.segmented_mode = mode
+        self.layers[0]['map_type'] = mode
+        # update relevant tabs
+        if mode == 2:
+            self.axialAnalysisTabs.setTabEnabled(0, False)
+            self.analysisLayersTabs.setTabEnabled(1, False)
+        else:
+            self.axialAnalysisTabs.setTabEnabled(0, True)
+            self.analysisLayersTabs.setTabEnabled(1, True)
+        # update analysis settings
         if self.axial_analysis_type != 0:
             self.setDepthmapSegmentAnalysis()
 
@@ -126,7 +134,7 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
             self.analysisMapSegmentCheck.setChecked(False)
 
     def getSegmentedMode(self):
-        return self.segmented_mode
+        return self.layers[0]['map_type']
 
     def setUnlinksLayers(self, names, idx):
         layers = ['-----']
@@ -147,17 +155,16 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
         self.clearAxialProblems(1)
         self.updateAnalysisTabs()
 
-
     def getAnalysisLayers(self):
-        layers = {'map':'','unlinks':'','map_type':0}
+        layers = {'map': '','unlinks': '','map_type': 0}
         for i, layer in enumerate(self.layers):
             name = layer['name']
             if name != '-----':
                 if i == 0:
                     layers['map'] = name
+                    layers['map_type'] = layer['map_type']
                 elif i == 1:
                     layers['unlinks'] = name
-        layers['map_type'] = self.segmented_mode
         return layers
 
     def updateAnalysisTabs(self):
@@ -165,14 +172,18 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
         # must have a map layer to verify unlinks
         axindex = self.layers[0]['idx']
         if axindex < 1:
-            self.axialDepthmapTab.setDisabled(True)
+            #self.axialDepthmapTab.setDisabled(True)
+            self.axialAnalysisTabs.setTabEnabled(1, False)
         if index < 1 or axindex < 1:
-            self.axialEditTab.setDisabled(True)
+            #self.axialEditTab.setDisabled(True)
+            self.axialAnalysisTabs.setTabEnabled(0, False)
             self.clearAxialProblems()
             self.clearAxialVerifyReport()
         else:
-            self.axialDepthmapTab.setDisabled(False)
-            self.axialEditTab.setDisabled(False)
+            #self.axialDepthmapTab.setDisabled(False)
+            #self.axialEditTab.setDisabled(False)
+            self.axialAnalysisTabs.setTabEnabled(0, True)
+            self.axialAnalysisTabs.setTabEnabled(1, True)
             self.lockAxialEditTab(False)
             self.updateAxialVerifyReport()
             # if the data store field is empty, use the same as the selected map layer

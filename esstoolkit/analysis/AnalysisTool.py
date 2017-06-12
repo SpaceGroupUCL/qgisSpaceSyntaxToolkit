@@ -22,9 +22,9 @@
 
 """
 # Import the PyQt and QGIS libraries
+from qgis.core import *
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-from qgis.core import *
 
 # Import required modules
 from AnalysisDialog import AnalysisDialog
@@ -283,7 +283,7 @@ class AnalysisTool(QObject):
             selected_layers = self.dlg.getAnalysisLayers()
             if selected_layers['map'] != '' and selected_layers['map'] in map_list:
                 analysis_map = map_list.index(selected_layers['map'])
-                map_type = 0
+                map_type = selected_layers['map_type']
             if selected_layers['unlinks'] != '' and selected_layers['unlinks'] in unlinks_list:
                 analysis_unlinks = unlinks_list.index(selected_layers['unlinks'])
         else:

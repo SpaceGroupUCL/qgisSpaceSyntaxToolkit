@@ -39,7 +39,6 @@ class DepthmapAnalysis(QObject):
 
         #initialise global variables
         self.axial_layer = None
-        self.origins_layer = None
         self.datastore = None
         self.settings = None
         self.axial_default = ('Connectivity','Line Length','Id')
