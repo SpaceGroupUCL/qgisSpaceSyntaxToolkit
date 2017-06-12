@@ -410,7 +410,7 @@ class DepthmapAnalysis(QObject):
         # get coords
         coords = [attributes.index('x1'), attributes.index('y1'), attributes.index('x2'), attributes.index('y2')]
         # calculate new normalised variables
-        if self.settings['type'] == 1 and self.settings['newnorm'] == 1:
+        if self.settings['type'] in (1, 2) and self.settings['newnorm'] == 1:
             new_attributes, values = self.calculateNormalisedSegment(attributes, values)
             attributes.extend(new_attributes)
             new_types = [QVariant.Double] * len(new_attributes)

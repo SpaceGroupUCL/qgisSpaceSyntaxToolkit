@@ -120,12 +120,12 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
         if mode == 2:
             self.axialAnalysisTabs.setTabEnabled(0, False)
             self.analysisLayersTabs.setTabEnabled(1, False)
-            self.axialDepthmapAxialRadio.setDisabled(True)
+            #self.axialDepthmapAxialRadio.setDisabled(True)
             self.axialDepthmapSegmentRadio.setChecked(True)
         else:
             self.axialAnalysisTabs.setTabEnabled(0, True)
             self.analysisLayersTabs.setTabEnabled(1, True)
-            self.axialDepthmapAxialRadio.setDisabled(False)
+            #self.axialDepthmapAxialRadio.setDisabled(False)
         self.setDepthmapSegmentAnalysis()
 
     def selectSegmentedMode(self, mode):
@@ -173,17 +173,13 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
         # must have a map layer to verify unlinks
         axindex = self.layers[0]['idx']
         if axindex < 1:
-            #self.axialDepthmapTab.setDisabled(True)
             self.axialAnalysisTabs.setTabEnabled(1, False)
             self.analysisMapSegmentCheck.setDisabled(True)
         if index < 1 or axindex < 1:
-            #self.axialEditTab.setDisabled(True)
             self.axialAnalysisTabs.setTabEnabled(0, False)
             self.clearAxialProblems()
             self.clearAxialVerifyReport()
         else:
-            #self.axialDepthmapTab.setDisabled(False)
-            #self.axialEditTab.setDisabled(False)
             self.axialAnalysisTabs.setTabEnabled(0, True)
             self.axialAnalysisTabs.setTabEnabled(1, True)
             self.analysisMapSegmentCheck.setDisabled(False)
@@ -462,13 +458,17 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
                 txt.insert(0, "Segment Length")
             elif self.axial_analysis_type == 2:
                 self.setAxialDepthmapOutputTable(self.layers[0]['name']+'_analysis')
+                #txt.insert(0, "Segment Length")
             self.setDepthmapWeightAttributes(txt)
             self.updateAxialDepthmapAdvancedSettings()
         else:
             self.lockAxialDepthmapTab(True)
 
     def lockAxialDepthmapTab(self, onoff):
-        self.axialDepthmapAxialRadio.setDisabled(onoff)
+        if self.axial_analysis_type == 2:
+            self.axialDepthmapAxialRadio.setDisabled(True)
+        else:
+            self.axialDepthmapAxialRadio.setDisabled(onoff)
         self.axialDepthmapSegmentRadio.setDisabled(onoff)
         self.axialDepthmapRadiusText.setDisabled(onoff)
         self.axialDepthmapOutputText.setDisabled(onoff)
@@ -547,7 +547,7 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
 
     def updateAxialDepthmapAdvancedSettings(self):
         # these settings are only available in segment analysis
-        if self.axial_analysis_type == 1:  # segment analysis
+        if self.axial_analysis_type in (1, 2):  # segment analysis
             self.dlg_depthmap.setDistanceType(1)
             self.dlg_depthmap.axialDistanceCombo.setDisabled(True)
             self.dlg_depthmap.setRadiusType(2)
