@@ -6,7 +6,7 @@
  Set of tools for essential space syntax network analysis and results exploration
                              -------------------
         begin                : 2014-04-01
-        copyright            : (C) 2015, UCL
+        copyright            : (C) 2017, UCL
         author               : Jorge Gil
         email                : jorge.gil@ucl.ac.uk
  ***************************************************************************/
@@ -22,13 +22,13 @@
 
 """
 # Import the PyQt and QGIS libraries
+from qgis.core import *
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-from qgis.core import *
 
 # Import the debug library
 # can set is_debug to False in release version
-is_debug = False
+is_debug = True
 try:
     import pydevd
     has_pydevd = True
