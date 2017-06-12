@@ -120,12 +120,13 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
         if mode == 2:
             self.axialAnalysisTabs.setTabEnabled(0, False)
             self.analysisLayersTabs.setTabEnabled(1, False)
+            self.axialDepthmapAxialRadio.setDisabled(True)
+            self.axialDepthmapSegmentRadio.setChecked(True)
         else:
             self.axialAnalysisTabs.setTabEnabled(0, True)
             self.analysisLayersTabs.setTabEnabled(1, True)
-        # update analysis settings
-        if self.axial_analysis_type != 0:
-            self.setDepthmapSegmentAnalysis()
+            self.axialDepthmapAxialRadio.setDisabled(False)
+        self.setDepthmapSegmentAnalysis()
 
     def selectSegmentedMode(self, mode):
         if mode == 2:
@@ -174,6 +175,7 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
         if axindex < 1:
             #self.axialDepthmapTab.setDisabled(True)
             self.axialAnalysisTabs.setTabEnabled(1, False)
+            self.analysisMapSegmentCheck.setDisabled(True)
         if index < 1 or axindex < 1:
             #self.axialEditTab.setDisabled(True)
             self.axialAnalysisTabs.setTabEnabled(0, False)
@@ -184,6 +186,7 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
             #self.axialEditTab.setDisabled(False)
             self.axialAnalysisTabs.setTabEnabled(0, True)
             self.axialAnalysisTabs.setTabEnabled(1, True)
+            self.analysisMapSegmentCheck.setDisabled(False)
             self.lockAxialEditTab(False)
             self.updateAxialVerifyReport()
             # if the data store field is empty, use the same as the selected map layer
@@ -463,9 +466,6 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
             self.updateAxialDepthmapAdvancedSettings()
         else:
             self.lockAxialDepthmapTab(True)
-            #self.setDepthmapWeightAttributes([])
-            #self.setAxialDepthmapOutputTable('')
-            #self.clearAxialDepthmapTab()
 
     def lockAxialDepthmapTab(self, onoff):
         self.axialDepthmapAxialRadio.setDisabled(onoff)
