@@ -359,7 +359,7 @@ class AnalysisTool(QObject):
         # update axial id
         if self.edit_mode == 0:
             self.user_ids['map'] = "%s" % self.axial_id
-            # newfeature: update axial ids when layer is shapefile
+            #todo: update axial ids when layer is shapefile
         # update unlink line ids
         elif self.edit_mode == 1:
             if unlinks and (axial.storageType() != unlinks.storageType()):

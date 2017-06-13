@@ -73,17 +73,20 @@ class DepthmapAnalysis(QObject):
             self.axial_id = self.settings['id']
         else:
             self.axial_id = uf.getIdField(self.axial_layer)
+        # prepare map and unlinks layers
         if self.settings['type'] in (0,1):
             axial_data = self.prepareAxialMap(self.axial_id, weight_by)
+            if axial_data == '':
+                self.showMessage("The axial layer is not ready for analysis: verify it first.", 'Info', lev=1, dur=5)
+                return ''
+            if self.unlinks_layer:
+                unlinks_data = self.prepareUnlinks()
+            else:
+                unlinks_data = ''
         else:
             axial_data = self.prepareSegmentMap(self.axial_id, weight_by)
-        if axial_data == '':
-            self.showMessage("The axial layer is not ready for analysis: verify its geometry first.", 'Info', lev=1, dur=5)
-            return ''
-        if self.unlinks_layer:
-            unlinks_data = self.prepareUnlinks()
-        else:
             unlinks_data = ''
+        # get radius values
         radii = self.settings['rvalues']
         #
         # prepare analysis user settings
@@ -163,9 +166,6 @@ class DepthmapAnalysis(QObject):
                 footer += "segment.weightBy:" + str(self.getWeightPosition(self.settings['weightBy'])) + "\n"
             else:
                 footer += "segment.weightBy:-1\n"
-            if unlinks_data != '':
-                footer += "acp.unlinkid:-1\n"
-                footer += "acp.unlinks:" + str(unlinks_data) + "\n"
             footer += "--end--\n"
             command = header + axial_data + footer
         return command

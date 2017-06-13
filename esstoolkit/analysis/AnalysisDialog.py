@@ -50,7 +50,7 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
         # set up internal GUI signals
         self.analysisLayersTabs.currentChanged.connect(self.__selectLayerTab)
         self.analysisMapCombo.activated.connect(self.selectMapLayer)
-        self.analysisMapSegmentCheck.stateChanged.connect(self.setSegmentedMode)
+        self.analysisMapSegmentCheck.stateChanged.connect(self.__selectSegmentedMode)
         self.analysisUnlinksCombo.activated.connect(self.selectUnlinksLayer)
         self.axialVerifySettingsButton.clicked.connect(self.showAxialEditSettings)
         self.axialReportFilterCombo.activated.connect(self.selectAxialProblemsFilter)
@@ -102,7 +102,7 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
         self.layers[0]['name'] = layers[idx+1]
         #self.setSegmentedMode(map_type)
         self.layers[0]['map_type'] = map_type
-        self.selectSegmentedMode(map_type)
+        self.setSegmentedMode(map_type)
         if idx == -1:
             self.clearAxialProblems()
 
@@ -111,23 +111,20 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
         self.layers[0]['name'] = self.analysisMapCombo.currentText()
         self.layers[0]['map_type'] = 0
         # update the UI
-        self.selectSegmentedMode(self.layers[0]['map_type'])
+        self.setSegmentedMode(self.layers[0]['map_type'])
         self.clearAxialProblems()
         self.updateAnalysisTabs()
         self.updateAxialDepthmapTab()
 
-    def setSegmentedMode(self, mode):
+    def __selectSegmentedMode(self, mode):
         self.layers[0]['map_type'] = mode
         # update relevant tabs
         self.updateAnalysisTabs()
-        if mode == 2:
+        if self.layers[0]['map_type'] == 2:
             self.axialDepthmapSegmentRadio.setChecked(True)
-            self.setDepthmapSegmentAnalysis()
-        else:
-            self.setDepthmapSegmentAnalysis()
-            self.updateAxialDepthmapTab()
+        self.setDepthmapSegmentAnalysis()
 
-    def selectSegmentedMode(self, mode):
+    def setSegmentedMode(self, mode):
         if mode == 2:
             self.analysisMapSegmentCheck.setChecked(True)
         else:
@@ -179,12 +176,12 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
             self.clearAxialProblems()
             self.clearAxialVerifyReport()
         else:
-            if self.layers[0]['map_type'] == 2:
+            if self.getLayerTab() == 0 and self.layers[0]['map_type'] == 2:
                 self.axialAnalysisTabs.setTabEnabled(0, False)
-                self.analysisLayersTabs.setTabEnabled(1, False)
+                #self.analysisLayersTabs.setTabEnabled(1, False)
             else:
                 self.axialAnalysisTabs.setTabEnabled(0, True)
-                self.analysisLayersTabs.setTabEnabled(1, True)
+                # self.analysisLayersTabs.setTabEnabled(1, True)
             self.axialAnalysisTabs.setTabEnabled(1, True)
             self.analysisMapSegmentCheck.setDisabled(False)
             self.lockAxialEditTab(False)
@@ -192,7 +189,6 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
             # if the data store field is empty, use the same as the selected map layer
             if self.analysisDataEdit.text() in ("", "specify for storing analysis results"):
                 self.updateDatastore.emit(self.layers[0]['name'])
-        #self.updateAxialDepthmapTab()
 
     #####
     # Functions of the verify layer tab
