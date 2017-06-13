@@ -725,18 +725,18 @@ class AnalysisTool(QObject):
         relprog = 0
         # extract number of nodes
         if "--comm: 2," in msg:
-            pos1 = msg.find("--comm: 2,")
-            pos2 = msg.find(",0 ", pos1)
-            self.analysis_nodes = msg[(pos1 + 10):pos2]
+            pos1 = msg.find(": 2,")
+            pos2 = msg.find(",0 --", pos1)
+            self.analysis_nodes = msg[(pos1 + 4):pos2]
             step = int(self.analysis_nodes) * 0.2
             self.timer.start(step)
         # extract progress info from string
         progress = msg.split("\n")
         # calculate progress
         if self.analysis_nodes > 0:
-            pos1 = progress[-2].find(" 3,")
+            pos1 = progress[-2].find(": 3,")
             pos2 = progress[-2].find(",0 ")
-            prog = progress[-2][(pos1 + 3):pos2]
+            prog = progress[-2][(pos1 + 4):pos2]
             relprog = (float(prog) / float(self.analysis_nodes)) * 100
         return relprog
 
@@ -767,7 +767,7 @@ class AnalysisTool(QObject):
             existing_names = [layer.name() for layer in uf.getLegendLayers(self.iface)]
             if new_layer.name() in existing_names:
                 old_layer = uf.getLegendLayerByName(self.iface, new_layer.name())
-                if getLayerPath(new_layer) == uf.getLayerPath(old_layer):
+                if uf.getLayerPath(new_layer) == uf.getLayerPath(old_layer):
                     QgsMapLayerRegistry.instance().removeMapLayer(old_layer.id())
             QgsMapLayerRegistry.instance().addMapLayer(new_layer)
             new_layer.updateExtents()
