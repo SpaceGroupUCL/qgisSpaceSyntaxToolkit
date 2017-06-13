@@ -43,7 +43,8 @@ class DepthmapAnalysis(QObject):
         self.settings = None
         self.axial_default = ('Connectivity','Line Length','Id')
         self.segment_default = ('Angular Connectivity','Axial Connectivity','Axial Id',
-                                'Axial Line Length','Axial Line Ref','Connectivity','Segment Length')
+                                'Axial Line Length','Axial Line Ref','Connectivity','Id','Segment Length')
+        self.rcl_default = ('Angular Connectivity', 'Axial Line Ref', 'Connectivity', 'Id', 'Segment Length')
         self.axial_id = ''
 
     def showMessage(self, msg, type='Info', lev=1, dur=2):
@@ -75,7 +76,6 @@ class DepthmapAnalysis(QObject):
         if self.settings['type'] in (0,1):
             axial_data = self.prepareAxialMap(self.axial_id, weight_by)
         else:
-            #axial_data = self.prepareAxialMap(self.axial_id, weight_by)
             axial_data = self.prepareSegmentMap(self.axial_id, weight_by)
         if axial_data == '':
             self.showMessage("The axial layer is not ready for analysis: verify its geometry first.", 'Info', lev=1, dur=5)
@@ -224,8 +224,10 @@ class DepthmapAnalysis(QObject):
             defaults = [""]
             if self.settings['type'] == 0:
                 defaults.extend(self.axial_default)
-            elif self.settings['type'] in (1, 2):
+            elif self.settings['type'] == 1:
                 defaults.extend(self.segment_default)
+            elif self.settings['type'] == 1:
+                defaults.extend(self.rcl_default)
             # I leave all the if clauses outside the for loop to gain some speed
             vid = QgsVertexId()
             if ref != '':
@@ -312,6 +314,8 @@ class DepthmapAnalysis(QObject):
             names.extend(self.segment_default)
             # depthmapX creates a weight column as an axial property. to remove later
             weight_name = "Axial %s" % weight_name
+        elif self.settings['type'] == 2:
+            names.extend(self.rcl_default)
         if weight_name not in names:
             names.append(weight_name)
         names.sort()
@@ -375,12 +379,12 @@ class DepthmapAnalysis(QObject):
             attributes[idx] = "Axial Id"
         if "Id" in attributes:
             idx = attributes.index("Id")
-            if self.settings['type'] == 1:
+            if self.settings['type'] in (1, 2):
                 attributes[idx] = "Axial Id"
             elif self.axial_id in attributes:
                 attributes[idx] = "Axial Id"
-            else:
-                attributes[idx] = self.axial_id
+            #else:
+            #    attributes[idx] = self.axial_id
         # remove attributes and values from lists
         if len(exclusions) > 0:
             exclusions.sort(reverse=True)
