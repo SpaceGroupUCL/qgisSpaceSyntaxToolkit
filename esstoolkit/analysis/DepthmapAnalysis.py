@@ -374,17 +374,23 @@ class DepthmapAnalysis(QObject):
             if "Axial Segment Length" in attributes:
                 exclusions.append(attributes.index("Axial Segment Length"))
         # replace axial ref by axial id
-        if "Axial Ref" in attributes:
-            idx = attributes.index("Axial Ref")
-            attributes[idx] = "Axial Id"
+        #if "Axial Ref" in attributes:
+        #    idx = attributes.index("Axial Ref")
+        #    attributes[idx] = "Axial Id"
         if "Id" in attributes:
             idx = attributes.index("Id")
-            if self.settings['type'] in (1, 2):
-                attributes[idx] = "Axial Id"
+            if self.settings['type'] == 2:
+                attributes[idx] = "Segment Id"
             elif self.axial_id in attributes:
                 attributes[idx] = "Axial Id"
-            #else:
-            #    attributes[idx] = self.axial_id
+            else:
+                attributes[idx] = self.axial_id
+        if "Axial Line Ref" in attributes:
+            idx = attributes.index("Axial Line Ref")
+            if self.settings['type'] == 2:
+                exclusions.append(idx)
+            else:
+                attributes[idx] = "Axial Ref"
         # remove attributes and values from lists
         if len(exclusions) > 0:
             exclusions.sort(reverse=True)
