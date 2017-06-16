@@ -8,5 +8,6 @@
     <file>icons/ucl.png</file>
     <file>icons/project.png</file>
     <file>icons/settings.png</file>
+    <file>icons/gate_transformer.png</file>
   </qresource>
 </RCC>

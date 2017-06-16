@@ -60,6 +60,7 @@ from ProjectManager import ProjectManager
 # Import esstoolkit tool modules
 from analysis import AnalysisTool
 from explorer import ExplorerTool
+from gate_transformer import TransformerAnalysis
 # import additional modules here
 ###########
 ###########
@@ -72,6 +73,7 @@ class EssToolkit:
     def __init__(self, iface):
         # initialise plugin directory
         self.plugin_dir = os.path.dirname(__file__)
+
         # initialize locale
         locale = QtCore.QSettings().value("locale/userLocale")[0:2]
         locale_path = os.path.join(self.plugin_dir, 'i18n', 'essTools_{}.qm'.format(locale))
@@ -96,13 +98,13 @@ class EssToolkit:
         self.project_action = None
         self.about = AboutDialog()
         self.about_action = None
-        #self.help_action = None
 
         ###########
         ###########
         # initialise the different modules
         self.analysis = AnalysisTool.AnalysisTool(self.iface, self.settings, self.project)
         self.explorer = ExplorerTool.ExplorerTool(self.iface, self.settings, self.project)
+        self.gate_transformer = TransformerAnalysis.GateTransformer(self.iface)
         # add additional modules here
         ###########
         ###########
@@ -141,6 +143,7 @@ class EssToolkit:
                 status_tip='Graph Analysis'
             )
         )
+        # pre-load setting of dockwidget
         self.analysis.load()
         # attribute explorer module
         self.actions.append(
@@ -152,7 +155,18 @@ class EssToolkit:
                 status_tip='Attributes Explorer'
             )
         )
+        # pre-load setting of dockwidget
         self.explorer.load()
+        # gate transformer module
+        self.actions.append(
+            self.add_action(
+                '%s/icons/gate_transformer.png' % icon_path,
+                text=self.tr(u'Gate Transformer'),
+                callback=self.showGateTransformer,
+                parent=self.iface.mainWindow(),
+                status_tip='Gate Transformer'
+            )
+        )
         # add additional modules here in the desired order
         ###########
         ###########
@@ -188,12 +202,12 @@ class EssToolkit:
     def showAnalysis(self):
         self.iface.removeDockWidget(self.explorer.dlg)
         self.iface.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.analysis.dlg)
-
     def showExplorer(self):
         self.iface.removeDockWidget(self.analysis.dlg)
         self.iface.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.explorer.dlg)
-
-    # add additional dockwidget modules here
+    def showGateTransformer(self):
+        self.gate_transformer.load_gui()
+    # add additional modules here
     ###########
     ###########
 
@@ -203,7 +217,7 @@ class EssToolkit:
         self.iface.removePluginVectorMenu(self.menu, self.project_action)
         self.iface.removePluginVectorMenu(self.menu, self.settings_action)
         self.iface.removePluginVectorMenu(self.menu, self.about_action)
-        # remove the actions on toolbar
+        # remove the actions on the toolbar
         for action in self.actions:
             self.iface.removePluginVectorMenu(
                 self.menu,
@@ -214,12 +228,14 @@ class EssToolkit:
 
         ###########
         ###########
-        # Unload the modules
+        # Remove dockwidget based modules
         self.iface.removeDockWidget(self.analysis.dlg)
-        self.analysis.unload()
         self.iface.removeDockWidget(self.explorer.dlg)
+        # Unload the modules
+        self.analysis.unload()
         self.explorer.unload()
-        # add here additional modules
+        self.gate_transformer.unload_gui()
+        # add additional modules here
         ###########
         ###########
 
