@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/Users/jorge/github/qgisSpaceSyntaxToolkit/esstoolkit/explorer/ui_Explorer.ui'
+# Form implementation generated from reading ui file 'explorer/ui_Explorer.ui'
 #
-# Created: Sun Jul  5 19:05:04 2015
-#      by: PyQt4 UI code generator 4.10.3
+# Created by: PyQt4 UI code generator 4.11.4
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -38,7 +37,6 @@ class Ui_ExplorerDialog(object):
         self.layoutWidget = QtGui.QWidget(self.splitter)
         self.layoutWidget.setObjectName(_fromUtf8("layoutWidget"))
         self.attributesLayout = QtGui.QVBoxLayout(self.layoutWidget)
-        self.attributesLayout.setMargin(0)
         self.attributesLayout.setObjectName(_fromUtf8("attributesLayout"))
         self.layersLayout = QtGui.QHBoxLayout()
         self.layersLayout.setObjectName(_fromUtf8("layersLayout"))
@@ -65,7 +63,6 @@ class Ui_ExplorerDialog(object):
         self.symbologyTab = QtGui.QWidget()
         self.symbologyTab.setObjectName(_fromUtf8("symbologyTab"))
         self.verticalLayout_2 = QtGui.QVBoxLayout(self.symbologyTab)
-        self.verticalLayout_2.setSpacing(-1)
         self.verticalLayout_2.setSizeConstraint(QtGui.QLayout.SetDefaultConstraint)
         self.verticalLayout_2.setMargin(10)
         self.verticalLayout_2.setObjectName(_fromUtf8("verticalLayout_2"))
