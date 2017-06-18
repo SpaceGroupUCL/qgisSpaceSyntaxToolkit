@@ -128,7 +128,7 @@ class EssToolkit:
         return QCoreApplication.translate('EssToolkit', message)
 
     def initGui(self):
-        icon_path = os.path.dirname(__file__)
+        icon_path = os.path.join(os.path.dirname(__file__), 'icons')
 
         ###########
         ###########
@@ -136,7 +136,7 @@ class EssToolkit:
         # graph analysis module
         self.actions.append(
             self.add_action(
-                '%s/icons/esst_graph.png' % icon_path,
+                os.path.join(icon_path, 'esst_graph.png'),
                 text=self.tr(u'Graph Analysis'),
                 callback=self.showAnalysis,
                 parent=self.iface.mainWindow(),
@@ -148,7 +148,7 @@ class EssToolkit:
         # attribute explorer module
         self.actions.append(
             self.add_action(
-                '%s/icons/esst_explorer.png' % icon_path,
+                os.path.join(icon_path, 'esst_explorer.png'),
                 text=self.tr(u'Attributes Explorer'),
                 callback=self.showExplorer,
                 parent=self.iface.mainWindow(),
@@ -160,7 +160,7 @@ class EssToolkit:
         # gate transformer module
         self.actions.append(
             self.add_action(
-                '%s/icons/gate_transformer.png' % icon_path,
+                os.path.join(icon_path, 'gate_transformer.png'),
                 text=self.tr(u'Gate Transformer'),
                 callback=self.showGateTransformer,
                 parent=self.iface.mainWindow(),
@@ -173,7 +173,7 @@ class EssToolkit:
 
         # Create menu only toolkit components actions
         self.project_action = self.add_action(
-            '%s/icons/project.png' % icon_path,
+            os.path.join(icon_path, 'project.png'),
             text=self.tr(u'Project'),
             callback=self.project.showDialog,
             parent=self.iface.mainWindow(),
@@ -181,7 +181,7 @@ class EssToolkit:
             add_to_toolbar=False
         )
         self.settings_action = self.add_action(
-            '%s/icons/settings.png' % icon_path,
+            os.path.join(icon_path, 'settings.png'),
             text=self.tr(u'Settings'),
             callback=self.settings.showDialog,
             parent=self.iface.mainWindow(),
@@ -189,7 +189,7 @@ class EssToolkit:
             add_to_toolbar=False
         )
         self.about_action = self.add_action(
-            '%s/icons/about.png' % icon_path,
+            os.path.join(icon_path, 'about.png'),
             text=self.tr(u'About'),
             callback=self.about.show,
             parent=self.iface.mainWindow(),
@@ -326,5 +326,5 @@ class AboutDialog(QDialog, Ui_AboutDialog):
         self.messageText.setText(about_msg)
 
         # load logos
-        self.logoLabel.setPixmap(QPixmap(os.path.dirname(__file__) + '/icons/ucl.png'))
+        self.logoLabel.setPixmap(QPixmap(os.path.join(os.path.dirname(__file__), 'icons', 'ucl.png')))
         self.logoLabel.setScaledContents(True)
