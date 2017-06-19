@@ -5,10 +5,10 @@
 03.06.2016 – Subscribe to the new [Space Syntax Toolkit mailing list on JISCMAIL](https://www.jiscmail.ac.uk/cgi-bin/webadmin?A0=SPACESYNTAX-TOOLKIT) for discussions, suggestions, and the latest news. You can send an e-mail to the list (spacesyntax-toolkit at jiscmail.ac.uk) if you need support using the toolkit.
 
 ## About
-The “Space Syntax Toolkit” is a [QGIS](http://www.qgis.org/en/site/) plugin offering user friendly space syntax analysis workflows in a GIS environment.
-It provides a front-end for the [depthmapX](https://varoudis.github.io/depthmapX/) software within QGIS, for seamless spatial network analysis. Furthermore, it includes tools for urban data management and analysis, namely land use, entrances, frontages, pedestrian movement, road centre lines, and service areas.
+The “Space Syntax Toolkit” is a [QGIS](http://www.qgis.org/en/site/) plugin offering user friendly space syntax analysis workflows in a GIS environment. It provides a front-end for the [depthmapX](https://varoudis.github.io/depthmapX/) software within QGIS, for seamless spatial network analysis. Furthermore, it includes tools for urban data management and analysis, namely land use, entrances, frontages, pedestrian movement, road centre lines, and service areas.
+
 Originally developed by Jorge Gil at the Space Syntax Laboratory, The Bartlett, UCL, the plugin includes contributions from:
-*Space Syntax Ltd [Open Digital Works (ODW)](https://github.com/OpenDigitalWorks) - Abhimanyu Acharya, Ioanna Kovolou, Stephen Law, Laurens Versluis
+* Space Syntax Ltd [Open Digital Works (ODW)](https://github.com/OpenDigitalWorks) - Abhimanyu Acharya, Ioanna Kovolou, Stephen Law, Laurens Versluis
 
 ## Installation
 The plug-in can be installed from the QGIS Plugins Manager, and updates become automatically available once submitted to the QGIS plugins repository.
@@ -18,7 +18,7 @@ The plug-in can be installed from the QGIS Plugins Manager, and updates become a
 * depthmapXnet - [http://archtech.gr/varoudis/depthmapX/?dir=depthmapXnet](http://archtech.gr/varoudis/depthmapX/?dir=depthmapXnet)
 
 ## Support
-If you need help using the toolkit in your space syntax research, you can send an e-mail to the mailing list (spacesyntax-toolkit at jiscmail.ac.uk) for support from the user community.
+If you need help using the toolkit in your space syntax research, you can send an e-mail to the mailing list (spacesyntax-toolkit@jiscmail.ac.uk) for support from the user community.
 If you encounter problems when using the software, please check the [Wiki](https://github.com/SpaceGroupUCL/qgisSpaceSyntaxToolkit/wiki) and the current [issues list](https://github.com/SpaceGroupUCL/qgisSpaceSyntaxToolkit/issues) for solutions. If it's a new problem, you can add the issue to the [issues list](https://github.com/SpaceGroupUCL/qgisSpaceSyntaxToolkit/issues).
 
 ## Where to find...
