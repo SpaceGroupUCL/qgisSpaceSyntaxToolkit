@@ -467,7 +467,7 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
                 #txt.insert(0, "Segment Length")
             self.setDepthmapWeightAttributes(txt)
             self.updateAxialDepthmapAdvancedSettings()
-            self.clearAxialDepthmapReport()
+            #self.clearAxialDepthmapReport()
         else:
             self.lockAxialDepthmapTab(True)
 
@@ -551,25 +551,30 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
 
     def updateAxialDepthmapAdvancedSettings(self):
         # these settings are only available in segment analysis
-        if self.axial_analysis_type in (1, 2):  # segment analysis
+        if self.axial_analysis_type == 1:  # segment analysis
             self.dlg_depthmap.setDistanceType(1)
-            self.dlg_depthmap.axialDistanceCombo.setDisabled(True)
+            self.dlg_depthmap.disableDistanceType(True)
             self.dlg_depthmap.setRadiusType(2)
-            self.dlg_depthmap.axialRadiusLabel.setDisabled(False)
-            self.dlg_depthmap.axialRadiusCombo.setDisabled(False)
-            #self.dlg_depthmap.setCalculateNorm(True)
-            self.dlg_depthmap.axialCalculateNormCheck.setDisabled(False)
-            self.dlg_depthmap.axialStubsLabel.setDisabled(False)
-            self.dlg_depthmap.axialStubsEdit.setDisabled(False)
+            self.dlg_depthmap.disableRadiusType(False)
+            self.dlg_depthmap.disableCalculateFull(True)
+            self.dlg_depthmap.disableCalculateNorm(False)
+            self.dlg_depthmap.disableRemoveStubs(False)
+        elif self.axial_analysis_type == 2:  # rcl and segment map analysis
+            self.dlg_depthmap.setDistanceType(1)
+            self.dlg_depthmap.disableDistanceType(True)
+            self.dlg_depthmap.setRadiusType(2)
+            self.dlg_depthmap.disableRadiusType(False)
+            self.dlg_depthmap.disableCalculateFull(True)
+            self.dlg_depthmap.disableCalculateNorm(False)
+            self.dlg_depthmap.disableRemoveStubs(True)
         elif self.axial_analysis_type == 0:  # and axial analysis alternative
             self.dlg_depthmap.setDistanceType(0)
-            self.dlg_depthmap.axialDistanceCombo.setDisabled(True)
+            self.dlg_depthmap.disableDistanceType(True)
             self.dlg_depthmap.setRadiusType(0)
-            self.dlg_depthmap.axialRadiusLabel.setDisabled(True)
-            self.dlg_depthmap.axialRadiusCombo.setDisabled(True)
-            self.dlg_depthmap.axialCalculateNormCheck.setDisabled(True)
-            self.dlg_depthmap.axialStubsLabel.setDisabled(True)
-            self.dlg_depthmap.axialStubsEdit.setDisabled(True)
+            self.dlg_depthmap.disableRadiusType(True)
+            self.dlg_depthmap.disableCalculateFull(False)
+            self.dlg_depthmap.disableCalculateNorm(True)
+            self.dlg_depthmap.disableRemoveStubs(True)
 
     def showAxialDepthmapAdvancedSettings(self):
         self.dlg_depthmap.show()
