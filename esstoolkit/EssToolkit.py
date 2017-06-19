@@ -317,14 +317,16 @@ class AboutDialog(QDialog, Ui_AboutDialog):
 
         # load text
         about_msg = (
-        'The "Space Syntax Toolkit" was originally developed at the Space Syntax Laboratory, '
-        'the Bartlett School of Architecture, University College London (UCL).\n\n'
-        'Author: Jorge Gil\n\n'
-        'Contributors: Tasos Varoudis\n\n'
-        'Contact: jorge.gil@ucl.ac.uk\n\n'
+        'The "Space Syntax Toolkit" for QGIS is a collection of tools for space syntax analysis workflows in a GIS environment.\n'
+        'It was originally developed at the Space Syntax Laboratory, '
+        'the Bartlett, University College London (UCL).\n'
+        'Author: Jorge Gil\n'
+        'Contact: spacesyntax-toolkit@jiscmail.ac.uk\n\n'
+        'It includes contributions from:\n\n'
+        '* Space Syntax Ltd. Open Digital Works (ODW) -\n'
+        'Abhimanyu Acharya, Ioanna Kovolou, Stephen Law, Laurens Versluis\n\n\n'
         'Released under GNU Licence version 3')
         self.messageText.setText(about_msg)
 
         # load logos
-        self.logoLabel.setPixmap(QPixmap(os.path.join(os.path.dirname(__file__), 'icons', 'ucl.png')))
-        self.logoLabel.setScaledContents(True)
+        self.logoLabel.setPixmap(QPixmap(os.path.join(os.path.dirname(__file__), 'icons', 'contrib_logos.png')))
