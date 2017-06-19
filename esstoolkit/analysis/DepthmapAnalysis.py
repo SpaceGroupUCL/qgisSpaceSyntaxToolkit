@@ -37,13 +37,13 @@ class DepthmapAnalysis(QObject):
 
         self.iface = iface
 
-        #initialise global variables
+         #initialise global variables
         self.axial_layer = None
         self.datastore = None
         self.settings = None
-        self.axial_default = ('Connectivity','Line Length','Id')
+        self.axial_default = ('Connectivity','Id','Line Length')
         self.segment_default = ('Angular Connectivity','Axial Connectivity','Axial Id',
-                                'Axial Line Length','Axial Line Ref','Connectivity','Id','Segment Length')
+                                'Axial Line Length','Axial Line Ref','Connectivity','Segment Length')
         self.rcl_default = ('Angular Connectivity', 'Axial Line Ref', 'Connectivity', 'Id', 'Segment Length')
         self.axial_id = ''
 
@@ -373,24 +373,28 @@ class DepthmapAnalysis(QObject):
             # also remove the invalid "Axial Segment Length" attribute
             if "Axial Segment Length" in attributes:
                 exclusions.append(attributes.index("Axial Segment Length"))
-        # replace axial ref by axial id
-        #if "Axial Ref" in attributes:
-        #    idx = attributes.index("Axial Ref")
-        #    attributes[idx] = "Axial Id"
-        if "Id" in attributes:
-            idx = attributes.index("Id")
-            if self.settings['type'] == 2:
-                attributes[idx] = "Segment Id"
-            elif self.axial_id in attributes:
-                attributes[idx] = "Axial Id"
-            else:
-                attributes[idx] = self.axial_id
+        # replace axial line ref
         if "Axial Line Ref" in attributes:
             idx = attributes.index("Axial Line Ref")
             if self.settings['type'] == 2:
                 exclusions.append(idx)
             else:
                 attributes[idx] = "Axial Ref"
+        # replace id by something more explicit about the source
+        if "Id" in attributes:
+            idx = attributes.index("Id")
+            if self.settings['type'] == 2:
+                # this is for the id of the user's submitted segment/rcl data
+                attributes[idx] = "Segment Id"
+            elif self.settings['type'] == 1:
+                # this is for the id of the user's submitted axial data
+                attributes[idx] = "Axial Id"
+            else:
+            # this is the original id of the user's submitted axial data
+            #    attributes[idx] = self.axial_id
+            # does not keep the user's original id as it can clash with new attribute names
+                attributes[idx] = "Axial Id"
+
         # remove attributes and values from lists
         if len(exclusions) > 0:
             exclusions.sort(reverse=True)
