@@ -53,22 +53,25 @@ from ui_About import Ui_AboutDialog
 from SettingsManager import SettingsManager
 from ProjectManager import ProjectManager
 
+###########
+###########
 # Import esstoolkit tool modules
 from analysis import AnalysisTool
 from explorer import ExplorerTool
-
-from . import utility_functions as uf
-
+from gate_transformer import TransformerAnalysis
+# import additional modules here
+###########
+###########
 
 # todo: add documentation notes to all functions
-# todo edit Makefile
-# todo edit plugin_upload.py
+
 
 class EssToolkit:
 
     def __init__(self, iface):
         # initialise plugin directory
         self.plugin_dir = os.path.dirname(__file__)
+
         # initialize locale
         locale = QtCore.QSettings().value("locale/userLocale")[0:2]
         locale_path = os.path.join(self.plugin_dir, 'i18n', 'essTools_{}.qm'.format(locale))
@@ -82,112 +85,224 @@ class EssToolkit:
 
         # Save reference to the QGIS interface
         self.iface = iface
-        self.esst_toolbar = self.iface.addToolBar(u"Space Syntax Toolkit")
+        self.toolbar = self.iface.addToolBar(u"Space Syntax Toolkit")
+        self.menu = self.tr(u"&Space Syntax Toolkit")
+        self.actions = []
 
-        # initialise base modules and interface actions
+        # Create toolkit components
         self.settings = SettingsManager(self.iface)
         self.settings_action = None
         self.project = ProjectManager(self.iface, self.settings)
         self.project_action = None
-
-        # initialise the tool modules and interface actions
-        self.analysis = AnalysisTool.AnalysisTool(self.iface, self.settings, self.project)
-        self.analysis_action = None
-        self.explorer = ExplorerTool.ExplorerTool(self.iface, self.settings, self.project)
-        self.explorer_action = None
-        # Create other dialogs
         self.about = AboutDialog()
-        about_msg = (
-        'The "Space Syntax Toolkit" was originally developed at the Space Syntax Laboratory, '
-        'the Bartlett School of Architecture, University College London (UCL).\n\n'
-        'Author: Jorge Gil\n\n'
-        'Contributors: Tasos Varoudis\n\n'
-        'Contact: jorge.gil@ucl.ac.uk\n\n'
-        'Released under GNU Licence version 3')
-        self.about.messageText.setText(about_msg)
-        self.about.logoLabel.setPixmap(QPixmap(os.path.dirname(__file__) + '/icons/ucl.png'))
-        self.about.logoLabel.setScaledContents(True)
         self.about_action = None
-        self.help_action = None
 
-        # initialise default events
-        #self.project.loadSettings()
+        ###########
+        ###########
+        # initialise the different modules
+        self.analysis = AnalysisTool.AnalysisTool(self.iface, self.settings, self.project)
+        self.explorer = ExplorerTool.ExplorerTool(self.iface, self.settings, self.project)
+        self.gate_transformer = TransformerAnalysis.GateTransformer(self.iface)
+        # add additional modules here
+        ###########
+        ###########
 
+        # for remote debugging
         if has_pydevd and is_debug:
             pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True, suspend=False)
 
+    def tr(self, message):
+        """Get the translation for a string using Qt translation API.
+
+        We implement this ourselves since we do not inherit QObject.
+
+        :param message: String for translation.
+        :type message: str, QString
+
+        :returns: Translated version of message.
+        :rtype: QString
+        """
+        # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
+        return QCoreApplication.translate('EssToolkit', message)
+
     def initGui(self):
-        # Create action to start the modules
-        icon = QIcon(os.path.dirname(__file__) + "/icons/project.png")
-        self.project_action = QAction(icon, u"Project", self.iface.mainWindow())
-        self.project_action.triggered.connect(self.project.showDialog)
-        icon = QIcon(os.path.dirname(__file__) + "/icons/esst_graph.png")
-        self.analysis_action = QAction(icon, u"Graph Analysis", self.iface.mainWindow())
-        self.analysis_action.triggered.connect(self.showAnalysis)
-        icon = QIcon(os.path.dirname(__file__) + "/icons/esst_explorer.png")
-        self.explorer_action = QAction(icon, u"Attributes Explorer", self.iface.mainWindow())
-        self.explorer_action.triggered.connect(self.showExplorer)
-        #icon = QIcon(os.path.dirname(__file__) + "/icons/settings.png")
-        #self.settings_action = QAction(icon, u"Settings", self.iface.mainWindow())
-        #self.settings_action.triggered.connect(self.settings.showDialog)
-        #icon = QIcon(os.path.dirname(__file__) + "/icons/help.png")
-        #self.help_action = QAction(icon, u"Help", self.iface.mainWindow())
-        #self.help_action.triggered.connect(self.showHelp)
-        icon = QIcon(os.path.dirname(__file__) + "/icons/about.png")
-        self.about_action = QAction(icon, u"About", self.iface.mainWindow())
-        self.about_action.triggered.connect(self.about.show)
+        icon_path = os.path.join(os.path.dirname(__file__), 'icons')
 
-        # Add toolbar button and menu items
-        self.esst_toolbar.addAction(self.analysis_action)
-        self.esst_toolbar.addAction(self.explorer_action)
-        self.iface.addPluginToVectorMenu(u"&Space Syntax Toolkit", self.analysis_action)
-        self.iface.addPluginToVectorMenu(u"&Space Syntax Toolkit", self.explorer_action)
-        self.iface.addPluginToVectorMenu(u"&Space Syntax Toolkit", self.project_action)
-        #self.iface.addPluginToVectorMenu(u"&Space Syntax Toolkit", self.settings_action)
-        #self.iface.addPluginToVectorMenu(u"&Space Syntax Toolkit", self.help_action)
-        self.iface.addPluginToVectorMenu(u"&Space Syntax Toolkit", self.about_action)
-
-        # Load the modules
+        ###########
+        ###########
+        # Create actions to start the different modules
+        # graph analysis module
+        self.actions.append(
+            self.add_action(
+                os.path.join(icon_path, 'esst_graph.png'),
+                text=self.tr(u'Graph Analysis'),
+                callback=self.showAnalysis,
+                parent=self.iface.mainWindow(),
+                status_tip='Graph Analysis'
+            )
+        )
+        # pre-load setting of dockwidget
         self.analysis.load()
+        # attribute explorer module
+        self.actions.append(
+            self.add_action(
+                os.path.join(icon_path, 'esst_explorer.png'),
+                text=self.tr(u'Attributes Explorer'),
+                callback=self.showExplorer,
+                parent=self.iface.mainWindow(),
+                status_tip='Attributes Explorer'
+            )
+        )
+        # pre-load setting of dockwidget
         self.explorer.load()
+        # gate transformer module
+        self.actions.append(
+            self.add_action(
+                os.path.join(icon_path, 'gate_transformer.png'),
+                text=self.tr(u'Gate Transformer'),
+                callback=self.showGateTransformer,
+                parent=self.iface.mainWindow(),
+                status_tip='Gate Transformer'
+            )
+        )
+        # add additional modules here in the desired order
+        ###########
+        ###########
 
+        # Create menu only toolkit components actions
+        self.project_action = self.add_action(
+            os.path.join(icon_path, 'project.png'),
+            text=self.tr(u'Project'),
+            callback=self.project.showDialog,
+            parent=self.iface.mainWindow(),
+            status_tip='Project',
+            add_to_toolbar=False
+        )
+        self.settings_action = self.add_action(
+            os.path.join(icon_path, 'settings.png'),
+            text=self.tr(u'Settings'),
+            callback=self.settings.showDialog,
+            parent=self.iface.mainWindow(),
+            status_tip='Settings',
+            add_to_toolbar=False
+        )
+        self.about_action = self.add_action(
+            os.path.join(icon_path, 'about.png'),
+            text=self.tr(u'About'),
+            callback=self.about.show,
+            parent=self.iface.mainWindow(),
+            status_tip='About',
+            add_to_toolbar=False
+        )
+
+    ###########
+    ###########
     def showAnalysis(self):
         self.iface.removeDockWidget(self.explorer.dlg)
         self.iface.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.analysis.dlg)
-
     def showExplorer(self):
         self.iface.removeDockWidget(self.analysis.dlg)
         self.iface.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.explorer.dlg)
-
-    def showHelp(self):
-        # todo: decide what to do for help documentation
-        pass
+    def showGateTransformer(self):
+        self.gate_transformer.load_gui()
+    # add additional modules here
+    ###########
+    ###########
 
     def unload(self):
-        # Remove the plugin menu item and icon
-        self.iface.removePluginVectorMenu(u"&Space Syntax Toolkit", self.analysis_action)
-        self.iface.removePluginVectorMenu(u"&Space Syntax Toolkit", self.explorer_action)
-        self.iface.removePluginVectorMenu(u"&Space Syntax Toolkit", self.project_action)
-        #self.iface.removePluginVectorMenu(u"&Space Syntax Toolkit", self.settings_action)
-        #self.iface.removePluginVectorMenu(u"&Space Syntax Toolkit", self.help_action)
-        self.iface.removePluginVectorMenu(u"&Space Syntax Toolkit", self.about_action)
+        """Removes the plugin menu item and icon from QGIS GUI."""
+        # remove the toolkit menu items
+        self.iface.removePluginVectorMenu(self.menu, self.project_action)
+        self.iface.removePluginVectorMenu(self.menu, self.settings_action)
+        self.iface.removePluginVectorMenu(self.menu, self.about_action)
+        # remove the actions on the toolbar
+        for action in self.actions:
+            self.iface.removePluginVectorMenu(
+                self.menu,
+                action)
+            self.iface.removeToolBarIcon(action)
+        # remove the toolbar
+        del self.toolbar
 
-        # Remove the toolbar buttons
-        self.iface.removeToolBarIcon(self.analysis_action)
-        self.iface.removeToolBarIcon(self.explorer_action)
-
-        # Remove the dialogs
+        ###########
+        ###########
+        # Remove dockwidget based modules
         self.iface.removeDockWidget(self.analysis.dlg)
         self.iface.removeDockWidget(self.explorer.dlg)
-
         # Unload the modules
         self.analysis.unload()
         self.explorer.unload()
+        self.gate_transformer.unload_gui()
+        # add additional modules here
+        ###########
+        ###########
 
     def showMessage(self, msg, lev, dur, type):
         self.iface.messageBar().pushMessage("Info",msg,level=lev,duration=dur)
 
-#
+    def add_action(self,icon_path,text,callback,enabled_flag=True,add_to_menu=True,add_to_toolbar=True,status_tip=None,whats_this=None,parent=None):
+
+        """Add a toolbar icon to the toolbar.
+
+        :param icon_path: Path to the icon for this action. Can be a resource
+            path (e.g. ':/plugins/foo/bar.png') or a normal file system path.
+        :type icon_path: str
+
+        :param text: Text that should be shown in menu items for this action.
+        :type text: str
+
+        :param callback: Function to be called when the action is triggered.
+        :type callback: function
+
+        :param enabled_flag: A flag indicating if the action should be enabled
+            by default. Defaults to True.
+        :type enabled_flag: bool
+
+        :param add_to_menu: Flag indicating whether the action should also
+            be added to the menu. Defaults to True.
+        :type add_to_menu: bool
+
+        :param add_to_toolbar: Flag indicating whether the action should also
+            be added to the toolbar. Defaults to True.
+        :type add_to_toolbar: bool
+
+        :param status_tip: Optional text to show in a popup when mouse pointer
+            hovers over the action.
+        :type status_tip: str
+
+        :param parent: Parent widget for the new action. Defaults None.
+        :type parent: QWidget
+
+        :param whats_this: Optional text to show in the status bar when the
+            mouse pointer hovers over the action.
+
+        :returns: The action that was created. Note that the action is also
+            added to self.actions list.
+        :rtype: QAction
+        """
+
+        icon = QIcon(icon_path)
+        action = QAction(icon, text, parent)
+        action.triggered.connect(callback)
+        action.setEnabled(enabled_flag)
+
+        if status_tip is not None:
+            action.setStatusTip(status_tip)
+
+        if whats_this is not None:
+            action.setWhatsThis(whats_this)
+
+        if add_to_toolbar:
+            self.toolbar.addAction(action)
+
+        if add_to_menu:
+            self.iface.addPluginToVectorMenu(
+                self.menu,
+                action)
+
+        return action
+
+
 class AboutDialog(QDialog, Ui_AboutDialog):
     def __init__(self):
 
@@ -197,3 +312,19 @@ class AboutDialog(QDialog, Ui_AboutDialog):
         self.setupUi(self)
         # set up internal GUI signals
         QtCore.QObject.connect(self.closeButton,QtCore.SIGNAL("clicked()"),self.close)
+
+        # load text
+        about_msg = (
+        'The "Space Syntax Toolkit" for QGIS is a collection of tools for space syntax analysis workflows in a GIS environment.\n'
+        'It was originally developed at the Space Syntax Laboratory, '
+        'the Bartlett, University College London (UCL).\n'
+        'Author: Jorge Gil\n'
+        'Contact: spacesyntax-toolkit@jiscmail.ac.uk\n\n'
+        'It includes contributions from:\n\n'
+        '* Space Syntax Ltd. Open Digital Works (ODW) -\n'
+        'Abhimanyu Acharya, Ioanna Kovolou, Stephen Law, Laurens Versluis\n\n\n'
+        'Released under GNU Licence version 3')
+        self.messageText.setText(about_msg)
+
+        # load logos
+        self.logoLabel.setPixmap(QPixmap(os.path.join(os.path.dirname(__file__), 'icons', 'contrib_logos.png')))

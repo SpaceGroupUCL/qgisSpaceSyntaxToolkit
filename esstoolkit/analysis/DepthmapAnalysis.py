@@ -226,7 +226,7 @@ class DepthmapAnalysis(QObject):
                 defaults.extend(self.axial_default)
             elif self.settings['type'] == 1:
                 defaults.extend(self.segment_default)
-            elif self.settings['type'] == 1:
+            elif self.settings['type'] == 2:
                 defaults.extend(self.rcl_default)
             # I leave all the if clauses outside the for loop to gain some speed
             vid = QgsVertexId()

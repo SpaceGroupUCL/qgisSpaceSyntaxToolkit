@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/Users/jorge/github/qgisSpaceSyntaxToolkit/esstoolkit/ui_Settings.ui'
+# Form implementation generated from reading ui file 'ui_Settings.ui'
 #
 # Created by: PyQt4 UI code generator 4.11.4
 #
