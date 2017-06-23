@@ -10,15 +10,9 @@
 [general]
 name=Space Syntax Toolkit
 qgisMinimumVersion=2.14
-<<<<<<< HEAD
-description=Collection of tools for spatial network analysis and data exploration.
-version=0.1.8
-author=Jorge Gil
-=======
 description=Collection of tools for space syntax analysis workflows in a GIS environment.
 version=0.1.8
 author=Jorge Gil, Abhimanyu Acharya, Ioanna Kovolou, Stephen Law, Laurens Versluis
->>>>>>> integrate-gate-transformer
 email=jorge.gil@ucl.ac.uk
 
 # end of mandatory metadata
