@@ -11,7 +11,7 @@
 name=Space Syntax Toolkit
 qgisMinimumVersion=2.14
 description=Collection of tools for space syntax analysis workflows in a GIS environment.
-version=0.1.7
+version=0.1.8
 author=Jorge Gil, Abhimanyu Acharya, Ioanna Kovolou, Stephen Law, Laurens Versluis
 email=jorge.gil@ucl.ac.uk
 
@@ -27,6 +27,8 @@ about=The “Space Syntax Toolkit” is a QGIS plug-in offering user friendly sp
     Dependencies: For network analysis requires depthmapXnet 0.35. It can be downloaded from: http://archtech.gr/varoudis/depthmapX/?dir=depthmapXnet
 category = Vector
 changelog=
+    0.1.8 -
+    * fixes issues #155 and #156
     0.1.7 -
     * fixes related to the new analysis of segment and road centre line maps
     0.1.6 -

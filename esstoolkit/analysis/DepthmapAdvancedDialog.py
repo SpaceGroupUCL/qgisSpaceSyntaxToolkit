@@ -43,14 +43,28 @@ class DepthmapAdvancedDialog(QtGui.QDialog, Ui_DepthmapAdvancedDialog):
     def setDistanceType(self, idx):
         self.axialDistanceCombo.setCurrentIndex(idx)
 
+    def disableDistanceType(self, onoff):
+        self.axialDistanceLabel.setDisabled(onoff)
+        self.axialDistanceCombo.setDisabled(onoff)
+
     def setRadiusType(self, idx):
         self.axialRadiusCombo.setCurrentIndex(idx)
+
+    def disableRadiusType(self,onoff):
+        self.axialRadiusLabel.setDisabled(onoff)
+        self.axialRadiusCombo.setDisabled(onoff)
 
     def setCalculateNorm(self,onoff):
         self.axialCalculateNormCheck.setChecked(onoff)
 
+    def disableCalculateNorm(self,onoff):
+        self.axialCalculateNormCheck.setDisabled(onoff)
+
     def setCalculateFull(self,onoff):
         self.axialCalculateFullCheck.setChecked(onoff)
+
+    def disableCalculateFull(self, onoff):
+        self.axialCalculateFullCheck.setDisabled(onoff)
 
     def setCalculateChoice(self,onoff):
         self.axialCalculateChoiceCheck.setChecked(onoff)
@@ -58,6 +72,10 @@ class DepthmapAdvancedDialog(QtGui.QDialog, Ui_DepthmapAdvancedDialog):
     def setRemoveStubs(self, value):
         self.axialStubsEdit.clear()
         self.axialStubsEdit.setText(str(value))
+
+    def disableRemoveStubs(self, onoff):
+        self.axialStubsLabel.setDisabled(onoff)
+        self.axialStubsEdit.setDisabled(onoff)
 
     def checkRemoveStubs(self):
         try:

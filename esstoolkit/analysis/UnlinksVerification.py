@@ -31,13 +31,12 @@ from .. import utility_functions as uf
 import time
 
 # Import the debug library
+is_debug = False
 try:
     import pydevd
     has_pydevd = True
 except ImportError, e:
     has_pydevd = False
-is_debug = False
-
 
 class UnlinksVerification(QThread):
     verificationFinished = pyqtSignal(dict, list)
@@ -64,7 +63,7 @@ class UnlinksVerification(QThread):
 
     def run(self):
         if has_pydevd and is_debug:
-            pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True)
+            pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True, suspend=False)
         self.running = True
         # reset all the errors
         self.problem_nodes = []
