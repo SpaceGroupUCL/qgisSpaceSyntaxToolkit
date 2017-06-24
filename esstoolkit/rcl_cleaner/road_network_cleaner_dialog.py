@@ -24,7 +24,7 @@ from PyQt4 import QtGui, uic
 from PyQt4.QtCore import pyqtSignal, Qt
 
 import os.path
-import resources
+#from .. import resources
 
 from DbSettings_dialog import DbSettingsDialog
 from ClSettings_dialog import ClSettingsDialog

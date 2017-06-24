@@ -30,7 +30,7 @@ from qgis.utils import *
 import traceback
 
 # Initialize Qt resources from file resources.py
-import resources
+#from .. import resources
 # the dialog modules
 from road_network_cleaner_dialog import RoadNetworkCleanerDialog
 
