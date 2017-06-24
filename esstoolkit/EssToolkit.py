@@ -59,6 +59,7 @@ from ProjectManager import ProjectManager
 from analysis import AnalysisTool
 from explorer import ExplorerTool
 from gate_transformer import TransformerAnalysis
+from rcl_cleaner import RoadNetworkCleanerTool
 # import additional modules here
 ###########
 ###########
@@ -103,6 +104,7 @@ class EssToolkit:
         self.analysis = AnalysisTool.AnalysisTool(self.iface, self.settings, self.project)
         self.explorer = ExplorerTool.ExplorerTool(self.iface, self.settings, self.project)
         self.gate_transformer = TransformerAnalysis.GateTransformer(self.iface)
+        self.rcl_cleaner = RoadNetworkCleanerTool.RoadNetworkCleaner(self.iface)
         # add additional modules here
         ###########
         ###########
@@ -165,6 +167,16 @@ class EssToolkit:
                 status_tip='Gate Transformer'
             )
         )
+        # rcl cleaner module
+        self.actions.append(
+            self.add_action(
+                os.path.join(icon_path, 'rcl_cleaner.png'),
+                text=self.tr(u'Road Network Cleaner'),
+                callback=self.showRCLCleaner,
+                parent=self.iface.mainWindow(),
+                status_tip='Road Network Cleaner'
+            )
+        )
         # add additional modules here in the desired order
         ###########
         ###########
@@ -205,6 +217,8 @@ class EssToolkit:
         self.iface.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.explorer.dlg)
     def showGateTransformer(self):
         self.gate_transformer.load_gui()
+    def showRCLCleaner(self):
+        self.rcl_cleaner.loadGUI()
     # add additional modules here
     ###########
     ###########
@@ -233,6 +247,7 @@ class EssToolkit:
         self.analysis.unload()
         self.explorer.unload()
         self.gate_transformer.unload_gui()
+        self.rcl_cleaner.unloadGUI()
         # add additional modules here
         ###########
         ###########

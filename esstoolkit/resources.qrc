@@ -9,5 +9,6 @@
     <file>icons/project.png</file>
     <file>icons/settings.png</file>
     <file>icons/gate_transformer.png</file>
+    <file>icons/rcl_cleaner.png</file>
   </qresource>
 </RCC>
