@@ -12,7 +12,7 @@ name=Space Syntax Toolkit
 qgisMinimumVersion=2.14
 description=Collection of tools for space syntax analysis workflows in a GIS environment.
 version=0.1.8
-author=Jorge Gil, Abhimanyu Acharya, Ioanna Kovolou, Stephen Law, Laurens Versluis
+author=Jorge Gil, Ioanna Kovolou, Abhimanyu Acharya, Stephen Law, Laurens Versluis
 email=jorge.gil@ucl.ac.uk
 
 # end of mandatory metadata
