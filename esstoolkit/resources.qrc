@@ -10,5 +10,6 @@
     <file>icons/settings.png</file>
     <file>icons/gate_transformer.png</file>
     <file>icons/rcl_cleaner.png</file>
+    <file>icons/catchment_analyser.png</file>
   </qresource>
 </RCC>
