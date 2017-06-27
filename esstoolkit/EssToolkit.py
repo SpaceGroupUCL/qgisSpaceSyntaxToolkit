@@ -330,15 +330,14 @@ class AboutDialog(QDialog, Ui_AboutDialog):
 
         # load text
         about_msg = (
-        'The "Space Syntax Toolkit" for QGIS is a collection of tools for space syntax analysis workflows in a GIS environment.\n'
-        'It was originally developed at the Space Syntax Laboratory, '
-        'the Bartlett, University College London (UCL).\n'
-        'Author: Jorge Gil\n'
-        'Contact: spacesyntax-toolkit@jiscmail.ac.uk\n\n'
+        'The "Space Syntax Toolkit" is a collection of tools for space syntax analysis workflows in the QGIS environment.\n'
+        'It was originally developed at the Space Syntax Laboratory, the Bartlett, University College London (UCL).\n\n'
+        'Mailing list: spacesyntax-toolkit@jiscmail.ac.uk\n\n'
+        'Author: Jorge Gil\n\n'
         'It includes contributions from:\n\n'
-        '* Space Syntax Ltd. Open Digital Works (ODW) -\n'
-        'Abhimanyu Acharya, Ioanna Kovolou, Stephen Law, Laurens Versluis\n\n\n'
-        'Released under GNU Licence version 3')
+        '- Space Syntax Ltd. Open Digital Works (ODW):\n'
+        'Abhimanyu Acharya, Ioanna Kovolou, Stephen Law, Laurens Versluis\n\n'
+        '\nReleased under GNU Licence version 3')
         self.messageText.setText(about_msg)
 
         # load logos
