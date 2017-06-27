@@ -206,8 +206,9 @@ class CatchmentAnalysis(QObject):
             outVertexId = graph.arc(index).outVertex()
             inVertexGeom = graph.vertex(inVertexId).point()
             outVertexGeom = graph.vertex(outVertexId).point()
-            arcGeom = QgsGeometry.fromPolyline([outVertexGeom,inVertexGeom])
+            # only include one of the two possible arcs
             if inVertexId < outVertexId:
+                arcGeom = QgsGeometry.fromPolyline([inVertexGeom, outVertexGeom])
                 catchment_network[index] = {'geom': arcGeom, 'start':inVertexId, 'end':outVertexId, 'cost': {}}
 
         # Loop through tied origins and write origin names
@@ -232,14 +233,21 @@ class CatchmentAnalysis(QObject):
                 # Define the arc properties
                 inVertexId = catchment_network[index]['start']
                 outVertexId = catchment_network[index]['end']
-                arcCost = max(cost[outVertexId], cost[inVertexId])
+                inVertexCost = cost[inVertexId]
+                outVertexCost = cost[outVertexId]
+                # this is the permissive option gives cost to the arc based on the closest point,
+                # it just needs to be reach by one node
+                arcCost = min(inVertexCost, outVertexCost)
+                # this is the restrictive option, gives cost to the arc based on the furtherst point,
+                # it needs to be entirely within distance
+                #arcCost = max(inVertexCost, outVertexCost)
 
                 # If arc is the origin set cost to 0
                 if outVertexId == originVertexId or inVertexId == originVertexId:
                     catchment_network[index]['cost'][origin_name] = 0
 
                 # If arc is connected and within the maximum radius set cost
-                elif arcCost < catchment_threshold and tree[inVertexId] != -1:
+                elif arcCost <= catchment_threshold and tree[inVertexId] != -1:
                     if origin_name in catchment_network[index]['cost']:
                         if catchment_network[index]['cost'][origin_name] > int(arcCost):
                             catchment_network[index]['cost'][origin_name] = int(arcCost)
@@ -247,12 +255,33 @@ class CatchmentAnalysis(QObject):
                         catchment_network[index]['cost'][origin_name] = int(arcCost)
 
                     # Add catchment points for each given radius
+                    inVertexGeom = graph.vertex(inVertexId).point()
+                    outVertexGeom = graph.vertex(outVertexId).point()
+                    seg_length = catchment_network[index]['geom'].length() #  math.sqrt(inVertexGeom.sqrDist(outVertexGeom))
+                    target_dist = 0
                     for distance in distances:
                         if self.killed == True: break
-                        if arcCost < distance:
-                            inVertexGeom = graph.vertex(inVertexId).point()
-                            outVertexGeom = graph.vertex(outVertexId).point()
-                            catchment_points[tied_point][distance].extend([inVertexGeom, outVertexGeom])
+                        # this option includes both nodes as long as arc is within distance
+                        # the polygon is the same as the network output
+                        #if arcCost <= distance:
+                        #    catchment_points[tied_point][distance].extend([inVertexGeom, outVertexGeom])
+                        # this option only includes nodes within distance
+                        # it does linear interpolation for extra points
+                        if inVertexCost <= distance:
+                            catchment_points[tied_point][distance].append(inVertexGeom)
+                            # add an extra point with linear referencing
+                            if outVertexCost > distance:
+                                target_dist = distance - inVertexCost
+                                midVertexGeom = catchment_network[index]['geom'].interpolate(target_dist).asPoint()
+                                catchment_points[tied_point][distance].append(midVertexGeom)
+                        if outVertexCost <= distance:
+                            catchment_points[tied_point][distance].append(outVertexGeom)
+                            # add an extra point with linear referencing
+                            if inVertexCost > distance:
+                                target_dist = distance - outVertexCost
+                                midVertexGeom = catchment_network[index]['geom'].interpolate(seg_length-target_dist).asPoint()
+                                catchment_points[tied_point][distance].append(midVertexGeom)
+
             i += 1
         return catchment_network, catchment_points
 

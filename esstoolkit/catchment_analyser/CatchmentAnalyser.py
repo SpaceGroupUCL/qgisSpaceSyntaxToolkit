@@ -29,7 +29,7 @@ from qgis.gui import *
 from qgis.utils import *
 
 # Initialize Qt resources from file resources.py
-import resources
+#import resources
 
 # Import the code for the dialog
 from catchment_analyser_dialog import CatchmentAnalyserDialog
