@@ -60,6 +60,7 @@ from analysis import AnalysisTool
 from explorer import ExplorerTool
 from gate_transformer import TransformerAnalysis
 from rcl_cleaner import RoadNetworkCleanerTool
+from catchment_analyser import CatchmentAnalyser
 # import additional modules here
 ###########
 ###########
@@ -105,6 +106,7 @@ class EssToolkit:
         self.explorer = ExplorerTool.ExplorerTool(self.iface, self.settings, self.project)
         self.gate_transformer = TransformerAnalysis.GateTransformer(self.iface)
         self.rcl_cleaner = RoadNetworkCleanerTool.RoadNetworkCleaner(self.iface)
+        self.catchment_tool = CatchmentAnalyser.CatchmentTool(self.iface)
         # add additional modules here
         ###########
         ###########
@@ -157,16 +159,6 @@ class EssToolkit:
         )
         # pre-load setting of dockwidget
         self.explorer.load()
-        # gate transformer module
-        self.actions.append(
-            self.add_action(
-                os.path.join(icon_path, 'gate_transformer.png'),
-                text=self.tr(u'Gate Transformer'),
-                callback=self.showGateTransformer,
-                parent=self.iface.mainWindow(),
-                status_tip='Gate Transformer'
-            )
-        )
         # rcl cleaner module
         self.actions.append(
             self.add_action(
@@ -175,6 +167,26 @@ class EssToolkit:
                 callback=self.showRCLCleaner,
                 parent=self.iface.mainWindow(),
                 status_tip='Road Network Cleaner'
+            )
+        )
+        # catchment analyser module
+        self.actions.append(
+            self.add_action(
+                os.path.join(icon_path, 'catchment_analyser.png'),
+                text=self.tr(u'Catchment Analyser'),
+                callback=self.showCatchmentAnalyser,
+                parent=self.iface.mainWindow(),
+                status_tip='Catchment Analyser'
+            )
+        )
+        # gate transformer module
+        self.actions.append(
+            self.add_action(
+                os.path.join(icon_path, 'gate_transformer.png'),
+                text=self.tr(u'Gate Transformer'),
+                callback=self.showGateTransformer,
+                parent=self.iface.mainWindow(),
+                status_tip='Gate Transformer'
             )
         )
         # add additional modules here in the desired order
@@ -219,6 +231,8 @@ class EssToolkit:
         self.gate_transformer.load_gui()
     def showRCLCleaner(self):
         self.rcl_cleaner.loadGUI()
+    def showCatchmentAnalyser(self):
+        self.catchment_tool.load_gui()
     # add additional modules here
     ###########
     ###########
@@ -236,7 +250,10 @@ class EssToolkit:
                 action)
             self.iface.removeToolBarIcon(action)
         # remove the toolbar
-        del self.toolbar
+        try:
+            del self.toolbar
+        except:
+            pass
 
         ###########
         ###########
@@ -248,6 +265,7 @@ class EssToolkit:
         self.explorer.unload()
         self.gate_transformer.unload_gui()
         self.rcl_cleaner.unloadGUI()
+        self.catchment_tool.unload_gui()
         # add additional modules here
         ###########
         ###########
@@ -335,9 +353,15 @@ class AboutDialog(QDialog, Ui_AboutDialog):
         'Mailing list: spacesyntax-toolkit@jiscmail.ac.uk\n\n'
         'Author: Jorge Gil\n\n'
         'It includes contributions from:\n\n'
+<<<<<<< HEAD
         '- Space Syntax Ltd. Open Digital Works (ODW):\n'
         'Abhimanyu Acharya, Ioanna Kovolou, Stephen Law, Laurens Versluis\n\n'
         '\nReleased under GNU Licence version 3')
+=======
+        '* Space Syntax Ltd. Open Digital Works (ODW) -\n'
+        'Ioanna Kovolou, Abhimanyu Acharya, Stephen Law, Laurens Versluis\n\n\n'
+        'Released under GNU Licence version 3')
+>>>>>>> master
         self.messageText.setText(about_msg)
 
         # load logos
