@@ -353,15 +353,10 @@ class AboutDialog(QDialog, Ui_AboutDialog):
         'Mailing list: spacesyntax-toolkit@jiscmail.ac.uk\n\n'
         'Author: Jorge Gil\n\n'
         'It includes contributions from:\n\n'
-<<<<<<< HEAD
         '- Space Syntax Ltd. Open Digital Works (ODW):\n'
         'Abhimanyu Acharya, Ioanna Kovolou, Stephen Law, Laurens Versluis\n\n'
         '\nReleased under GNU Licence version 3')
-=======
-        '* Space Syntax Ltd. Open Digital Works (ODW) -\n'
-        'Ioanna Kovolou, Abhimanyu Acharya, Stephen Law, Laurens Versluis\n\n\n'
-        'Released under GNU Licence version 3')
->>>>>>> master
+
         self.messageText.setText(about_msg)
 
         # load logos
