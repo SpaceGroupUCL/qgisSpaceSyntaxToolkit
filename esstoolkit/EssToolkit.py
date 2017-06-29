@@ -149,6 +149,7 @@ class EssToolkit:
         )
         # pre-load setting of dockwidget
         self.analysis.load()
+        self.analysis.dlg.close()
         # attribute explorer module
         self.actions.append(
             self.add_action(
@@ -161,6 +162,7 @@ class EssToolkit:
         )
         # pre-load setting of dockwidget
         self.explorer.load()
+        self.explorer.dlg.close()
         # rcl cleaner module
         self.actions.append(
             self.add_action(
@@ -368,8 +370,8 @@ class AboutDialog(QDialog, Ui_AboutDialog):
         'Mailing list: spacesyntax-toolkit@jiscmail.ac.uk\n\n'
         'Author: Jorge Gil\n\n'
         'It includes contributions from:\n\n'
-        '- Space Syntax Ltd. Open Digital Works (ODW):\n'
-        'Abhimanyu Acharya, Ioanna Kovolou, Stephen Law, Laurens Versluis\n\n'
+        '- Space Syntax Limited:\n'
+        'Ioanna Kovolou, Abhimanyu Acharya, Stephen Law, Laurens Versluis\n\n'
         '\nReleased under GNU Licence version 3')
 
         self.messageText.setText(about_msg)
