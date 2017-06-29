@@ -11,5 +11,6 @@
     <file>icons/gate_transformer.png</file>
     <file>icons/rcl_cleaner.png</file>
     <file>icons/catchment_analyser.png</file>
+    <file>icons/urban_data_input.png</file>
   </qresource>
 </RCC>

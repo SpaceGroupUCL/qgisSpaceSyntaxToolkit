@@ -193,11 +193,6 @@ class CatchmentTool(QObject):
         self.analysis = analysis
 
     def analysisFinish(self, output):
-        # Clean up thread and analysis
-        self.analysis_thread.quit()
-        self.analysis_thread.wait()
-        self.analysis_thread.deleteLater()
-        self.analysis.deleteLater()
         # Render output
         if output:
             output_network = output['output network']
@@ -209,8 +204,8 @@ class CatchmentTool(QObject):
                 self.renderPolygon(output_polygon)
         else:
             self.giveWarningMessage('Something went wrong')
-        # Closing the dialog
-        self.dlg.closeDialog()
+        # Clean up thread and analysis
+        self.killAnalysis()
 
     def renderNetwork(self, output_network, distances):
 
