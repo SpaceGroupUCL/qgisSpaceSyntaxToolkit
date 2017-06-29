@@ -41,7 +41,7 @@ class FrontageTool(QObject):
         self.dockwidget = dockwidget
         self.frontagedlg = self.dockwidget.frontagedlg
         self.canvas = self.iface.mapCanvas()
-        self.plugin_path = os.path.dirname(__file__)
+        self.plugin_path = os.path.dirname(os.path.dirname(__file__))
         self.frontage_layer = None
 
         # signals from dockwidget
@@ -138,7 +138,7 @@ class FrontageTool(QObject):
         self.disconnectFrontageLayer()
         if self.dockwidget.useExistingcomboBox.count() > 0:
             self.frontage_layer = self.dockwidget.setFrontageLayer()
-            qml_path = self.plugin_path + "../styles/frontagesThematic.qml"
+            qml_path = self.plugin_path + "/styles/frontagesThematic.qml"
             self.frontage_layer.loadNamedStyle(qml_path)
             self.frontage_layer.startEditing()
             # connect signals from layer
@@ -331,12 +331,12 @@ class FrontageTool(QObject):
         mc = self.canvas
         layer = self.dockwidget.setFrontageLayer()
         if self.dockwidget.hideshowButton.isChecked():
-            qml_path = self.plugin_path + "../styles/frontagesThematic_NULL.qml"
+            qml_path = self.plugin_path + "/styles/frontagesThematic_NULL.qml"
             layer.loadNamedStyle(qml_path)
             mc.refresh()
 
         else:
-            qml_path = self.plugin_path + "../styles/frontagesThematic.qml"
+            qml_path = self.plugin_path + "/styles/frontagesThematic.qml"
             layer.loadNamedStyle(qml_path)
             mc.refresh()
 

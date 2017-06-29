@@ -44,7 +44,7 @@ class EntranceTool(QObject):
         self.dockwidget = dockwidget
         self.entrancedlg = self.dockwidget.entrancedlg
 
-        self.plugin_path = os.path.dirname(__file__)
+        self.plugin_path = os.path.dirname(os.path.dirname(__file__))
 
         self.entrance_layer = None
 
@@ -162,7 +162,7 @@ class EntranceTool(QObject):
         self.disconnectEntranceLayer()
         if self.dockwidget.useExistingEntrancescomboBox.count() > 0:
             self.entrance_layer = self.dockwidget.setEntranceLayer()
-            qml_path = self.plugin_path + "../styles/entrancesThematic.qml"
+            qml_path = self.plugin_path + "/styles/entrancesThematic.qml"
             self.entrance_layer.loadNamedStyle(qml_path)
             self.entrance_layer.startEditing()
             self.connectEntranceLayer()

@@ -43,7 +43,7 @@ class LanduseTool(QObject):
         self.dockwidget = dockwidget
         self.ludlg = self.dockwidget.ludlg
         self.ludlg.LUincGFcheckBox.setChecked(1)
-        self.plugin_path = os.path.dirname(__file__)
+        self.plugin_path = os.path.dirname(os.path.dirname(__file__))
         self.lu_layer = None
 
         # signals from dockwidget
@@ -472,7 +472,7 @@ class LanduseTool(QObject):
         self.disconnectLULayer()
         if self.dockwidget.useExistingLUcomboBox.count() > 0:
             self.lu_layer = self.dockwidget.setLULayer()
-            qml_path = self.plugin_path + "../styles/landuseThematic.qml"
+            qml_path = self.plugin_path + "/styles/landuseThematic.qml"
             self.lu_layer.loadNamedStyle(qml_path)
             self.lu_layer.startEditing()
             # connect signals from layer
