@@ -61,6 +61,7 @@ from explorer import ExplorerTool
 from gate_transformer import TransformerAnalysis
 from rcl_cleaner import RoadNetworkCleanerTool
 from catchment_analyser import CatchmentAnalyser
+from urban_data_input import UrbanDataInputTool
 # import additional modules here
 ###########
 ###########
@@ -99,6 +100,10 @@ class EssToolkit:
         self.about = AboutDialog()
         self.about_action = None
 
+        # for remote debugging
+        if has_pydevd and is_debug:
+            pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True, suspend=False)
+
         ###########
         ###########
         # initialise the different modules
@@ -107,13 +112,10 @@ class EssToolkit:
         self.gate_transformer = TransformerAnalysis.GateTransformer(self.iface)
         self.rcl_cleaner = RoadNetworkCleanerTool.RoadNetworkCleaner(self.iface)
         self.catchment_tool = CatchmentAnalyser.CatchmentTool(self.iface)
+        self.udi_tool = UrbanDataInputTool.UrbanDataInputTool(self.iface)
         # add additional modules here
         ###########
         ###########
-
-        # for remote debugging
-        if has_pydevd and is_debug:
-            pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True, suspend=False)
 
     def tr(self, message):
         """Get the translation for a string using Qt translation API.
@@ -179,6 +181,16 @@ class EssToolkit:
                 status_tip='Catchment Analyser'
             )
         )
+        # urban data input module
+        self.actions.append(
+            self.add_action(
+                os.path.join(icon_path, 'urban_data_input.png'),
+                text=self.tr(u'Urban Data Input'),
+                callback=self.showUrbanDataInput,
+                parent=self.iface.mainWindow(),
+                status_tip='Urban Data Input'
+            )
+        )
         # gate transformer module
         self.actions.append(
             self.add_action(
@@ -233,6 +245,8 @@ class EssToolkit:
         self.rcl_cleaner.loadGUI()
     def showCatchmentAnalyser(self):
         self.catchment_tool.load_gui()
+    def showUrbanDataInput(self):
+        self.udi_tool.load_gui()
     # add additional modules here
     ###########
     ###########
@@ -266,6 +280,7 @@ class EssToolkit:
         self.gate_transformer.unload_gui()
         self.rcl_cleaner.unloadGUI()
         self.catchment_tool.unload_gui()
+        self.udi_tool.unload_gui()
         # add additional modules here
         ###########
         ###########
