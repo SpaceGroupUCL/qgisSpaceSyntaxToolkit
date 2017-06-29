@@ -1,6 +1,7 @@
 # Space Syntax Toolkit for QGIS
 
 ## News
+30.06.2017 - There's a new release of
 06.11.2016 - For the latest information on the Space Syntax Toolkit you should now consult the [Wiki](https://github.com/SpaceGroupUCL/qgisSpaceSyntaxToolkit/wiki) and its [FAQ](https://github.com/SpaceGroupUCL/qgisSpaceSyntaxToolkit/wiki).
 03.06.2016 – Subscribe to the new [Space Syntax Toolkit mailing list on JISCMAIL](https://www.jiscmail.ac.uk/cgi-bin/webadmin?A0=SPACESYNTAX-TOOLKIT) for discussions, suggestions, and the latest news. You can send an e-mail to the list (spacesyntax-toolkit at jiscmail.ac.uk) if you need support using the toolkit.
 
@@ -8,7 +9,7 @@
 The “Space Syntax Toolkit” is a [QGIS](http://www.qgis.org/en/site/) plugin offering user friendly space syntax analysis workflows in a GIS environment. It provides a front-end for the [depthmapX](https://varoudis.github.io/depthmapX/) software within QGIS, for seamless spatial network analysis. Furthermore, it includes tools for urban data management and analysis, namely land use, entrances, frontages, pedestrian movement, road centre lines, and service areas.
 
 Originally developed by Jorge Gil at the Space Syntax Laboratory, The Bartlett, UCL, the plugin includes contributions from:
-* Space Syntax Ltd [Open Digital Works (ODW)](https://github.com/OpenDigitalWorks) - Abhimanyu Acharya, Ioanna Kovolou, Stephen Law, Laurens Versluis
+* [Space Syntax Limited](https://github.com/spacesyntax) - Ioanna Kovolou, Abhimanyu Acharya, Stephen Law, Laurens Versluis
 
 ## Installation
 The plug-in can be installed from the QGIS Plugins Manager, and updates become automatically available once submitted to the QGIS plugins repository.
