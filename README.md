@@ -1,7 +1,8 @@
 # Space Syntax Toolkit for QGIS
 
 ## News
-30.06.2017 - There's a new release of
+03.07.2017 - SST workshop at the 11th International Space Syntax Symposium, in Lisbon, Portugal
+30.06.2017 - SST 0.2.0 has been released, including several new modules.
 06.11.2016 - For the latest information on the Space Syntax Toolkit you should now consult the [Wiki](https://github.com/SpaceGroupUCL/qgisSpaceSyntaxToolkit/wiki) and its [FAQ](https://github.com/SpaceGroupUCL/qgisSpaceSyntaxToolkit/wiki).
 03.06.2016 – Subscribe to the new [Space Syntax Toolkit mailing list on JISCMAIL](https://www.jiscmail.ac.uk/cgi-bin/webadmin?A0=SPACESYNTAX-TOOLKIT) for discussions, suggestions, and the latest news. You can send an e-mail to the list (spacesyntax-toolkit at jiscmail.ac.uk) if you need support using the toolkit.
 
