@@ -195,8 +195,10 @@ class RoadNetworkCleaner(QObject):
         # create the cleaning results layers
         try:
             # create clean layer
-            if output_type in ['shp', 'memory']:
+            if output_type == 'shp':
                 final = to_shp(path, ret[0][0], ret[0][1], crs, 'cleaned', encoding, geom_type)
+            elif output_type == 'memory':
+                final = to_shp(None, ret[0][0], ret[0][1], crs, path, encoding, geom_type)
             else:
                 final = to_dblayer(self.settings['dbname'], self.settings['user'], self.settings['host'],
                                    self.settings['port'], self.settings['password'], self.settings['schema'],
