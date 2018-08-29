@@ -23,7 +23,7 @@
    <string>Graph Analysis</string>
   </property>
   <widget class="QWidget" name="analysisLayout">
-   <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,5">
+   <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,10,0">
     <item>
      <layout class="QHBoxLayout" name="analysisDataLayout">
       <item>
@@ -138,7 +138,7 @@
     <item>
      <widget class="QTabWidget" name="axialAnalysisTabs">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="axialEditTab">
        <attribute name="title">
@@ -238,7 +238,7 @@
        <attribute name="title">
         <string>depthmapX remote</string>
        </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,1,0">
+       <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,1">
         <property name="bottomMargin">
          <number>10</number>
         </property>
@@ -349,24 +349,24 @@
         <item>
          <widget class="QPlainTextEdit" name="axialDepthmapReportList"/>
         </item>
-        <item>
-         <widget class="QLabel" name="axialDepthmapDownload">
-          <property name="toolTip">
-           <string>https://varoudis.github.io/depthmapX/</string>
-          </property>
-          <property name="text">
-           <string>&lt;qt&gt;&lt;a href=&quot;http://archtech.gr/varoudis/depthmapX/?dir=depthmapXnet&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Download depthmapXnet...&lt;/a&gt;&lt;/qt&gt;</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-          <property name="openExternalLinks">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
        </layout>
       </widget>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="axialDepthmapDownload">
+      <property name="toolTip">
+       <string>https://varoudis.github.io/depthmapX/</string>
+      </property>
+      <property name="text">
+       <string>&lt;qt&gt;&lt;a href=&quot;http://archtech.gr/varoudis/depthmapX/?dir=depthmapXnet&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Download depthmapXnet...&lt;/a&gt;&lt;/qt&gt;</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+      <property name="openExternalLinks">
+       <bool>true</bool>
+      </property>
      </widget>
     </item>
    </layout>

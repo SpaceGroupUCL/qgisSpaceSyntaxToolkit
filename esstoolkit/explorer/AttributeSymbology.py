@@ -125,7 +125,7 @@ class AttributeSymbology(QObject):
             if ramp_type == 3:
                 new_width = np.linspace(0.1, line_width, intervals)
                 step = intervals / 8.0  # this is usd for fill patterns
-                color = QColor(ramp.color(0).getRgb())  # same as above
+                #color = QColor(ramp.color(0).getRgb())  # same as above
                 for i in range(0, intervals):
                     symbol = renderer.symbols()[i]
                     if invert:

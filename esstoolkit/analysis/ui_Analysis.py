@@ -198,20 +198,20 @@ class Ui_AnalysisDialog(object):
         self.axialDepthmapReportList = QtGui.QPlainTextEdit(self.axialDepthmapTab)
         self.axialDepthmapReportList.setObjectName(_fromUtf8("axialDepthmapReportList"))
         self.verticalLayout.addWidget(self.axialDepthmapReportList)
-        self.axialDepthmapDownload = QtGui.QLabel(self.axialDepthmapTab)
-        self.axialDepthmapDownload.setAlignment(QtCore.Qt.AlignCenter)
-        self.axialDepthmapDownload.setOpenExternalLinks(True)
-        self.axialDepthmapDownload.setObjectName(_fromUtf8("axialDepthmapDownload"))
-        self.verticalLayout.addWidget(self.axialDepthmapDownload)
         self.verticalLayout.setStretch(3, 1)
         self.axialAnalysisTabs.addTab(self.axialDepthmapTab, _fromUtf8(""))
         self.verticalLayout_2.addWidget(self.axialAnalysisTabs)
-        self.verticalLayout_2.setStretch(2, 5)
+        self.axialDepthmapDownload = QtGui.QLabel(self.analysisLayout)
+        self.axialDepthmapDownload.setAlignment(QtCore.Qt.AlignCenter)
+        self.axialDepthmapDownload.setOpenExternalLinks(True)
+        self.axialDepthmapDownload.setObjectName(_fromUtf8("axialDepthmapDownload"))
+        self.verticalLayout_2.addWidget(self.axialDepthmapDownload)
+        self.verticalLayout_2.setStretch(2, 10)
         AnalysisDialog.setWidget(self.analysisLayout)
 
         self.retranslateUi(AnalysisDialog)
         self.analysisLayersTabs.setCurrentIndex(0)
-        self.axialAnalysisTabs.setCurrentIndex(0)
+        self.axialAnalysisTabs.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(AnalysisDialog)
 
     def retranslateUi(self, AnalysisDialog):
@@ -240,8 +240,8 @@ class Ui_AnalysisDialog(object):
         self.axialDepthmapOutputLabel.setText(_translate("AnalysisDialog", "Output table:", None))
         self.axialDepthmapCalculateButton.setText(_translate("AnalysisDialog", "Calculate", None))
         self.axialDepthmapCancelButton.setText(_translate("AnalysisDialog", "Cancel", None))
+        self.axialAnalysisTabs.setTabText(self.axialAnalysisTabs.indexOf(self.axialDepthmapTab), _translate("AnalysisDialog", "depthmapX remote", None))
         self.axialDepthmapDownload.setToolTip(_translate("AnalysisDialog", "https://varoudis.github.io/depthmapX/", None))
         self.axialDepthmapDownload.setText(_translate("AnalysisDialog", "<qt><a href=\"http://archtech.gr/varoudis/depthmapX/?dir=depthmapXnet\"><span style=\" text-decoration: underline; color:#0000ff;\">Download depthmapXnet...</a></qt>", None))
-        self.axialAnalysisTabs.setTabText(self.axialAnalysisTabs.indexOf(self.axialDepthmapTab), _translate("AnalysisDialog", "depthmapX remote", None))
 
 import resources_rc
