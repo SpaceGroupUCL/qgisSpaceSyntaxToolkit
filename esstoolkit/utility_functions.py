@@ -1504,14 +1504,14 @@ def addShapeFileAttributes(layer, attributes, types, values):
 # postgis geometry types
 # 1 point; 2 line; 3 polygon; 4 multipoint; 5 multiline; 6 multipolygon
 
-def listPostgisConnections():
+def listPostgisConnectionNames():
     """ Retrieve a list of PostgreSQL connection names
     :return: connections - list of strings
     """
     settings = QSettings()
     settings.beginGroup('/PostgreSQL/connections')
-    connections = [unicode(item) for item in settings.childGroups()]
-    return connections
+    connection_names = [unicode(item) for item in settings.childGroups()]
+    return connection_names
 
 
 def getPostgisSelectedConnection():
@@ -1538,6 +1538,7 @@ def getPostgisConnectionSettings():
     for item in settings.childGroups():
         con = dict()
         con['name'] = unicode(item)
+        con['service'] = unicode(settings.value(u'%s/service' % unicode(item)))
         con['host'] = unicode(settings.value(u'%s/host' % unicode(item)))
         con['port'] = unicode(settings.value(u'%s/port' % unicode(item)))
         con['database'] = unicode(settings.value(u'%s/database' % unicode(item)))
@@ -1560,6 +1561,8 @@ def createPostgisConnectionSetting(name, connection=None):
     settings=QSettings()
     settings.beginGroup('/PostgreSQL/connections')
     if connection and isinstance(connection, dict):
+        if 'service' in connection:
+            settings.setValue(u'%s/service' % name, u'%s' % connection['service'])
         if 'host' in connection:
             settings.setValue(u'%s/host' % name,u'%s' % connection['host'])
         if 'port' in connection:
@@ -1596,17 +1599,17 @@ def getPostgisConnectionString(name):
     :param name:
     :return:
     """
-    connection = ''
+    connstring = ''
     settings = QSettings()
     settings.beginGroup('/PostgreSQL/connections/%s'%name)
     for item in settings.allKeys():
-        if item in ('host','port','password'):
-            connection += "%s='%s' " % (item, settings.value(item))
+        if item in ('host','port','password','service'):
+            connstring += "%s='%s' " % (item, settings.value(item))
         elif item == 'database':
-            connection += "dbname='%s' " % settings.value(item)
+            connstring += "dbname='%s' " % settings.value(item)
         elif item == 'username':
-            connection += "user='%s' " % settings.value(item)
-    return connection
+            connstring += "user='%s' " % settings.value(item)
+    return connstring
 
 
 def executePostgisQuery(connection, query, params='',commit=False):
@@ -1652,6 +1655,7 @@ def getPostgisConnectionInfo(layer):
         provider = layer.dataProvider()
         if provider.name() == 'postgres':
             uri = QgsDataSourceURI(provider.dataSourceUri())
+            info['service'] = uri.service()
             info['host'] = uri.host()
             info['port'] = uri.port()
             info['dbname'] = uri.database()
@@ -1723,8 +1727,12 @@ def loadPostgisTable(connection, name, schema, table):
     for con in getPostgisConnectionSettings():
         if con['name'] == name:
             dsn = con
+            break
     if dsn:
-        uri.setConnection(dsn['host'], dsn['port'], dsn['database'], dsn['username'], dsn['password'])
+        if 'service' in dsn.keys():
+            uri.setConnection(dsn['service'], '','','') #, dsn['database'], dsn['username'], dsn['password'])
+        else:
+            uri.setConnection(dsn['host'], dsn['port'], dsn['database'], dsn['username'], dsn['password'])
         geometry = getPostgisGeometryColumn(connection, schema, table)
         if geometry:
             uri.setDataSource("%s" % schema, "%s" % table, "%s" % geometry)
@@ -1751,7 +1759,10 @@ def getPostgisLayer(connection, name, schema, table):
             dsn = con
             break
     if dsn:
-        uri.setConnection(dsn['host'], dsn['port'], dsn['database'], dsn['username'], dsn['password'])
+        if 'service' in dsn.keys():
+            uri.setConnection(dsn['service'], '','','') #, dsn['database'], dsn['username'], dsn['password'])
+        else:
+            uri.setConnection(dsn['host'], dsn['port'], dsn['database'], dsn['username'], dsn['password'])
         query = """SELECT f_geometry_column FROM geometry_columns WHERE f_table_schema = '%s' AND f_table_name = '%s'""" % (schema, table)
         header, data, error = executePostgisQuery(connection, query)
         if data != []:

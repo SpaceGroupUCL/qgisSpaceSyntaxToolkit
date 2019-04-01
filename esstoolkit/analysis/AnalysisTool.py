@@ -220,8 +220,8 @@ class AnalysisTool(QObject):
                     txt = 'SL: %s' % self.datastore['name']
                     path = self.datastore['path']
             # postgis data store
-            elif self.datastore['type'] == 2 and len(uf.listPostgisConnections()) > 0:
-                if self.datastore['name'] in uf.listPostgisConnections():
+            elif self.datastore['type'] == 2 and len(uf.listPostgisConnectionNames()) > 0:
+                if self.datastore['name'] in uf.listPostgisConnectionNames():
                     txt = 'PG: %s (%s)' % (self.datastore['name'], self.datastore['schema'])
                     path = """dbname='%s' schema='%s'""" % (self.datastore['path'], self.datastore['schema'])
         self.dlg.setDatastore(txt, path)
@@ -239,7 +239,7 @@ class AnalysisTool(QObject):
                 is_set = False
             elif self.datastore['type'] == 1 and (name not in uf.listSpatialiteConnections()['name'] or not os.path.exists(path)):
                 is_set = False
-            elif self.datastore['type'] == 2 and (name not in uf.listPostgisConnections() or schema not in uf.listPostgisSchemas(uf.getPostgisConnection(name))):
+            elif self.datastore['type'] == 2 and (name not in uf.listPostgisConnectionNames() or schema not in uf.listPostgisSchemas(uf.getPostgisConnection(name))):
                 is_set = False
             else:
                 is_set = True
