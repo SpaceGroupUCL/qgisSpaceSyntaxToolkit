@@ -1604,11 +1604,14 @@ def getPostgisConnectionString(name):
     settings.beginGroup('/PostgreSQL/connections/%s'%name)
     for item in settings.allKeys():
         if item in ('host','port','password','service'):
-            connstring += "%s='%s' " % (item, settings.value(item))
+            if settings.value(item):
+                connstring += "%s='%s' " % (item, settings.value(item))
         elif item == 'database':
-            connstring += "dbname='%s' " % settings.value(item)
+            if settings.value(item):
+                connstring += "dbname='%s' " % settings.value(item)
         elif item == 'username':
-            connstring += "user='%s' " % settings.value(item)
+            if settings.value(item):
+                connstring += "user='%s' " % settings.value(item)
     return connstring
 
 
@@ -1663,7 +1666,10 @@ def getPostgisConnectionInfo(layer):
             info['password'] = uri.password()
             connection_settings = getPostgisConnectionSettings()
             for connection in connection_settings:
-                if connection['database'] == info['dbname']:
+                if (connection['database'] == info['dbname'])\
+                    and (connection['host'] == info['host'])\
+                    and (connection['port'] == info['port'])\
+                    and (connection['service'] == info['service']):
                     info['name'] = connection['name']
                     break
     return info
@@ -1729,7 +1735,7 @@ def loadPostgisTable(connection, name, schema, table):
             dsn = con
             break
     if dsn:
-        if 'service' in dsn.keys():
+        if dsn['service'] != 'NULL' and dsn['service'] !='':
             uri.setConnection(dsn['service'], '','','') #, dsn['database'], dsn['username'], dsn['password'])
         else:
             uri.setConnection(dsn['host'], dsn['port'], dsn['database'], dsn['username'], dsn['password'])
@@ -1759,7 +1765,7 @@ def getPostgisLayer(connection, name, schema, table):
             dsn = con
             break
     if dsn:
-        if 'service' in dsn.keys():
+        if dsn['service'] != 'NULL' and dsn['service'] !='':
             uri.setConnection(dsn['service'], '','','') #, dsn['database'], dsn['username'], dsn['password'])
         else:
             uri.setConnection(dsn['host'], dsn['port'], dsn['database'], dsn['username'], dsn['password'])
