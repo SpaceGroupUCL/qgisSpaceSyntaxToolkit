@@ -1689,9 +1689,10 @@ def getPostgisLayerInfo(layer):
             info['geomtype'] = uri.wkbType()
             info['srid'] = uri.srid()
             info['filter'] = uri.sql()
+            info['service'] = uri.service()
             connection_settings = getPostgisConnectionSettings()
             for connection in connection_settings:
-                if connection['database'] == info['database']:
+                if connection['database'] == info['database'] or connection['service'] == info['service']:
                     info['connection'] = connection['name']
                     break
     return info
