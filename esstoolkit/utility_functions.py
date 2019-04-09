@@ -1662,8 +1662,10 @@ def getPostgisConnectionInfo(layer):
             info['host'] = uri.host()
             info['port'] = uri.port()
             info['dbname'] = uri.database()
-            info['user'] = uri.username()
-            info['password'] = uri.password()
+            (success, username, passwd) = QgsCredentials.instance().get(uri.connectionInfo(), None, None)
+            if success:
+                info['user'] = username #uri.username()
+                info['password'] = passwd #uri.password()
             connection_settings = getPostgisConnectionSettings()
             for connection in connection_settings:
                 if (connection['database'] == info['dbname'])\
@@ -1737,7 +1739,7 @@ def loadPostgisTable(connection, name, schema, table):
             break
     if dsn:
         if dsn['service'] != 'NULL' and dsn['service'] !='':
-            uri.setConnection(dsn['service'], '','','') #, dsn['database'], dsn['username'], dsn['password'])
+            uri.setConnection(dsn['service'], '','','')
         else:
             uri.setConnection(dsn['host'], dsn['port'], dsn['database'], dsn['username'], dsn['password'])
         geometry = getPostgisGeometryColumn(connection, schema, table)
