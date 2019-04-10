@@ -168,19 +168,23 @@ class AnalysisTool(QObject):
             elif 'PostGIS' in layer.storageType():
                 new_datastore['type'] = 2
                 layerinfo = uf.getPostgisLayerInfo(layer)
-                new_datastore['path'] = layerinfo['database']
+                if layerinfo['service']:
+                    path = layerinfo['service']
+                else:
+                    path = layerinfo['database']
+                new_datastore['path'] = path
                 new_datastore['schema'] = layerinfo['schema']
                 if 'connection' in layerinfo:
                     new_datastore['name'] = layerinfo['connection']
                 else:
                     # create a new connection if not exists
-                    uf.createPostgisConnectionSetting(layerinfo['database'], uf.getPostgisConnectionInfo(layer))
-                    new_datastore['name'] = layerinfo['database']
+                    uf.createPostgisConnectionSetting(path, uf.getPostgisConnectionInfo(layer))
+                    new_datastore['name'] = path
             elif 'memory?' not in layer.storageType():  # 'Shapefile'
                 new_datastore['type'] = 0
                 new_datastore['path'] = uf.getLayerPath(layer)
                 new_datastore['name'] = os.path.basename(new_datastore['path'])
-            if new_datastore['type'] > -1:
+            if new_datastore['type'] in (0,1,2):
                 self.project.writeSettings(new_datastore, 'datastore')
                 self.setDatastore()
             else:

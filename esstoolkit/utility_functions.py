@@ -1683,6 +1683,7 @@ def getPostgisLayerInfo(layer):
         provider = layer.dataProvider()
         if provider.name() == 'postgres':
             uri = QgsDataSourceURI(provider.dataSourceUri())
+            info['service'] = uri.service()
             info['database'] = uri.database()
             info['schema'] = uri.schema()
             info['table'] = uri.table()
@@ -1769,7 +1770,7 @@ def getPostgisLayer(connection, name, schema, table):
             break
     if dsn:
         if dsn['service'] != 'NULL' and dsn['service'] !='':
-            uri.setConnection(dsn['service'], '','','') #, dsn['database'], dsn['username'], dsn['password'])
+            uri.setConnection(dsn['service'], '','','')
         else:
             uri.setConnection(dsn['host'], dsn['port'], dsn['database'], dsn['username'], dsn['password'])
         query = """SELECT f_geometry_column FROM geometry_columns WHERE f_table_schema = '%s' AND f_table_name = '%s'""" % (schema, table)

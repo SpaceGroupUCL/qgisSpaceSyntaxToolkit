@@ -291,15 +291,22 @@ class ProjectDialog(QtGui.QDialog, Ui_ProjectDialog):
         elif self.datastore_type == 2:
             con_settings = uf.getPostgisConnectionSettings()
             if len(con_settings) > 0:
+                self.datastores = dict()
                 self.datastores['name'] = [con['name'] for con in con_settings]
                 self.datastores['idx'] = self.datastores['name'].index(uf.getPostgisSelectedConnection())
-                self.datastores['path'] = [con['database'] for con in con_settings]
+                path = []
+                for con in con_settings:
+                    if con['database']!='NULL':
+                        path.append(con['database'])
+                    elif con['service']!='NULL':
+                        path.append(con['service'])
+                self.datastores['path'] = path
         # identify datastore from settings
         try:
             data_type = int(self.proj_settings["datastore/type"])
         except:
             data_type = None
-        if self.datastore_type == data_type:
+        if self.datastore_type and data_type and (self.datastore_type == data_type):
             # for shape files, append the folder if existing and not yet in the list
             if self.datastore_type == 0 and os.path.exists(self.proj_settings["datastore/path"]):
                 self.appendDatastoreList(self.proj_settings["datastore/name"],self.proj_settings["datastore/path"])
