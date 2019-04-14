@@ -39,7 +39,7 @@ except ImportError, e:
 
 # Import the debug library
 try:
-    import pydevd
+    import pydevd_pycharm as pydevd
     has_pydevd = True
 except ImportError, e:
     has_pydevd = False

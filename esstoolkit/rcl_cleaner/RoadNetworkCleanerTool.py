@@ -43,7 +43,7 @@ from sGraph.utilityFunctions import *
 # set is_debug to False in release version
 is_debug = False
 try:
-    import pydevd
+    import pydevd_pycharm as pydevd
     has_pydevd = True
 except ImportError, e:
     has_pydevd = False
