@@ -62,6 +62,9 @@ from gate_transformer import TransformerAnalysis
 from rcl_cleaner import RoadNetworkCleanerTool
 from catchment_analyser import CatchmentAnalyser
 from urban_data_input import UrbanDataInputTool
+from network_segmenter import network_segmenter_tool
+from drawing import DrawingTool
+
 # import additional modules here
 ###########
 ###########
@@ -113,6 +116,8 @@ class EssToolkit:
         self.rcl_cleaner = RoadNetworkCleanerTool.RoadNetworkCleaner(self.iface)
         self.catchment_tool = CatchmentAnalyser.CatchmentTool(self.iface)
         self.udi_tool = UrbanDataInputTool.UrbanDataInputTool(self.iface)
+        self.drawing_tool = DrawingTool.DrawingTool(self.iface)
+        self.network_segmenter = network_segmenter_tool.NetworkSegmenterTool(self.iface)
         # add additional modules here
         ###########
         ###########
@@ -163,6 +168,16 @@ class EssToolkit:
         # pre-load setting of dockwidget
         self.explorer.load()
         self.explorer.dlg.close()
+        # drawing module
+        self.actions.append(
+            self.add_action(
+                os.path.join(icon_path, 'drawing.png'),
+                text=self.tr(u'Drawing Tool'),
+                callback=self.showDrawingTool,
+                parent=self.iface.mainWindow(),
+                status_tip='Drawing Tool'
+            )
+        )
         # rcl cleaner module
         self.actions.append(
             self.add_action(
@@ -171,6 +186,16 @@ class EssToolkit:
                 callback=self.showRCLCleaner,
                 parent=self.iface.mainWindow(),
                 status_tip='Road Network Cleaner'
+            )
+        )
+        # network segmenter module
+        self.actions.append(
+            self.add_action(
+                os.path.join(icon_path, 'network_segmenter.png'),
+                text=self.tr(u'Network Segmenter'),
+                callback=self.showNetworkSegmenter,
+                parent=self.iface.mainWindow(),
+                status_tip='Network Segmenter'
             )
         )
         # catchment analyser module
@@ -203,6 +228,7 @@ class EssToolkit:
                 status_tip='Gate Transformer'
             )
         )
+
         # add additional modules here in the desired order
         ###########
         ###########
@@ -249,6 +275,10 @@ class EssToolkit:
         self.catchment_tool.load_gui()
     def showUrbanDataInput(self):
         self.udi_tool.load_gui()
+    def showNetworkSegmenter(self):
+        self.network_segmenter.loadGUI()
+    def showDrawingTool(self):
+        self.drawing_tool.run()
     # add additional modules here
     ###########
     ###########
@@ -283,6 +313,8 @@ class EssToolkit:
         self.rcl_cleaner.unloadGUI()
         self.catchment_tool.unload_gui()
         self.udi_tool.unload_gui()
+        self.drawing_tool.unload_gui()
+        self.network_segmenter.unloadGUI()
         # add additional modules here
         ###########
         ###########

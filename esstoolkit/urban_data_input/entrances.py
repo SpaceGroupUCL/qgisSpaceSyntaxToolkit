@@ -44,7 +44,7 @@ class EntranceTool(QObject):
         self.dockwidget = dockwidget
         self.entrancedlg = self.dockwidget.entrancedlg
 
-        self.plugin_path = os.path.dirname(os.path.dirname(__file__))
+        self.plugin_path = os.path.dirname(__file__)
 
         self.entrance_layer = None
 
@@ -67,7 +67,7 @@ class EntranceTool(QObject):
         i = 1
         layer.startEditing()
         for feat in features:
-            feat['E_ID'] = i
+            feat['e_id'] = i
             i += 1
             layer.updateFeature(feat)
 
@@ -93,65 +93,56 @@ class EntranceTool(QObject):
 
     # Create New Layer
     def newEntranceLayer(self):
-        # Save to file
-        if self.entrancedlg.lineEditEntrances.text() != "":
+
+        vl = QgsVectorLayer("Point?crs=", "memory:Entrances", "memory")
+
+        provider = vl.dataProvider()
+        provider.addAttributes([QgsField("e_id", QVariant.Int),
+                             QgsField("e_category", QVariant.String),
+                             QgsField("e_subcat", QVariant.String),
+                             QgsField("e_level", QVariant.Double)])
+
+        vl.updateFields()
+        if self.entrancedlg.e_shp_radioButton.isChecked(): #layer_type == 'shapefile':
+
             path = self.entrancedlg.lineEditEntrances.text()
             filename = os.path.basename(path)
             location = os.path.abspath(path)
 
-            destCRS = self.canvas.mapRenderer().destinationCrs()
-            vl = QgsVectorLayer("Point?crs=" + destCRS.toWkt(), "memory:Entrances", "memory")
+            QgsVectorFileWriter.writeAsVectorFormat(vl, location, "ogr", None, "ESRI Shapefile")
+            vl = self.iface.addVectorLayer(location, filename[:-4], "ogr")
 
+        elif self.entrancedlg.e_postgis_radioButton.isChecked():
 
-            provider = vl.dataProvider()
-            provider.addAttributes([QgsField("E_ID", QVariant.Int),
-                                 QgsField("E_Category", QVariant.String),
-                                 QgsField("E_SubCat", QVariant.String),
-                                 QgsField("E_Level", QVariant.Double)])
-
-            QgsMapLayerRegistry.instance().addMapLayer(vl)
-
-            QgsVectorFileWriter.writeAsVectorFormat(vl, location, "CP1250", None, "ESRI Shapefile")
-
-            QgsMapLayerRegistry.instance().removeMapLayers([vl.id()])
-
-            input2 = self.iface.addVectorLayer(location, filename, "ogr")
-            QgsMapLayerRegistry.instance().addMapLayer(input2)
-
-            if not input2:
-                msgBar = self.iface.messageBar()
-                msg = msgBar.createMessage(u'Layer failed to load!' + location)
-                msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
-
+            (database, schema, table_name) = (self.entrancedlg.lineEditEntrances.text()).split(':')
+            db_con_info = self.entrancedlg.dbsettings_dlg.available_dbs[database]
+            uri = QgsDataSourceURI()
+            # passwords, usernames need to be empty if not provided or else connection will fail
+            if 'service' in db_con_info.keys():
+                uri.setConnection(db_con_info['service'], db_con_info['dbname'], '', '')
+            elif 'password' in db_con_info.keys():
+                uri.setConnection(db_con_info['host'], db_con_info['port'], db_con_info['dbname'], db_con_info['user'],
+                                  db_con_info['password'])
             else:
-                msgBar = self.iface.messageBar()
-                msg = msgBar.createMessage(u'New Frontages Layer Created:' + location)
-                msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
-                input2.startEditing()
+                print db_con_info
+                uri.setConnection(db_con_info['host'], db_con_info['port'], db_con_info['dbname'], '', '')
+            uri.setDataSource(schema, table_name, "geom")
+            error = QgsVectorLayerImport.importLayer(vl, uri.uri(), "postgres", vl.crs(), False, False)
+            if error[0] != 0:
+                print "Error when creating postgis layer: ", error[1]
+            vl = QgsVectorLayer(uri.uri(), table_name, "postgres")
+
+        if not vl:
+            msgBar = self.iface.messageBar()
+            msg = msgBar.createMessage(u'Entrance layer failed to load!')
+            msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
+
         else:
-            # Save to memory, no base land use layer
-            destCRS = self.canvas.mapRenderer().destinationCrs()
-            vl = QgsVectorLayer("Point?crs=" + destCRS.toWkt(), "memory:Entrances", "memory")
             QgsMapLayerRegistry.instance().addMapLayer(vl)
-
-            if not vl:
-                msgBar = self.iface.messageBar()
-                msg = msgBar.createMessage(u'Layer failed to load!')
-                msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
-
-            else:
-                msgBar = self.iface.messageBar()
-                msg = msgBar.createMessage(u'New Frontages Layer Create:')
-                msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
-
-                vl.startEditing()
-                edit1 = vl.dataProvider()
-                edit1.addAttributes([QgsField("E_ID", QVariant.Int),
-                                     QgsField("E_Category", QVariant.String),
-                                     QgsField("E_SubCat", QVariant.String),
-                                     QgsField("E_Level", QVariant.Double)])
-                vl.commitChanges()
-                vl.startEditing()
+            msgBar = self.iface.messageBar()
+            msg = msgBar.createMessage(u'Entrances layer created!')
+            msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
+            vl.startEditing()
 
         self.updateEntranceLayer()
         self.entrancedlg.closePopUpEntrances()
@@ -198,10 +189,10 @@ class EntranceTool(QObject):
             inputid = feature_Count
 
         data = v_layer.dataProvider()
-        update1 = data.fieldNameIndex("E_Category")
-        update2 = data.fieldNameIndex("E_SubCat")
-        update3 = data.fieldNameIndex("E_ID")
-        update4 = data.fieldNameIndex("E_Level")
+        update1 = data.fieldNameIndex("e_category")
+        update2 = data.fieldNameIndex("e_subcat")
+        update3 = data.fieldNameIndex("e_id")
+        update4 = data.fieldNameIndex("e_level")
 
         categorytext = self.dockwidget.ecategorylistWidget.currentItem().text()
         subcategorytext = self.dockwidget.esubcategorylistWidget.currentItem().text()
@@ -225,8 +216,8 @@ class EntranceTool(QObject):
         accessleveltext = self.dockwidget.eaccesscategorylistWidget.currentItem().text()
 
         for feat in features:
-            feat['E_Category'] = categorytext
-            feat['E_SubCat'] = subcategorytext
-            feat['E_Level'] = accessleveltext
+            feat['e_category'] = categorytext
+            feat['e_subcat'] = subcategorytext
+            feat['e_level'] = accessleveltext
             layer.updateFeature(feat)
         self.dockwidget.addEntranceDataFields()

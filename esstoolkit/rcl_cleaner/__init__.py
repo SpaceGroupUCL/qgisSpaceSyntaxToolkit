@@ -31,5 +31,5 @@ def classFactory(iface):  # pylint: disable=invalid-name
     :type iface: QgsInterface
     """
     #
-    from RoadNetworkCleaner import RoadNetworkCleaner
+    from road_network_cleaner import RoadNetworkCleaner
     return RoadNetworkCleaner(iface)

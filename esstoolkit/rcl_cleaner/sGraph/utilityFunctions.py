@@ -1,10 +1,247 @@
-# general imports
-from qgis.core import QgsMapLayerRegistry, QgsVectorFileWriter, QgsVectorLayer, QgsFeature, QgsGeometry,QgsFields, QgsDataSourceURI
+import collections
+import math
+from collections import defaultdict
+from qgis.core import QgsMapLayerRegistry, QgsFields, QgsField, QgsGeometry, QgsFeature, QgsVectorLayer, QgsVectorFileWriter, QGis, NULL, QgsDataSourceURI, QgsVectorLayerImport
+from PyQt4.QtCore import  QVariant
+import itertools
 import psycopg2
 from psycopg2.extensions import AsIs
+import ntpath
 
-# source: ess utility functions
+from qgis.gui import QgsMessageBar
 
+
+# FEATURES -----------------------------------------------------------------
+
+# detecting errors:
+# (NULL), point, (invalids), multipart geometries, snap (will be added later)
+points = []
+multiparts = []
+error_feat = QgsFeature()
+error_flds = QgsFields()
+error_flds.append(QgsField('error_type', QVariant.String))
+error_feat.setFields(error_flds)
+# do not snap - because if self loop needs to break it will not
+
+# FEATURES -----------------------------------------------------------------
+
+def clean_features_iter(feat_iter):
+    id = 0
+    for f in feat_iter:
+
+        f_geom = f.geometry()  # can be None
+
+        # dropZValue if geometry is 3D
+        if f_geom is None:
+            pass
+        elif f.geometry().geometry().is3D():
+            f.geometry().geometry().dropZValue()
+            f_geom = f.geometry()
+
+        # point
+        if f_geom is None:
+            pass
+        elif f_geom.length() <= 0:
+            ml_error = QgsFeature(error_feat)
+            ml_error.setGeometry(QgsGeometry.fromPoint(f_geom.asPolyline()[0]))
+            ml_error.setAttributes(['point'])
+            points.append(ml_error)
+        elif f_geom.wkbType() == 2:
+            f.setFeatureId(id)
+            id += 1
+            yield f
+        # empty geometry
+        elif f_geom is NULL:
+            #self.empty_geometries.append()
+            pass
+        # invalid geometry
+        elif not f_geom.isGeosValid():
+            #self.invalids.append(copy_feature(f, QgsGeometry(), f.id()))
+            pass
+        # multilinestring
+        elif f_geom.wkbType() == 5:
+            ml_segms = f_geom.asMultiPolyline()
+            for ml in ml_segms:
+                ml_geom = QgsGeometry(QgsGeometry.fromPolyline(ml))
+                ml_feat = QgsFeature(f)
+                ml_feat.setFeatureId(id)
+                id += 1
+                ml_feat.setGeometry(ml_geom)
+                ml_error = QgsFeature(error_feat)
+                ml_error.setGeometry(QgsGeometry.fromPoint(ml_geom.asPolyline()[0]))
+                ml_error.setAttributes(['multipart'])
+                multiparts.append(ml_error)
+                ml_error = QgsFeature(error_feat)
+                ml_error.setGeometry(QgsGeometry.fromPoint(ml_geom.asPolyline()[-1]))
+                ml_error.setAttributes(['multipart'])
+                multiparts.append(ml_error)
+                yield ml_feat
+
+# GEOMETRY -----------------------------------------------------------------
+
+
+def getSelfIntersections(polyline):
+    return [item for item, count in collections.Counter(polyline).items() if count > 1] # points
+
+
+def find_vertex_indices(polyline, points):
+    indices = defaultdict(list)
+    for idx, vertex in enumerate(polyline):
+        indices[vertex].append(idx)
+    break_indices = [indices[v] for v in set(points)] + [[0, (len(polyline) - 1)]]
+    break_indices = [item for sublist in break_indices for item in sublist]
+    return sorted(list(set(break_indices)))
+
+
+def angular_change(geom1, geom2):
+    pl1 = geom1.asPolyline()
+    pl2 = geom2.asPolyline()
+    points1 = {pl1[0], pl1[-1]}
+    points2 = {pl2[0], pl2[-1]}
+    inter_point = points1.intersection(points2)
+    point1 = [p for p in points1 if p != inter_point]
+    point2 = [p for p in points1 if p != inter_point]
+
+    # find index in geom1
+    # if index 0, then get first vertex
+    # if index -1, then get the one before last vertex
+
+    # find index in geom2
+
+    return
+
+def angle_3_points(p1, p2, p3):
+
+    inter_vertex1 = math.hypot(abs(float(p2.x()) - float(p1.x())), abs(float(p2.y()) - float(p1.y())))
+    inter_vertex2 = math.hypot(abs(float(p2.x()) - float(p3.x())), abs(float(p2.y()) - float(p3.y())))
+    vertex1_2 = math.hypot(abs(float(p1.x()) - float(p3.x())), abs(float(p1.y()) - float(p3.y())))
+    A = ((inter_vertex1 ** 2) + (inter_vertex2 ** 2) - (vertex1_2 ** 2))
+    B = (2 * inter_vertex1 * inter_vertex2)
+    if B != 0:
+        cos_angle = A / B
+    else:
+        cos_angle = NULL
+    if cos_angle < -1:
+        cos_angle = int(-1)
+    elif cos_angle > 1:
+        cos_angle = int(1)
+    return 180 - math.degrees(math.acos(cos_angle))
+
+def merge_geoms(geoms, simpl_threshold):
+    # get attributes from longest
+    new_geom = geoms[0]
+    for i in geoms[1:]:
+        new_geom = new_geom.combine(i)
+    if simpl_threshold != 0:
+        new_geom = new_geom.simplify(simpl_threshold)
+    return new_geom
+
+# ITERATORS -----------------------------------------------------------------
+
+
+# connected components iterator from group_dictionary e.g. { A: [B,C,D], B: [D,E,F], ...}
+def con_comp_iter(group_dictionary):
+    components_passed = set([])
+    for id in group_dictionary.keys():
+        if {id}.isdisjoint(components_passed):
+            group = [[id]]
+            candidates = ['dummy', 'dummy']
+            while len(candidates) > 0:
+                flat_group = group[:-1] + group[-1]
+                candidates = map(lambda last_visited_node: set(group_dictionary[last_visited_node]).difference(set(flat_group)), group[-1])
+                candidates = list(set(itertools.chain.from_iterable(candidates)))
+                group = flat_group + [candidates]
+                components_passed.update(set(candidates))
+            yield group[:-1]
+
+gr = [[29, 27, 26, 28], [31, 11, 10, 3, 30], [71, 51, 52, 69],
+      [78, 67, 68, 39, 75], [86, 84, 81, 82, 83, 85], [84, 67, 78, 77, 81],
+      [86, 68, 67, 84]]
+
+
+def grouper(sequence):
+    result = []  # will hold (members, group) tuples
+    for item in sequence:
+        for members, group in result:
+            if members.intersection(item):  # overlap
+                members.update(item)
+                group.append(item)
+                break
+        else:  # no group found, add new
+            result.append((set(item), [item]))
+    return [group for members, group in result]
+
+# WRITE -----------------------------------------------------------------
+
+# geom_type allowed: 'Point', 'Linestring', 'Polygon'
+def to_layer(features, crs, encoding, geom_type, layer_type, path):
+
+    first_feat = features[0]
+    fields = first_feat.fields()
+    layer = None
+    if layer_type == 'memory':
+        layer = QgsVectorLayer(geom_type + '?crs=' + crs.authid(), path, "memory")
+        pr = layer.dataProvider()
+        pr.addAttributes(fields.toList())
+        layer.updateFields()
+        layer.startEditing()
+        pr.addFeatures(features)
+        layer.commitChanges()
+
+    elif layer_type == 'shapefile':
+
+        wkbTypes = { 'Point': QGis.WKBPoint, 'Linestring': QGis.WKBLineString, 'Polygon': QGis.WKBPolygon }
+        file_writer = QgsVectorFileWriter(path, encoding, fields, wkbTypes[geom_type], crs, "ESRI Shapefile")
+        if file_writer.hasError() != QgsVectorFileWriter.NoError:
+            print "Error when creating shapefile: ", file_writer.errorMessage()
+        del file_writer
+        layer = QgsVectorLayer(path, ntpath.basename(path)[:-4], "ogr")
+        pr = layer.dataProvider()
+        layer.startEditing()
+        pr.addFeatures(features)
+        layer.commitChanges()
+
+    elif layer_type == 'postgis':
+
+        # this is needed to load the table later
+        # uri = connstring + """ type=""" + geom_types[geom_type] + """ table=\"""" + schema_name + """\".\"""" + table_name + """\" (geom) """
+
+        connstring, schema_name, table_name = path
+        uri = connstring + """ type=""" + geom_type + """ table=\"""" + schema_name + """\".\"""" + table_name + """\" (geom) """
+        crs_id = crs.postgisSrid()
+        try:
+            con = psycopg2.connect(connstring)
+            cur = con.cursor()
+            create_query = cur.mogrify("""DROP TABLE IF EXISTS %s.%s; CREATE TABLE %s.%s( geom geometry(%s, %s))""", (
+                    AsIs(schema_name), AsIs(table_name), AsIs(schema_name), AsIs(table_name),geom_type, AsIs(crs_id)))
+            cur.execute(create_query)
+            con.commit()
+            post_q_flds = {2: 'bigint', 6: 'numeric', 1: 'bool', 'else': 'text', 4: 'numeric'}
+            for f in fields:
+                f_type = f.type()
+                if f_type not in [2, 6, 1]:
+                    f_type = 'else'
+                attr_query = cur.mogrify("""ALTER TABLE %s.%s ADD COLUMN %s %s""", (AsIs(schema_name), AsIs(table_name), AsIs(f.name()), AsIs(post_q_flds[f_type])))
+                cur.execute(attr_query)
+                con.commit()
+            field_names = ",".join([f.name() for f in fields])
+            for feature in features:
+                attrs = [i if i else None for i in feature.attributes()]
+                insert_query = cur.mogrify("""INSERT INTO %s.%s (%s, geom) VALUES %s, ST_GeomFromText(%s,%s))""", (AsIs(schema_name), AsIs(table_name), AsIs(field_names), tuple(attrs), feature.geometry().exportToWkt(), AsIs(crs_id)))
+                idx = insert_query.find(', ST_GeomFromText') - 1
+                insert_query = insert_query[:idx] + insert_query[(idx + 1):]
+                cur.execute(insert_query)
+                con.commit()
+            pkey_query = cur.mogrify("""ALTER TABLE %s.%s DROP COLUMN IF EXISTS rcl_id; ALTER TABLE %s.%s ADD COLUMN rcl_id serial PRIMARY KEY NOT NULL;""", (AsIs(schema_name), AsIs(table_name), AsIs(schema_name), AsIs(table_name)))
+            cur.execute(pkey_query)
+            con.commit()
+            con.close()
+            layer = QgsVectorLayer(uri, table_name, 'postgres')
+        except psycopg2.DatabaseError, e:
+            print e
+    return layer
+
+# LAYER -----------------------------------------------------------------
 
 def getLayerByName(name):
     layer = None
@@ -14,152 +251,8 @@ def getLayerByName(name):
     return layer
 
 
-def get_next_vertex(tree, all_con):
-    last = tree[-1]
-    return tree + [i for i in all_con[last] if i not in tree]
+# POSTGIS -----------------------------------------------------------------
 
-
-def keep_decimals_string(string, number_decimals):
-    integer_part = string.split(".")[0]
-    # if the input is an integer there is no decimal part
-    if len(string.split("."))== 1:
-        decimal_part = str(0)*number_decimals
-    else:
-        decimal_part = string.split(".")[1][0:number_decimals]
-    if len(decimal_part) < number_decimals:
-        zeros = str(0) * int((number_decimals - len(decimal_part)))
-        decimal_part = decimal_part + zeros
-    decimal = integer_part + '.' + decimal_part
-    return decimal
-
-
-def find_vertex_index(points, f_geom):
-    for point in points:
-        yield f_geom.asPolyline().index(point.asPoint())
-
-
-def point_is_vertex(point, line):
-    #pl_l = line.asPolyline()
-    #try:
-    #    idx = pl_l.index(point.asPoint())
-    #    if idx == 0 or idx == (len(pl_l) - 1):
-    #        return True
-    #    else:
-    #        return False
-    #except ValueError:
-    #    return False
-    if point.asPoint() in line.asPolyline():
-        return True
-
-
-def vertices_from_wkt_2(wkt):
-    # the wkt representation may differ in other systems/ QGIS versions
-    # TODO: check
-    nums = [i for x in wkt[11:-1:].split(', ') for i in x.split(' ')]
-    if wkt[0:12] == u'LineString (':
-        nums = [i for x in wkt[12:-1:].split(', ') for i in x.split(' ')]
-    coords = zip(*[iter(nums)] * 2)
-    for vertex in coords:
-        yield vertex
-
-
-def make_snapped_wkt(wkt, number_decimals):
-    # TODO: check in different system if '(' is included
-    snapped_wkt = 'LINESTRING('
-    for i in vertices_from_wkt_2(wkt):
-        new_vertex = str(keep_decimals_string(i[0], number_decimals)) + ' ' + str(
-            keep_decimals_string(i[1], number_decimals))
-        snapped_wkt += str(new_vertex) + ', '
-    return snapped_wkt[0:-2] + ')'
-
-
-def to_shp(path, any_features_list, layer_fields, crs, name, encoding, geom_type):
-    if path is None:
-        if geom_type == 0:
-            network = QgsVectorLayer('Point?crs=' + crs.toWkt(), name, "memory")
-        else:
-            network = QgsVectorLayer('LineString?crs=' + crs.toWkt(), name, "memory")
-    else:
-        fields = QgsFields()
-        for field in layer_fields:
-            fields.append(field)
-        file_writer = QgsVectorFileWriter(path, encoding, fields, geom_type, crs, "ESRI Shapefile")
-        if file_writer.hasError() != QgsVectorFileWriter.NoError:
-            print "Error when creating shapefile: ", file_writer.errorMessage()
-        del file_writer
-        network = QgsVectorLayer(path, name, "ogr")
-    pr = network.dataProvider()
-    if path is None:
-        pr.addAttributes(layer_fields)
-    new_features = []
-    for i in any_features_list:
-        new_feat = QgsFeature()
-        new_feat.setFeatureId(i[0])
-        new_feat.setAttributes([attr[0] for attr in i[1]])
-        new_feat.setGeometry(QgsGeometry(QgsGeometry.fromWkt(str(i[2]))))
-        #QgsGeometry()
-        new_features.append(new_feat)
-    network.startEditing()
-    pr.addFeatures(new_features)
-    network.commitChanges()
-    return network
-
-def rmv_parenthesis(my_string):
-    idx = my_string.find(',ST_GeomFromText') - 1
-    return  my_string[:idx] + my_string[(idx+1):]
-
-def to_dblayer(dbname, user, host, port, password, schema, table_name, qgs_flds, any_features_list, crs):
-
-    crs_id = str(crs.postgisSrid())
-    connstring = "dbname=%s user=%s host=%s port=%s password=%s" % (dbname, user, host, port, password)
-    try:
-        con = psycopg2.connect(connstring)
-        cur = con.cursor()
-        post_q_flds = {2: 'bigint[]', 6: 'numeric[]', 1: 'bool[]', 'else':'text[]'}
-        postgis_flds_q = """"""
-        for f in qgs_flds:
-            f_name = '\"'  + f.name()  + '\"'
-            try: f_type = post_q_flds[f.type()]
-            except KeyError: f_type = post_q_flds['else']
-            postgis_flds_q += cur.mogrify("""%s %s,""", (AsIs(f_name), AsIs(f_type)))
-
-        query = cur.mogrify("""DROP TABLE IF EXISTS %s.%s; CREATE TABLE %s.%s(%s geom geometry(LINESTRING, %s))""", (AsIs(schema), AsIs(table_name), AsIs(schema), AsIs(table_name), AsIs(postgis_flds_q), AsIs(crs_id)))
-        cur.execute(query)
-        con.commit()
-
-        data = []
-
-        for (fid, attrs, wkt) in any_features_list:
-            for idx, l_attrs in enumerate(attrs):
-                if l_attrs:
-                    attrs[idx] = [i if i else None for i in l_attrs]
-                    if attrs[idx] == [None]:
-                        attrs[idx] = None
-                    else:
-                        attrs[idx] = [a for a in attrs[idx] if a]
-            data.append(tuple((attrs, wkt)))
-
-        args_str = ','.join(
-            [rmv_parenthesis(cur.mogrify("%s,ST_GeomFromText(%s,%s))", (tuple(attrs), wkt, AsIs(crs_id)))) for
-             (attrs, wkt) in tuple(data)])
-
-        ins_str = cur.mogrify("""INSERT INTO %s.%s VALUES """, (AsIs(schema), AsIs(table_name)))
-        cur.execute(ins_str + args_str)
-        con.commit()
-        con.close()
-
-        print "success!"
-        uri = QgsDataSourceURI()
-        # set host name, port, database name, username and password
-        uri.setConnection(host, port, dbname, user, password)
-        # set database schema, table name, geometry column and optionally
-        uri.setDataSource(schema, table_name, "geom")
-        return QgsVectorLayer(uri.uri(), table_name, "postgres")
-
-    except psycopg2.DatabaseError, e:
-        return e
-
-# SOURCE: ESS TOOLKIT
 def getPostgisSchemas(connstring, commit=False):
     """Execute query (string) with given parameters (tuple)
     (optionally perform commit to save Db)
@@ -193,9 +286,4 @@ def getPostgisSchemas(connstring, commit=False):
             schemas.append(schema[0])
     #return the result even if empty
     return sorted(schemas)
-
-
-
-
-
 

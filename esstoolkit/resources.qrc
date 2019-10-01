@@ -10,6 +10,8 @@
     <file>icons/settings.png</file>
     <file>icons/gate_transformer.png</file>
     <file>icons/rcl_cleaner.png</file>
+    <file>icons/drawing.png</file>
+    <file>icons/network_segmenter.png</file>
     <file>icons/catchment_analyser.png</file>
     <file>icons/urban_data_input.png</file>
   </qresource>

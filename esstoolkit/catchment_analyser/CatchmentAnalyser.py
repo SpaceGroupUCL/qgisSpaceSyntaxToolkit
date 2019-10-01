@@ -27,9 +27,11 @@ from PyQt4.QtGui import *
 from qgis.core import *
 from qgis.gui import *
 from qgis.utils import *
+import itertools, operator
+
 
 # Initialize Qt resources from file resources.py
-#import resources
+import resources
 
 # Import the code for the dialog
 from catchment_analyser_dialog import CatchmentAnalyserDialog
@@ -47,13 +49,18 @@ class CatchmentTool(QObject):
 
         self.iface = iface
 
-        self.dlg = CatchmentAnalyserDialog()
+        self.dlg = CatchmentAnalyserDialog(self.getQGISDbs())
         self.analysis = None
         # Setup GUI signals
         self.dlg.networkCombo.activated.connect(self.updateCost)
         self.dlg.originsCombo.activated.connect(self.updateName)
         self.dlg.analysisButton.clicked.connect(self.runAnalysis)
         self.dlg.cancelButton.clicked.connect(self.killAnalysis)
+
+        if self.dlg.getNetwork():
+            self.dlg.networkText.setText(self.dlg.networkCombo.currentText() + "_catchment")
+            self.dlg.dbsettings_dlg.nameLineEdit.setText(self.dlg.networkCombo.currentText() + "_catchment")
+        self.dlg.networkCombo.currentIndexChanged.connect(self.updateOutputName)
 
     def load_gui(self):
         # Update layers
@@ -62,13 +69,34 @@ class CatchmentTool(QObject):
         self.dlg.show()
 
     def unload_gui(self):
-        try:
-            self.dlg.networkCombo.activated.disconnect(self.updateCost)
-            self.dlg.originsCombo.activated.disconnect(self.updateName)
-            self.dlg.analysisButton.clicked.disconnect(self.runAnalysis)
-            self.dlg.cancelButton.clicked.disconnect(self.killAnalysis)
-        except:
-            pass
+        self.dlg.networkCombo.activated.disconnect(self.updateCost)
+        self.dlg.originsCombo.activated.disconnect(self.updateName)
+        self.dlg.analysisButton.clicked.disconnect(self.runAnalysis)
+        self.dlg.cancelButton.clicked.disconnect(self.killAnalysis)
+
+    def run(self):
+        # Show the dialog
+        self.dlg.show()
+
+        # Update layers
+        self.updateLayers()
+
+    def getQGISDbs(self):
+        """Return all PostGIS connection settings stored in QGIS
+        :return: connection dict() with name and other settings
+                """
+        settings = QSettings()
+        settings.beginGroup('/PostgreSQL/connections')
+        named_dbs = settings.childGroups()
+        all_info = [i.split("/") + [unicode(settings.value(i))] for i in settings.allKeys() if
+                    settings.value(i) != NULL and settings.value(i) != '']
+        all_info = [i for i in all_info if
+                    i[0] in named_dbs and i[2] != NULL and i[1] in ['name', 'host', 'service', 'password', 'username',
+                                                                    'port', 'database']]
+        dbs = dict(
+            [k, dict([i[1:] for i in list(g)])] for k, g in itertools.groupby(sorted(all_info), operator.itemgetter(0)))
+        settings.endGroup()
+        return dbs
 
     def updateLayers(self):
         self.updateNetwork()
@@ -94,6 +122,13 @@ class CatchmentTool(QObject):
         origins = self.getOrigins()
         self.dlg.setNameFields(uf.getFieldNames(origins))
 
+    def updateOutputName(self):
+        if self.dlg.memoryRadioButton.isChecked():
+            self.dlg.networkText.setText(self.dlg.networkCombo.currentText() + "_catchment")
+        else:
+            self.dlg.networkText.clear()
+        self.dlg.dbsettings_dlg.nameLineEdit.setText(self.dlg.networkCombo.currentText() + "_catchment")
+
     def getNetwork(self):
         return uf.getLegendLayerByName(self.iface, self.dlg.getNetwork())
 
@@ -101,15 +136,15 @@ class CatchmentTool(QObject):
         return uf.getLegendLayerByName(self.iface, self.dlg.getOrigins())
 
     def tempNetwork(self, epsg):
-        if self.dlg.networkCheck.isChecked():
-            output_network = uf.createTempLayer(
-                'catchment_network',
-                'LINESTRING',
-                epsg,
-                ['id',],
-                [QVariant.Int,]
-            )
-            return output_network
+
+        output_network = uf.createTempLayer(
+            'catchment_network',
+            'LINESTRING',
+            epsg,
+            ['id',],
+            [QVariant.Int,]
+        )
+        return output_network
 
 
     def tempPolygon(self, epsg):
@@ -119,7 +154,7 @@ class CatchmentTool(QObject):
                 'MULTIPOLYGON',
                 epsg,
                 ['id', 'origin', 'distance'],
-                [QVariant.Int, QVariant.Int, QVariant.Int]
+                [QVariant.Int, QVariant.String, QVariant.Int]
             )
             return output_polygon
 
@@ -141,10 +176,16 @@ class CatchmentTool(QObject):
             self.giveWarningMessage("No network selected!")
         elif self.getNetwork().crs().geographicFlag() or self.getOrigins().crs().geographicFlag():
             self.giveWarningMessage("Input layer(s) without a projected CRS!")
+        elif uf.check_for_NULL_geom(self.getNetwork()):
+            self.giveWarningMessage("Input network layer has NULL geometries! Delete them to run catchment analysis.")
+        elif uf.check_for_NULL_geom(self.getOrigins()):
+            self.giveWarningMessage("Input origins layer has NULL geometries! Delete them to run catchment analysis.")
         elif not self.getOrigins():
             self.giveWarningMessage("Catchment Analyser: No origins selected!")
         elif not self.dlg.getDistances():
             self.giveWarningMessage("No distances defined!")
+        elif not uf.has_unique_values(self.dlg.getName(), self.getOrigins()):
+            self.giveWarningMessage("Origin names column has duplicate values!")
         else:
             try:
                 distances = [int(i) for i in self.dlg.getDistances()]
@@ -164,10 +205,10 @@ class CatchmentTool(QObject):
             settings['epsg'] = self.getNetwork().crs().authid()[5:]  # removing EPSG:
             settings['temp network'] = self.tempNetwork(settings['epsg'])
             settings['temp polygon'] = self.tempPolygon(settings['epsg'])
-            settings['output network check'] = self.dlg.networkCheck.isChecked()
             settings['output network'] = self.dlg.getNetworkOutput()
             settings['output polygon check'] = self.dlg.polygonCheck.isChecked()
-            settings['output polygon'] = self.dlg.getPolygonOutput()
+            settings['layer_type'] = self.dlg.get_output_type()
+            settings['output path'] = self.dlg.getOutput()
 
             return settings
 
@@ -177,6 +218,7 @@ class CatchmentTool(QObject):
         settings = self.getAnalysisSettings()
         analysis = ca.CatchmentAnalysis(self.iface, settings)
         # Create new thread and move the analysis class to it
+        self.dlg.lockGUI(True)
         analysis_thread = QThread()
         analysis.moveToThread(analysis_thread)
         # Setup signals
@@ -194,6 +236,7 @@ class CatchmentTool(QObject):
 
     def analysisFinish(self, output):
         # Render output
+        self.dlg.lockGUI(False)
         if output:
             output_network = output['output network']
             output_polygon = output['output polygon']

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>250</width>
-    <height>307</height>
+    <width>292</width>
+    <height>595</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -23,71 +23,38 @@
    <item>
     <layout class="QGridLayout">
      <property name="sizeConstraint">
-      <enum>QLayout::SetNoConstraint</enum>
+      <enum>QLayout::SetMinimumSize</enum>
      </property>
-     <property name="leftMargin">
-      <number>5</number>
-     </property>
-     <property name="topMargin">
-      <number>5</number>
-     </property>
-     <property name="rightMargin">
-      <number>5</number>
-     </property>
-     <property name="bottomMargin">
-      <number>5</number>
-     </property>
-     <item row="8" column="1">
-      <widget class="QRadioButton" name="shpRadioButton">
+     <item row="16" column="0" colspan="2">
+      <widget class="QCheckBox" name="simplifyCheckBox">
        <property name="text">
-        <string>shapefile</string>
+        <string>simplify angular changes </string>
        </property>
       </widget>
      </item>
-     <item row="3" column="0" colspan="2">
-      <widget class="QLabel" name="label_3">
+     <item row="2" column="0" colspan="2">
+      <widget class="QLabel" name="label_5">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
-       <property name="text">
-        <string>     decimal precision </string>
-       </property>
-      </widget>
-     </item>
-     <item row="8" column="0">
-      <widget class="QRadioButton" name="memoryRadioButton">
-       <property name="text">
-        <string>memory</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="0" colspan="3">
-      <widget class="Line" name="line">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="24" column="0">
-      <widget class="QPushButton" name="settingsButton">
-       <property name="maximumSize">
-        <size>
-         <width>70</width>
-         <height>16777215</height>
-        </size>
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
        </property>
        <property name="text">
-        <string>Info</string>
+        <string>Data source</string>
        </property>
       </widget>
      </item>
-     <item row="24" column="1">
+     <item row="39" column="1">
       <widget class="QPushButton" name="cancelButton">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -103,8 +70,27 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="2">
-      <widget class="QSpinBox" name="decimalsSpin">
+     <item row="12" column="0" colspan="2">
+      <widget class="QCheckBox" name="snapCheckBox">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>25</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>snap endpoints threshold</string>
+       </property>
+      </widget>
+     </item>
+     <item row="12" column="2">
+      <widget class="QSpinBox" name="snapSpinBox">
        <property name="maximumSize">
         <size>
          <width>70</width>
@@ -113,95 +99,126 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="0" colspan="3">
-      <widget class="QComboBox" name="inputCombo">
+     <item row="17" column="2">
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="13" column="0" colspan="2">
+      <widget class="QCheckBox" name="breakCheckBox">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+        <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>25</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>25</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>break at common vertices</string>
+       </property>
       </widget>
      </item>
-     <item row="2" column="0" colspan="3">
-      <widget class="QCheckBox" name="snapCheckBox">
+     <item row="13" column="2">
+      <widget class="QLabel" name="label_7">
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="17" column="0" colspan="2">
+      <widget class="QCheckBox" name="orphansCheckBox">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>25</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>25</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>remove isolated lines</string>
+       </property>
+      </widget>
+     </item>
+     <item row="14" column="0" colspan="3">
+      <widget class="QCheckBox" name="mergeCheckBox">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>25</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>25</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>merge lines between intersections</string>
+       </property>
+      </widget>
+     </item>
+     <item row="15" column="2">
+      <widget class="QSpinBox" name="angleSpinBox"/>
+     </item>
+     <item row="15" column="0" colspan="2">
+      <widget class="QCheckBox" name="mergeCollinearCheckBox">
+       <property name="text">
+        <string>merge only collinear lines</string>
+       </property>
+      </widget>
+     </item>
+     <item row="32" column="0" colspan="3">
+      <widget class="QCheckBox" name="errorsCheckBox">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
-       <property name="text">
-        <string>snap endpoints</string>
-       </property>
-      </widget>
-     </item>
-     <item row="7" column="0" colspan="3">
-      <widget class="QLabel" name="label_4">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="font">
-        <font>
-         <weight>75</weight>
-         <bold>true</bold>
-        </font>
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>25</height>
+        </size>
        </property>
        <property name="text">
-        <string>Output layers</string>
+        <string>load errors</string>
        </property>
       </widget>
      </item>
-     <item row="8" column="2">
-      <widget class="QRadioButton" name="postgisRadioButton">
-       <property name="text">
-        <string>PostGIS</string>
-       </property>
-      </widget>
-     </item>
-     <item row="20" column="0" colspan="3">
-      <widget class="Line" name="line_2">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="0" colspan="3">
-      <widget class="QLabel" name="label">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="font">
-        <font>
-         <weight>75</weight>
-         <bold>true</bold>
-        </font>
+     <item row="31" column="0" colspan="3">
+      <widget class="QCheckBox" name="unlinksCheckBox">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>25</height>
+        </size>
        </property>
        <property name="text">
-        <string>Input layer</string>
+        <string>load unlinks</string>
        </property>
       </widget>
      </item>
-     <item row="22" column="0" colspan="3">
-      <widget class="QProgressBar" name="cleaningProgress">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="value">
-        <number>0</number>
-       </property>
-      </widget>
-     </item>
-     <item row="24" column="2">
+     <item row="39" column="2">
       <widget class="QPushButton" name="cleanButton">
        <property name="sizePolicy">
         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -220,20 +237,26 @@
        </property>
       </widget>
      </item>
-     <item row="15" column="0" colspan="2">
-      <widget class="QLineEdit" name="outputCleaned">
-       <property name="enabled">
-        <bool>true</bool>
-       </property>
+     <item row="0" column="0" colspan="3">
+      <widget class="QLabel" name="label">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Input layer</string>
+       </property>
       </widget>
      </item>
-     <item row="15" column="2">
+     <item row="30" column="2">
       <widget class="QPushButton" name="browseCleaned">
        <property name="sizePolicy">
         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -252,25 +275,141 @@
        </property>
       </widget>
      </item>
-     <item row="17" column="0" colspan="3">
-      <widget class="QCheckBox" name="errorsCheckBox">
+     <item row="23" column="1">
+      <widget class="QRadioButton" name="shpRadioButton">
+       <property name="text">
+        <string>shapefile</string>
+       </property>
+      </widget>
+     </item>
+     <item row="19" column="0" colspan="3">
+      <widget class="Line" name="line">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="37" column="0" colspan="3">
+      <widget class="QProgressBar" name="cleaningProgress">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="value">
+        <number>0</number>
+       </property>
+      </widget>
+     </item>
+     <item row="30" column="0" colspan="2">
+      <widget class="QLineEdit" name="outputCleaned">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
        <property name="sizePolicy">
         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
-       <property name="text">
-        <string>load errors layer</string>
+      </widget>
+     </item>
+     <item row="35" column="0" colspan="3">
+      <widget class="Line" name="line_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
        </property>
       </widget>
      </item>
-     <item row="16" column="0" colspan="3">
-      <widget class="QCheckBox" name="unlinksCheckBox">
-       <property name="text">
-        <string>load unlinks layer</string>
+     <item row="1" column="0" colspan="3">
+      <widget class="QComboBox" name="inputCombo">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
        </property>
       </widget>
+     </item>
+     <item row="4" column="0" colspan="3">
+      <widget class="Line" name="line_3">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="23" column="0">
+      <widget class="QRadioButton" name="memoryRadioButton">
+       <property name="text">
+        <string>memory</string>
+       </property>
+      </widget>
+     </item>
+     <item row="23" column="2">
+      <widget class="QRadioButton" name="postgisRadioButton">
+       <property name="text">
+        <string>PostGIS</string>
+       </property>
+      </widget>
+     </item>
+     <item row="22" column="0" colspan="3">
+      <widget class="QLabel" name="label_4">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Output layers</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0" colspan="3">
+      <widget class="QComboBox" name="dataSourceCombo">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="0">
+      <widget class="QLabel" name="label_2">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Settings</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="1" colspan="2">
+      <widget class="QPushButton" name="editDefaultButton">
+       <property name="text">
+        <string>Edit default</string>
+       </property>
+      </widget>
+     </item>
+     <item row="16" column="2">
+      <widget class="QSpinBox" name="angularChangeSpinBox"/>
      </item>
     </layout>
    </item>

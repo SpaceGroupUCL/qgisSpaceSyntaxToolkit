@@ -22,6 +22,12 @@
 """
 from qgis.core import *
 import os.path
+import psycopg2
+
+import traceback
+from PyQt4.QtCore import QSettings
+import operator
+import itertools
 
 def getLegendLayers(iface, geom='all', provider='all'):
     """
@@ -89,7 +95,7 @@ def reloadLayer(layer):
     layer_name = layer.name()
     layer_provider = layer.dataProvider().name()
     new_layer = None
-    if layer_provider in ('spatialite','postgres'):
+    if layer_provider in ('spatialite', 'postgres'):
         uri = QgsDataSourceURI(layer.dataProvider().dataSourceUri())
         new_layer = QgsVectorLayer(uri.uri(), layer_name, layer_provider)
     elif layer_provider == 'ogr':
@@ -104,7 +110,7 @@ def isRequiredLayer(self, layer, type):
     if layer.type() == QgsMapLayer.VectorLayer \
             and layer.geometryType() == type:
         fieldlist = getFieldNames(layer)
-        if 'F_Group' in fieldlist and 'F_Type' in fieldlist:
+        if 'f_group' in fieldlist and 'f_type' in fieldlist:
             return True
 
     return False
@@ -113,7 +119,7 @@ def isRequiredEntranceLayer(self, layer, type):
     if layer.type() == QgsMapLayer.VectorLayer \
             and layer.geometryType() == type:
         fieldlist = getFieldNames(layer)
-        if 'E_Category' in fieldlist and 'E_SubCat' in fieldlist:
+        if 'e_category' in fieldlist and 'e_subcat' in fieldlist:
             return True
 
     return False
@@ -122,7 +128,66 @@ def isRequiredLULayer(self, layer, type):
     if layer.type() == QgsMapLayer.VectorLayer \
             and layer.geometryType() == type:
         fieldlist = getFieldNames(layer)
-        if 'GF_Cat' in fieldlist and 'GF_SubCat' in fieldlist:
+        if 'gf_cat' in fieldlist and 'gf_subcat' in fieldlist:
             return True
 
     return False
+
+
+
+# POSTGIS -----------------------------------------------------------------
+
+def getPostgisSchemas(connstring, commit=False):
+    """Execute query (string) with given parameters (tuple)
+    (optionally perform commit to save Db)
+    :return: result set [header,data] or [error] error
+    """
+
+    try:
+        connection = psycopg2.connect(connstring)
+    except psycopg2.Error, e:
+        print e.pgerror
+        connection = None
+
+    schemas = []
+    data = []
+    if connection:
+        query = unicode("""SELECT schema_name from information_schema.schemata;""")
+        cursor = connection.cursor()
+        try:
+            cursor.execute(query)
+            if cursor.description is not None:
+                data = cursor.fetchall()
+            if commit:
+                connection.commit()
+        except psycopg2.Error, e:
+            connection.rollback()
+        cursor.close()
+
+    # only extract user schemas
+    for schema in data:
+        if schema[0] not in ('topology', 'information_schema') and schema[0][:3] != 'pg_':
+            schemas.append(schema[0])
+    #return the result even if empty
+    return sorted(schemas)
+
+
+def getQGISDbs():
+    """Return all PostGIS connection settings stored in QGIS
+    :return: connection dict() with name and other settings
+    """
+    settings = QSettings()
+    settings.beginGroup('/PostgreSQL/connections')
+    named_dbs = settings.childGroups()
+    all_info = [i.split("/") + [unicode(settings.value(i))] for i in settings.allKeys() if
+                settings.value(i) != NULL and settings.value(i) != '']
+    all_info = [i for i in all_info if
+                i[0] in named_dbs and i[2] != NULL and i[1] in ['name', 'host', 'service', 'password', 'username',
+                                                                'database',
+                                                                'port']]
+    dbs = dict(
+        [k, dict([i[1:] for i in list(g)])] for k, g in itertools.groupby(sorted(all_info), operator.itemgetter(0)))
+    QgsMessageLog.logMessage('dbs %s' % str(dbs), level=QgsMessageLog.CRITICAL)
+    settings.endGroup()
+
+    return dbs

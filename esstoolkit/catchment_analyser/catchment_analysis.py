@@ -28,12 +28,18 @@ from qgis.gui import *
 from qgis.networkanalysis import *
 from qgis.utils import *
 
-import analysis_tools as ct
-import utility_functions as uf
+try:
+    import analysis_tools as ct
+except ImportError:
+    pass
+try:
+    import utility_functions as uf
+except ImportError:
+    pass
 
 is_debug = False
 try:
-    import pydevd_pycharm as pydevd
+    import pydevd
     has_pydevd = True
 except ImportError, e:
     has_pydevd = False
@@ -47,7 +53,7 @@ class CatchmentAnalysis(QObject):
     finished = pyqtSignal(object)
     error = pyqtSignal(Exception, basestring)
     progress = pyqtSignal(float)
-    warning = pyqtSignal(str)
+    warning = pyqtSignal(basestring)
 
     def __init__(self, iface, settings):
         QObject.__init__(self)
@@ -95,33 +101,46 @@ class CatchmentAnalysis(QObject):
                           'output polygon': None,
                           'distances': self.settings['distances']}
 
+                network = self.settings['network']
+
                 # Write and render the catchment polygons
+
                 if self.settings['output polygon check']:
+                    new_fields = QgsFields()
+                    new_fields.append(QgsField('id',QVariant.Int))
+                    new_fields.append(QgsField('origin', QVariant.String))
+                    new_fields.append(QgsField('distance', QVariant.Int))
+                    output_polygon = uf.to_layer(new_fields, network.crs(), network.dataProvider().encoding(),
+                                                 'Polygon', self.settings['layer_type'],
+                                                 self.settings['output path'][0])
+
+
                     output_polygon = self.polygon_writer(
                         catchment_points,
                         self.settings['distances'],
-                        self.settings['temp polygon'],
-                        self.settings['polygon tolerance']
+                        output_polygon,
+                        self.settings['polygon tolerance'],
                     )
-                    if self.settings['output polygon']:
-                        uf.createShapeFile(output_polygon, self.settings['output polygon'], self.settings['crs'])
-                        output_polygon = QgsVectorLayer(self.settings['output polygon'], 'catchment_areas', 'ogr')
                     output['output polygon'] = output_polygon
 
                 self.progress.emit(70)
                 if self.killed == True: return
 
+                # get fields
+
+                new_fields = self.get_fields(origins, self.settings['name'])
+
+                # create layer
+                output_network = uf.to_layer(new_fields, network.crs(), network.dataProvider().encoding(), 'Linestring', self.settings['layer_type'], self.settings['output path'][0])
+
                 # Write and render the catchment network
-                if self.settings['output network check']:
-                    output_network = self.network_writer(
-                        origins,
-                        catchment_network,
-                        self.settings['temp network']
-                    )
-                    if self.settings['output network']:
-                        uf.createShapeFile(output_network, self.settings['output network'], self.settings['crs'])
-                        output_network = QgsVectorLayer(self.settings['output network'], 'catchment_network', 'ogr')
-                    output['output network'] = output_network
+                output_network = self.network_writer(
+                    output_network,
+                    catchment_network,
+                    self.settings['name']
+                )
+
+                output['output network'] = output_network
 
                 if self.killed is False:
                     self.progress.emit(100)
@@ -142,7 +161,7 @@ class CatchmentAnalysis(QObject):
             if origin_name_field:
                 origin_name = f[origin_name_field]
             else:
-                origin_name = "origin_" + "%s" % (i+1)
+                origin_name = i #"origin_" + "%s" % (i+1)
 
             origins.append({'name': origin_name, 'geom': f.geometry().centroid()})
 
@@ -161,7 +180,7 @@ class CatchmentAnalysis(QObject):
         director = QgsLineVectorLayerDirector(network, -1, '', '', '', 3)
 
         # Determining cost calculation
-        if cost_field:
+        if cost_field != 'length':
             properter = ct.CustomCost(network_cost_index, 0.01)
         else:
             properter = QgsDistanceArcProperter()
@@ -190,6 +209,38 @@ class CatchmentAnalysis(QObject):
         for index, tied_origin in enumerate(tied_origin_vertices):
             tied_origins[index] = {'name': origins[index]['name'], 'vertex': tied_origin}
 
+        self.spIndex = QgsSpatialIndex()
+        self.indices = {}
+        self.attributes_dict = {}
+        self.centroids = {}
+        i = 0
+        for f in network.getFeatures():
+            if f.geometry().wkbType() == 2:
+                self.attributes_dict [f.id()] = f.attributes()
+                polyline = f.geometry().asPolyline()
+                for idx, p in enumerate(polyline[1:]):
+                    ml = QgsGeometry.fromPolyline([polyline[idx], p])
+                    new_f = QgsFeature()
+                    new_f.setGeometry(ml.centroid())
+                    new_f.setAttributes([f.id()])
+                    new_f.setFeatureId(i)
+                    i += 1
+                    self.spIndex.insertFeature(new_f)
+                    self.centroids[i] = f.id()
+            elif f.geometry().wkbType() == 5:
+                self.attributes_dict[f.id()] = f.attributes()
+                for pl in f.geometry().asMultiPolyline():
+                    for idx, p in enumerate(pl[1:]):
+                        ml = QgsGeometry.fromPolyline([pl[idx], p])
+                        new_f = QgsFeature()
+                        new_f.setGeometry(ml.centroid())
+                        new_f.setAttributes([f.id()])
+                        new_f.setFeatureId(i)
+                        self.spIndex.insertFeature(new_f)
+                        self.centroids[i] = f.id()
+                        i += 1
+
+        self.network_fields = network_fields
         return graph, tied_origins
 
     def graph_analysis(self, graph, tied_origins, distances):
@@ -285,46 +336,65 @@ class CatchmentAnalysis(QObject):
             i += 1
         return catchment_network, catchment_points
 
-    def network_writer(self, origins, catchment_network, output_network):
-
+    def get_fields(self, origins, use_name):
+        # fields: self.network_fields
         # Setup all unique origin columns and minimum origin distance column
-        unique_origin_list = []
-        for origin in origins:
-            name = origin['name']
-            if not name in unique_origin_list:
-                output_network.dataProvider().addAttributes([QgsField("%s" % name, QVariant.Int)])
-                unique_origin_list.append(name)
-        output_network.dataProvider().addAttributes([QgsField('min_dist', QVariant.Int)])
-        output_network.updateFields()
+
+        # add origin field names
+        if use_name:
+            self.names = [str(origin['name']) for origin in origins]
+            for n in self.names:
+                self.network_fields.append(QgsField(n, QVariant.Int))
+        else:
+            self.names = range(0, len(origins))
+
+        self.network_fields.append(QgsField('min_dist', QVariant.Int))
+
+        return self.network_fields
+
+    def network_writer(self, output_network, catchment_network, use_name):
 
         # Loop through arcs in catchment network and write geometry and costs
-        i = 1
+        i = 0
+        #features = []
         for k, v in catchment_network.iteritems():
             self.progress.emit(70 + int(30 * i / len(catchment_network)))
+
             if self.killed == True: break
 
             # Get arc properties
             arc_geom = v['geom']
-            arc_cost_dict = v['cost']
-            arc_cost_list = []
 
+            arc_cost_dict = {str(key): value for key, value in v['cost'].items()}
+            #QgsMessageLog.logMessage(
+            #    'arc_cost_dict %s' % arc_cost_dict,
+            #    level=QgsMessageLog.CRITICAL)
+            i += 1
             # Ignore arc if not connected or outside of catchment
             if len(arc_cost_dict) > 0:
                 # Create feature and write id and geom
-                f = QgsFeature(output_network.pendingFields())
-                f.setAttribute("id", k)
-                f.setGeometry(arc_geom)
-                # Read the list of costs and write them to output network
-                for name, cost in arc_cost_dict.iteritems():
-                    arc_cost_list.append(cost)
-                    f.setAttribute("%s" % name, cost)
+                f = QgsFeature()
+                # get original feature attributes
+                centroid_match = self.spIndex.nearestNeighbor(arc_geom.centroid().asPoint(), 1).pop()
+                original_feature_id = self.centroids[centroid_match]
+                f_attrs = self.attributes_dict[original_feature_id]
+                arc_cost_list = []
+                for name in self.names:
+                    try:
+                        arc_cost_list.append(arc_cost_dict[str(name)])
+                    except KeyError:
+                        arc_cost_list.append(NULL)
+                if use_name:
+                    f.setAttributes(f_attrs + arc_cost_list + [min(arc_cost_list)])
+                else:
+                    f.setAttributes(f_attrs + [min(arc_cost_list)])
 
-                # Set minimum cost
-                if len(arc_cost_list) > 0:
-                    f.setAttribute('min_dist', min(arc_cost_list))
+                f.setGeometry(arc_geom)
 
                 # Write feature to output network layer
+                #features.append(f)
                 output_network.dataProvider().addFeatures([f])
+
             i += 1
 
         return output_network

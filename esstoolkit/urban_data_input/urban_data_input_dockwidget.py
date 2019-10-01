@@ -76,7 +76,6 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.frontagescatlistWidget.setCurrentRow(0)
         self.updateFrontageSubTypes()
 
-
         self.updateEntranceTypes()
         self.ecategorylistWidget.setCurrentRow(0)
         self.eaccesscategorylistWidget.setCurrentRow(0)
