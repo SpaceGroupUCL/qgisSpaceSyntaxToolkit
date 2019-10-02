@@ -37,6 +37,7 @@ try:
 except ImportError, e:
     has_networkx = False
 
+print 'has_networkx', has_networkx
 # Import the debug library
 try:
     import pydevd_pycharm as pydevd

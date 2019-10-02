@@ -59,9 +59,9 @@ from ProjectManager import ProjectManager
 from analysis import AnalysisTool
 from explorer import ExplorerTool
 from gate_transformer import TransformerAnalysis
-from rcl_cleaner import RoadNetworkCleanerTool
+from rcl_cleaner import road_network_cleaner_tool
 from catchment_analyser import CatchmentAnalyser
-from urban_data_input import UrbanDataInputTool
+from urban_data_input import urban_data_input_tool
 from network_segmenter import network_segmenter_tool
 from drawing import DrawingTool
 
@@ -113,9 +113,9 @@ class EssToolkit:
         self.analysis = AnalysisTool.AnalysisTool(self.iface, self.settings, self.project)
         self.explorer = ExplorerTool.ExplorerTool(self.iface, self.settings, self.project)
         self.gate_transformer = TransformerAnalysis.GateTransformer(self.iface)
-        self.rcl_cleaner = RoadNetworkCleanerTool.RoadNetworkCleaner(self.iface)
+        self.rcl_cleaner = road_network_cleaner_tool.NetworkCleanerTool(self.iface)
         self.catchment_tool = CatchmentAnalyser.CatchmentTool(self.iface)
-        self.udi_tool = UrbanDataInputTool.UrbanDataInputTool(self.iface)
+        self.udi_tool = urban_data_input_tool.UrbanDataInputTool(self.iface)
         self.drawing_tool = DrawingTool.DrawingTool(self.iface)
         self.network_segmenter = network_segmenter_tool.NetworkSegmenterTool(self.iface)
         # add additional modules here
