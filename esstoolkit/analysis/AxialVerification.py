@@ -37,7 +37,6 @@ try:
 except ImportError, e:
     has_networkx = False
 
-print 'has_networkx', has_networkx
 # Import the debug library
 try:
     import pydevd_pycharm as pydevd
@@ -68,6 +67,7 @@ class AxialVerification(QThread):
                             'coinciding points': [], 'small line': [], 'duplicate geometry': [], 'overlap': []}
 
     def run(self):
+        QgsMessageLog.logMessage('has nx %s' % str(e), level=QgsMessageLog.CRITICAL)
         if has_pydevd and is_debug:
             pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True)
         self.running = True

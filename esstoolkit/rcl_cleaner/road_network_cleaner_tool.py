@@ -96,8 +96,8 @@ class NetworkCleanerTool(QObject):
             self.dlg.cleanButton.clicked.disconnect(self.startWorker)
             self.dlg.cancelButton.clicked.disconnect(self.killWorker)
             self.settings = None
-        self.legend.itemAdded.disconnect(self.updateLayers)
-        self.legend.itemRemoved.disconnect(self.updateLayers)
+            self.legend.itemAdded.disconnect(self.updateLayers)
+            self.legend.itemRemoved.disconnect(self.updateLayers)
 
         self.dlg = None
 

@@ -132,6 +132,7 @@ class NetworkSegmenterDialog(QtGui.QDialog, FORM_CLASS):
     def popActiveLayers(self, layers_list):
         self.inputCombo.clear()
         if layers_list:
+            print 'll', layers_list
             self.inputCombo.addItems(layers_list)
             self.lockGUI(False)
         else:
@@ -140,7 +141,6 @@ class NetworkSegmenterDialog(QtGui.QDialog, FORM_CLASS):
     def popUnlinksLayers(self, layers_list):
         self.unlinksCombo.clear()
         self.unlinksCombo.addItems(['no unlinks'] + layers_list)
-        self.lockGUI(False)
 
     def lockGUI(self, onoff):
         self.stubsCheckBox.setDisabled(onoff)

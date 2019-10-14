@@ -189,9 +189,9 @@ class DrawingTool:
         self.dockwidget.closingPlugin.disconnect(self.onClosePlugin)
         self.legend.itemAdded.disconnect(self.pop_layer)
         self.legend.itemRemoved.disconnect(self.rmv_layer)
-        self.dockwidget.networkCombo.currentIndexChanged.disconnect(self.dockwidget.update_settings)
-        self.dockwidget.unlinksCombo.currentIndexChanged.disconnect(self.dockwidget.update_settings)
-        self.dockwidget.toleranceSpin.valueChanged.disconnect(self.dockwidget.update_settings)
+        self.dockwidget.networkCombo.currentIndexChanged.disconnect(self.dockwidget.update_network)
+        self.dockwidget.unlinksCombo.currentIndexChanged.disconnect(self.dockwidget.update_unlinks)
+        self.dockwidget.toleranceSpin.valueChanged.disconnect(self.dockwidget.update_tolerance)
 
         # remove this statement if dockwidget is to remain
         # for reuse if plugin is reopened
@@ -254,6 +254,7 @@ class DrawingTool:
         if len(new)>0:
             self.unlinks += new
             self.dockwidget.unlinksCombo.addItems(new)
+        self.lockGUI(False)
         return
 
     def rmv_layer(self):
@@ -273,7 +274,20 @@ class DrawingTool:
             self.unlinks.remove(old[0])
             index = self.dockwidget.unlinksCombo.findText(old[0])
             self.dockwidget.unlinksCombo.removeItem(index)
+        if self.networks == []:
+            self.lockGUI(True)
         return
+
+    def lockGUI(self, onoff):
+        self.dockwidget.networkCombo.setDisabled(onoff)
+        self.dockwidget.unlinksCombo.setDisabled(onoff)
+        self.dockwidget.axialButton.setDisabled(onoff)
+        self.dockwidget.segmentButton.setDisabled(onoff)
+        self.dockwidget.unlinksButton.setDisabled(onoff)
+        self.dockwidget.toleranceSpin.setDisabled(onoff)
+        self.dockwidget.toleranceSpin.setDisabled(onoff)
+        return
+
 
     def run(self):
         """Run method that loads and starts the plugin"""
@@ -304,6 +318,8 @@ class DrawingTool:
             self.dockwidget.update_unlinks()
             self.dockwidget.update_tolerance()
             self.networks = self.get_layers(1)
+            if self.networks == []:
+                self.lockGUI(True)
             self.unlinks = ['no unlinks'] + self.get_layers(0)
             self.legend.itemAdded.connect(self.pop_layer)
             self.legend.itemRemoved.connect(self.rmv_layer)
