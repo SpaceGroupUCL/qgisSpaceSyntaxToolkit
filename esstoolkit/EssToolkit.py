@@ -313,7 +313,7 @@ class EssToolkit:
         self.rcl_cleaner.unloadGUI()
         self.catchment_tool.unload_gui()
         self.udi_tool.unload_gui()
-        self.drawing_tool.unload_gui()
+        self.drawing_tool.unload()
         self.network_segmenter.unloadGUI()
         # add additional modules here
         ###########

@@ -5,6 +5,7 @@ from os.path import splitext
 
 import networkx as nx
 from decorator import decorator
+#import decorator as decorator
 from networkx.utils import is_string_like
 
 __all__ = [
