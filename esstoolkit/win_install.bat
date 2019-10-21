@@ -22,10 +22,10 @@ IF EXIST "%rcl_plugin_dir%" (
 )
 
 ECHO Copying Space Syntax Toolkit QGIS plugin to QGIS plugin directory...
-xcopy "%~dp0esstoolkit\*.*" "%rcl_plugin_dir%\" /syq
+xcopy "%~dp0*.*" "%rcl_plugin_dir%\" /syq
 REM NOTE: The test below tests errorlevel >= 1, not errorlevel == 1
 IF ERRORLEVEL 1 (
-	ECHO ERROR: Couldn't copy files "%~dp0esstoolkit\*.*" to "%rcl_plugin_dir%\"
+	ECHO ERROR: Couldn't copy files "%~dp0*.*" to "%rcl_plugin_dir%\"
 	GOTO FAILURE
 )
 
