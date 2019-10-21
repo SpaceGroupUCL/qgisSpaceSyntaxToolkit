@@ -216,23 +216,24 @@ class CatchmentTool(QObject):
         self.dlg.analysisProgress.reset()
         # Create an analysis instance
         settings = self.getAnalysisSettings()
-        analysis = ca.CatchmentAnalysis(self.iface, settings)
-        # Create new thread and move the analysis class to it
-        self.dlg.lockGUI(True)
-        analysis_thread = QThread()
-        analysis.moveToThread(analysis_thread)
-        # Setup signals
+        if settings != {} and settings is not None:
+            analysis = ca.CatchmentAnalysis(self.iface, settings)
+            # Create new thread and move the analysis class to it
+            self.dlg.lockGUI(True)
+            analysis_thread = QThread()
+            analysis.moveToThread(analysis_thread)
+            # Setup signals
 
-        analysis.finished.connect(self.analysisFinish)
-        analysis.error.connect(self.analysisError)
-        analysis.warning.connect(self.giveWarningMessage)
-        analysis.progress.connect(self.dlg.analysisProgress.setValue)
+            analysis.finished.connect(self.analysisFinish)
+            analysis.error.connect(self.analysisError)
+            analysis.warning.connect(self.giveWarningMessage)
+            analysis.progress.connect(self.dlg.analysisProgress.setValue)
 
-        # Start analysis
-        analysis_thread.started.connect(analysis.analysis)
-        analysis_thread.start()
-        self.analysis_thread = analysis_thread
-        self.analysis = analysis
+            # Start analysis
+            analysis_thread.started.connect(analysis.analysis)
+            analysis_thread.start()
+            self.analysis_thread = analysis_thread
+            self.analysis = analysis
 
     def analysisFinish(self, output):
         # Render output
