@@ -170,7 +170,7 @@ class LanduseTool(QObject):
                 vl = QgsVectorLayer("Polygon?crs=" + crs.authid(), "memory:landuse", "memory")
             else:
                 # create memory layer
-                vl = QgsVectorLayer("Polygon?crs=", "memory:landuse", "memory")
+                vl = QgsVectorLayer("Polygon?crs=" , "memory:landuse", "memory")
             provider = vl.dataProvider()
             #provider.addAttributes([])
 

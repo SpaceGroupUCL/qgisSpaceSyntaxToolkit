@@ -104,13 +104,22 @@ class NetworkSegmenterTool(QObject):
             self.dlg.runButton.clicked.disconnect(self.startWorker)
             self.dlg.cancelButton.clicked.disconnect(self.killWorker)
             self.settings = None
-        #try:
-        self.legend.itemAdded.disconnect(self.updateLayers)
-        self.legend.itemRemoved.disconnect(self.updateLayers)
-        self.legend.itemAdded.disconnect(self.updateUnlinksLayers)
-        self.legend.itemRemoved.disconnect(self.updateUnlinksLayers)
-        #except TypeError:
-        #    pass
+        try:
+            self.legend.itemAdded.disconnect(self.updateLayers)
+        except TypeError:
+            pass
+        try:
+            self.legend.itemRemoved.disconnect(self.updateLayers)
+        except TypeError:
+            pass
+        try:
+            self.legend.itemAdded.disconnect(self.updateUnlinksLayers)
+        except TypeError:
+            pass
+        try:
+            self.legend.itemRemoved.disconnect(self.updateUnlinksLayers)
+        except TypeError:
+            pass
 
         self.dlg = None
 

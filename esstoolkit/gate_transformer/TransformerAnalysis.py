@@ -52,8 +52,9 @@ class GateTransformer(QObject):
         #result = self.dlg.exec_()
 
     def unload_gui(self):
-        self.dlg.run_button.clicked.disconnect(self.run_method)
-        self.dlg.close_button.clicked.disconnect(self.close_method)
+        if self.dlg:
+            self.dlg.run_button.clicked.disconnect(self.run_method)
+            self.dlg.close_button.clicked.disconnect(self.close_method)
 
     def get_layers(self):
         layers = QgsMapLayerRegistry.instance().mapLayers().values()
