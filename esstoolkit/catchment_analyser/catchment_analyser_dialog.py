@@ -131,8 +131,9 @@ class CatchmentAnalyserDialog(QtGui.QDialog, FORM_CLASS):
             layers = []
             layers.extend(names)
             self.analysisButton.setEnabled(True)
+            self.lockGUI(False)
         else:
-            self.analysisButton.setEnabled(False)
+            self.lockGUI(True)
         self.networkCombo.clear()
         self.networkCombo.addItems(layers)
 

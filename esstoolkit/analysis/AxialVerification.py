@@ -43,7 +43,7 @@ try:
     has_pydevd = True
 except ImportError, e:
     has_pydevd = False
-is_debug = True
+is_debug = False
 
 
 class AxialVerification(QThread):
@@ -67,9 +67,10 @@ class AxialVerification(QThread):
                             'coinciding points': [], 'small line': [], 'duplicate geometry': [], 'overlap': []}
 
     def run(self):
-        QgsMessageLog.logMessage('has nx %s' % str(e), level=QgsMessageLog.CRITICAL)
+        #QgsMessageLog.logMessage('has nx %s' % str(e), level=QgsMessageLog.CRITICAL)
         if has_pydevd and is_debug:
             pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True)
+
         self.running = True
         # reset all the errors
         self.problem_nodes = []
