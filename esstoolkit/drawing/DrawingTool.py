@@ -46,7 +46,7 @@ class DrawingTool:
         """
         # Save reference to the QGIS interface
         self.iface = iface
-        self.legend = self.iface.legendInterface()
+
 
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
@@ -225,23 +225,31 @@ class DrawingTool:
                     layers.append(layer.name())
         return layers
 
-    def pop_layers(self):
-
+    def updateLayers(self):
+        layers_list = self.get_layers(1)
         self.dockwidget.networkCombo.clear()
-        self.dockwidget.networkCombo.addItems(self.get_layers(1))
-        self.dockwidget.unlinksCombo.clear()
-        self.dockwidget.unlinksCombo.addItems(['no unlinks'] + self.get_layers(0))
-
+        if layers_list:
+            self.dockwidget.networkCombo.addItems(layers_list)
+            self.lockGUI(False)
+        else:
+            self.lockGUI(True)
+        print 'done'
+        for lyr in QgsMapLayerRegistry.instance().mapLayers().values():
+            print lyr, 'lyr', layers_list
         return
 
     def pop_layer(self):
         new = list(self.get_layers(1))
+        print 'new is', new, self.networks
+        self.legend = self.iface.legendInterface()
+        x = [i.name() for i in  self.legend.layers()]
+        print 'x', x
         for l in self.networks:
             try:
                 new.remove(l)
             except ValueError:
                 pass
-        if len(new)>0:
+        if len(new) > 0:
             print 'new', new, self.get_layers(1), self.networks
             self.networks += new
             self.dockwidget.networkCombo.addItems(new)
@@ -294,6 +302,7 @@ class DrawingTool:
 
         if not self.pluginIsActive:
             self.pluginIsActive = True
+            self.legend = self.iface.legendInterface()
 
             #print "** STARTING DrawingTool"
 
@@ -321,7 +330,7 @@ class DrawingTool:
             if self.networks == []:
                 self.lockGUI(True)
             self.unlinks = ['no unlinks'] + self.get_layers(0)
-            self.legend.itemAdded.connect(self.pop_layer)
+            self.legend.itemAdded.connect(self.updateLayers)
             self.legend.itemRemoved.connect(self.rmv_layer)
             self.dockwidget.networkCombo.currentIndexChanged.connect(self.dockwidget.update_network)
             self.dockwidget.unlinksCombo.currentIndexChanged.connect(self.dockwidget.update_unlinks)

@@ -27,7 +27,7 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 
 # Import the debug library
-is_debug = False
+is_debug = True
 try:
     import pydevd_pycharm as pydevd
     has_pydevd = True
