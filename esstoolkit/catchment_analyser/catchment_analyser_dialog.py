@@ -73,7 +73,8 @@ class CatchmentAnalyserDialog(QtGui.QDialog, FORM_CLASS):
         self.memoryRadioButton.clicked.connect(self.setTempOutput)
         self.setTempOutput()
         self.shpRadioButton.clicked.connect(self.setShpOutput)
-        self.networkText.setDisabled(True)
+        #self.networkText.setDisabled(True)
+        #self.nameCombo.setDisabled(True)
 
     def setOutput(self):
         if self.shpRadioButton.isChecked():
@@ -173,6 +174,7 @@ class CatchmentAnalyserDialog(QtGui.QDialog, FORM_CLASS):
         return self.originsCombo.currentText()
 
     def activateName(self):
+        #print 'activateName'
         if self.nameCheck.isChecked():
             self.nameCombo.setEnabled(True)
         else:
@@ -180,11 +182,13 @@ class CatchmentAnalyserDialog(QtGui.QDialog, FORM_CLASS):
 
     def setNameFields(self, names):
         self.nameCombo.clear()
+        #print 'setNameFields'
         if names:
             self.nameCheck.setEnabled(True)
             self.nameCombo.addItems(names)
         else:
             self.nameCheck.setEnabled(False)
+            #self.nameCombo.setEnabled(False)
             fields = ['-----']
             self.nameCombo.addItems(fields)
 
@@ -249,19 +253,19 @@ class CatchmentAnalyserDialog(QtGui.QDialog, FORM_CLASS):
     def getOutput(self):
         if self.shpRadioButton.isChecked():
             shp_path = self.networkText.text()
-            return shp_path, shp_path[:-4] + "_polygons.shp"
+            return shp_path, shp_path[:-4] + "_plg.shp"
         elif self.postgisRadioButton.isChecked():
             try:
                 database, schema, table_name = self.networkText.text().split(':')
                 db_path = self.dbsettings_dlg.connstring, schema, table_name
                 db_path_u = list(db_path)
-                db_path_u[2] = db_path_u[2] + '_polygons'
+                db_path_u[2] = db_path_u[2] + '_plg'
                 return db_path, tuple(db_path_u)
             except ValueError:
                 return '', ''
         else:
             temp_name = self.networkText.text()
-            return temp_name, temp_name + '_polygons'
+            return temp_name, temp_name + '_plg'
 
     def get_output_type(self):
         if self.shpRadioButton.isChecked():

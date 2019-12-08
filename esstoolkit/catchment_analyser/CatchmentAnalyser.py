@@ -121,6 +121,10 @@ class CatchmentTool(QObject):
     def updateName(self):
         origins = self.getOrigins()
         self.dlg.setNameFields(uf.getFieldNames(origins))
+        if self.dlg.nameCheck.isChecked():
+            self.dlg.nameCombo.setDisabled(False)
+        else:
+            self.dlg.nameCombo.setDisabled(True)
 
     def updateOutputName(self):
         if self.dlg.memoryRadioButton.isChecked():
@@ -215,9 +219,9 @@ class CatchmentTool(QObject):
     def runAnalysis(self):
         self.dlg.analysisProgress.reset()
         # Create an analysis instance
-        settings = self.getAnalysisSettings()
-        if settings != {} and settings is not None:
-            analysis = ca.CatchmentAnalysis(self.iface, settings)
+        self.settings = self.getAnalysisSettings()
+        if self.settings != {} and self.settings is not None:
+            analysis = ca.CatchmentAnalysis(self.iface, self.settings)
             # Create new thread and move the analysis class to it
             self.dlg.lockGUI(True)
             analysis_thread = QThread()
@@ -239,8 +243,24 @@ class CatchmentTool(QObject):
         # Render output
         self.dlg.lockGUI(False)
         if output:
-            output_network = output['output network']
-            output_polygon = output['output polygon']
+            output_network_features = output['output network features']
+            # create layer
+            new_fields = output_network_features[0].fields()
+
+            output_network = uf.to_layer(new_fields, self.settings['network'].crs(), self.settings['network'].dataProvider().encoding(), 'Linestring',
+                                         self.settings['layer_type'], self.settings['output path'][0])
+
+            output_network.dataProvider().addFeatures(output_network_features)
+
+            output_polygon_features = output['output polygon features']
+
+            new_fields = output_polygon_features[0].fields()
+            output_polygon = uf.to_layer(new_fields, self.settings['network'].crs(), self.settings['network'].dataProvider().encoding(),
+                                         'Polygon', self.settings['layer_type'],
+                                         self.settings['output path'][1])
+
+            output_polygon.dataProvider().addFeatures(output_polygon_features)
+
             distances = output['distances']
             if output_network:
                 self.renderNetwork(output_network, distances)

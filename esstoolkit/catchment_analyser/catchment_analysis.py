@@ -97,8 +97,8 @@ class CatchmentAnalysis(QObject):
                 if self.killed == True: return
 
                 # Create output signal
-                output = {'output network': None,
-                          'output polygon': None,
+                output = {'output network features': None,
+                          'output polygon features': None,
                           'distances': self.settings['distances']}
 
                 network = self.settings['network']
@@ -110,18 +110,14 @@ class CatchmentAnalysis(QObject):
                     new_fields.append(QgsField('id',QVariant.Int))
                     new_fields.append(QgsField('origin', QVariant.String))
                     new_fields.append(QgsField('distance', QVariant.Int))
-                    output_polygon = uf.to_layer(new_fields, network.crs(), network.dataProvider().encoding(),
-                                                 'Polygon', self.settings['layer_type'],
-                                                 self.settings['output path'][0])
 
-
-                    output_polygon = self.polygon_writer(
+                    output_polygon_features = self.polygon_writer(
                         catchment_points,
                         self.settings['distances'],
-                        output_polygon,
+                        new_fields,
                         self.settings['polygon tolerance'],
                     )
-                    output['output polygon'] = output_polygon
+                    output['output polygon features'] = output_polygon_features
 
                 self.progress.emit(70)
                 if self.killed == True: return
@@ -130,17 +126,14 @@ class CatchmentAnalysis(QObject):
 
                 new_fields = self.get_fields(origins, self.settings['name'])
 
-                # create layer
-                output_network = uf.to_layer(new_fields, network.crs(), network.dataProvider().encoding(), 'Linestring', self.settings['layer_type'], self.settings['output path'][0])
-
                 # Write and render the catchment network
-                output_network = self.network_writer(
-                    output_network,
+                output_network_features = self.network_writer(
                     catchment_network,
+                    new_fields,
                     self.settings['name']
                 )
 
-                output['output network'] = output_network
+                output['output network features'] = output_network_features
 
                 if self.killed is False:
                     self.progress.emit(100)
@@ -352,14 +345,11 @@ class CatchmentAnalysis(QObject):
 
         return self.network_fields
 
-    def network_writer(self, output_network, catchment_network, use_name):
+    def network_writer(self, catchment_network, new_fields, use_name):
 
         # Loop through arcs in catchment network and write geometry and costs
         i = 0
-        #features = []
-        #QgsMessageLog.logMessage(
-        #    'self.centroids %s' % self.centroids,
-        #    level=QgsMessageLog.CRITICAL)
+        features = []
 
         for k, v in catchment_network.iteritems():
 
@@ -386,6 +376,7 @@ class CatchmentAnalysis(QObject):
                         arc_cost_list.append(arc_cost_dict[str(name)])
                     except KeyError:
                         arc_cost_list.append(NULL)
+                f.setFields(new_fields)
                 if use_name:
                     f.setAttributes(f_attrs + arc_cost_list + [min(arc_cost_list)])
                 else:
@@ -394,18 +385,18 @@ class CatchmentAnalysis(QObject):
                 f.setGeometry(arc_geom)
 
                 # Write feature to output network layer
-                #features.append(f)
-                output_network.dataProvider().addFeatures([f])
+                features.append(f)
 
             i += 1
 
-        return output_network
+        return features
 
-    def polygon_writer(self, catchment_points, distances, output_polygon, polygon_tolerance):
+    def polygon_writer(self, catchment_points, distances, new_fields, polygon_tolerance):
 
         # Setup unique origin dictionary containing all distances
         unique_origins_list = []
         polygon_dict = {}
+        output_polygon_features = []
         i = 1
         for tied_point in catchment_points:
             if self.killed: break
@@ -436,16 +427,17 @@ class CatchmentAnalysis(QObject):
                         hull_validity = False
                         continue
                     if polygon_geom:
-                        p = QgsFeature(output_polygon.pendingFields())
+                        p = QgsFeature()
+                        p.setFields(new_fields)
                         p.setAttribute('id', index)
                         p.setAttribute('origin', name)
                         p.setAttribute('distance', distance)
                         p.setGeometry(polygon_geom)
-                        output_polygon.dataProvider().addFeatures([p])
+                        output_polygon_features.append(p)
                         index += 1
         if hull_validity == False:
             self.warning.emit('Polygon tolerance too high for small cost bands.')
-        return output_polygon
+        return output_polygon_features
 
     def kill(self):
         self.killed = True

@@ -186,12 +186,30 @@ class DrawingTool:
         #print "** CLOSING DrawingTool"
 
         # disconnects
-        self.dockwidget.closingPlugin.disconnect(self.onClosePlugin)
-        self.legend.itemAdded.disconnect(self.pop_layer)
-        self.legend.itemRemoved.disconnect(self.rmv_layer)
-        self.dockwidget.networkCombo.currentIndexChanged.disconnect(self.dockwidget.update_network)
-        self.dockwidget.unlinksCombo.currentIndexChanged.disconnect(self.dockwidget.update_unlinks)
-        self.dockwidget.toleranceSpin.valueChanged.disconnect(self.dockwidget.update_tolerance)
+        try:
+            self.dockwidget.closingPlugin.disconnect(self.onClosePlugin)
+        except TypeError:
+            pass
+        try:
+            self.legend.itemAdded.disconnect(self.pop_layer)
+        except TypeError:
+            pass
+        try:
+            self.legend.itemRemoved.disconnect(self.rmv_layer)
+        except TypeError:
+            pass
+        try:
+            self.dockwidget.networkCombo.currentIndexChanged.disconnect(self.dockwidget.update_network)
+        except TypeError:
+            pass
+        try:
+            self.dockwidget.unlinksCombo.currentIndexChanged.disconnect(self.dockwidget.update_unlinks)
+        except TypeError:
+            pass
+        try:
+            self.dockwidget.toleranceSpin.valueChanged.disconnect(self.dockwidget.update_tolerance)
+        except TypeError:
+            pass
 
         # remove this statement if dockwidget is to remain
         # for reuse if plugin is reopened
