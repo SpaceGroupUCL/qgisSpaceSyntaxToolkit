@@ -228,6 +228,7 @@ class CatchmentAnalyserDialog(QtGui.QDialog, FORM_CLASS):
         self.costCombo.setDisabled(onoff)
         self.originsCombo.setDisabled(onoff)
         self.nameCheck.setDisabled(onoff)
+        self.nameCombo.setDisabled(onoff)
 
         self.distancesText.setDisabled(onoff)
         self.networkTolSpin.setDisabled(onoff)

@@ -224,9 +224,9 @@ class CatchmentAnalysis(QObject):
                     new_f.setGeometry(ml.centroid())
                     new_f.setAttributes([f.id()])
                     new_f.setFeatureId(i)
-                    i += 1
                     self.spIndex.insertFeature(new_f)
                     self.centroids[i] = f.id()
+                    i += 1
             elif f.geometry().wkbType() == 5:
                 self.attributes_dict[f.id()] = f.attributes()
                 for pl in f.geometry().asMultiPolyline():
@@ -357,18 +357,20 @@ class CatchmentAnalysis(QObject):
         # Loop through arcs in catchment network and write geometry and costs
         i = 0
         #features = []
+        #QgsMessageLog.logMessage(
+        #    'self.centroids %s' % self.centroids,
+        #    level=QgsMessageLog.CRITICAL)
+
         for k, v in catchment_network.iteritems():
+
             self.progress.emit(70 + int(30 * i / len(catchment_network)))
 
-            if self.killed == True: break
+            if self.killed is True:
+                break
 
             # Get arc properties
             arc_geom = v['geom']
-
             arc_cost_dict = {str(key): value for key, value in v['cost'].items()}
-            #QgsMessageLog.logMessage(
-            #    'arc_cost_dict %s' % arc_cost_dict,
-            #    level=QgsMessageLog.CRITICAL)
             i += 1
             # Ignore arc if not connected or outside of catchment
             if len(arc_cost_dict) > 0:

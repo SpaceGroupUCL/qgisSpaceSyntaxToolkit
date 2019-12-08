@@ -185,7 +185,7 @@ class CatchmentTool(QObject):
         elif not self.dlg.getDistances():
             self.giveWarningMessage("No distances defined!")
         elif not uf.has_unique_values(self.dlg.getName(), self.getOrigins()):
-            self.giveWarningMessage("Origin names column has duplicate values!")
+            self.giveWarningMessage("Origin names column should not have duplicate or empty values!")
         else:
             try:
                 distances = [int(i) for i in self.dlg.getDistances()]
@@ -277,7 +277,7 @@ class CatchmentTool(QObject):
             symbol = QgsSymbolV2.defaultSymbol(output_network.geometryType())
             symbol.setColor(QColor(color))
             symbol.setWidth(0.5)
-            range = QgsRendererRangeV2(lower, upper, symbol, '')
+            range = QgsRendererRangeV2(lower, upper, symbol, str(lower) + ' - ' + str(upper))
             ranges.append(range)
 
         # create renderer based on ranges and apply to network

@@ -28,6 +28,12 @@ import ntpath
 import psycopg2
 from psycopg2.extensions import AsIs
 
+def getLayerByName(name):
+    layer = None
+    for i in QgsMapLayerRegistry.instance().mapLayers().values():
+        if i.name() == name:
+            layer = i
+    return layer
 
 def getLegendLayers(iface, geom='all', provider='all'):
     """geometry types: 0 point; 1 line; 2 polygon; 3 multipoint; 4 multiline; 5 multipolygon"""
@@ -235,9 +241,10 @@ def to_layer(fields, crs, encoding, geom_type, layer_type, path):
 def has_unique_values(column, layer):
     if column:
         values = [f[column] for f in layer.getFeatures()]
-        if len(values) > len(set(values)):
+        if len(values) > len(set(values)) or NULL in values:
             return False
         else:
             return True
     else:
         return True
+
