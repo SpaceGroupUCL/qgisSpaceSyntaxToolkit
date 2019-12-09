@@ -63,6 +63,8 @@ class DrawingToolDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.segmentButton.setFixedWidth(60)
         self.axialButton.setFixedHeight(60)
         self.axialButton.setFixedWidth(60)
+        self.activatedUnlinks = 'no unlinks'
+        self.activatedNetwork = None
 
         # get settings
 
@@ -87,14 +89,30 @@ class DrawingToolDockWidget(QtGui.QDockWidget, FORM_CLASS):
         if self.settings[0]:
             self.resetSnapping()
         self.settings[0] = self.networkCombo.currentText()
-        print 'network upd', self.settings
+        self.activatedNetwork = self.settings[0]
+        print 'user selected network', self.settings[0]
+        combo_items = [self.networkCombo.itemText(i) for i in range(self.networkCombo.count())]
+        if combo_items.count(self.settings[0]) > 1 :
+            self.iface.messageBar().pushMessage(
+                    "Drawing Tool: ",
+                    "Rename layers in the layers panel that have the same names!",
+                    level=QgsMessageBar.WARNING,
+                    duration=5)
         return
 
     def update_unlinks(self):
         if self.settings[1]:
             self.resetSnapping()
         self.settings[1] = self.unlinksCombo.currentText()
-        print 'unlinks upd', self.settings
+        self.activatedUnlinks = self.settings[1]
+        print 'user selected unlinks', self.settings[1]
+        combo_items = [self.unlinksCombo.itemText(i) for i in range(self.unlinksCombo.count())]
+        if combo_items.count(self.settings[1]) > 1:
+            self.iface.messageBar().pushMessage(
+                "Drawing Tool: ",
+                "Rename layers in the layers panel that have the same names!",
+                level=QgsMessageBar.WARNING,
+                duration=5)
         return
 
     def update_tolerance(self):

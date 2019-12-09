@@ -63,7 +63,7 @@ class NetworkSegmenterDialog(QtGui.QDialog, FORM_CLASS):
         self.bufferSpinBox.setSuffix('m')
         self.bufferSpinBox.setRange(0, 50)
         self.bufferSpinBox.setSingleStep(0.01)
-        self.bufferSpinBox.setValue(0)
+        self.bufferSpinBox.setValue(1)
         self.bufferSpinBox.setDisabled(False)
 
         self.memoryRadioButton.setChecked(True)

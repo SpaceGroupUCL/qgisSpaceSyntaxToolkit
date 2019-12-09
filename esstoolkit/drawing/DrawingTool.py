@@ -24,6 +24,7 @@
 
 from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, Qt
 from PyQt4.QtGui import QAction, QIcon
+from qgis.utils import QgsMessageBar
 from qgis.core import *
 # Initialize Qt resources from file resources.py
 import resources
@@ -195,10 +196,6 @@ class DrawingTool:
         except TypeError:
             pass
         try:
-            self.legend.itemRemoved.disconnect(self.rmv_layer)
-        except TypeError:
-            pass
-        try:
             self.dockwidget.networkCombo.currentIndexChanged.disconnect(self.dockwidget.update_network)
         except TypeError:
             pass
@@ -237,7 +234,10 @@ class DrawingTool:
 
     def get_layers(self, geom_type):
         layers = []
-        for layer in self.legend.layers():
+
+
+        for layer in self.iface.legendInterface().layers():
+            print 'l'
             if layer.isValid() and layer.type() == QgsMapLayer.VectorLayer:
                 if layer.hasGeometryType() and (layer.geometryType() == geom_type):
                     layers.append(layer.name())
@@ -257,52 +257,43 @@ class DrawingTool:
         return
 
     def pop_layer(self):
-        new = list(self.get_layers(1))
-        print 'new is', new, self.networks
-        self.legend = self.iface.legendInterface()
-        x = [i.name() for i in  self.legend.layers()]
-        print 'x', x
-        for l in self.networks:
-            try:
-                new.remove(l)
-            except ValueError:
-                pass
-        if len(new) > 0:
-            print 'new', new, self.get_layers(1), self.networks
-            self.networks += new
-            self.dockwidget.networkCombo.addItems(new)
-        new = list(self.get_layers(0))
-        for l in self.unlinks:
-            try:
-                new.remove(l)
-            except ValueError:
-                pass
-        if len(new)>0:
-            self.unlinks += new
-            self.dockwidget.unlinksCombo.addItems(new)
-        self.lockGUI(False)
+
+        # get all layers
+
+        self.iface.mapCanvas().refreshAllLayers()
+        networks = self.get_layers(1)
+        unlinks = self.get_layers(0)
+
+        # get active layers
+        self.dockwidget.networkCombo.blockSignals(True)
+        self.dockwidget.networkCombo.clear()
+        self.dockwidget.networkCombo.addItems(networks)
+        active_network_idx = self.dockwidget.networkCombo.findText(self.dockwidget.activatedNetwork) # TODOD test if multiple
+        if active_network_idx == -1:
+            active_network_idx = 0
+
+        print 'active_network_idx', active_network_idx, networks
+
+
+        self.dockwidget.networkCombo.setCurrentIndex(active_network_idx)
+        self.dockwidget.networkCombo.blockSignals(False)
+
+        self.dockwidget.unlinksCombo.blockSignals(True)
+        self.dockwidget.unlinksCombo.clear()
+        self.dockwidget.unlinksCombo.addItems( ['no unlinks'] + unlinks )
+        active_unlinks_idx = self.dockwidget.unlinksCombo.findText(self.dockwidget.activatedUnlinks)  # TODOD test if multiple
+        if active_unlinks_idx == -1:
+            active_unlinks_idx = 0
+        print 'active_unlinks_idx', active_unlinks_idx, unlinks
+
+        self.dockwidget.unlinksCombo.setCurrentIndex(active_unlinks_idx)
+        self.dockwidget.unlinksCombo.blockSignals(False)
+        if len(networks) == 0 or self.dockwidget.networkCombo.currentText() == '':
+            self.lockGUI(True)
+        else:
+            self.lockGUI(False)
         return
 
-    def rmv_layer(self):
-        old = list(self.networks)
-        for l in self.get_layers(1):
-            print 'old', old
-            old.remove(l)
-        if len(old) > 0:
-            index = self.dockwidget.networkCombo.findText(old[0])
-            self.dockwidget.networkCombo.removeItem(index)
-            self.networks.remove(old[0])
-        old = list(self.unlinks)
-        for l in self.get_layers(0):
-            print 'old', old
-            old.remove(l)
-        if len(old) > 0:
-            self.unlinks.remove(old[0])
-            index = self.dockwidget.unlinksCombo.findText(old[0])
-            self.dockwidget.unlinksCombo.removeItem(index)
-        if self.networks == []:
-            self.lockGUI(True)
-        return
 
     def lockGUI(self, onoff):
         self.dockwidget.networkCombo.setDisabled(onoff)
@@ -322,8 +313,6 @@ class DrawingTool:
             self.pluginIsActive = True
             self.legend = self.iface.legendInterface()
 
-            #print "** STARTING DrawingTool"
-
             # dockwidget may not exist if:
             #    first run of plugin
             #    removed on close (see self.onClosePlugin method)
@@ -339,17 +328,18 @@ class DrawingTool:
             self.iface.addDockWidget(Qt.LeftDockWidgetArea, self.dockwidget)
             self.dockwidget.show()
 
-            self.dockwidget.networkCombo.addItems(self.get_layers(1))
-            self.dockwidget.unlinksCombo.addItems(['no unlinks'] + self.get_layers(0))
+            self.pop_layer()
             self.dockwidget.update_network()
             self.dockwidget.update_unlinks()
             self.dockwidget.update_tolerance()
             self.networks = self.get_layers(1)
             if self.networks == []:
                 self.lockGUI(True)
-            self.unlinks = ['no unlinks'] + self.get_layers(0)
-            self.legend.itemAdded.connect(self.updateLayers)
-            self.legend.itemRemoved.connect(self.rmv_layer)
+
+            self.legend.itemAdded.connect(self.pop_layer)
+            self.legend.itemRemoved.connect(self.pop_layer)
+            #QgsProject.instance().variablesChanged.connect(self.pop_layer)
             self.dockwidget.networkCombo.currentIndexChanged.connect(self.dockwidget.update_network)
             self.dockwidget.unlinksCombo.currentIndexChanged.connect(self.dockwidget.update_unlinks)
             self.dockwidget.toleranceSpin.valueChanged.connect(self.dockwidget.update_tolerance)
+

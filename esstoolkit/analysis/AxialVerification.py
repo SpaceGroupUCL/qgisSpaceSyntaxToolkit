@@ -353,6 +353,10 @@ class AxialVerification(QThread):
         # geometry is valid (generally)
         if not self.running: return
         start_time = time.time()
+
+        query = """CREATE INDEX sidx_"%s"_"%s" ON "%s"."%s" USING GIST("%s");""" % (axialname, geomname, schema, axialname, geomname)
+        header, data, error = uf.executePostgisQuery(connection, query)
+
         query = """SELECT "%s" FROM "%s"."%s" WHERE NOT ST_IsSimple("%s") OR NOT ST_IsValid("%s")""" % (idcol, schema, axialname, geomname, geomname)
         header, data, error = uf.executePostgisQuery(connection, query)
         if data:
