@@ -40,7 +40,10 @@ if sys.version_info[:2] < (2, 7):
 del sys
 
 # Release data
-from networkx import release
+try:
+    from networkx import release
+except ImportError:
+    import release
 
 __author__ = '%s <%s>\n%s <%s>\n%s <%s>' % \
     (release.authors['Hagberg'] + release.authors['Schult'] +
