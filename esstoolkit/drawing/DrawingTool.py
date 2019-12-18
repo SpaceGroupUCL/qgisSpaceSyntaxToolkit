@@ -22,12 +22,13 @@
 """
 
 
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, Qt
-from PyQt4.QtGui import QAction, QIcon
+from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, Qt, QSize
+from PyQt4.QtGui import QAction, QIcon, QPixmap
 from qgis.utils import QgsMessageBar
 from qgis.core import *
 # Initialize Qt resources from file resources.py
 import resources
+
 
 # Import the code for the DockWidget
 from DrawingTool_dockwidget import DrawingToolDockWidget
@@ -268,14 +269,26 @@ class DrawingTool:
         self.dockwidget.networkCombo.blockSignals(True)
         self.dockwidget.networkCombo.clear()
         self.dockwidget.networkCombo.addItems(networks)
+
         active_network_idx = self.dockwidget.networkCombo.findText(self.dockwidget.activatedNetwork) # TODOD test if multiple
         if active_network_idx == -1:
             active_network_idx = 0
 
-        print 'active_network_idx', active_network_idx, networks
+        print 'active_network_idx', self.dockwidget.activatedNetwork, networks
 
+        # TODO: if the network changes - do not block signals - setup snapping
+        #if self.dockwidget.activatedNetwork =
 
         self.dockwidget.networkCombo.setCurrentIndex(active_network_idx)
+
+        if networks.count(self.dockwidget.activatedNetwork) > 1:
+            self.iface.messageBar().pushMessage(
+                    "Drawing Tool: ",
+                    "Rename network layers in the layers panel that have the same names!",
+                    level=QgsMessageBar.WARNING,
+                    duration=5)
+
+        self.dockwidget.settings[0] = self.dockwidget.networkCombo.currentText()
         self.dockwidget.networkCombo.blockSignals(False)
 
         self.dockwidget.unlinksCombo.blockSignals(True)
@@ -284,9 +297,27 @@ class DrawingTool:
         active_unlinks_idx = self.dockwidget.unlinksCombo.findText(self.dockwidget.activatedUnlinks)  # TODOD test if multiple
         if active_unlinks_idx == -1:
             active_unlinks_idx = 0
-        print 'active_unlinks_idx', active_unlinks_idx, unlinks
+
+        #print 'active_unlinks_idx', active_unlinks_idx, unlinks
+
+        if active_unlinks_idx == 0 and self.dockwidget.unlink_mode:
+            self.iface.messageBar().pushMessage("Unlinks layer not specified!", QgsMessageBar.CRITICAL, duration=5)
+            self.dockwidget.unlink_mode = False
+            unlink_icon = QPixmap(os.path.dirname(__file__) + "/custom_icons/unlink_disabled.png")
+            self.dockwidget.unlinksButton.setIcon(QIcon(unlink_icon))
+            self.dockwidget.unlinksButton.setIconSize(QSize(40, 40))
 
         self.dockwidget.unlinksCombo.setCurrentIndex(active_unlinks_idx)
+
+        self.dockwidget.networkCombo.setCurrentIndex(active_network_idx)
+        if unlinks.count(self.dockwidget.activatedUnlinks) > 1:
+            self.iface.messageBar().pushMessage(
+                "Drawing Tool: ",
+                "Rename point layers in the layers panel that have the same names!",
+                level=QgsMessageBar.WARNING,
+                duration=5)
+
+        self.dockwidget.settings[1] = self.dockwidget.networkCombo.currentText()
         self.dockwidget.unlinksCombo.blockSignals(False)
         if len(networks) == 0 or self.dockwidget.networkCombo.currentText() == '':
             self.lockGUI(True)

@@ -64,6 +64,9 @@ class DrawingToolDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.axialButton.setFixedHeight(60)
         self.axialButton.setFixedWidth(60)
         self.activatedUnlinks = 'no unlinks'
+        self.unlink_mode = False
+        self.axial_mode = False
+        self.segment_mode = False
         self.activatedNetwork = None
 
         # get settings
@@ -98,6 +101,10 @@ class DrawingToolDockWidget(QtGui.QDockWidget, FORM_CLASS):
                     "Rename layers in the layers panel that have the same names!",
                     level=QgsMessageBar.WARNING,
                     duration=5)
+        if self.segment_mode:
+            self.setSegmentSnapping()
+        elif self.axial_mode:
+            self.setAxialSnapping()
         return
 
     def update_unlinks(self):
@@ -113,6 +120,8 @@ class DrawingToolDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 "Rename layers in the layers panel that have the same names!",
                 level=QgsMessageBar.WARNING,
                 duration=5)
+        if self.unlink_mode:
+            self.setUnlinkSnapping()
         return
 
     def update_tolerance(self):
@@ -149,8 +158,10 @@ class DrawingToolDockWidget(QtGui.QDockWidget, FORM_CLASS):
             #    layer.startEditing()
             proj.setSnapSettingsForLayer(layer.id(), False, 0, 0, self.settings[2], True)
             proj.setTopologicalEditing(False)
+            self.axial_mode = True
         else:
             self.iface.messageBar().pushMessage("Network layer not specified!", QgsMessageBar.CRITICAL, duration=5)
+            self.axial_mode = False
         return
 
     def setSegmentSnapping(self):
@@ -175,8 +186,10 @@ class DrawingToolDockWidget(QtGui.QDockWidget, FORM_CLASS):
             proj.setSnapSettingsForLayer(layer.id(), True, 0, 0, self.settings[2], True)
             proj.setTopologicalEditing(True)
             self.iface.mapCanvas().snappingUtils().setSnapOnIntersections(False)
+            self.segment_mode = True
         else:
             self.iface.messageBar().pushMessage("Network layer not specified!", QgsMessageBar.CRITICAL, duration=5)
+            self.segment_mode = False
         return
 
     def setUnlinkSnapping(self):
@@ -202,11 +215,14 @@ class DrawingToolDockWidget(QtGui.QDockWidget, FORM_CLASS):
             proj.setSnapSettingsForLayer(layer.id(), True, 0, 0, self.settings[2], True)
             proj.setTopologicalEditing(False)
             self.iface.mapCanvas().snappingUtils().setSnapOnIntersections(True)
+            self.unlink_mode = True
         else:
             self.iface.messageBar().pushMessage("Unlinks layer not specified!", QgsMessageBar.CRITICAL, duration=5)
+            self.unlink_mode = False
         return
 
     def resetSnapping(self):
+        self.unlink_mode = False
         # disable previous snapping setting
         if self.settings[0] != '' and self.settings[0]:
             proj = QgsProject.instance()
