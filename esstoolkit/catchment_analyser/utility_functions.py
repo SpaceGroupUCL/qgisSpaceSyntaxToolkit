@@ -221,7 +221,7 @@ def to_layer(fields, crs, encoding, geom_type, layer_type, path):
         try:
             con = psycopg2.connect(connstring)
             cur = con.cursor()
-            create_query = cur.mogrify("""DROP TABLE IF EXISTS %s.%s; CREATE TABLE %s.%s( geom geometry(%s, %s))""", (
+            create_query = cur.mogrify("""DROP TABLE IF EXISTS "%s"."%s"; CREATE TABLE "%s"."%s"( geom geometry(%s, %s))""", (
                     AsIs(schema_name), AsIs(table_name), AsIs(schema_name), AsIs(table_name),geom_type, AsIs(crs_id)))
             cur.execute(create_query)
             con.commit()
@@ -230,7 +230,7 @@ def to_layer(fields, crs, encoding, geom_type, layer_type, path):
                 f_type = f.type()
                 if f_type not in [2, 6, 1]:
                     f_type = 'else'
-                attr_query = cur.mogrify("""ALTER TABLE %s.%s ADD COLUMN %s %s""", (AsIs(schema_name), AsIs(table_name), AsIs(f.name()), AsIs(post_q_flds[f_type])))
+                attr_query = cur.mogrify("""ALTER TABLE "%s"."%s" ADD COLUMN "%s" %s""", (AsIs(schema_name), AsIs(table_name), AsIs(f.name()), AsIs(post_q_flds[f_type])))
                 cur.execute(attr_query)
                 con.commit()
             layer = QgsVectorLayer(uri, table_name, 'postgres')

@@ -162,7 +162,7 @@ class FrontageTool(QObject):
 
         # always create a memory layer first
 
-        if self.frontagedlg.createNewFileCheckBox.checkState() == 2:
+        if self.frontagedlg.createNewFileCheckBox.isChecked():
             building_layer = self.getSelectedLayer()
             crs = building_layer.crs()
             vl = QgsVectorLayer("LineString?crs=" + crs.authid(), "memory:frontages", "memory")
@@ -177,7 +177,7 @@ class FrontageTool(QObject):
         vl.updateFields()
 
         # use building layer - explode
-        if self.frontagedlg.createNewFileCheckBox.checkState() == 2:
+        if self.frontagedlg.createNewFileCheckBox.isChecked():
 
             print 'building layer'
             exploded_features = []
@@ -204,32 +204,53 @@ class FrontageTool(QObject):
         if self.frontagedlg.f_shp_radioButton.isChecked(): #layer_type == 'shapefile':
 
             path = self.frontagedlg.lineEditFrontages.text()
-            filename = os.path.basename(path)
-            location = os.path.abspath(path)
 
-            QgsVectorFileWriter.writeAsVectorFormat(vl, location, "ogr", None, "ESRI Shapefile")
-            vl = self.iface.addVectorLayer(location, filename[:-4], "ogr")
+            if path and path != '':
+                filename = os.path.basename(path)
+                location = os.path.abspath(path)
+
+                QgsVectorFileWriter.writeAsVectorFormat(vl, location, "ogr", None, "ESRI Shapefile")
+                vl = self.iface.addVectorLayer(location, filename[:-4], "ogr")
+            else:
+                vl = 'invalid data source'
 
         elif self.frontagedlg.f_postgis_radioButton.isChecked():
 
-            (database, schema, table_name) = (self.frontagedlg.lineEditFrontages.text()).split(':')
-            db_con_info = self.frontagedlg.dbsettings_dlg.available_dbs[database]
-            uri = QgsDataSourceURI()
-            # passwords, usernames need to be empty if not provided or else connection will fail
-            if 'service' in db_con_info.keys():
-                uri.setConnection(db_con_info['service'], db_con_info['dbname'], '', '')
-            elif 'password'in db_con_info.keys():
-                uri.setConnection(db_con_info['host'], db_con_info['port'], db_con_info['dbname'], db_con_info['user'], db_con_info['password'])
-            else:
-                print db_con_info #db_con_info['host']
-                uri.setConnection('', db_con_info['port'], db_con_info['dbname'], '', '' )# , db_con_info['user'], '')
-            uri.setDataSource(schema, table_name, "geom")
-            error = QgsVectorLayerImport.importLayer(vl, uri.uri(), "postgres", vl.crs(), False, False)
-            if error[0] != 0:
-                print "Error when creating postgis layer: ", error[1]
-            vl = QgsVectorLayer(uri.uri(), table_name, "postgres")
+            db_path = self.frontagedlg.lineEditFrontages.text()
+            if db_path and db_path != '':
 
-        if not vl:
+
+                (database, schema, table_name) = (self.frontagedlg.lineEditFrontages.text()).split(':')
+                db_con_info = self.frontagedlg.dbsettings_dlg.available_dbs[database]
+                uri = QgsDataSourceURI()
+                # passwords, usernames need to be empty if not provided or else connection will fail
+                if 'service' in db_con_info.keys():
+                    uri.setConnection(db_con_info['service'], '' , '', '') #db_con_info['dbname']
+                elif 'password'in db_con_info.keys():
+                    uri.setConnection(db_con_info['host'], db_con_info['port'], db_con_info['dbname'], db_con_info['user'], db_con_info['password'])
+                else:
+                    print db_con_info #db_con_info['host']
+                    uri.setConnection('', db_con_info['port'], db_con_info['dbname'], '', '' )# , db_con_info['user'], '')
+                uri.setDataSource(schema, table_name, "geom")
+                error = QgsVectorLayerImport.importLayer(vl, uri.uri(), "postgres", vl.crs(), False, False)
+                if error[0] != 0:
+                    print "Error when creating postgis layer: ", error[1]
+                    vl = 'duplicate'
+                else:
+                    vl = QgsVectorLayer(uri.uri(), table_name, "postgres")
+
+            else:
+                vl = 'invalid data source'
+
+        if vl == 'invalid data source':
+            msgBar = self.iface.messageBar()
+            msg = msgBar.createMessage(u'Specify  output path!')
+            msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
+        elif vl == 'duplicate':
+            msgBar = self.iface.messageBar()
+            msg = msgBar.createMessage(u'Fronatges layer already exists!')
+            msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
+        elif not vl:
             msgBar = self.iface.messageBar()
             msg = msgBar.createMessage(u'Frontages layer failed to load!')
             msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)

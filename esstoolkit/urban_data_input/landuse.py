@@ -164,13 +164,14 @@ class LanduseTool(QObject):
         else:
             idcolumn = self.ludlg.getSelectedLULayerID()
             # if create from existing building layer
-            if self.ludlg.createNewLUFileCheckBox.checkState() == 1:
+            if self.ludlg.createNewLUFileCheckBox.isChecked():
+                print 'aaaa'
                 building_layer = self.getSelectedLULayer()
                 crs = building_layer.crs()
                 vl = QgsVectorLayer("Polygon?crs=" + crs.authid(), "memory:landuse", "memory")
             else:
                 # create memory layer
-                vl = QgsVectorLayer("Polygon?crs=" , "memory:landuse", "memory")
+                vl = QgsVectorLayer("Polygon?crs="  , "memory:landuse", "memory")
             provider = vl.dataProvider()
             #provider.addAttributes([])
 
@@ -188,7 +189,7 @@ class LanduseTool(QObject):
 
             vl.updateFields()
             # if create from existing building layer
-            if self.ludlg.createNewLUFileCheckBox.checkState() == 1:
+            if self.ludlg.createNewLUFileCheckBox.isChecked():
 
                 null_attr = []
                 provider.addAttributes([QgsField('build_id', QVariant.String)])
@@ -226,36 +227,56 @@ class LanduseTool(QObject):
             if self.ludlg.lu_shp_radioButton.isChecked(): #layer_type == 'shapefile':
 
                 path = self.ludlg.lineEditLU.text()
-                filename = os.path.basename(path)
-                location = os.path.abspath(path)
 
-                QgsVectorFileWriter.writeAsVectorFormat(vl, location, "ogr", None, "ESRI Shapefile")
-                input2 = self.iface.addVectorLayer(location, filename[:-4], "ogr")
+                if path and path != '':
+
+                    filename = os.path.basename(path)
+                    location = os.path.abspath(path)
+
+                    QgsVectorFileWriter.writeAsVectorFormat(vl, location, "ogr", vl.crs(), "ESRI Shapefile")
+                    print 'cri', vl.crs().authid()
+                    input2 = self.iface.addVectorLayer(location, filename[:-4], "ogr")
+                else:
+                    input2 = 'invalid data source'
 
             elif self.ludlg.lu_postgis_radioButton.isChecked():
 
-                (database, schema, table_name) = (self.ludlg.lineEditLU.text()).split(':')
-                db_con_info = self.ludlg.dbsettings_dlg.available_dbs[database]
-                uri = QgsDataSourceURI()
-                # passwords, usernames need to be empty if not provided or else connection will fail
-                if 'service' in db_con_info.keys():
-                    uri.setConnection(db_con_info['service'], db_con_info['dbname'], '', '')
-                elif 'password' in db_con_info.keys():
-                    uri.setConnection(db_con_info['host'], db_con_info['port'], db_con_info['dbname'],
-                                      db_con_info['user'], db_con_info['password'])
+                db_path = self.ludlg.lineEditLU.text()
+                if db_path and db_path != '':
+                    (database, schema, table_name) = (db_path).split(':')
+                    db_con_info = self.ludlg.dbsettings_dlg.available_dbs[database]
+                    uri = QgsDataSourceURI()
+                    # passwords, usernames need to be empty if not provided or else connection will fail
+                    if 'service' in db_con_info.keys():
+                        uri.setConnection(db_con_info['service'], '' , '', '')
+                    elif 'password' in db_con_info.keys():
+                        uri.setConnection(db_con_info['host'], db_con_info['port'], db_con_info['dbname'],
+                                          db_con_info['user'], db_con_info['password'])
+                    else:
+                        print db_con_info #db_con_info['host']
+                        uri.setConnection('', db_con_info['port'], db_con_info['dbname'], '', '')
+                    uri.setDataSource(schema, table_name, "geom")
+                    error = QgsVectorLayerImport.importLayer(vl, uri.uri(), "postgres", vl.crs(), False, False)
+                    if error[0] != 0:
+                        print "Error when creating postgis layer: ", error[1]
+                        input2 = 'duplicate'
+                    else:
+                        input2 = QgsVectorLayer(uri.uri(), table_name, "postgres")
                 else:
-                    print db_con_info #db_con_info['host']
-                    uri.setConnection('', db_con_info['port'], db_con_info['dbname'], '', '')
-                uri.setDataSource(schema, table_name, "geom")
-                error = QgsVectorLayerImport.importLayer(vl, uri.uri(), "postgres", vl.crs(), False, False)
-                if error[0] != 0:
-                    print "Error when creating postgis layer: ", error[1]
-                input2 = QgsVectorLayer(uri.uri(), table_name, "postgres")
+                    input2 = 'invalid data source'
 
             else:
                 input2 = vl
 
-            if not input2:
+            if input2 == 'invalid data source':
+                msgBar = self.iface.messageBar()
+                msg = msgBar.createMessage(u'Specify output path!')
+                msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
+            elif input2 == 'duplicate':
+                msgBar = self.iface.messageBar()
+                msg = msgBar.createMessage(u'Land use layer already exists!')
+                msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
+            elif not input2:
                 msgBar = self.iface.messageBar()
                 msg = msgBar.createMessage(u'Land use layer failed to load!')
                 msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)

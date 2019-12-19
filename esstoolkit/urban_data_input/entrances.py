@@ -106,33 +106,52 @@ class EntranceTool(QObject):
         if self.entrancedlg.e_shp_radioButton.isChecked(): #layer_type == 'shapefile':
 
             path = self.entrancedlg.lineEditEntrances.text()
-            filename = os.path.basename(path)
-            location = os.path.abspath(path)
-
-            QgsVectorFileWriter.writeAsVectorFormat(vl, location, "ogr", None, "ESRI Shapefile")
-            vl = self.iface.addVectorLayer(location, filename[:-4], "ogr")
+            if path and path != '':
+                filename = os.path.basename(path)
+                location = os.path.abspath(path)
+                crs = QgsCoordinateReferenceSystem()
+                crs.createFromSrid(3857)
+                QgsVectorFileWriter.writeAsVectorFormat(vl, location, "ogr", crs , "ESRI Shapefile")
+                vl = self.iface.addVectorLayer(location, filename[:-4], "ogr")
+            else:
+                vl = 'invalid data source'
 
         elif self.entrancedlg.e_postgis_radioButton.isChecked():
 
-            (database, schema, table_name) = (self.entrancedlg.lineEditEntrances.text()).split(':')
-            db_con_info = self.entrancedlg.dbsettings_dlg.available_dbs[database]
-            uri = QgsDataSourceURI()
-            # passwords, usernames need to be empty if not provided or else connection will fail
-            if 'service' in db_con_info.keys():
-                uri.setConnection(db_con_info['service'], db_con_info['dbname'], '', '')
-            elif 'password' in db_con_info.keys():
-                uri.setConnection(db_con_info['host'], db_con_info['port'], db_con_info['dbname'], db_con_info['user'],
-                                  db_con_info['password'])
-            else:
-                print db_con_info #db_con_info['host']
-                uri.setConnection('', db_con_info['port'], db_con_info['dbname'], '', '')
-            uri.setDataSource(schema, table_name, "geom")
-            error = QgsVectorLayerImport.importLayer(vl, uri.uri(), "postgres", vl.crs(), False, False)
-            if error[0] != 0:
-                print "Error when creating postgis layer: ", error[1]
-            vl = QgsVectorLayer(uri.uri(), table_name, "postgres")
+            db_path = self.entrancedlg.lineEditEntrances.text()
+            if db_path and db_path != '':
 
-        if not vl:
+                (database, schema, table_name) = (db_path).split(':')
+                db_con_info = self.entrancedlg.dbsettings_dlg.available_dbs[database]
+                uri = QgsDataSourceURI()
+                # passwords, usernames need to be empty if not provided or else connection will fail
+                if 'service' in db_con_info.keys():
+                    uri.setConnection(db_con_info['service'], '', '', '')
+                elif 'password' in db_con_info.keys():
+                    uri.setConnection(db_con_info['host'], db_con_info['port'], db_con_info['dbname'], db_con_info['user'],
+                                      db_con_info['password'])
+                else:
+                    print db_con_info #db_con_info['host']
+                    uri.setConnection('', db_con_info['port'], db_con_info['dbname'], '', '')
+                uri.setDataSource(schema, table_name, "geom")
+                error = QgsVectorLayerImport.importLayer(vl, uri.uri(), "postgres", vl.crs(), False, False)
+                if error[0] != 0:
+                    print "Error when creating postgis layer: ", error[1]
+                    vl = 'duplicate'
+                else:
+                    vl = QgsVectorLayer(uri.uri(), table_name, "postgres")
+            else:
+                vl = 'invalid data source'
+
+        if vl == 'invalid data source':
+            msgBar = self.iface.messageBar()
+            msg = msgBar.createMessage(u'Specify output path!')
+            msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
+        elif vl == 'duplicate':
+            msgBar = self.iface.messageBar()
+            msg = msgBar.createMessage(u'Fronatges layer already exists!')
+            msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
+        elif not vl:
             msgBar = self.iface.messageBar()
             msg = msgBar.createMessage(u'Entrance layer failed to load!')
             msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)

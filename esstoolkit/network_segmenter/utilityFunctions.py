@@ -109,7 +109,7 @@ def to_layer(features, crs, encoding, geom_type, layer_type, path):
         try:
             con = psycopg2.connect(connstring)
             cur = con.cursor()
-            create_query = cur.mogrify("""DROP TABLE IF EXISTS %s.%s; CREATE TABLE %s.%s( geom geometry(%s, %s))""", (
+            create_query = cur.mogrify("""DROP TABLE IF EXISTS "%s"."%s"; CREATE TABLE "%s"."%s"( geom geometry(%s, %s))""", (
                 AsIs(schema_name), AsIs(table_name), AsIs(schema_name), AsIs(table_name), geom_type, AsIs(crs_id)))
             cur.execute(create_query)
             con.commit()
@@ -118,14 +118,14 @@ def to_layer(features, crs, encoding, geom_type, layer_type, path):
                 f_type = f.type()
                 if f_type not in [2, 6, 1]:
                     f_type = 'else'
-                attr_query = cur.mogrify("""ALTER TABLE %s.%s ADD COLUMN %s %s""", (
+                attr_query = cur.mogrify("""ALTER TABLE "%s"."%s" ADD COLUMN "%s" %s""", (
                 AsIs(schema_name), AsIs(table_name), AsIs(f.name()), AsIs(post_q_flds[f_type])))
                 cur.execute(attr_query)
                 con.commit()
             field_names = ",".join([f.name() for f in fields])
             for feature in features:
                 attrs = [i if i else None for i in feature.attributes()]
-                insert_query = cur.mogrify("""INSERT INTO %s.%s (%s, geom) VALUES %s, ST_GeomFromText(%s,%s))""", (
+                insert_query = cur.mogrify("""INSERT INTO "%s"."%s" (%s, geom) VALUES %s, ST_GeomFromText(%s,%s))""", (
                 AsIs(schema_name), AsIs(table_name), AsIs(field_names), tuple(attrs),
                 feature.geometry().exportToWkt(), AsIs(crs_id)))
                 idx = insert_query.find(', ST_GeomFromText') - 1
@@ -133,7 +133,7 @@ def to_layer(features, crs, encoding, geom_type, layer_type, path):
                 cur.execute(insert_query)
                 con.commit()
             pkey_query = cur.mogrify(
-                """ALTER TABLE %s.%s DROP COLUMN IF EXISTS rcl_id; ALTER TABLE %s.%s ADD COLUMN rcl_id serial PRIMARY KEY NOT NULL;""",
+                """ALTER TABLE "%s"."%s" DROP COLUMN IF EXISTS seg_id; ALTER TABLE "%s"."%s" ADD COLUMN seg_id serial PRIMARY KEY NOT NULL;""",
                 (AsIs(schema_name), AsIs(table_name), AsIs(schema_name), AsIs(table_name)))
             cur.execute(pkey_query)
             con.commit()
