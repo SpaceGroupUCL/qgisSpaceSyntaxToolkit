@@ -80,8 +80,8 @@ class DbSettingsDialog(QtGui.QDialog, FORM_CLASS):
         selected_db = self.getSelectedDb()
         if len(self.getSelectedDb()) > 1:
             self.get_connstring(selected_db)
-            schemas = getPostgisSchemas(self.connstring)
             print 'connstring', self.connstring
+            schemas = getPostgisSchemas(self.connstring)
         self.schemaCombo.addItems(schemas)
 
     def get_connstring(self, selected_db):
@@ -99,7 +99,7 @@ class DbSettingsDialog(QtGui.QDialog, FORM_CLASS):
         except KeyError:
             pass
         for k, v in db_info.items():
-            self.connstring += str(k) + '=' + str(v) + ' '
+            self.connstring += k + '=' + v + ' '
         return
 
     def closeEvent(self, event):
