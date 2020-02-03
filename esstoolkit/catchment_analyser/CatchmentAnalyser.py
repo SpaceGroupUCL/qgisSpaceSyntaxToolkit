@@ -252,7 +252,7 @@ class CatchmentTool(QObject):
 
             output_network.dataProvider().addFeatures(output_network_features)
             output_polygon_features = output['output polygon features']
-            if output_polygon_features:
+            if output_polygon_features and len(output_polygon_features) > 0:
                 new_fields = output_polygon_features[0].fields()
                 output_polygon = uf.to_layer(new_fields, self.settings['network'].crs(), self.settings['network'].dataProvider().encoding(),
                                              'Polygon', self.settings['layer_type'],
