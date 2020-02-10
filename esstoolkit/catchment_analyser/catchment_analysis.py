@@ -335,7 +335,7 @@ class CatchmentAnalysis(QObject):
 
         # add origin field names
         if use_name:
-            self.names = [str(origin['name']) for origin in origins]
+            self.names = set([str(origin['name']) for origin in origins])
             for n in self.names:
                 self.network_fields.append(QgsField(n, QVariant.Int))
         else:
@@ -361,6 +361,11 @@ class CatchmentAnalysis(QObject):
             # Get arc properties
             arc_geom = v['geom']
             arc_cost_dict = {str(key): value for key, value in v['cost'].items()}
+
+            QgsMessageLog.logMessage(
+                    'arc_cost_dict %s' % arc_cost_dict,
+                    level=QgsMessageLog.CRITICAL)
+
             i += 1
             # Ignore arc if not connected or outside of catchment
             if len(arc_cost_dict) > 0:
@@ -376,6 +381,9 @@ class CatchmentAnalysis(QObject):
                         arc_cost_list.append(arc_cost_dict[str(name)])
                     except KeyError:
                         arc_cost_list.append(NULL)
+                QgsMessageLog.logMessage(
+                    'arc_cost_list %s' % arc_cost_list,
+                    level=QgsMessageLog.CRITICAL)
                 f.setFields(new_fields)
                 if use_name:
                     f.setAttributes(f_attrs + arc_cost_list + [min(arc_cost_list)])
