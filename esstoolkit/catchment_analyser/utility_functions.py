@@ -241,7 +241,7 @@ def to_layer(fields, crs, encoding, geom_type, layer_type, path):
 def has_unique_values(column, layer):
     if column:
         values = [f[column] for f in layer.getFeatures()]
-        if len(values) > len(set(values)) or NULL in values:
+        if NULL in values: # len(values) > len(set(values)) or
             return False
         else:
             return True

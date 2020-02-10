@@ -189,7 +189,7 @@ class CatchmentTool(QObject):
         elif not self.dlg.getDistances():
             self.giveWarningMessage("No distances defined!")
         elif not uf.has_unique_values(self.dlg.getName(), self.getOrigins()):
-            self.giveWarningMessage("Origin names column should not have duplicate or empty values!")
+            self.giveWarningMessage("Origin names column should not have empty values!")
         else:
             try:
                 distances = [int(i) for i in self.dlg.getDistances()]
