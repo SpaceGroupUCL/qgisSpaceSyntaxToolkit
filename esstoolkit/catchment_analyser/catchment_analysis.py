@@ -362,9 +362,6 @@ class CatchmentAnalysis(QObject):
             arc_geom = v['geom']
             arc_cost_dict = {str(key): value for key, value in v['cost'].items()}
 
-            QgsMessageLog.logMessage(
-                    'arc_cost_dict %s' % arc_cost_dict,
-                    level=QgsMessageLog.CRITICAL)
 
             i += 1
             # Ignore arc if not connected or outside of catchment
@@ -381,9 +378,7 @@ class CatchmentAnalysis(QObject):
                         arc_cost_list.append(arc_cost_dict[str(name)])
                     except KeyError:
                         arc_cost_list.append(NULL)
-                QgsMessageLog.logMessage(
-                    'arc_cost_list %s' % arc_cost_list,
-                    level=QgsMessageLog.CRITICAL)
+
                 f.setFields(new_fields)
                 if use_name:
                     f.setAttributes(f_attrs + arc_cost_list + [min(arc_cost_list)])
