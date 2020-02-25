@@ -122,7 +122,7 @@ def to_layer(features, crs, encoding, geom_type, layer_type, path):
                 AsIs(schema_name), AsIs(table_name), AsIs(f.name()), AsIs(post_q_flds[f_type])))
                 cur.execute(attr_query)
                 con.commit()
-            field_names = ",".join([f.name() for f in fields])
+            field_names = ",".join([ '"'+f.name()+'"' for f in fields])
             for feature in features:
                 attrs = [i if i else None for i in feature.attributes()]
                 insert_query = cur.mogrify("""INSERT INTO "%s"."%s" (%s, geom) VALUES %s, ST_GeomFromText(%s,%s))""", (

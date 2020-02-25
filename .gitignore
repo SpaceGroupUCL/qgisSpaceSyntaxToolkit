@@ -3,3 +3,4 @@
 .workspace.xml
 *.pyc
 esstoolkit/help/
+esstoolkit/.idea
