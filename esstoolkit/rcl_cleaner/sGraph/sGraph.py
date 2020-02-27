@@ -396,7 +396,7 @@ class sGraph(QObject):
     # TODO: snap_geometries (not endpoints)
     # TODO: extend
 
-    def clean_dupl(self, group_edges, snap_threshold):
+    def clean_dupl(self, group_edges, snap_threshold, parallel=False):
 
         self.total_progress += self.step
         self.progress.emit(self.total_progress)
@@ -407,14 +407,17 @@ class sGraph(QObject):
         sorted_edges = [x for _, x in sorted(zip(lengths, group_edges))]
         min_len = min(lengths)
 
+        if parallel is False:
+            dist_threshold = 0
+        else:
+            dist_threshold = snap_threshold
         for e in sorted_edges[1:]:
             # delete line
-            if abs(self.sEdges[e].feature.geometry().length() - min_len) <= snap_threshold:
-
+            if abs(self.sEdges[e].feature.geometry().length() - min_len) <= dist_threshold:
                 for p in set([self.sNodes[n].feature.geometry() for n in self.sEdges[e].nodes]):
                     err_f = QgsFeature(error_feat)
                     err_f.setGeometry(p)
-                    err_f.setAttributes([ 'duplicate'])
+                    err_f.setAttributes(['duplicate'])
                     self.errors.append(err_f)
                 self.remove_edge(self.sEdges[e].nodes, e)
         return
@@ -495,7 +498,7 @@ class sGraph(QObject):
 
                 self.total_progress += self.step
                 self.progress.emit(self.total_progress)
-                self.clean_dupl(group_edges, snap_threshold)
+                self.clean_dupl(group_edges, snap_threshold, False)
 
         self.step = step_original
         # clean orphans
