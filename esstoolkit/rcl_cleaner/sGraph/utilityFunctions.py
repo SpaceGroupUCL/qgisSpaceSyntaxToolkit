@@ -232,7 +232,7 @@ def to_layer(features, crs, encoding, geom_type, layer_type, path):
                 insert_query = insert_query[:idx] + insert_query[(idx + 1):]
                 #QgsMessageLog.logMessage('sql query %s' % insert_query, level=QgsMessageLog.CRITICAL)
                 cur.execute(insert_query)
-                con.commit()
+                #con.commit()
             pkey_query = cur.mogrify("""ALTER TABLE "%s"."%s" DROP COLUMN IF EXISTS rcl_id; ALTER TABLE "%s"."%s" ADD COLUMN rcl_id serial PRIMARY KEY NOT NULL;""", (AsIs(schema_name), AsIs(table_name), AsIs(schema_name), AsIs(table_name)))
             cur.execute(pkey_query)
             con.commit()
