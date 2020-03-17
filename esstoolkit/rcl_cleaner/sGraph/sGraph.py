@@ -408,12 +408,12 @@ class sGraph(QObject):
         min_len = min(lengths)
 
         #if parallel is False:
-        dist_threshold = 0
+        prl_dist_threshold = 0
         #else:
         #    dist_threshold = snap_threshold
         for e in sorted_edges[1:]:
             # delete line
-            if abs(self.sEdges[e].feature.geometry().length() - min_len) <= dist_threshold:
+            if abs(self.sEdges[e].feature.geometry().length() - min_len) <= prl_dist_threshold:
                 for p in set([self.sNodes[n].feature.geometry() for n in self.sEdges[e].nodes]):
                     err_f = QgsFeature(error_feat)
                     err_f.setGeometry(p)
