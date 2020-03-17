@@ -407,10 +407,10 @@ class sGraph(QObject):
         sorted_edges = [x for _, x in sorted(zip(lengths, group_edges))]
         min_len = min(lengths)
 
-        if parallel is False:
-            dist_threshold = 0
-        else:
-            dist_threshold = snap_threshold
+        #if parallel is False:
+        dist_threshold = 0
+        #else:
+        #    dist_threshold = snap_threshold
         for e in sorted_edges[1:]:
             # delete line
             if abs(self.sEdges[e].feature.geometry().length() - min_len) <= dist_threshold:
