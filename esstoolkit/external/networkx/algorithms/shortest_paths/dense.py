@@ -7,7 +7,6 @@
 #    Pieter Swart <swart@lanl.gov>
 #    All rights reserved.
 #    BSD license.
-from builtins import range
 import networkx as nx
 __author__ = """Aric Hagberg <aric.hagberg@gmail.com>"""
 __all__ = ['floyd_warshall',

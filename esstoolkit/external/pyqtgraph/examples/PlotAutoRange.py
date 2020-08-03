@@ -3,9 +3,8 @@
 """
 This example demonstrates the different auto-ranging capabilities of ViewBoxes
 """
-from __future__ import absolute_import
 
-from . import initExample ## Add path to library (just for examples; you do not need this)
+import initExample ## Add path to library (just for examples; you do not need this)
 
 
 from pyqtgraph.Qt import QtGui, QtCore

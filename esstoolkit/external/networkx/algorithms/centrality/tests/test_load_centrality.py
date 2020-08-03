@@ -1,10 +1,9 @@
 #!/usr/bin/env python
-from builtins import object
 from nose.tools import *
 import networkx as nx
 
 
-class TestLoadCentrality(object):
+class TestLoadCentrality:
 
     def setUp(self):
 

@@ -1,5 +1,3 @@
-from builtins import str
-from builtins import object
 from nose.tools import assert_equal, assert_raises, assert_not_equal
 import networkx as nx
 import io
@@ -9,7 +7,7 @@ from networkx.readwrite.p2g import *
 from networkx.testing import *
 
 
-class TestP2G(object):
+class TestP2G:
 
     def setUp(self):
         self.G=nx.Graph(name="test")

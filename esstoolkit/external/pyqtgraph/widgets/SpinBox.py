@@ -1,7 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from builtins import str
-from builtins import range
 from ..Qt import QtGui, QtCore
 from ..python2_3 import asUnicode
 from ..SignalProxy import SignalProxy

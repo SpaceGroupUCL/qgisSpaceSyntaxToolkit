@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-from builtins import object
 from nose.tools import *
 from nose import SkipTest
 import networkx
@@ -128,7 +127,7 @@ class TestEdgeFlowBetweennessCentrality(object):
         G=networkx.complete_graph(4)
         b=edge_current_flow_subset(G,G.nodes(),G.nodes(),normalized=True)
         b_answer=edge_current_flow(G,normalized=True)
-        for (s,t),v1 in list(b_answer.items()):
+        for (s,t),v1 in b_answer.items():
             v2=b.get((s,t),b.get((t,s)))
             assert_almost_equal(v1,v2)
 
@@ -137,26 +136,26 @@ class TestEdgeFlowBetweennessCentrality(object):
         G=networkx.complete_graph(4)
         b=edge_current_flow_subset(G,G.nodes(),G.nodes(),normalized=False)
         b_answer=edge_current_flow(G,normalized=False)
-        for (s,t),v1 in list(b_answer.items()):
+        for (s,t),v1 in b_answer.items():
             v2=b.get((s,t),b.get((t,s)))
             assert_almost_equal(v1,v2)
         # test weighted network
         G.add_edge(0,1,{'weight':0.5,'other':0.3})
         b=edge_current_flow_subset(G,G.nodes(),G.nodes(),normalized=False,weight=None)
         # weight is None => same as unweighted network
-        for (s,t),v1 in list(b_answer.items()):
+        for (s,t),v1 in b_answer.items():
             v2=b.get((s,t),b.get((t,s)))
             assert_almost_equal(v1,v2)
 
         b=edge_current_flow_subset(G,G.nodes(),G.nodes(),normalized=False)
         b_answer=edge_current_flow(G,normalized=False)
-        for (s,t),v1 in list(b_answer.items()):
+        for (s,t),v1 in b_answer.items():
             v2=b.get((s,t),b.get((t,s)))
             assert_almost_equal(v1,v2)
 
         b=edge_current_flow_subset(G,G.nodes(),G.nodes(),normalized=False,weight='other')
         b_answer=edge_current_flow(G,normalized=False,weight='other')
-        for (s,t),v1 in list(b_answer.items()):
+        for (s,t),v1 in b_answer.items():
             v2=b.get((s,t),b.get((t,s)))
             assert_almost_equal(v1,v2)
 
@@ -166,7 +165,7 @@ class TestEdgeFlowBetweennessCentrality(object):
         G=networkx.cycle_graph(4)
         b=edge_current_flow_subset(G,G.nodes(),G.nodes(),normalized=True)
         b_answer=edge_current_flow(G,normalized=True)
-        for (s,t),v1 in list(b_answer.items()):
+        for (s,t),v1 in b_answer.items():
             v2=b.get((s,t),b.get((t,s)))
             assert_almost_equal(v1,v2)
 
@@ -176,7 +175,7 @@ class TestEdgeFlowBetweennessCentrality(object):
         G=networkx.path_graph(4)
         b=edge_current_flow_subset(G,G.nodes(),G.nodes(),normalized=True)
         b_answer=edge_current_flow(G,normalized=True)
-        for (s,t),v1 in list(b_answer.items()):
+        for (s,t),v1 in b_answer.items():
             v2=b.get((s,t),b.get((t,s)))
             assert_almost_equal(v1,v2)
 

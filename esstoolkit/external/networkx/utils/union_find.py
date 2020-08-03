@@ -9,8 +9,7 @@ Union-find data structure.
 #    BSD license.
 
 
-from builtins import object
-class UnionFind(object):
+class UnionFind:
     """Union-find data structure.
 
     Each unionFind instance X maintains a family of disjoint sets of

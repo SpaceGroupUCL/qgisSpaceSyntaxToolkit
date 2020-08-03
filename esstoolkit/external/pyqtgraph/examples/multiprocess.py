@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import absolute_import
-from builtins import str
-from . import initExample ## Add path to library (just for examples; you do not need this)
+import initExample ## Add path to library (just for examples; you do not need this)
 import numpy as np
 import pyqtgraph.multiprocess as mp
 import pyqtgraph as pg
@@ -14,19 +11,15 @@ import time
 print("\n=================\nStart Process")
 proc = mp.Process()
 import os
-# fix_print_with_import
-print(("parent:", os.getpid(), "child:", proc.proc.pid))
+print("parent:", os.getpid(), "child:", proc.proc.pid)
 print("started")
 rnp = proc._import('numpy')
 arr = rnp.array([1,2,3,4])
 print(repr(arr))
 print(str(arr))
-# fix_print_with_import
-print(("return value:", repr(arr.mean(_returnType='value'))))
-# fix_print_with_import
-print(( "return proxy:", repr(arr.mean(_returnType='proxy'))))
-# fix_print_with_import
-print(( "return auto: ", repr(arr.mean(_returnType='auto'))))
+print("return value:", repr(arr.mean(_returnType='value')))
+print( "return proxy:", repr(arr.mean(_returnType='proxy')))
+print( "return auto: ", repr(arr.mean(_returnType='auto')))
 proc.join()
 print( "process finished")
 

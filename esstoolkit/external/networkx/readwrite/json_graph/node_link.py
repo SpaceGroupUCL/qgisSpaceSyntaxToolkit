@@ -4,8 +4,6 @@
 #    Pieter Swart <swart@lanl.gov>
 #    All rights reserved.
 #    BSD license.
-from builtins import zip
-from builtins import next
 from itertools import chain, count
 import json
 import networkx as nx
@@ -76,20 +74,20 @@ def node_link_data(G, attrs=_attrs):
     key = None if not multigraph else attrs['key']
     if len(set([source, target, key])) < 3:
         raise nx.NetworkXError('Attribute names are not unique.')
-    mapping = dict(list(zip(G, count())))
+    mapping = dict(zip(G, count()))
     data = {}
     data['directed'] = G.is_directed()
     data['multigraph'] = multigraph
     data['graph'] = G.graph
-    data['nodes'] = [dict(chain(list(G.node[n].items()), [(id_, n)])) for n in G]
+    data['nodes'] = [dict(chain(G.node[n].items(), [(id_, n)])) for n in G]
     if multigraph:
         data['links'] = [
-            dict(chain(list(d.items()),
+            dict(chain(d.items(),
                        [(source, mapping[u]), (target, mapping[v]), (key, k)]))
             for u, v, k, d in G.edges_iter(keys=True, data=True)]
     else:
         data['links'] = [
-            dict(chain(list(d.items()),
+            dict(chain(d.items(),
                        [(source, mapping[u]), (target, mapping[v])]))
             for u, v, d in G.edges_iter(data=True)]
 
@@ -156,18 +154,18 @@ def node_link_graph(data, directed=False, multigraph=True, attrs=_attrs):
     for d in data['nodes']:
         node = d.get(id_, next(c))
         mapping.append(node)
-        nodedata = dict((make_str(k), v) for k, v in list(d.items()) if k != id_)
+        nodedata = dict((make_str(k), v) for k, v in d.items() if k != id_)
         graph.add_node(node, **nodedata)
     for d in data['links']:
         src = d[source]
         tgt = d[target]
         if not multigraph:
-            edgedata = dict((make_str(k), v) for k, v in list(d.items())
+            edgedata = dict((make_str(k), v) for k, v in d.items()
                             if k != source and k != target)
             graph.add_edge(mapping[src], mapping[tgt], **edgedata)
         else:
             ky = d.get(key, None)
-            edgedata = dict((make_str(k), v) for k, v in list(d.items())
+            edgedata = dict((make_str(k), v) for k, v in d.items()
                             if k != source and k != target and k != key)
             graph.add_edge(mapping[src], mapping[tgt], ky, **edgedata)
     return graph

@@ -1,7 +1,3 @@
-from __future__ import print_function
-from builtins import map
-from builtins import str
-from builtins import range
 from ..Qt import QtCore, QtGui, QtOpenGL, USE_PYQT5
 from OpenGL.GL import *
 import OpenGL.GL.framebufferobjects as glfbo
@@ -417,7 +413,7 @@ class GLViewWidget(QtOpenGL.QGLWidget):
         
         
     def renderToArray(self, size, format=GL_BGRA, type=GL_UNSIGNED_BYTE, textureSize=1024, padding=256):
-        w,h = list(map(int, size))
+        w,h = map(int, size)
         
         self.makeCurrent()
         tex = None

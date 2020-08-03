@@ -1,9 +1,8 @@
 #!/usr/bin/env python
-from builtins import object
 from nose.tools import *
 import networkx as nx
 
-class TestDistanceRegular(object):
+class TestDistanceRegular:
 
     def test_is_distance_regular(self):
         assert_true(nx.is_distance_regular(nx.icosahedral_graph()))

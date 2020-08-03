@@ -1,4 +1,3 @@
-from builtins import str
 import numpy as np
 from .. import metaarray as metaarray
 from ..Qt import QtCore

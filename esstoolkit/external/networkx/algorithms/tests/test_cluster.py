@@ -1,9 +1,8 @@
 #!/usr/bin/env python
-from builtins import object
 from nose.tools import *
 import networkx as nx
 
-class TestTriangles(object):
+class TestTriangles:
 
     def test_empty(self):
         G = nx.Graph()
@@ -36,7 +35,7 @@ class TestTriangles(object):
         assert_equal(nx.triangles(G,1),3)
 
 
-class TestWeightedClustering(object):
+class TestWeightedClustering:
 
     def test_clustering(self):
         G = nx.Graph()
@@ -77,7 +76,7 @@ class TestWeightedClustering(object):
         assert_equal(nx.clustering(G)[0],1.0/3.0)
         assert_equal(nx.clustering(G,weight='weight')[0],1.0/6.0)
 
-class TestClustering(object):
+class TestClustering:
 
     def test_clustering(self):
         G = nx.Graph()
@@ -112,7 +111,7 @@ class TestClustering(object):
 
 
 
-class TestTransitivity(object):
+class TestTransitivity:
 
     def test_transitivity(self):
         G = nx.Graph()
@@ -144,7 +143,7 @@ class TestTransitivity(object):
     #     t2=sum(trans)
     #     assert_almost_equal(abs(t1-t2),0)
 
-class TestSquareClustering(object):
+class TestSquareClustering:
 
     def test_clustering(self):
         G = nx.Graph()

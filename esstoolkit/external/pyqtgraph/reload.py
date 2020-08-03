@@ -20,16 +20,11 @@ Does NOT:
        import module
        print module.someObject
 """
-from __future__ import print_function
 
 
-from future import standard_library
-standard_library.install_aliases()
-from builtins import str
-from builtins import range
 import inspect, os, sys, gc, traceback
 try:
-    import builtins as builtins
+    import __builtin__ as builtins
 except ImportError:
     import builtins
 from .debug import printExc
@@ -244,7 +239,7 @@ def safeStr(obj):
 if __name__ == '__main__':
     doQtTest = True
     try:
-        from qgis.PyQt import QtCore
+        from PyQt4 import QtCore
         if not hasattr(QtCore, 'Signal'):
             QtCore.Signal = QtCore.pyqtSignal
         #app = QtGui.QApplication([])

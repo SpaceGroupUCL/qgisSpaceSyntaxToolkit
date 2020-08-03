@@ -1,4 +1,3 @@
-from builtins import object
 from nose.tools import *
 import networkx as nx
 from networkx.algorithms import bipartite
@@ -88,7 +87,7 @@ class TestBipartiteCentrality(object):
                 'Dorothy Murchison':0.14,
                 'E13':0.17,
                 'E14':0.17}
-        for node, value in list(answer.items()):
+        for node, value in answer.items():
             assert_almost_equal(value, deg[node], places=2)
 
     def test_davis_betweenness_centrality(self):
@@ -126,7 +125,7 @@ class TestBipartiteCentrality(object):
                 'Dorothy Murchison':0.00,
                 'E13':0.00,
                 'E14':0.00}
-        for node, value in list(answer.items()):
+        for node, value in answer.items():
             assert_almost_equal(value, bet[node], places=2)
 
     def test_davis_closeness_centrality(self):
@@ -164,7 +163,7 @@ class TestBipartiteCentrality(object):
                 'Dorothy Murchison':0.65,
                 'E13':0.52,
                 'E14':0.52}
-        for node, value in list(answer.items()):
+        for node, value in answer.items():
             assert_almost_equal(value, clos[node], places=2)
 
 

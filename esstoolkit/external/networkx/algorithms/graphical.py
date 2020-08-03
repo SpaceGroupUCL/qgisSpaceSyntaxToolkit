@@ -7,7 +7,6 @@
 #    Pieter Swart <swart@lanl.gov>
 #    All rights reserved.
 #    BSD license.
-from builtins import range
 from collections import defaultdict
 import heapq
 import networkx as nx

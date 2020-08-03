@@ -1,4 +1,3 @@
-from builtins import object
 import networkx as nx
 
 class SmokeTestOrdered(object):

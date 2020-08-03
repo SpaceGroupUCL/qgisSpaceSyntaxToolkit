@@ -5,11 +5,10 @@ Optical system design demo
 
 
 """
-from __future__ import absolute_import
 
-from . import initExample ## Add path to library (just for examples; you do not need this)
+import initExample ## Add path to library (just for examples; you do not need this)
 
-from .optics import *
+from optics import *
 
 import pyqtgraph as pg
 

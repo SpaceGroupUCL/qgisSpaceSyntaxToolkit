@@ -1,12 +1,10 @@
 #!/usr/bin/env python
-from builtins import range
-from builtins import object
 from nose.tools import assert_equal
 import networkx as nx
 from networkx.algorithms import bipartite
 from networkx.testing import assert_edges_equal, assert_nodes_equal
 
-class TestBipartiteProject(object):
+class TestBipartiteProject:
 
     def test_path_projected_graph(self):
         G=nx.path_graph(4)
@@ -146,7 +144,7 @@ class TestBipartiteProject(object):
         assert_edges_equal(P.edges(),[('A','B'),('A','B')])
 
 
-class TestBipartiteWeightedProjection(object):
+class TestBipartiteWeightedProjection:
 
     def setUp(self):
         # Tore Opsahl's example

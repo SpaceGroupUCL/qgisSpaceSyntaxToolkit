@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from builtins import object
 from nose import SkipTest
 from nose.tools import *
 import networkx as nx

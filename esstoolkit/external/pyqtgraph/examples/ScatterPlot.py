@@ -2,14 +2,11 @@
 """
 Example demonstrating a variety of scatter plot features.
 """
-from __future__ import print_function
-from __future__ import absolute_import
 
 
 
 ## Add path to library (just for examples; you do not need this)
-from builtins import range
-from . import initExample
+import initExample
 
 from pyqtgraph.Qt import QtGui, QtCore
 import pyqtgraph as pg
@@ -52,8 +49,7 @@ def clicked(plot, points):
     global lastClicked
     for p in lastClicked:
         p.resetPen()
-    # fix_print_with_import
-    print(("clicked points", points))
+    print("clicked points", points)
     for p in points:
         p.setPen('b', width=2)
     lastClicked = points

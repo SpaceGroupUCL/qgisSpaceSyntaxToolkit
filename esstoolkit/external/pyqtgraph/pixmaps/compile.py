@@ -1,6 +1,5 @@
-from __future__ import print_function
 import numpy as np
-from qgis.PyQt import QtGui
+from PyQt4 import QtGui
 import os, pickle, sys
 
 path = os.path.abspath(os.path.split(__file__)[0])

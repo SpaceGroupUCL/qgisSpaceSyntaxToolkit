@@ -7,9 +7,6 @@
 #    All rights reserved.
 #    BSD license.
 #
-from builtins import str
-from builtins import zip
-from builtins import range
 import networkx as nx
 from networkx.utils import not_implemented_for
 import itertools
@@ -330,9 +327,9 @@ def set_node_attributes(G, name, values):
         values.items
     except AttributeError:
         # Treat `value` as the attribute value for each node.
-        values = dict(list(zip(G.nodes(), [values] * len(G))))
+        values = dict(zip(G.nodes(), [values] * len(G)))
 
-    for node, value in list(values.items()):
+    for node, value in values.items():
         G.node[node][name] = value
 
 
@@ -358,7 +355,7 @@ def get_node_attributes(G, name):
     >>> color[1]
     'red'
     """
-    return dict( (n,d[name]) for n,d in list(G.node.items()) if name in d)
+    return dict( (n,d[name]) for n,d in G.node.items() if name in d)
 
 
 def set_edge_attributes(G, name, values):
@@ -395,13 +392,13 @@ def set_edge_attributes(G, name, values):
             edges = G.edges(keys=True)
         else:
             edges = G.edges()
-        values = dict(list(zip(edges, [values] * len(edges))))
+        values = dict(zip(edges, [values] * len(edges)))
 
     if G.is_multigraph():
-        for (u, v, key), value in list(values.items()):
+        for (u, v, key), value in values.items():
             G[u][v][key][name] = value
     else:
-        for (u, v), value in list(values.items()):
+        for (u, v), value in values.items():
             G[u][v][name] = value
 
 

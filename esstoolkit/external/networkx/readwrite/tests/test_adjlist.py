@@ -2,8 +2,6 @@
 """
     Unit tests for adjlist.
 """
-from builtins import chr
-from builtins import object
 import io
 from nose.tools import assert_equal, assert_raises, assert_not_equal
 import os
@@ -13,7 +11,7 @@ from networkx.testing import (assert_nodes_equal, assert_edges_equal,
                                 assert_graphs_equal)
 
 
-class TestAdjlist(object):
+class TestAdjlist():
 
     def setUp(self):
         self.G=nx.Graph(name="test")
@@ -44,8 +42,8 @@ class TestAdjlist(object):
             name1 = chr(2344) + chr(123) + chr(6543)
             name2 = chr(5543) + chr(1543) + chr(324)
         except ValueError: # Python 2.6+
-            name1 = chr(2344) + chr(123) + chr(6543)
-            name2 = chr(5543) + chr(1543) + chr(324)
+            name1 = unichr(2344) + unichr(123) + unichr(6543)
+            name2 = unichr(5543) + unichr(1543) + unichr(324)
         G.add_edge(name1, 'Radiohead', {name2: 3})
         fd, fname = tempfile.mkstemp()
         nx.write_multiline_adjlist(G, fname)
@@ -60,8 +58,8 @@ class TestAdjlist(object):
             name1 = chr(2344) + chr(123) + chr(6543)
             name2 = chr(5543) + chr(1543) + chr(324)
         except ValueError: # Python 2.6+
-            name1 = chr(2344) + chr(123) + chr(6543)
-            name2 = chr(5543) + chr(1543) + chr(324)
+            name1 = unichr(2344) + unichr(123) + unichr(6543)
+            name2 = unichr(5543) + unichr(1543) + unichr(324)
         G.add_edge(name1, 'Radiohead', {name2: 3})
         fd, fname = tempfile.mkstemp()
         assert_raises(UnicodeEncodeError,
@@ -77,8 +75,8 @@ class TestAdjlist(object):
             name1 = 'Bj' + chr(246) + 'rk'
             name2 = chr(220) + 'ber'
         except ValueError: # Python 2.6+
-            name1 = 'Bj' + chr(246) + 'rk'
-            name2 = chr(220) + 'ber'
+            name1 = 'Bj' + unichr(246) + 'rk'
+            name2 = unichr(220) + 'ber'
         G.add_edge(name1, 'Radiohead', {name2: 3})
         fd, fname = tempfile.mkstemp()
         nx.write_multiline_adjlist(G, fname, encoding = 'latin-1')
@@ -172,7 +170,7 @@ class TestAdjlist(object):
         assert_edges_equal(H.edges(),G.edges())
 
 
-class TestMultilineAdjlist(object):
+class TestMultilineAdjlist():
 
     def setUp(self):
         self.G=nx.Graph(name="test")

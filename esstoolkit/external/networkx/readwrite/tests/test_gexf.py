@@ -1,7 +1,4 @@
 #!/usr/bin/env python
-from builtins import zip
-from builtins import range
-from builtins import object
 from nose.tools import *
 from nose import SkipTest
 import networkx as nx

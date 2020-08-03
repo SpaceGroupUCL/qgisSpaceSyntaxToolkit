@@ -9,16 +9,12 @@ such as axis values, names, units, column names, etc. It also enables several
 new methods for slicing and indexing the array based on this meta data. 
 More info at http://www.scipy.org/Cookbook/MetaArray
 """
-from __future__ import print_function
 
-from builtins import str
-from builtins import range
-from builtins import object
 import types, copy, threading, os, re
 import pickle
 from functools import reduce
 import numpy as np
-from ..python2_3 import str
+from ..python2_3 import basestring
 #import traceback
 
 ## By default, the library will use HDF5 when writing files.
@@ -118,7 +114,7 @@ class MetaArray(object):
     defaultCompression = None
     
     ## Types allowed as axis or column names
-    nameTypes = [str, tuple]
+    nameTypes = [basestring, tuple]
     @staticmethod
     def isNameType(var):
         return any([isinstance(var, t) for t in MetaArray.nameTypes])
@@ -310,8 +306,7 @@ class MetaArray(object):
         try:
             self._data[nInd] = val
         except:
-            # fix_print_with_import
-            print((self, nInd, val))
+            print(self, nInd, val)
             raise
         
     def __getattr__(self, attr):
@@ -450,7 +445,7 @@ class MetaArray(object):
         if type(axis) == int:
             ind = [slice(None)]*axis
             ind.append(order)
-        elif isinstance(axis, str):
+        elif isinstance(axis, basestring):
             ind = (slice(axis, order),)
         return self[tuple(ind)]
   
@@ -514,7 +509,7 @@ class MetaArray(object):
         return tuple(nInd)
       
     def _interpretAxis(self, axis):
-        if isinstance(axis, str) or isinstance(axis, tuple):
+        if isinstance(axis, basestring) or isinstance(axis, tuple):
             return self._getAxis(axis)
         else:
             return axis
@@ -997,7 +992,7 @@ class MetaArray(object):
         ## Pull list of values from attributes and child objects
         for k in root.attrs:
             val = root.attrs[k]
-            if isinstance(val, str):  ## strings need to be re-evaluated to their original types
+            if isinstance(val, basestring):  ## strings need to be re-evaluated to their original types
                 try:
                     val = eval(val)
                 except:
@@ -1171,7 +1166,7 @@ class MetaArray(object):
         elif isinstance(data, dict):
             gr = root.create_group(name)
             gr.attrs['_metaType_'] = 'dict'
-            for k, v in list(data.items()):
+            for k, v in data.items():
                 self.writeHDF5Meta(gr, k, v, **dsOpts)
         elif isinstance(data, int) or isinstance(data, float) or isinstance(data, np.integer) or isinstance(data, np.floating):
             root.attrs[name] = data
@@ -1481,9 +1476,7 @@ if __name__ == '__main__':
     ma2 = MetaArray(file=tf)
     
     #print ma2
-    # fix_print_with_import
-    # fix_print_with_import
-print(("\nArrays are equivalent:", (ma == ma2).all()))
+    print("\nArrays are equivalent:", (ma == ma2).all())
     #print "Meta info is equivalent:", ma.infoCopy() == ma2.infoCopy()
     os.remove(tf)
     
@@ -1500,9 +1493,7 @@ print(("\nArrays are equivalent:", (ma == ma2).all()))
     ma2 = MetaArray(file=tf)
     
     #print ma2
-    # fix_print_with_import
-    # fix_print_with_import
-print(("\nArrays are equivalent:", (ma == ma2).all()))
+    print("\nArrays are equivalent:", (ma == ma2).all())
     #print "Meta info is equivalent:", ma.infoCopy() == ma2.infoCopy()
     
     os.remove(tf)    
@@ -1513,8 +1504,6 @@ print(("\nArrays are equivalent:", (ma == ma2).all()))
     print("\n==========Memmap test============")
     ma.write(tf, mappable=True)
     ma2 = MetaArray(file=tf, mmap=True)
-    # fix_print_with_import
-    # fix_print_with_import
-print(("\nArrays are equivalent:", (ma == ma2).all()))
+    print("\nArrays are equivalent:", (ma == ma2).all())
     os.remove(tf)    
     

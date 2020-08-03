@@ -8,9 +8,6 @@ Eigenvector centrality.
 #    Pieter Swart <swart@lanl.gov>
 #    All rights reserved.
 #    BSD license.
-from builtins import zip
-from builtins import map
-from builtins import range
 import networkx as nx
 __author__ = "\n".join(['Aric Hagberg (aric.hagberg@gmail.com)',
                         'Pieter Swart (swart@lanl.gov)',
@@ -121,7 +118,7 @@ def eigenvector_centrality(G, max_iter=100, tol=1.0e-6, nstart=None,
                 x[nbr] += xlast[n] * G[n][nbr].get(weight, 1)
         # normalize vector
         try:
-            s = 1.0/sqrt(sum(v**2 for v in list(x.values())))
+            s = 1.0/sqrt(sum(v**2 for v in x.values()))
         # this should never be zero?
         except ZeroDivisionError:
             s = 1.0
@@ -208,7 +205,7 @@ def eigenvector_centrality_numpy(G, weight='weight'):
     eigenvalue, eigenvector = linalg.eigs(M.T, k=1, which='LR')
     largest = eigenvector.flatten().real
     norm = sp.sign(largest.sum())*sp.linalg.norm(largest)
-    centrality = dict(list(zip(G,list(map(float,largest/norm)))))
+    centrality = dict(zip(G,map(float,largest/norm)))
     return centrality
 
 

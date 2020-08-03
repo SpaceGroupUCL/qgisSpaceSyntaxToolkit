@@ -1,6 +1,4 @@
 """Generators for classes of graphs used in studying social networks."""
-from builtins import zip
-from builtins import range
 import itertools
 import math
 import random
@@ -59,7 +57,7 @@ def caveman_graph(l, k):
     G.name = "caveman_graph(%s,%s)" % (l*k, k)
     if k > 1:
         for start in range(0, l*k, k):
-            edges = itertools.combinations(list(range(start, start+k)), 2)
+            edges = itertools.combinations(range(start, start+k), 2)
             G.add_edges_from(edges)
     return G
 
@@ -228,7 +226,7 @@ def random_partition_graph(sizes, p_in, p_out, seed=None, directed=False):
         G = nx.Graph()
     G.graph['partition'] = []
     n = sum(sizes)
-    G.add_nodes_from(list(range(n)))
+    G.add_nodes_from(range(n))
     # start with len(sizes) groups of gnp random graphs with parameter p_in
     # graphs are unioned together with node labels starting at
     # 0, sizes[0], sizes[0]+sizes[1], ...
@@ -240,7 +238,7 @@ def random_partition_graph(sizes, p_in, p_out, seed=None, directed=False):
                  for u, v in
                  nx.fast_gnp_random_graph(n, p_in, directed=directed).edges())
         G.add_edges_from(edges)
-        next_group.update(dict.fromkeys(list(range(start, start+n)), start+n))
+        next_group.update(dict.fromkeys(range(start, start+n), start+n))
         G.graph['partition'].append(set(range(start, start+n)))
         group += 1
         start += n
@@ -249,10 +247,10 @@ def random_partition_graph(sizes, p_in, p_out, seed=None, directed=False):
         return G
     if p_out == 1:
         for n in next_group:
-            targets = list(range(next_group[n], len(G)))
-            G.add_edges_from(list(zip([n]*len(targets), targets)))
+            targets = range(next_group[n], len(G))
+            G.add_edges_from(zip([n]*len(targets), targets))
             if directed:
-                G.add_edges_from(list(zip(targets, [n]*len(targets))))
+                G.add_edges_from(zip(targets, [n]*len(targets)))
         return G
     # connect each node in group randomly with the nodes not in group
     # use geometric method like fast_gnp_random_graph()

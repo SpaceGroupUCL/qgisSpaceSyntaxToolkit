@@ -1,6 +1,3 @@
-from builtins import map
-from builtins import str
-from builtins import object
 try:
     from OpenGL import NullFunctionError
 except ImportError:
@@ -252,7 +249,7 @@ class Shader(object):
                             #code[line-1] = '%d\t%s' % (i+1, code[line-1])
                         err = err + "%d %s\n" % (i+1, msg)
                     errNums = [','.join(n) for n in errNums]
-                    maxlen = max(list(map(len, errNums)))
+                    maxlen = max(map(len, errNums))
                     code = [errNums[i] + " "*(maxlen-len(errNums[i])) + line for i, line in enumerate(code)]
                     err = err + '\n'.join(code)
                     raise Exception(err)
@@ -284,7 +281,7 @@ class ShaderProgram(object):
         
         ## parse extra options from the shader definition
         if uniforms is not None:
-            for k,v in list(uniforms.items()):
+            for k,v in uniforms.items():
                 self[k] = v
         
     def setBlockData(self, blockName, data):
@@ -321,7 +318,7 @@ class ShaderProgram(object):
             
             try:
                 ## load uniform values into program
-                for uniformName, data in list(self.uniformData.items()):
+                for uniformName, data in self.uniformData.items():
                     loc = self.uniform(uniformName)
                     if loc == -1:
                         raise Exception('Could not find uniform variable "%s"' % uniformName)

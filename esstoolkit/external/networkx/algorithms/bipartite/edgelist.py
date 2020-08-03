@@ -28,8 +28,6 @@ For each edge (u, v) the node u is assigned to part 0 and the node v to part 1.
 #    Pieter Swart <swart@lanl.gov>
 #    All rights reserved.
 #    BSD license.
-from builtins import zip
-from builtins import map
 __all__ = ['generate_edgelist',
            'write_edgelist',
            'parse_edgelist',
@@ -140,7 +138,7 @@ def generate_edgelist(G, delimiter=' ', data=True):
     2 3
     """
     try:
-        part0 = [n for n,d in list(G.node.items()) if d['bipartite'] == 0]
+        part0 = [n for n,d in G.node.items() if d['bipartite'] == 0]
     except:
         raise AttributeError("Missing node attribute `bipartite`") 
     if data is True or data is False:

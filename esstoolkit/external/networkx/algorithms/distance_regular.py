@@ -8,9 +8,6 @@ Distance-regular graphs
 #    Aric Hagberg <aric.hagberg@gmail.com>
 #    All rights reserved.
 #    BSD license.
-from builtins import next
-from builtins import zip
-from builtins import range
 import networkx as nx
 __author__ = """\n""".join(['Dheeraj M R <dheerajrav@gmail.com>',
                             'Aric Hagberg <aric.hagberg@gmail.com>'])
@@ -108,7 +105,7 @@ def global_parameters(b,c):
     ca.insert(0,0)
     k = ba[0]
     aa = [k-x-y for x,y in zip(ba,ca)]
-    return list(zip(*[ca,aa,ba]))
+    return zip(*[ca,aa,ba])
 
 
 def intersection_array(G):

@@ -698,27 +698,27 @@ class MultiGraph(Graph):
         """
         seen = {}     # helper dict to keep track of multiply stored edges
         if nbunch is None:
-            nodes_nbrs = list(self.adj.items())
+            nodes_nbrs = self.adj.items()
         else:
             nodes_nbrs = ((n, self.adj[n]) for n in self.nbunch_iter(nbunch))
         if data is True:
             for n, nbrs in nodes_nbrs:
-                for nbr, keydict in list(nbrs.items()):
+                for nbr, keydict in nbrs.items():
                     if nbr not in seen:
-                        for key, ddict in list(keydict.items()):
+                        for key, ddict in keydict.items():
                             yield (n, nbr, key, ddict) if keys else (n, nbr, ddict)
                 seen[n] = 1
         elif data is not False:
             for n, nbrs in nodes_nbrs:
-                for nbr, keydict in list(nbrs.items()):
+                for nbr, keydict in nbrs.items():
                     if nbr not in seen:
-                        for key, ddict in list(keydict.items()):
+                        for key, ddict in keydict.items():
                             d = ddict[data] if data in ddict else default
                             yield (n, nbr, key, d) if keys else (n, nbr, d)
                 seen[n] = 1
         else:
             for n, nbrs in nodes_nbrs:
-                for nbr, keydict in list(nbrs.items()):
+                for nbr, keydict in nbrs.items():
                     if nbr not in seen:
                         for key in keydict:
                             yield (n, nbr, key) if keys else (n, nbr)
@@ -817,23 +817,23 @@ class MultiGraph(Graph):
 
         """
         if nbunch is None:
-            nodes_nbrs = list(self.adj.items())
+            nodes_nbrs = self.adj.items()
         else:
             nodes_nbrs = ((n, self.adj[n]) for n in self.nbunch_iter(nbunch))
 
         if weight is None:
             for n, nbrs in nodes_nbrs:
-                deg = sum([len(data) for data in list(nbrs.values())])
+                deg = sum([len(data) for data in nbrs.values()])
                 yield (n, deg + (n in nbrs and len(nbrs[n])))
         else:
             # edge weighted graph - degree is sum of nbr edge weights
             for n, nbrs in nodes_nbrs:
                 deg = sum([d.get(weight, 1)
-                           for data in list(nbrs.values())
-                           for d in list(data.values())])
+                           for data in nbrs.values()
+                           for d in data.values()])
                 if n in nbrs:
                     deg += sum([d.get(weight, 1)
-                                for key, d in list(nbrs[n].items())])
+                                for key, d in nbrs[n].items()])
                 yield (n, deg)
 
     def is_multigraph(self):
@@ -891,8 +891,8 @@ class MultiGraph(Graph):
         G.add_nodes_from(self)
         G.add_edges_from((u, v, key, deepcopy(datadict))
                             for u, nbrs in self.adjacency_iter()
-                            for v, keydict in list(nbrs.items())
-                            for key, datadict in list(keydict.items()))
+                            for v, keydict in nbrs.items()
+                            for key, datadict in keydict.items())
         G.graph = deepcopy(self.graph)
         G.node = deepcopy(self.node)
         return G
@@ -940,30 +940,30 @@ class MultiGraph(Graph):
         if data is True:
             if keys:
                 return [(n, n, k, d)
-                        for n, nbrs in list(self.adj.items())
-                        if n in nbrs for k, d in list(nbrs[n].items())]
+                        for n, nbrs in self.adj.items()
+                        if n in nbrs for k, d in nbrs[n].items()]
             else:
                 return [(n, n, d)
-                        for n, nbrs in list(self.adj.items())
-                        if n in nbrs for d in list(nbrs[n].values())]
+                        for n, nbrs in self.adj.items()
+                        if n in nbrs for d in nbrs[n].values()]
         elif data is not False:
             if keys:
                 return [(n, n, k, d.get(data, default))
-                        for n, nbrs in list(self.adj.items())
-                        if n in nbrs for k, d in list(nbrs[n].items())]
+                        for n, nbrs in self.adj.items()
+                        if n in nbrs for k, d in nbrs[n].items()]
             else:
                 return [(n, n, d.get(data, default))
-                        for n, nbrs in list(self.adj.items())
-                        if n in nbrs for d in list(nbrs[n].values())]
+                        for n, nbrs in self.adj.items()
+                        if n in nbrs for d in nbrs[n].values()]
         else:
             if keys:
                 return [(n, n, k)
-                        for n, nbrs in list(self.adj.items())
-                        if n in nbrs for k in list(nbrs[n].keys())]
+                        for n, nbrs in self.adj.items()
+                        if n in nbrs for k in nbrs[n].keys()]
             else:
                 return [(n, n)
-                        for n, nbrs in list(self.adj.items())
-                        if n in nbrs for d in list(nbrs[n].values())]
+                        for n, nbrs in self.adj.items()
+                        if n in nbrs for d in nbrs[n].values()]
 
     def number_of_edges(self, u=None, v=None):
         """Return the number of edges between two nodes.
@@ -1055,7 +1055,7 @@ class MultiGraph(Graph):
         for n in H:
             Hnbrs = H.adjlist_dict_factory()
             H_adj[n] = Hnbrs
-            for nbr, edgedict in list(self_adj[n].items()):
+            for nbr, edgedict in self_adj[n].items():
                 if nbr in H_adj:
                     # add both representations of edge: n-nbr and nbr-n
                     # they share the same edgedict

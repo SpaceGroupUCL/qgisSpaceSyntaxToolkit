@@ -34,7 +34,7 @@ def test_rcm_alternate_heuristic():
     answers = [[6, 3, 5, 7, 1, 2, 4, 0], [6, 3, 7, 5, 1, 2, 4, 0]]
 
     def smallest_degree(G):
-        node, deg = min(list(G.degree().items()), key=lambda x: x[1])
+        node, deg = min(G.degree().items(), key=lambda x: x[1])
         return node
     rcm = list(reverse_cuthill_mckee_ordering(G, heuristic=smallest_degree))
     assert_true(rcm in answers)

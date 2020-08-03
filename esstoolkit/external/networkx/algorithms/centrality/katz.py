@@ -8,9 +8,6 @@ Katz centrality.
 #    Pieter Swart <swart@lanl.gov>
 #    All rights reserved.
 #    BSD license.
-from builtins import zip
-from builtins import map
-from builtins import range
 import networkx as nx
 from networkx.utils import not_implemented_for
 __author__ = "\n".join(['Aric Hagberg (aric.hagberg@gmail.com)',
@@ -184,7 +181,7 @@ def katz_centrality(G, alpha=0.1, beta=1.0,
             if normalized:
                 # normalize vector
                 try:
-                    s = 1.0/sqrt(sum(v**2 for v in list(x.values())))
+                    s = 1.0/sqrt(sum(v**2 for v in x.values()))
                 # this should never be zero?
                 except ZeroDivisionError:
                     s = 1.0
@@ -313,7 +310,7 @@ def katz_centrality_numpy(G, alpha=0.1, beta=1.0, normalized=True,
     if len(G) == 0:
         return {}
     try:
-        nodelist = list(beta.keys())
+        nodelist = beta.keys()
         if set(nodelist) != set(G):
             raise nx.NetworkXError('beta dictionary '
                                    'must have a value for every node')
@@ -332,7 +329,7 @@ def katz_centrality_numpy(G, alpha=0.1, beta=1.0, normalized=True,
         norm = np.sign(sum(centrality)) * np.linalg.norm(centrality)
     else:
         norm = 1.0
-    centrality = dict(list(zip(nodelist, list(map(float,centrality/norm)))))
+    centrality = dict(zip(nodelist, map(float,centrality/norm)))
     return centrality
 
 

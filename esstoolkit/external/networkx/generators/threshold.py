@@ -1,9 +1,6 @@
 """
 Threshold Graphs - Creation, manipulation and identification.
 """
-from __future__ import print_function
-from builtins import zip
-from builtins import range
 __author__ = """Aric Hagberg (hagberg@lanl.gov)\nPieter Swart (swart@lanl.gov)\nDan Schult (dschult@colgate.edu)"""
 #    Copyright (C) 2004-2015 by 
 #    Aric Hagberg <hagberg@lanl.gov>
@@ -81,7 +78,7 @@ def creation_sequence(degree_sequence,with_labels=False,compact=False):
 
     # make an indexed copy
     if isinstance(degree_sequence,dict):   # labeled degree seqeunce
-        ds = [ [degree,label] for (label,degree) in list(degree_sequence.items()) ]
+        ds = [ [degree,label] for (label,degree) in degree_sequence.items() ]
     else:
         ds=[ [d,i] for i,d in enumerate(degree_sequence) ] 
     ds.sort()
@@ -239,7 +236,7 @@ def weights_to_creation_sequence(weights,threshold=1,with_labels=False,compact=F
 
     # make an indexed copy
     if isinstance(weights,dict):   # labeled weights
-        wseq = [ [w,label] for (label,w) in list(weights.items()) ]
+        wseq = [ [w,label] for (label,w) in weights.items() ]
     else:
         wseq = [ [w,i] for i,w in enumerate(weights) ] 
     wseq.sort()
@@ -353,11 +350,11 @@ def find_creation_sequence(G):
     while H.order()>0:
         # get new degree sequence on subgraph
         dsdict=H.degree()
-        ds=[ [d,v] for v,d in list(dsdict.items()) ]
+        ds=[ [d,v] for v,d in dsdict.items() ]
         ds.sort()
         # Update threshold graph nodes
         if ds[-1][0]==0: # all are isolated
-            cs.extend( list(zip( dsdict, ['i']*(len(ds)-1)+['d'])) )
+            cs.extend( zip( dsdict, ['i']*(len(ds)-1)+['d']) )
             break   # Done!
         # pull off isolated nodes
         while ds[0][0]==0:
@@ -481,8 +478,7 @@ def degree_correlation(creation_sequence):
     for i,sym in enumerate(cs):
         if sym=="d": 
             if i!=rdi[0]:
-                # fix_print_with_import
-                print(("Logic error in degree_correlation",i,rdi))
+                print("Logic error in degree_correlation",i,rdi)
                 raise ValueError
             rdi.pop(0)
         degi=ds[i]
@@ -883,7 +879,7 @@ def swap_d(cs,p_split=1.0,p_combine=1.0,seed=None):
     # split
     if random.random()<p_split:
         choice=random.choice(dlist)
-        split_to=random.choice(list(range(choice)))
+        split_to=random.choice(range(choice))
         flip_side=choice-split_to
         if split_to!=flip_side and cs[split_to]=='i' and cs[flip_side]=='i':
             cs[choice]='i'

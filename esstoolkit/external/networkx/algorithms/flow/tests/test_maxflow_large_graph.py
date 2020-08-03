@@ -2,8 +2,6 @@
 """Maximum flow algorithms test suite on large graphs.
 """
 
-from builtins import range
-from builtins import object
 __author__ = """Loïc Séguin-C. <loicseguin@gmail.com>"""
 # Copyright (C) 2010 Loïc Séguin-C. <loicseguin@gmail.com>
 # All rights reserved.
@@ -57,13 +55,13 @@ def validate_flows(G, s, t, soln_value, R, flow_func):
                      msg=msg.format(flow_func.__name__))
     excess = dict((u, 0) for u in flow_dict)
     for u in flow_dict:
-        for v, flow in list(flow_dict[u].items()):
+        for v, flow in flow_dict[u].items():
             ok_(flow <= G[u][v].get('capacity', float('inf')),
                 msg=msg.format(flow_func.__name__))
             ok_(flow >= 0, msg=msg.format(flow_func.__name__))
             excess[u] -= flow
             excess[v] += flow
-    for u, exc in list(excess.items()):
+    for u, exc in excess.items():
         if u == s:
             assert_equal(exc, -soln_value, msg=msg.format(flow_func.__name__))
         elif u == t:
@@ -72,7 +70,7 @@ def validate_flows(G, s, t, soln_value, R, flow_func):
             assert_equal(exc, 0, msg=msg.format(flow_func.__name__))
 
 
-class TestMaxflowLargeGraph(object):
+class TestMaxflowLargeGraph:
 
     def test_complete_graph(self):
         N = 50

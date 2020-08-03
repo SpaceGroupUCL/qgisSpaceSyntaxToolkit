@@ -1,10 +1,8 @@
 #!/usr/bin/env python
-from builtins import range
-from builtins import object
 from nose.tools import *
 import networkx
 
-class TestBlock(object):
+class TestBlock:
 
     def test_path(self):
         G=networkx.path_graph(6)

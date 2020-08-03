@@ -1,4 +1,3 @@
-from builtins import map
 from itertools import chain
 import networkx as nx
 from nose.tools import *

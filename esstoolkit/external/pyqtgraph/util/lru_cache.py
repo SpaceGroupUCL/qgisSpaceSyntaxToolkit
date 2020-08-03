@@ -1,4 +1,3 @@
-from builtins import object
 import operator
 import sys
 import itertools
@@ -71,13 +70,13 @@ class LRUCache(object):
  
     if _IS_PY3:
         def values(self):
-            return [i[1] for i in list(self._dict.values())]
+            return [i[1] for i in self._dict.values()]
         
         def keys(self):
-            return [x[0] for x in list(self._dict.values())]
+            return [x[0] for x in self._dict.values()]
         
         def _resizeTo(self):
-            ordered = sorted(list(self._dict.values()), key=operator.itemgetter(2))[:self.resizeTo]
+            ordered = sorted(self._dict.values(), key=operator.itemgetter(2))[:self.resizeTo]
             for i in ordered:
                 del self._dict[i[0]]
                 
@@ -87,22 +86,22 @@ class LRUCache(object):
                 If True sorts the returned items by the internal access time.
             '''
             if accessTime:
-                for x in sorted(list(self._dict.values()), key=operator.itemgetter(2)):
+                for x in sorted(self._dict.values(), key=operator.itemgetter(2)):
                     yield x[0], x[1]
             else:
-                for x in list(self._dict.items()):
+                for x in self._dict.items():
                     yield x[0], x[1]
                     
     else:
         def values(self):
-            return [i[1] for i in self._dict.values()]
+            return [i[1] for i in self._dict.itervalues()]
         
         def keys(self):
-            return [x[0] for x in self._dict.values()]
+            return [x[0] for x in self._dict.itervalues()]
             
         
         def _resizeTo(self):
-            ordered = sorted(iter(self._dict.values()), key=operator.itemgetter(2))[:self.resizeTo]
+            ordered = sorted(self._dict.itervalues(), key=operator.itemgetter(2))[:self.resizeTo]
             for i in ordered:
                 del self._dict[i[0]]
                 
@@ -115,8 +114,8 @@ class LRUCache(object):
             ============= ======================================================
             '''
             if accessTime:
-                for x in sorted(iter(self._dict.values()), key=operator.itemgetter(2)):
+                for x in sorted(self._dict.itervalues(), key=operator.itemgetter(2)):
                     yield x[0], x[1]
             else:
-                for x in self._dict.items():
+                for x in self._dict.iteritems():
                     yield x[0], x[1]

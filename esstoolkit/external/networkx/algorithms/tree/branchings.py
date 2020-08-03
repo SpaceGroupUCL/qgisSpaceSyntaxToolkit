@@ -31,9 +31,6 @@ This implementation is based on:
 from __future__ import division
 from __future__ import print_function
 
-from builtins import next
-from builtins import range
-from builtins import object
 import string
 import random
 from operator import itemgetter
@@ -243,9 +240,9 @@ class MultiDiGraph_EdgeKey(nx.MultiDiGraph):
 
     def remove_node(self, n):
         keys = set([])
-        for keydict in list(self.pred[n].values()):
+        for keydict in self.pred[n].values():
             keys.update(keydict)
-        for keydict in list(self.succ[n].values()):
+        for keydict in self.succ[n].values():
             keys.update(keydict)
 
         for key in keys:
@@ -300,7 +297,7 @@ def get_path(G, u, v):
 
     def first_key(i, vv):
         # Needed for 2.x/3.x compatibilitity
-        keys = list(G[nodes[i]][vv].keys())
+        keys = G[nodes[i]][vv].keys()
         # Normalize behavior
         keys = list(keys)
         return keys[0]

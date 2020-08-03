@@ -1,20 +1,16 @@
 """
 Helper functions that smooth out the differences between python 2 and 3.
 """
-from future import standard_library
-standard_library.install_aliases()
-from builtins import str
-from builtins import object
 import sys
 
 def asUnicode(x):
     if sys.version_info[0] == 2:
-        if isinstance(x, str):
+        if isinstance(x, unicode):
             return x
         elif isinstance(x, str):
             return x.decode('UTF-8')
         else:
-            return str(x)
+            return unicode(x)
     else:
         return str(x)
         
@@ -44,7 +40,7 @@ def sortList(l, cmpFunc):
         l.sort(key=cmpToKey(cmpFunc))
 
 if sys.version_info[0] == 3:
-    str = str
+    basestring = str
     def cmp(a,b):
         if a>b:
             return 1
@@ -54,9 +50,9 @@ if sys.version_info[0] == 3:
             return 0
     xrange = range
 else:
-    import builtins
-    str = builtins.str
-    cmp = builtins.cmp
-    xrange = builtins.xrange
+    import __builtin__
+    basestring = __builtin__.basestring
+    cmp = __builtin__.cmp
+    xrange = __builtin__.xrange
     
     

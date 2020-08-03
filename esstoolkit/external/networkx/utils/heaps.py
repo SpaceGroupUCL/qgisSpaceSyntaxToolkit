@@ -2,8 +2,6 @@
 Min-heaps.
 """
 
-from builtins import next
-from builtins import object
 __author__ = """ysitu <ysitu@users.noreply.github.com>"""
 # Copyright (C) 2014 ysitu <ysitu@users.noreply.github.com>
 # All rights reserved.
@@ -113,7 +111,7 @@ class MinHeap(object):
         """
         raise NotImplementedError
 
-    def __bool__(self):
+    def __nonzero__(self):
         """Return whether the heap if empty.
         """
         return bool(self._dict)

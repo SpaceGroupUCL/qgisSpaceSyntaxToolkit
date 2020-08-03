@@ -2,7 +2,6 @@
     Unit tests for yaml.
 """
 
-from builtins import object
 import os,tempfile
 from nose import SkipTest
 from nose.tools import assert_equal

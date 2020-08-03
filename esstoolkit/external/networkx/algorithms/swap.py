@@ -9,7 +9,6 @@
 #    BSD license.
 from __future__ import division
 
-from builtins import zip
 import math
 import random
 
@@ -72,7 +71,7 @@ def double_edge_swap(G, nswap=1, max_tries=100):
     # probability weighted by degree.
     n=0
     swapcount=0
-    keys,degrees=list(zip(*list(G.degree().items()))) # keys, degree
+    keys,degrees=zip(*G.degree().items()) # keys, degree
     cdf=nx.utils.cumulative_distribution(degrees)  # cdf of degree
     while swapcount < nswap:
 #        if random.random() < 0.5: continue # trick to avoid periodicities?

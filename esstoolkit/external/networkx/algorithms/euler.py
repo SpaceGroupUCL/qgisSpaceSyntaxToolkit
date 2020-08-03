@@ -2,7 +2,6 @@
 """
 Eulerian circuits and graphs.
 """
-from builtins import next
 import networkx as nx
 
 __author__ = """\n""".join(['Nima Mohammadi (nima.irt[AT]gmail.com)',

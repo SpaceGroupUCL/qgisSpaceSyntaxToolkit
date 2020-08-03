@@ -10,8 +10,7 @@ Basic steps are:
   - flowchart connects data to the first plot, where it is displayed
   - add a gaussian filter to lowpass the data, then display it in the second plot.
 """
-from __future__ import absolute_import
-from . import initExample ## Add path to library (just for examples; you do not need this)
+import initExample ## Add path to library (just for examples; you do not need this)
 
 
 from pyqtgraph.flowchart import Flowchart

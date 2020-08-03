@@ -1,4 +1,3 @@
-from __future__ import print_function
 from ..Qt import QtGui, QtCore
 
 
@@ -85,8 +84,7 @@ if __name__ == '__main__':
     w.resize(100, 100)
     
     def fn(b, s):
-        # fix_print_with_import
-        print(("state changed:", s))
+        print("state changed:", s)
         
     b.sigStateChanged.connect(fn)
         

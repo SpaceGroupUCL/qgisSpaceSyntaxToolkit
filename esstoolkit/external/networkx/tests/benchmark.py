@@ -1,5 +1,3 @@
-from __future__ import print_function
-from builtins import object
 from timeit import Timer
 
 # This is gratefully modeled after the benchmarks found in
@@ -37,7 +35,7 @@ class Benchmark(object):
         """
         test_str, setup_str = some_strs
         if graph_class == 'all':
-            graph_class = list(self.class_tests.keys())
+            graph_class = self.class_tests.keys()
         elif not isinstance(graph_class,list):
             graph_class = [graph_class]
 
@@ -59,7 +57,7 @@ class Benchmark(object):
         print('='*72)
 
         times=[]
-        for GC,timer in list(self.class_tests.items()):
+        for GC,timer in self.class_tests.items():
             name = GC.ljust(column_len)
             try:
 #                t=sum(timer.repeat(self.runs,self.reps))/self.runs

@@ -1,10 +1,8 @@
 #!/usr/bin/env python
-from builtins import map
-from builtins import object
 from nose.tools import *
 import networkx as nx
 
-class TestMST(object):
+class TestMST:
 
     def setUp(self):
     # example from Wikipedia: http://en.wikipedia.org/wiki/Kruskal's_algorithm

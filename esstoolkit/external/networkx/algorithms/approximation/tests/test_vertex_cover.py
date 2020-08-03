@@ -1,10 +1,9 @@
 #!/usr/bin/env python
-from builtins import object
 from nose.tools import *
 import networkx as nx
 from  networkx.algorithms import approximation as a
 
-class TestMWVC(object):
+class TestMWVC:
 
     def test_min_vertex_cover(self):
         # create a simple star graph

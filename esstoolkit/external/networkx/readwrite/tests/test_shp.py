@@ -1,8 +1,6 @@
 """Unit tests for shp.
 """
 
-from builtins import zip
-from builtins import object
 import os
 import tempfile
 from nose import SkipTest

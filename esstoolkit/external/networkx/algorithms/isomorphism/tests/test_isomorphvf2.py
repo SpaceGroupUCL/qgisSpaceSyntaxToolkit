@@ -2,9 +2,6 @@
     Tests for VF2 isomorphism algorithm.
 """
 
-from builtins import zip
-from builtins import range
-from builtins import object
 import os
 import struct
 import random
@@ -125,7 +122,7 @@ class TestAtlas(object):
             labels = alphabet[:len(nlist)]
             for s in range(10):
                 random.shuffle(labels)
-                d = dict(list(zip(nlist,labels)))
+                d = dict(zip(nlist,labels))
                 relabel = nx.relabel_nodes(graph, d)
                 gm = iso.GraphMatcher(graph, relabel)
                 assert_true(gm.is_isomorphic())
@@ -147,7 +144,7 @@ def test_multiedge():
         for _ in range(10):
             new_nodes = list(nodes)
             random.shuffle(new_nodes)
-            d = dict(list(zip(nodes, new_nodes)))
+            d = dict(zip(nodes, new_nodes))
             g2 = nx.relabel_nodes(g1, d)
             if not g1.is_directed():
                 gm = iso.GraphMatcher(g1,g2)
@@ -166,7 +163,7 @@ def test_selfloop():
         for _ in range(100):
             new_nodes = list(nodes)
             random.shuffle(new_nodes)
-            d = dict(list(zip(nodes, new_nodes)))
+            d = dict(zip(nodes, new_nodes))
             g2 = nx.relabel_nodes(g1, d)
             if not g1.is_directed():
                 gm = iso.GraphMatcher(g1,g2)

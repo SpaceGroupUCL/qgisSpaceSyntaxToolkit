@@ -2,11 +2,9 @@
 """
 Use a HistogramLUTWidget to control the contrast / coloration of an image.
 """
-from __future__ import absolute_import
 
 ## Add path to library (just for examples; you do not need this)                                                                           
-from builtins import range
-from . import initExample
+import initExample
 
 import numpy as np
 from pyqtgraph.Qt import QtGui, QtCore

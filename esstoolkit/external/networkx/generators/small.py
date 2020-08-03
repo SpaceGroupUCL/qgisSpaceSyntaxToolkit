@@ -3,7 +3,6 @@
 Various small and named graphs, together with some compact generators.
 
 """
-from builtins import range
 __author__ ="""Aric Hagberg (hagberg@lanl.gov)\nPieter Swart (swart@lanl.gov)"""
 #    Copyright (C) 2004-2015 by 
 #    Aric Hagberg <hagberg@lanl.gov>
@@ -354,7 +353,7 @@ def sedgewick_maze_graph(create_using=None):
     Nodes are numbered 0,..,7
     """ 
     G=empty_graph(0, create_using)
-    G.add_nodes_from(list(range(8)))
+    G.add_nodes_from(range(8))
     G.add_edges_from([[0,2],[0,7],[0,5]])
     G.add_edges_from([[1,7],[2,6]])
     G.add_edges_from([[3,4],[3,5]])

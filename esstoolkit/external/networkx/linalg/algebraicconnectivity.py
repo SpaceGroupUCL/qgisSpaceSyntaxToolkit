@@ -3,9 +3,6 @@
 Algebraic connectivity and Fiedler vectors of undirected graphs.
 """
 
-from builtins import zip
-from builtins import range
-from builtins import object
 __author__ = """ysitu <ysitu@users.noreply.github.com>"""
 # Copyright (C) 2014 ysitu <ysitu@users.noreply.github.com>
 # All rights reserved.
@@ -143,7 +140,7 @@ def _preprocess_graph(G, weight):
         edges = ((u, v, abs(e.get(weight, 1.)))
                  for u, v, e in G.edges_iter(data=True) if u != v)
     else:
-        edges = ((u, v, sum(abs(e.get(weight, 1.)) for e in list(G[u][v].values())))
+        edges = ((u, v, sum(abs(e.get(weight, 1.)) for e in G[u][v].values()))
                  for u, v in G.edges_iter() if u != v)
     H = nx.Graph()
     H.add_nodes_from(G)
@@ -157,7 +154,7 @@ def _rcm_estimate(G, nodelist):
     G = G.subgraph(nodelist)
     order = reverse_cuthill_mckee_ordering(G)
     n = len(nodelist)
-    index = dict(list(zip(nodelist, list(range(n)))))
+    index = dict(zip(nodelist, range(n)))
     x = ndarray(n, dtype=float)
     for i, u in enumerate(order):
         x[index[u]] = i
@@ -541,7 +538,7 @@ def spectral_ordering(G, weight='weight', normalized=False, tol=1e-8,
             x = None if method != 'lobpcg' else _rcm_estimate(G, component)
             fiedler = find_fiedler(L, x, normalized, tol)[1]
             order.extend(
-                u for x, c, u in sorted(zip(fiedler, list(range(size)), component)))
+                u for x, c, u in sorted(zip(fiedler, range(size), component)))
         else:
             order.extend(component)
 

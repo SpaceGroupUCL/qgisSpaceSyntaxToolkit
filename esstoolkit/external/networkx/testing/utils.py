@@ -1,4 +1,3 @@
-from builtins import zip
 import operator
 from nose.tools import *
 __all__ = ['assert_nodes_equal', 'assert_edges_equal','assert_graphs_equal']

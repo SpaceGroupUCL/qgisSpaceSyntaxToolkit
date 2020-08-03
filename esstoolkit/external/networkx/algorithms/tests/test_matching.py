@@ -1,10 +1,9 @@
 #!/usr/bin/env python
-from builtins import object
 import math
 from nose.tools import *
 import networkx as nx
 
-class TestMatching(object):
+class TestMatching:
 
     def setUp(self):
         pass

@@ -1,10 +1,9 @@
 #!/usr/bin/env python
-from builtins import object
 from nose.tools import *
 import networkx as nx
 from networkx import NetworkXNotImplemented
 
-class TestWeaklyConnected(object):
+class TestWeaklyConnected:
 
     def setUp(self):
         self.gc = []

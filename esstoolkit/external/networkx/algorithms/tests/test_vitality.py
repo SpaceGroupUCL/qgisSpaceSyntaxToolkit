@@ -1,9 +1,8 @@
 #!/usr/bin/env python
-from builtins import object
 from nose.tools import *
 import networkx as nx
 
-class TestVitality(object):
+class TestVitality:
 
     def test_closeness_vitality_unweighted(self):
         G=nx.cycle_graph(3)

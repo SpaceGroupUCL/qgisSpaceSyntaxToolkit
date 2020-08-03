@@ -1,13 +1,11 @@
 #!/usr/bin/env python
-from builtins import range
-from builtins import object
 from nose.tools import *
 from nose import SkipTest
 import networkx as nx
 from networkx.algorithms import bipartite
 from networkx.testing.utils import assert_edges_equal
 
-class TestBiadjacencyMatrix(object):
+class TestBiadjacencyMatrix:
     @classmethod
     def setupClass(cls):
         global np, sp, sparse, np_assert_equal

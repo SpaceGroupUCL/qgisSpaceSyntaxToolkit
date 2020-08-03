@@ -2,8 +2,6 @@
 """
 Mixing matrices for node attributes and degree.
 """
-from builtins import zip
-from builtins import range
 import networkx as nx
 from networkx.utils import dict_to_numpy_array
 from networkx.algorithms.assortativity.pairs import node_degree_xy, \
@@ -156,10 +154,10 @@ def degree_mixing_matrix(G, x='out', y='in', weight=None,
     """
     d=degree_mixing_dict(G, x=x, y=y, nodes=nodes, weight=weight)
     s=set(d.keys())
-    for k,v in list(d.items()):
-        s.update(list(v.keys()))
+    for k,v in d.items():
+        s.update(v.keys())
     m=max(s)            
-    mapping=dict(list(zip(list(range(m+1)),list(range(m+1)))))
+    mapping=dict(zip(range(m+1),range(m+1)))
     a=dict_to_numpy_array(d,mapping=mapping)
     if normalized:
         a=a/a.sum()
@@ -189,10 +187,10 @@ def numeric_mixing_matrix(G,attribute,nodes=None,normalized=True):
     """
     d=attribute_mixing_dict(G,attribute,nodes)
     s=set(d.keys())
-    for k,v in list(d.items()):
-        s.update(list(v.keys()))
+    for k,v in d.items():
+        s.update(v.keys())
     m=max(s)            
-    mapping=dict(list(zip(list(range(m+1)),list(range(m+1)))))
+    mapping=dict(zip(range(m+1),range(m+1)))
     a=dict_to_numpy_array(d,mapping=mapping)
     if normalized:
         a=a/a.sum()
@@ -230,7 +228,7 @@ def mixing_dict(xy,normalized=False):
 
 
     if normalized:
-        for k,jdict in list(d.items()):
+        for k,jdict in d.items():
             for j in jdict:
                 jdict[j]/=psum
     return d

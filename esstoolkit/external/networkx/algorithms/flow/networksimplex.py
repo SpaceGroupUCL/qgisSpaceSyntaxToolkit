@@ -3,8 +3,6 @@
 Minimum cost flow algorithms on directed connected graphs.
 """
 
-from builtins import zip
-from builtins import range
 __author__ = """Loïc Séguin-C. <loicseguin@gmail.com>"""
 # Copyright (C) 2010 Loïc Séguin-C. <loicseguin@gmail.com>
 # All rights reserved.
@@ -18,7 +16,7 @@ import networkx as nx
 from networkx.utils import not_implemented_for
 
 try:
-    
+    from itertools import izip as zip
 except ImportError:
     pass
 try:
@@ -284,9 +282,9 @@ def network_simplex(G, demand='demand', capacity='capacity', weight='weight'):
     parent = list(chain(repeat(-1, n), [None]))  # parent nodes
     edge = list(range(e, e + n))                 # edges to parents
     size = list(chain(repeat(1, n), [n + 1]))    # subtree sizes
-    next = list(chain(list(range(1, n)), [-1, 0]))     # next nodes in depth-first thread 
+    next = list(chain(range(1, n), [-1, 0]))     # next nodes in depth-first thread 
     prev = list(range(-1, n))                    # previous nodes in depth-first thread
-    last = list(chain(list(range(n)), [n - 1]))        # last descendants in depth-first thread
+    last = list(chain(range(n), [n - 1]))        # last descendants in depth-first thread
 
     ###########################################################################
     # Pivot loop
@@ -317,10 +315,10 @@ def network_simplex(G, demand='demand', capacity='capacity', weight='weight'):
             # Determine the next block of edges.
             l = f + B
             if l <= e:
-                edges = list(range(f, l))
+                edges = range(f, l)
             else:
                 l -= e
-                edges = chain(list(range(f, e)), list(range(l)))
+                edges = chain(range(f, e), range(l))
             f = l
             # Find the first edge with the lowest reduced cost.
             i = min(edges, key=reduced_cost)
@@ -402,7 +400,7 @@ def network_simplex(G, demand='demand', capacity='capacity', weight='weight'):
     def find_leaving_edge(Wn, We):
         """Return the leaving edge in a cycle represented by Wn and We.
         """
-        j, s = min(list(zip(reversed(We), reversed(Wn))),
+        j, s = min(zip(reversed(We), reversed(Wn)),
                    key=lambda i_p: residual_capacity(*i_p))
         t = T[j] if S[j] == s else S[j]
         return j, s, t

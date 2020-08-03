@@ -1,4 +1,3 @@
-from builtins import str
 from OpenGL.GL import *
 from OpenGL.arrays import vbo
 from .. GLGraphicsItem import GLGraphicsItem
@@ -41,7 +40,7 @@ class GLScatterPlotItem(GLGraphicsItem):
         ====================  ==================================================
         """
         args = ['pos', 'color', 'size', 'pxMode']
-        for k in list(kwds.keys()):
+        for k in kwds.keys():
             if k not in args:
                 raise Exception('Invalid keyword argument: %s (allowed arguments are %s)' % (k, str(args)))
             

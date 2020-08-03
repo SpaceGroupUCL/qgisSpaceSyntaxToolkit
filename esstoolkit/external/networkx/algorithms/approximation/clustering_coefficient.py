@@ -4,7 +4,6 @@
 #   Jordi Torrents <jtorrents@milnou.net>
 #   All rights reserved.
 #   BSD license.
-from builtins import range
 import random
 from networkx.utils import not_implemented_for
 

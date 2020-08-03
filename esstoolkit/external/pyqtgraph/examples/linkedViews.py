@@ -4,9 +4,8 @@ This example demonstrates the ability to link the axes of views together
 Views can be linked manually using the context menu, but only if they are given 
 names.
 """
-from __future__ import absolute_import
 
-from . import initExample ## Add path to library (just for examples; you do not need this)
+import initExample ## Add path to library (just for examples; you do not need this)
 
 
 from pyqtgraph.Qt import QtGui, QtCore

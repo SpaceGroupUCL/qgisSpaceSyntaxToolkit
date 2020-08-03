@@ -8,7 +8,6 @@ Biconnected components and articulation points.
 #    Pieter Swart <swart@lanl.gov>
 #    All rights reserved.
 #    BSD license.
-from builtins import next
 from itertools import chain
 import networkx as nx
 from networkx.utils.decorators import not_implemented_for

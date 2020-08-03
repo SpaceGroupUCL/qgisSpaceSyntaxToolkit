@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """Maximum flow algorithms test suite.
 """
-from builtins import range
-from builtins import object
 from nose.tools import *
 
 import networkx as nx
@@ -34,13 +32,13 @@ def validate_flows(G, s, t, flowDict, solnValue, capacity, flow_func):
                      msg=msg.format(flow_func.__name__))
     excess = dict((u, 0) for u in flowDict)
     for u in flowDict:
-        for v, flow in list(flowDict[u].items()):
+        for v, flow in flowDict[u].items():
             if capacity in G[u][v]:
                 ok_(flow <= G[u][v][capacity])
             ok_(flow >= 0, msg=msg.format(flow_func.__name__))
             excess[u] -= flow
             excess[v] += flow
-    for u, exc in list(excess.items()):
+    for u, exc in excess.items():
         if u == s:
             assert_equal(exc, -solnValue, msg=msg.format(flow_func.__name__))
         elif u == t:
@@ -82,7 +80,7 @@ def compare_flows_and_cuts(G, s, t, solnFlows, solnValue, capacity='capacity'):
         validate_cuts(G, s, t, solnValue, partition, capacity, flow_func)
 
 
-class TestMaxflowMinCutCommon(object):
+class TestMaxflowMinCutCommon:
 
     def test_graph1(self):
         # Trivial undirected graph
@@ -341,7 +339,7 @@ class TestMaxflowMinCutCommon(object):
             assert_raises(nx.NetworkXError, flow_func, G, 0, 0)
 
 
-class TestMaxFlowMinCutInterface(object):
+class TestMaxFlowMinCutInterface:
 
     def setup(self):
         G = nx.DiGraph()
@@ -458,7 +456,7 @@ def test_shortest_augmenting_path_two_phase():
     assert_equal(R.graph['flow_value'], k)
 
 
-class TestCutoff(object):
+class TestCutoff:
 
     def test_cutoff(self):
         k = 5

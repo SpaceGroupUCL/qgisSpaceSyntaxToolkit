@@ -2,8 +2,6 @@
     Functions for constructing matrix-like objects from graph attributes.
 """
 
-from builtins import zip
-from builtins import range
 __all__ = ['attr_matrix', 'attr_sparse_matrix']
 
 import networkx as nx
@@ -92,13 +90,13 @@ def _edge_value(G, edge_attr):
         if edge_attr == 'weight':
             # provide a default value
             if G.is_multigraph():
-                value = lambda u,v: sum([d.get(edge_attr, 1) for d in list(G[u][v].values())])
+                value = lambda u,v: sum([d.get(edge_attr, 1) for d in G[u][v].values()])
             else:
                 value = lambda u,v: G[u][v].get(edge_attr, 1)
         else:
             # otherwise, the edge attribute MUST exist for each edge
             if G.is_multigraph():
-                value = lambda u,v: sum([d[edge_attr] for d in list(G[u][v].values())])
+                value = lambda u,v: sum([d[edge_attr] for d in G[u][v].values()])
             else:
                 value = lambda u,v: G[u][v][edge_attr]
             
@@ -256,7 +254,7 @@ def attr_matrix(G, edge_attr=None, node_attr=None, normalized=False,
 
     N = len(ordering)
     undirected = not G.is_directed()   
-    index = dict(list(zip(ordering, list(range(N)))))
+    index = dict(zip(ordering, range(N)))
     M = np.zeros((N,N), dtype=dtype, order=order)
 
     seen = set([])
@@ -419,7 +417,7 @@ def attr_sparse_matrix(G, edge_attr=None, node_attr=None,
 
     N = len(ordering)
     undirected = not G.is_directed()   
-    index = dict(list(zip(ordering, list(range(N)))))
+    index = dict(zip(ordering, range(N)))
     M = sparse.lil_matrix((N,N), dtype=dtype)
 
     seen = set([])

@@ -2,8 +2,6 @@
 """
 Spectral bipartivity measure.
 """
-from builtins import zip
-from builtins import range
 import networkx as nx
 __author__ = """Aric Hagberg (hagberg@lanl.gov)"""
 #    Copyright (C) 2011 by 
@@ -70,7 +68,7 @@ def spectral_bipartivity(G, nodes=None, weight='weight'):
         return coshA.diagonal().sum() / expA.diagonal().sum()
     else:
         # contribution for individual nodes
-        index = dict(list(zip(nodelist, list(range(len(nodelist))))))
+        index = dict(zip(nodelist, range(len(nodelist))))
         sb = {}
         for n in nodes:
             i = index[n]

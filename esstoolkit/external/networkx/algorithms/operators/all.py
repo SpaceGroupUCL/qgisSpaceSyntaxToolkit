@@ -6,9 +6,8 @@
 #    Pieter Swart <swart@lanl.gov>
 #    All rights reserved.
 #    BSD license.
-from builtins import next
 try:
-    from itertools import zip_longest as zip_longest
+    from itertools import izip_longest as zip_longest
 except ImportError:  # Python3 has zip_longest
     from itertools import zip_longest
 import networkx as nx

@@ -1,8 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import absolute_import
-from builtins import str
-from builtins import range
 from .Qt import QtCore, QtGui
 from .Vector import Vector
 from .Transform3D import Transform3D
@@ -228,9 +224,9 @@ class SRTTransform3D(Transform3D):
             raise Exception("Argument 'nd' must be 2 or 3")
         
 if __name__ == '__main__':
-    from . import widgets
+    import widgets
     import GraphicsView
-    from .functions import *
+    from functions import *
     app = QtGui.QApplication([])
     win = QtGui.QMainWindow()
     win.show()

@@ -2,7 +2,7 @@ from OpenGL.GL import *
 from OpenGL import GL
 from ..Qt import QtGui, QtCore
 from .. import Transform3D
-from ..python2_3 import str
+from ..python2_3 import basestring
 
 
 GLOptions = {
@@ -91,7 +91,7 @@ class GLGraphicsItem(QtCore.QObject):
             
         
         """
-        if isinstance(opts, str):
+        if isinstance(opts, basestring):
             opts = GLOptions[opts]
         self.__glOpts = opts.copy()
         self.update()
@@ -242,10 +242,10 @@ class GLGraphicsItem(QtCore.QObject):
         This method is responsible for preparing the GL state options needed to render 
         this item (blending, depth testing, etc). The method is called immediately before painting the item.
         """
-        for k,v in list(self.__glOpts.items()):
+        for k,v in self.__glOpts.items():
             if v is None:
                 continue
-            if isinstance(k, str):
+            if isinstance(k, basestring):
                 func = getattr(GL, k)
                 func(*v)
             else:

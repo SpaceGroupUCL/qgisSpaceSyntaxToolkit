@@ -11,10 +11,8 @@ being displayed.
 A more clever implementation of this class would employ some kind of caching 
 to avoid re-reading the entire visible waveform at every update.
 """
-from __future__ import absolute_import
 
-from builtins import range
-from . import initExample ## Add path to library (just for examples; you do not need this)
+import initExample ## Add path to library (just for examples; you do not need this)
 
 import sys, os
 import numpy as np

@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from builtins import range
-from builtins import object
 from ..Qt import QtCore, QtGui
 import weakref
 

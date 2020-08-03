@@ -92,7 +92,7 @@ def to_networkx_graph(data,create_using=None,multigraph_input=False):
             if hasattr(data,'graph') and isinstance(data.graph,dict):
                 result.graph=data.graph.copy()
             if hasattr(data,'node') and isinstance(data.node,dict):
-                result.node=dict( (n,dd.copy()) for n,dd in list(data.node.items()) )
+                result.node=dict( (n,dd.copy()) for n,dd in data.node.items() )
             return result
         except:
             raise nx.NetworkXError("Input is not a correct NetworkX graph.")
@@ -233,13 +233,13 @@ def from_dict_of_lists(d,create_using=None):
         # each edge shows up twice in the dict_of_lists.
         # So we need to treat this case separately.
         seen={}
-        for node,nbrlist in list(d.items()):
+        for node,nbrlist in d.items():
             for nbr in nbrlist:
                 if nbr not in seen:
                     G.add_edge(node,nbr)
             seen[node]=1  # don't allow reverse edge to show up
     else:
-        G.add_edges_from( ((node,nbr) for node,nbrlist in list(d.items())
+        G.add_edges_from( ((node,nbr) for node,nbrlist in d.items()
                            for nbr in nbrlist) )
     return G
 
@@ -274,7 +274,7 @@ def to_dict_of_dicts(G,nodelist=None,edge_data=None):
         if edge_data is None:
             for u in nodelist:
                 dod[u]={}
-                for v,data in ((v,data) for v,data in list(G[u].items()) if v in nodelist):
+                for v,data in ((v,data) for v,data in G[u].items() if v in nodelist):
                     dod[u][v]=data
         else: # nodelist and edge_data are not None
             for u in nodelist:
@@ -316,33 +316,33 @@ def from_dict_of_dicts(d,create_using=None,multigraph_input=False):
         if G.is_directed():
             if G.is_multigraph():
                 G.add_edges_from( (u,v,key,data)
-                                  for u,nbrs in list(d.items())
-                                  for v,datadict in list(nbrs.items())
-                                  for key,data in list(datadict.items())
+                                  for u,nbrs in d.items()
+                                  for v,datadict in nbrs.items()
+                                  for key,data in datadict.items()
                                 )
             else:
                 G.add_edges_from( (u,v,data)
-                                  for u,nbrs in list(d.items())
-                                  for v,datadict in list(nbrs.items())
-                                  for key,data in list(datadict.items())
+                                  for u,nbrs in d.items()
+                                  for v,datadict in nbrs.items()
+                                  for key,data in datadict.items()
                                 )
         else: # Undirected
             if G.is_multigraph():
                 seen=set()   # don't add both directions of undirected graph
-                for u,nbrs in list(d.items()):
-                    for v,datadict in list(nbrs.items()):
+                for u,nbrs in d.items():
+                    for v,datadict in nbrs.items():
                         if (u,v) not in seen:
                             G.add_edges_from( (u,v,key,data)
-                                               for key,data in list(datadict.items())
+                                               for key,data in datadict.items()
                                               )
                             seen.add((v,u))
             else:
                 seen=set()   # don't add both directions of undirected graph
-                for u,nbrs in list(d.items()):
-                    for v,datadict in list(nbrs.items()):
+                for u,nbrs in d.items():
+                    for v,datadict in nbrs.items():
                         if (u,v) not in seen:
                             G.add_edges_from( (u,v,data)
-                                        for key,data in list(datadict.items()) )
+                                        for key,data in datadict.items() )
                             seen.add((v,u))
 
     else: # not a multigraph to multigraph transfer
@@ -351,15 +351,15 @@ def from_dict_of_dicts(d,create_using=None,multigraph_input=False):
             # We don't need this check for digraphs since we add both directions,
             # or for Graph() since it is done implicitly (parallel edges not allowed)
             seen=set()
-            for u,nbrs in list(d.items()):
-                for v,data in list(nbrs.items()):
+            for u,nbrs in d.items():
+                for v,data in nbrs.items():
                     if (u,v) not in seen:
                         G.add_edge(u,v,attr_dict=data)
                     seen.add((v,u))
         else:
             G.add_edges_from( ( (u,v,data)
-                                for u,nbrs in list(d.items())
-                                for v,data in list(nbrs.items())) )
+                                for u,nbrs in d.items()
+                                for v,data in nbrs.items()) )
     return G
 
 def to_edgelist(G,nodelist=None):

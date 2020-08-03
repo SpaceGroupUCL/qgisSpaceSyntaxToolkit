@@ -5,7 +5,6 @@
 #    Pieter Swart <swart@lanl.gov>
 #    All rights reserved.
 #    BSD license.
-from builtins import next
 from copy import deepcopy
 import networkx as nx
 from networkx.classes.graph import Graph
@@ -825,16 +824,16 @@ class DiGraph(Graph):
 
         """
         if nbunch is None:
-            nodes_nbrs=list(self.adj.items())
+            nodes_nbrs=self.adj.items()
         else:
             nodes_nbrs=((n,self.adj[n]) for n in self.nbunch_iter(nbunch))
         if data is True:
             for n,nbrs in nodes_nbrs:
-                for nbr,ddict in list(nbrs.items()):
+                for nbr,ddict in nbrs.items():
                     yield (n,nbr,ddict)
         elif data is not False:
             for n,nbrs in nodes_nbrs:
-                for nbr,ddict in list(nbrs.items()):
+                for nbr,ddict in nbrs.items():
                     d=ddict[data] if data in ddict else default
                     yield (n,nbr,d)
         else:
@@ -867,12 +866,12 @@ class DiGraph(Graph):
         edges_iter : return an iterator of edges
         """
         if nbunch is None:
-            nodes_nbrs=list(self.pred.items())
+            nodes_nbrs=self.pred.items()
         else:
             nodes_nbrs=((n,self.pred[n]) for n in self.nbunch_iter(nbunch))
         if data:
             for n,nbrs in nodes_nbrs:
-                for nbr,data in list(nbrs.items()):
+                for nbr,data in nbrs.items():
                     yield (nbr,n,data)
         else:
             for n,nbrs in nodes_nbrs:
@@ -924,7 +923,7 @@ class DiGraph(Graph):
 
         """
         if nbunch is None:
-            nodes_nbrs=( (n,succs,self.pred[n]) for n,succs in list(self.succ.items()))
+            nodes_nbrs=( (n,succs,self.pred[n]) for n,succs in self.succ.items())
         else:
             nodes_nbrs=( (n,self.succ[n],self.pred[n]) for n in self.nbunch_iter(nbunch))
 
@@ -975,7 +974,7 @@ class DiGraph(Graph):
 
         """
         if nbunch is None:
-            nodes_nbrs=list(self.pred.items())
+            nodes_nbrs=self.pred.items()
         else:
             nodes_nbrs=((n,self.pred[n]) for n in self.nbunch_iter(nbunch))
 
@@ -985,7 +984,7 @@ class DiGraph(Graph):
         else:
         # edge weighted graph - degree is sum of edge weights
             for n,nbrs in nodes_nbrs:
-                yield (n, sum(data.get(weight,1) for data in list(nbrs.values())))
+                yield (n, sum(data.get(weight,1) for data in nbrs.values()))
 
 
     def out_degree_iter(self, nbunch=None, weight=None):
@@ -1024,7 +1023,7 @@ class DiGraph(Graph):
 
         """
         if nbunch is None:
-            nodes_nbrs=list(self.succ.items())
+            nodes_nbrs=self.succ.items()
         else:
             nodes_nbrs=((n,self.succ[n]) for n in self.nbunch_iter(nbunch))
 
@@ -1034,7 +1033,7 @@ class DiGraph(Graph):
         else:
         # edge weighted graph - degree is sum of edge weights
             for n,nbrs in nodes_nbrs:
-                yield (n, sum(data.get(weight,1) for data in list(nbrs.values())))
+                yield (n, sum(data.get(weight,1) for data in nbrs.values()))
 
 
     def in_degree(self, nbunch=None, weight=None):
@@ -1235,12 +1234,12 @@ class DiGraph(Graph):
         if reciprocal is True:
             H.add_edges_from( (u,v,deepcopy(d))
                               for u,nbrs in self.adjacency_iter()
-                              for v,d in list(nbrs.items())
+                              for v,d in nbrs.items()
                               if v in self.pred[u])
         else:
             H.add_edges_from( (u,v,deepcopy(d))
                               for u,nbrs in self.adjacency_iter()
-                              for v,d in list(nbrs.items()) )
+                              for v,d in nbrs.items() )
         H.graph=deepcopy(self.graph)
         H.node=deepcopy(self.node)
         return H
@@ -1329,7 +1328,7 @@ class DiGraph(Graph):
         # add edges
         for u in H_succ:
             Hnbrs=H_succ[u]
-            for v,datadict in list(self_succ[u].items()):
+            for v,datadict in self_succ[u].items():
                 if v in H_succ:
                     # add both representations of edge: u-v and v-u
                     Hnbrs[v]=datadict

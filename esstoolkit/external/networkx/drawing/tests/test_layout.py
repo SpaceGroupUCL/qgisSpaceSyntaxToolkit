@@ -1,5 +1,4 @@
 """Unit tests for layout functions."""
-from builtins import object
 import sys
 from nose import SkipTest
 from nose.tools import assert_equal

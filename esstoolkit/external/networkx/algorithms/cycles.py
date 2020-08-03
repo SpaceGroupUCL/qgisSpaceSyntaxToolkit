@@ -10,8 +10,6 @@ Cycle finding algorithms
 #    All rights reserved.
 #    BSD license.
 
-from builtins import zip
-from builtins import range
 from collections import defaultdict
 
 import networkx as nx
@@ -308,7 +306,7 @@ def recursive_simple_cycles(G):
     result = [] # list to accumulate the circuits found
     # Johnson's algorithm requires some ordering of the nodes.
     # They might not be sortable so we assign an arbitrary ordering.
-    ordering=dict(list(zip(G,list(range(len(G))))))
+    ordering=dict(zip(G,range(len(G))))
     for s in ordering:
         # Build the subgraph induced by s and following nodes in the ordering
         subgraph = G.subgraph(node for node in G

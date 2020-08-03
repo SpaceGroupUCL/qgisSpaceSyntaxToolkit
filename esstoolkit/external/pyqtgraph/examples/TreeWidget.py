@@ -3,8 +3,7 @@
 Simple demonstration of TreeWidget, which is an extension of QTreeWidget
 that allows widgets to be added and dragged within the tree more easily.
 """
-from __future__ import absolute_import
-from . import initExample ## Add path to library (just for examples; you do not need this)
+import initExample ## Add path to library (just for examples; you do not need this)
 
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore, QtGui

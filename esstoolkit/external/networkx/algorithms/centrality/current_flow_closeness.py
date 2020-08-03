@@ -6,8 +6,6 @@
 #    Pieter Swart <swart@lanl.gov>
 #    All rights reserved.
 #    BSD license.
-from builtins import zip
-from builtins import range
 import networkx as nx
 from networkx.algorithms.centrality.flow_matrix import *
 __author__ = """Aric Hagberg <aric.hagberg@gmail.com>"""
@@ -80,10 +78,10 @@ def current_flow_closeness_centrality(G, weight='weight',
     ordering = list(reverse_cuthill_mckee_ordering(G))
     # make a copy with integer labels according to rcm ordering
     # this could be done without a copy if we really wanted to
-    H = nx.relabel_nodes(G, dict(list(zip(ordering, list(range(n))))))
+    H = nx.relabel_nodes(G, dict(zip(ordering, range(n))))
     betweenness = dict.fromkeys(H, 0.0)  # b[v]=0 for v in H
     n = H.number_of_nodes()
-    L = laplacian_sparse_matrix(H, nodelist=list(range(n)), weight=weight,
+    L = laplacian_sparse_matrix(H, nodelist=range(n), weight=weight,
                                 dtype=dtype, format='csc')
     C2 = solvername[solver](L, width=1, dtype=dtype)  # initialize solver
     for v in H:
@@ -93,7 +91,7 @@ def current_flow_closeness_centrality(G, weight='weight',
             betweenness[w] += col[v]
     for v in H:
         betweenness[v] = 1.0 / (betweenness[v])
-    return dict((ordering[k], float(v)) for k, v in list(betweenness.items()))
+    return dict((ordering[k], float(v)) for k, v in betweenness.items())
 
 information_centrality = current_flow_closeness_centrality
 

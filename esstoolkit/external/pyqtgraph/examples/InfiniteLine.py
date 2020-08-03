@@ -2,9 +2,8 @@
 """
 This example demonstrates some of the plotting items available in pyqtgraph.
 """
-from __future__ import absolute_import
 
-from . import initExample ## Add path to library (just for examples; you do not need this)
+import initExample ## Add path to library (just for examples; you do not need this)
 from pyqtgraph.Qt import QtGui, QtCore
 import numpy as np
 import pyqtgraph as pg

@@ -4,8 +4,6 @@
 Run with nose: nosetests -v test_coloring.py
 """
 
-from builtins import range
-from builtins import object
 __author__ = "\n".join(["Christian Olsson <chro@itu.dk>",
                         "Jan Aagaard Meier <jmei@itu.dk>",
                         "Henrik Haugbølle <hhau@itu.dk>"])
@@ -13,7 +11,7 @@ __author__ = "\n".join(["Christian Olsson <chro@itu.dk>",
 import networkx as nx
 from nose.tools import *
 
-class TestColoring(object):
+class TestColoring:
 ############################## RS tests ##############################
     def test_rs_empty(self):
         graph = emptyGraph()
@@ -393,7 +391,7 @@ def dict_to_sets(colors):
     k = max(colors.values()) + 1
     sets = [set() for _ in range(k)]
 
-    for (node, color) in list(colors.items()):
+    for (node, color) in colors.items():
         sets[color].add(node)
 
     return sets

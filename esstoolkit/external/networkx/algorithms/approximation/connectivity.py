@@ -4,7 +4,6 @@
 #    Jordi Torrents <jtorrents@milnou.net>
 #    All rights reserved.
 #    BSD license.
-from builtins import range
 import itertools
 from operator import itemgetter
 
@@ -204,7 +203,7 @@ def node_connectivity(G, s=None, t=None):
         return 0
 
     # Choose a node with minimum degree
-    v, minimum_degree = min(list(G.degree().items()), key=itemgetter(1))
+    v, minimum_degree = min(G.degree().items(), key=itemgetter(1))
     # Node connectivity is bounded by minimum degree
     K = minimum_degree
     # compute local node connectivity with all non-neighbors nodes

@@ -3,10 +3,9 @@
 Simple examples demonstrating the use of GLMeshItem.
 
 """
-from __future__ import absolute_import
 
 ## Add path to library (just for examples; you do not need this)
-from . import initExample
+import initExample
 
 from pyqtgraph.Qt import QtCore, QtGui
 import pyqtgraph as pg

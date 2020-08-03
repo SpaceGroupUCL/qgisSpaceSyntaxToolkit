@@ -1,5 +1,3 @@
-from builtins import range
-from builtins import object
 from itertools import chain
 import networkx as nx
 from nose.tools import *

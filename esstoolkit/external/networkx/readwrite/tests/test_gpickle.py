@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-from builtins import object
 from nose.tools import assert_equal
 import os
 import tempfile

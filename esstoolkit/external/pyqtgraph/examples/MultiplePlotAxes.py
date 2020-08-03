@@ -5,8 +5,7 @@ Demonstrates a way to put multiple axes around a single plot.
 (This will eventually become a built-in feature of PlotItem)
 
 """
-from __future__ import absolute_import
-from . import initExample ## Add path to library (just for examples; you do not need this)
+import initExample ## Add path to library (just for examples; you do not need this)
 
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore, QtGui

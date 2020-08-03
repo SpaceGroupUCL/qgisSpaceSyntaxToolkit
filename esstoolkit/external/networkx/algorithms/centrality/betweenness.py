@@ -8,7 +8,6 @@ Betweenness centrality measures.
 #    Pieter Swart <swart@lanl.gov>
 #    All rights reserved.
 #    BSD license.
-from builtins import next
 from heapq import heappush, heappop
 from itertools import count
 import networkx as nx
@@ -272,7 +271,7 @@ def _single_source_dijkstra_path_basic(G, s, weight='weight'):
         sigma[v] += sigma[pred]  # count paths
         S.append(v)
         D[v] = dist
-        for w, edgedata in list(G[v].items()):
+        for w, edgedata in G[v].items():
             vw_dist = dist + edgedata.get(weight, 1)
             if w not in D and (w not in seen or vw_dist < seen[w]):
                 seen[w] = vw_dist

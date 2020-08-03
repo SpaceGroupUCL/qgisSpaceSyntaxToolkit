@@ -7,7 +7,6 @@
 #
 # WARNING! All changes made in this file will be lost!
 
-from builtins import object
 from ...Qt import QtCore, QtGui
 
 try:

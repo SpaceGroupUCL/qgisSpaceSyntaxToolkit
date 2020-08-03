@@ -1,6 +1,5 @@
 """Unit tests for PyGraphviz intefaace.
 """
-from builtins import object
 import os
 import tempfile
 

@@ -10,9 +10,8 @@ plot (bottom) or remotely via a RemoteGraphicsView (top), allowing speed compari
 between the two cases. IF you have a multi-core CPU, it should be obvious that the 
 remote case is much faster.
 """
-from __future__ import absolute_import
 
-from . import initExample ## Add path to library (just for examples; you do not need this)
+import initExample ## Add path to library (just for examples; you do not need this)
 from pyqtgraph.Qt import QtGui, QtCore
 import pyqtgraph as pg
 import pyqtgraph.widgets.RemoteGraphicsView

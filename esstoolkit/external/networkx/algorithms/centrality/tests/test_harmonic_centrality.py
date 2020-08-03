@@ -1,12 +1,11 @@
 """
 Tests for degree centrality.
 """
-from builtins import object
 from nose.tools import *
 import networkx as nx
 from networkx.algorithms.centrality import harmonic_centrality
 
-class TestClosenessCentrality(object):
+class TestClosenessCentrality:
     def setUp(self):
         self.P3 = nx.path_graph(3)
         self.P4 = nx.path_graph(4)

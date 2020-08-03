@@ -1,5 +1,3 @@
-from builtins import range
-from builtins import object
 import networkx as nx
 
 class BaseTestAttributeMixing(object):

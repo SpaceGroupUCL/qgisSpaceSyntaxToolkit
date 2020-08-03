@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-from builtins import next
-from builtins import zip
 import random
 from nose.tools import *
 

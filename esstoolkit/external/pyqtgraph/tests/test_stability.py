@@ -6,10 +6,6 @@ the tear them down repeatedly.
 
 The purpose of this is to attempt to generate segmentation faults.
 """
-from __future__ import print_function
-from future import standard_library
-standard_library.install_aliases()
-from builtins import range
 from pyqtgraph.Qt import QtTest
 import pyqtgraph as pg
 from random import seed, randint

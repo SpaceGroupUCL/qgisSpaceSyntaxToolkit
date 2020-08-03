@@ -1,8 +1,6 @@
 #!/usr/bin/python
 
-from __future__ import absolute_import
-from builtins import range
-from . import initExample ## Add path to library (just for examples; you do not need this)
+import initExample ## Add path to library (just for examples; you do not need this)
 from pyqtgraph.Qt import QtGui, QtCore
 import numpy as np
 import pyqtgraph as pg

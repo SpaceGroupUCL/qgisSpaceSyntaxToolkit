@@ -18,8 +18,6 @@ See http://en.wikipedia.org/wiki/Shapefile for additional information.
 #    Pieter Swart <swart@lanl.gov>
 #    All rights reserved.
 #    BSD license.
-from builtins import zip
-from builtins import range
 import networkx as nx
 __author__ = """Ben Reilly (benwreilly@gmail.com)"""
 __all__ = ['read_shp', 'write_shp']
@@ -73,7 +71,7 @@ def read_shp(path, simplify=True):
         for f in lyr:
             flddata = [f.GetField(f.GetFieldIndex(x)) for x in fields]
             g = f.geometry()
-            attributes = dict(list(zip(fields, flddata)))
+            attributes = dict(zip(fields, flddata))
             attributes["ShpName"] = lyr.GetName()
             if g.GetGeometryType() == 1:  # point
                 net.add_node((g.GetPoint_2D(0)), attributes)
@@ -168,7 +166,7 @@ def write_shp(G, outdir):
         feature.SetGeometry(g)
         if attributes != None:
             # Loop through attributes, assigning data to each field
-            for field, data in list(attributes.items()):
+            for field, data in attributes.items():
                 feature.SetField(field, data)
         lyr.CreateFeature(feature)
         feature.Destroy()
@@ -203,7 +201,7 @@ def write_shp(G, outdir):
         data = G.get_edge_data(*e)
         g = netgeometry(e, data)
         # Loop through attribute data in edges
-        for key, data in list(e[2].items()):
+        for key, data in e[2].items():
             # Reject spatial data not required for attribute table
             if (key != 'Json' and key != 'Wkt' and key != 'Wkb'
                 and key != 'ShpName'):

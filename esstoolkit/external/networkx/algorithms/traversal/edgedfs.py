@@ -7,7 +7,6 @@ Algorithms for a depth-first traversal of edges in a graph.
 
 """
 
-from builtins import next
 FORWARD = 'forward'
 REVERSE = 'reverse'
 

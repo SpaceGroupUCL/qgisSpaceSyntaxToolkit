@@ -1,7 +1,6 @@
 """
     Unit tests for pydot drawing functions.
 """
-from builtins import object
 import os
 import tempfile
 

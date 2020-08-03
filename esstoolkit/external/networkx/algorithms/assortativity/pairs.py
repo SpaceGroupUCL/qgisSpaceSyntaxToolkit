@@ -50,12 +50,12 @@ def node_attribute_xy(G, attribute, nodes=None):
             continue
         uattr = node[u].get(attribute,None)
         if G.is_multigraph():
-            for v,keys in list(nbrsdict.items()):
+            for v,keys in nbrsdict.items():
                 vattr = node[v].get(attribute,None)                
-                for k,d in list(keys.items()):
+                for k,d in keys.items():
                     yield (uattr,vattr)
         else:
-            for v,eattr in list(nbrsdict.items()):
+            for v,eattr in nbrsdict.items():
                 vattr = node[v].get(attribute,None)
                 yield (uattr,vattr)
 

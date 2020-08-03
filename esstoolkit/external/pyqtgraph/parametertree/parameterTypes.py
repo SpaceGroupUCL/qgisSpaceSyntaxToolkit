@@ -1,4 +1,3 @@
-from builtins import str
 from ..Qt import QtCore, QtGui
 from ..python2_3 import asUnicode
 from .Parameter import Parameter, registerParameterType
@@ -558,7 +557,7 @@ class ListParameter(Parameter):
         forward = OrderedDict()  ## {name: value, ...}
         reverse = ([], [])       ## ([value, ...], [name, ...])
         if isinstance(limits, dict):
-            for k, v in list(limits.items()):
+            for k, v in limits.items():
                 forward[k] = v
                 reverse[0].append(v)
                 reverse[1].append(k)

@@ -1,4 +1,3 @@
-from builtins import str
 from ...Qt import QtCore, QtGui, QT_LIB
 from ...python2_3 import asUnicode
 from ...WidgetGroup import WidgetGroup
@@ -94,7 +93,7 @@ class ViewBoxMenu(QtGui.QMenu):
     def setExportMethods(self, methods):
         self.exportMethods = methods
         self.export.clear()
-        for opt, fn in list(methods.items()):
+        for opt, fn in methods.items():
             self.export.addAction(opt, self.exportMethod)
         
 

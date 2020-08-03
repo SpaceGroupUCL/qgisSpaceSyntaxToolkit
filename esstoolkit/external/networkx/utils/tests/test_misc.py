@@ -1,6 +1,4 @@
 # -*- encoding: utf-8 -*-
-from builtins import str
-from builtins import object
 from nose.tools import *
 from nose import SkipTest
 import networkx as nx
@@ -43,7 +41,7 @@ def test_make_str_with_bytes():
     x = "qualité"
     y = make_str(x)
     if PY2:
-        assert_true(isinstance(y, str))
+        assert_true(isinstance(y, unicode))
         # Since file encoding is utf-8, the é will be two bytes.
         assert_true(len(y) == 8)
     else:
@@ -54,9 +52,9 @@ def test_make_str_with_unicode():
     import sys
     PY2 = sys.version_info[0] == 2
     if PY2:
-        x = str("qualité", encoding='utf-8')
+        x = unicode("qualité", encoding='utf-8')
         y = make_str(x)
-        assert_true(isinstance(y, str))
+        assert_true(isinstance(y, unicode))
         assert_true(len(y) == 7)
     else:
         x = "qualité"

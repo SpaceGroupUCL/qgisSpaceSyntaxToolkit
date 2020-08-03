@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from builtins import str
-from builtins import range
 from ...Qt import QtCore, QtGui
 from ...widgets.SpinBox import SpinBox
 #from ...SignalProxy import SignalProxy

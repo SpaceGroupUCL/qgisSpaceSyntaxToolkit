@@ -13,9 +13,6 @@ Matching
 #   Nicholas Mancuso <nick.mancuso@gmail.com>
 #   All rights reserved.
 #   BSD license.
-from builtins import zip
-from builtins import str
-from builtins import object
 from itertools import repeat
 __author__ = """\n""".join(['Joris van Rantwijk',
                             'Nicholas Mancuso (nick.mancuso@gmail.com)'])
@@ -118,11 +115,11 @@ def max_weight_matching(G, maxcardinality=False):
     # by Galil. You will probably need the paper to make sense of this code.
     #
 
-    class NoNode(object):
+    class NoNode:
         """Dummy value which is different from any node."""
         pass
 
-    class Blossom(object):
+    class Blossom:
         """Representation of a non-trivial blossom or sub-blossom."""
 
         __slots__ = [ 'childs', 'edges', 'mybestedges' ]
@@ -192,16 +189,16 @@ def max_weight_matching(G, maxcardinality=False):
     # If v is a top-level vertex, inblossom[v] == v since v is itself
     # a (trivial) top-level blossom.
     # Initially all vertices are top-level trivial blossoms.
-    inblossom = dict(list(zip(gnodes, gnodes)))
+    inblossom = dict(zip(gnodes, gnodes))
 
     # If b is a sub-blossom,
     # blossomparent[b] is its immediate parent (sub-)blossom.
     # If b is a top-level blossom, blossomparent[b] is None.
-    blossomparent = dict(list(zip(gnodes, repeat(None))))
+    blossomparent = dict(zip(gnodes, repeat(None)))
 
     # If b is a (sub-)blossom,
     # blossombase[b] is its base VERTEX (i.e. recursive sub-blossom).
-    blossombase = dict(list(zip(gnodes, gnodes)))
+    blossombase = dict(zip(gnodes, gnodes))
 
     # If w is a free vertex (or an unreached vertex inside a T-blossom),
     # bestedge[w] = (v, w) is the least-slack edge from an S-vertex,
@@ -217,7 +214,7 @@ def max_weight_matching(G, maxcardinality=False):
     # optimization problem (if all edge weights are integers, multiplication
     # by two ensures that all values remain integers throughout the algorithm).
     # Initially, u(v) = maxweight / 2.
-    dualvar = dict(list(zip(gnodes, repeat(maxweight))))
+    dualvar = dict(zip(gnodes, repeat(maxweight)))
 
     # If b is a non-trivial blossom,
     # blossomdual[b] = z(b) where z(b) is b's variable in the dual

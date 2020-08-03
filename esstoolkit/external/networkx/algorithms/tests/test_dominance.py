@@ -1,5 +1,3 @@
-from builtins import range
-from builtins import object
 import networkx as nx
 from nose.tools import *
 
@@ -132,7 +130,7 @@ class TestDominanceFrontiers(object):
         edges = [(1, 2), (2, 1), (3, 2), (4, 1), (5, 3), (5, 4)]
         G = nx.DiGraph(edges)
         assert_equal({u: sorted(df)
-                      for u, df in list(nx.dominance_frontiers(G, 5).items())},
+                      for u, df in nx.dominance_frontiers(G, 5).items()},
                      {1: [2], 2: [1], 3: [2], 4: [1], 5: []})
 
     def test_irreducible2(self):

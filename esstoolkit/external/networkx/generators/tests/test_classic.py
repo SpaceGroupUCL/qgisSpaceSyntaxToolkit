@@ -6,8 +6,6 @@ Generators - Classic
 
 Unit tests for various classic graph generators in generators/classic.py
 """
-from builtins import str
-from builtins import object
 import itertools
 
 from nose.tools import *
@@ -19,7 +17,7 @@ from networkx.testing import assert_nodes_equal
 
 is_isomorphic=graph_could_be_isomorphic
 
-class TestGeneratorClassic(object):
+class TestGeneratorClassic():
     def test_balanced_tree(self):
         # balanced_tree(r,h) is a tree with (r**(h+1)-1)/(r-1) edges
         for r,h in [(2,2),(3,3),(6,2)]:

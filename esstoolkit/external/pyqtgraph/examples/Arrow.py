@@ -7,9 +7,8 @@ of ArrowItem and CurvePoint.
 To place a static arrow anywhere in a scene, use ArrowItem.
 To attach other types of item to a curve, use CurvePoint.
 """
-from __future__ import absolute_import
 
-from . import initExample ## Add path to library (just for examples; you do not need this)
+import initExample ## Add path to library (just for examples; you do not need this)
 
 import numpy as np
 from pyqtgraph.Qt import QtGui, QtCore

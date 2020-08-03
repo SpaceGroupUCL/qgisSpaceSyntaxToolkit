@@ -1,4 +1,3 @@
-from builtins import range
 from .. import functions as fn
 from .GraphicsObject import GraphicsObject
 from .ScatterPlotItem import ScatterPlotItem

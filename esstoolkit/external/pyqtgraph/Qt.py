@@ -8,10 +8,7 @@ This module exists to smooth out some of the differences between PySide and PyQt
 * Declare loadUiType function for Pyside
 
 """
-from __future__ import print_function
 
-from builtins import map
-from builtins import object
 import os, sys, re, time
 
 from .python2_3 import asUnicode
@@ -133,9 +130,9 @@ if QT_LIB == PYSIDE:
 
 elif QT_LIB == PYQT4:
 
-    from qgis.PyQt import QtGui, QtCore, uic
+    from PyQt4 import QtGui, QtCore, uic
     try:
-        from qgis.PyQt import QtSvg
+        from PyQt4 import QtSvg
     except ImportError:
         pass
     try:

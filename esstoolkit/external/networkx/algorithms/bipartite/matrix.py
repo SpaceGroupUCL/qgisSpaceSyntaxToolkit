@@ -10,8 +10,6 @@ Biadjacency matrices
 #    Pieter Swart <swart@lanl.gov>
 #    All rights reserved.
 #    BSD license.
-from builtins import zip
-from builtins import range
 import itertools
 from networkx.convert import _prep_create_using
 from networkx.convert_matrix import _generate_weighted_edges
@@ -96,15 +94,15 @@ def biadjacency_matrix(G, row_order, column_order=None,
         msg = "Ambiguous ordering: `column_order` contained duplicates."
         raise nx.NetworkXError(msg)
 
-    row_index = dict(list(zip(row_order, itertools.count())))
-    col_index = dict(list(zip(column_order, itertools.count())))
+    row_index = dict(zip(row_order, itertools.count()))
+    col_index = dict(zip(column_order, itertools.count()))
 
     if G.number_of_edges() == 0:
         row,col,data=[],[],[]
     else:
-        row,col,data = list(zip(*((row_index[u],col_index[v],d.get(weight,1))
+        row,col,data = zip(*((row_index[u],col_index[v],d.get(weight,1))
                              for u,v,d in G.edges_iter(row_order,data=True)
-                             if u in row_index and v in col_index)))
+                             if u in row_index and v in col_index))
     M = sparse.coo_matrix((data,(row,col)),
                           shape=(nlen,mlen), dtype=dtype)
     try:
@@ -152,8 +150,8 @@ def from_biadjacency_matrix(A, create_using=None, edge_attribute='weight'):
     G = _prep_create_using(create_using)
     n, m = A.shape
     # Make sure we get even the isolated nodes of the graph.
-    G.add_nodes_from(list(range(n)), bipartite=0)
-    G.add_nodes_from(list(range(n,n+m)), bipartite=1)
+    G.add_nodes_from(range(n), bipartite=0)
+    G.add_nodes_from(range(n,n+m), bipartite=1)
     # Create an iterable over (u, v, w) triples and for each triple, add an
     # edge from u to v with weight w.
     triples = ((u, n+v, d) for (u, v, d) in _generate_weighted_edges(A))

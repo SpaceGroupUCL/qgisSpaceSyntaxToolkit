@@ -12,7 +12,6 @@ the root.
 #    Pieter Swart <swart@lanl.gov>
 #    All rights reserved.
 #    BSD license.
-from builtins import range
 __author__ = "\n".join(["Aric Hagberg (hagberg@lanl.gov)",
                         "Mridul Seth (seth.mridul@gmail.com)"])
 
@@ -134,7 +133,7 @@ def _next_tree(candidate):
         if candidate[p] > 2:
             new_left, new_rest = _split_tree(new_candidate)
             new_left_height = max(new_left)
-            suffix = list(range(1, new_left_height + 2))
+            suffix = range(1, new_left_height + 2)
             new_candidate[-len(suffix):] = suffix
         return new_candidate
 

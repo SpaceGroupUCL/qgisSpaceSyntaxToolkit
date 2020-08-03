@@ -15,7 +15,6 @@ See Also
 --------
 Pygraphviz: http://pygraphviz.github.io/
 """
-from __future__ import print_function
 # Author: Aric Hagberg (hagberg@lanl.gov)
 
 #    Copyright (C) 2004-2016 by
@@ -24,7 +23,6 @@ from __future__ import print_function
 #    Pieter Swart <swart@lanl.gov>
 #    All rights reserved.
 #    BSD license.
-from builtins import str
 import os
 import sys
 import tempfile
@@ -88,14 +86,14 @@ def from_agraph(A,create_using=None):
 
     # add nodes, attributes to N.node_attr
     for n in A.nodes():
-        str_attr=dict((str(k),v) for k,v in list(n.attr.items()))
+        str_attr=dict((str(k),v) for k,v in n.attr.items())
         N.add_node(str(n),**str_attr)
 
     # add edges, assign edge data as dictionary of attributes
     for e in A.edges():
         u,v=str(e[0]),str(e[1])
         attr=dict(e.attr)
-        str_attr=dict((str(k),v) for k,v in list(attr.items()))
+        str_attr=dict((str(k),v) for k,v in attr.items())
         if not N.is_multigraph():
             if e.name is not None:
                 str_attr['key']=e.name
@@ -152,11 +150,11 @@ def to_agraph(N):
 
     if N.is_multigraph():
         for u,v,key,edgedata in N.edges_iter(data=True,keys=True):
-            str_edgedata=dict((k,str(v)) for k,v in list(edgedata.items()))
+            str_edgedata=dict((k,str(v)) for k,v in edgedata.items())
             A.add_edge(u,v,key=str(key),**str_edgedata)
     else:
         for u,v,edgedata in N.edges_iter(data=True):
-            str_edgedata=dict((k,str(v)) for k,v in list(edgedata.items()))
+            str_edgedata=dict((k,str(v)) for k,v in edgedata.items())
             A.add_edge(u,v,**str_edgedata)
 
 
@@ -269,8 +267,7 @@ def pygraphviz_layout(G,prog='neato',root=None, args=''):
             xx,yy=node.attr["pos"].split(',')
             node_pos[n]=(float(xx),float(yy))
         except:
-            # fix_print_with_import
-            print(("no position for node",n))
+            print("no position for node",n)
             node_pos[n]=(0.0,0.0)
     return node_pos
 
@@ -343,7 +340,7 @@ def view_pygraphviz(G, edgelabel=None, prog='dot', args='',
     def update_attrs(which, attrs):
         # Update graph attributes. Return list of those which were added.
         added = []
-        for k,v in list(attrs.items()):
+        for k,v in attrs.items():
             if k not in G.graph[which]:
                 G.graph[which][k] = v
                 added.append(k)

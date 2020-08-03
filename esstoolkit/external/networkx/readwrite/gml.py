@@ -22,13 +22,6 @@ Example graphs in GML format:
 http://www-personal.umich.edu/~mejn/netdata/
 
 """
-from future import standard_library
-standard_library.install_aliases()
-from builtins import zip
-from builtins import chr
-from builtins import next
-from builtins import str
-from builtins import range
 __author__ = """Aric Hagberg (hagberg@lanl.gov)"""
 #    Copyright (C) 2008-2010 by
 #    Aric Hagberg <hagberg@lanl.gov>
@@ -41,9 +34,9 @@ __all__ = ['read_gml', 'parse_gml', 'generate_gml', 'write_gml']
 
 try:
     try:
-        from io import StringIO
+        from cStringIO import StringIO
     except ImportError:
-        from io import StringIO
+        from StringIO import StringIO
 except ImportError:
     from io import StringIO
 from ast import literal_eval
@@ -57,23 +50,23 @@ from networkx.utils import open_file
 
 import re
 try:
-    import html.entities
+    import htmlentitydefs
 except ImportError:
     # Python 3.x
     import html.entities as htmlentitydefs
 
 try:
-    int
+    long
 except NameError:
     long = int
 try:
-    str
+    unicode
 except NameError:
-    str = str
+    unicode = str
 try:
-    chr
+    unichr
 except NameError:
-    chr = chr
+    unichr = chr
 try:
     literal_eval(r"u'\u4444'")
 except SyntaxError:
@@ -111,11 +104,11 @@ def unescape(text):
         else:
             # Named entity
             try:
-                code = html.entities.name2codepoint[text[1:-1]]
+                code = htmlentitydefs.name2codepoint[text[1:-1]]
             except KeyError:
                 return text  # leave unchanged
         try:
-            return chr(code) if code < 256 else chr(code)
+            return chr(code) if code < 256 else unichr(code)
         except (ValueError, OverflowError):
             return text  # leave unchanged
 
@@ -140,7 +133,7 @@ def literal_destringizer(rep):
     ValueError
         If ``rep`` is not a Python literal.
     """
-    if isinstance(rep, str):
+    if isinstance(rep, (str, unicode)):
         orig_rep = rep
         try:
             # Python 3.2 does not recognize 'u' prefixes before string literals
@@ -270,7 +263,7 @@ def parse_gml(lines, label='label', destringizer=None):
         return line
 
     def filter_lines(lines):
-        if isinstance(lines, str):
+        if isinstance(lines, (str, unicode)):
             lines = decode_line(lines)
             lines = lines.splitlines()
             for line in lines:
@@ -366,7 +359,7 @@ def parse_gml_lines(lines, label, destringizer):
                 unexpected(curr_token, "an int, float, string or '['")
             dct[key].append(value)
         dct = {key: (value if not isinstance(value, list) or len(value) != 1
-                     else value[0]) for key, value in list(dct.items())}
+                     else value[0]) for key, value in dct.items()}
         return curr_token, dct
 
     def parse_dict(curr_token):
@@ -395,7 +388,7 @@ def parse_gml_lines(lines, label, destringizer):
         G = nx.DiGraph() if directed else nx.Graph()
     else:
         G = nx.MultiDiGraph() if directed else nx.MultiGraph()
-    G.graph.update((key, value) for key, value in list(graph.items())
+    G.graph.update((key, value) for key, value in graph.items()
                    if key != 'node' and key != 'edge')
 
     def pop_attr(dct, type, attr, i):
@@ -484,9 +477,9 @@ def literal_stringizer(value):
     ``networkx.readwrite.gml.literal_destringizer`` function.
     """
     def stringize(value):
-        if isinstance(value, (int, bool)) or value is None:
+        if isinstance(value, (int, long, bool)) or value is None:
             buf.write(str(value))
-        elif isinstance(value, str):
+        elif isinstance(value, unicode):
             text = repr(value)
             if text[0] != 'u':
                 try:
@@ -526,7 +519,7 @@ def literal_stringizer(value):
         elif isinstance(value, dict):
             buf.write('{')
             first = True
-            for key, value in list(value.items()):
+            for key, value in value.items():
                 if not first:
                     buf.write(',')
                 else:
@@ -589,14 +582,14 @@ def generate_gml(G, stringizer=None):
     valid_keys = re.compile('^[A-Za-z][0-9A-Za-z]*$')
 
     def stringize(key, value, ignored_keys, indent, in_list=False):
-        if not isinstance(key, str):
+        if not isinstance(key, (str, unicode)):
             raise NetworkXError('%r is not a string' % (key,))
         if not valid_keys.match(key):
             raise NetworkXError('%r is not a valid key' % (key,))
         if not isinstance(key, str):
             key = str(key)
         if key not in ignored_keys:
-            if isinstance(value, int):
+            if isinstance(value, (int, long)):
                 yield indent + key + ' ' + str(value)
             elif isinstance(value, float):
                 text = repr(value).upper()
@@ -610,7 +603,7 @@ def generate_gml(G, stringizer=None):
             elif isinstance(value, dict):
                 yield indent + key + ' ['
                 next_indent = indent + '  '
-                for key, value in list(value.items()):
+                for key, value in value.items():
                     for line in stringize(key, value, (), next_indent):
                         yield line
                 yield indent + ']'
@@ -626,7 +619,7 @@ def generate_gml(G, stringizer=None):
                     except ValueError:
                         raise NetworkXError(
                             '%r cannot be converted into a string' % (value,))
-                if not isinstance(value, str):
+                if not isinstance(value, (str, unicode)):
                     raise NetworkXError('%r is not a string' % (value,))
                 yield indent + key + ' "' + escape(value) + '"'
 
@@ -639,19 +632,19 @@ def generate_gml(G, stringizer=None):
     if multigraph:
         yield '  multigraph 1'
     ignored_keys = {'directed', 'multigraph', 'node', 'edge'}
-    for attr, value in list(G.graph.items()):
+    for attr, value in G.graph.items():
         for line in stringize(attr, value, ignored_keys, '  '):
             yield line
 
     # Output node data
-    node_id = dict(list(zip(G, list(range(len(G))))))
+    node_id = dict(zip(G, range(len(G))))
     ignored_keys = {'id', 'label'}
-    for node, attrs in list(G.node.items()):
+    for node, attrs in G.node.items():
         yield '  node ['
         yield '    id ' + str(node_id[node])
         for line in stringize('label', node, (), '    '):
             yield line
-        for attr, value in list(attrs.items()):
+        for attr, value in attrs.items():
             for line in stringize(attr, value, ignored_keys, '    '):
                 yield line
         yield '  ]'
@@ -669,7 +662,7 @@ def generate_gml(G, stringizer=None):
         if multigraph:
             for line in stringize('key', e[2], (), '    '):
                 yield line
-        for attr, value in list(e[-1].items()):
+        for attr, value in e[-1].items():
             for line in stringize(attr, value, ignored_keys, '    '):
                 yield line
         yield '  ]'

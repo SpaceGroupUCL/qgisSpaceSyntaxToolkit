@@ -1,6 +1,5 @@
 
 
-from builtins import object
 class PlotData(object):
     """
     Class used for managing plot data

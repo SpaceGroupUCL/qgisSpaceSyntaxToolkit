@@ -20,8 +20,6 @@ Format
 ------
 See http://docs.python.org/library/pickle.html
 """
-from future import standard_library
-standard_library.install_aliases()
 __author__ = """Aric Hagberg (hagberg@lanl.gov)\nDan Schult (dschult@colgate.edu)"""
 #    Copyright (C) 2004-2015 by
 #    Aric Hagberg <hagberg@lanl.gov>
@@ -36,7 +34,7 @@ import networkx as nx
 from networkx.utils import open_file
 
 try:
-    import pickle as pickle
+    import cPickle as pickle
 except ImportError:
     import pickle
 

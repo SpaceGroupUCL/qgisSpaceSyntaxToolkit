@@ -1,5 +1,3 @@
-from builtins import range
-from builtins import object
 from nose.tools import *
 import networkx as nx
 from networkx.utils import *

@@ -7,9 +7,6 @@ Communicability and centrality measures.
 #    Pieter Swart <swart@lanl.gov>
 #    All rights reserved.
 #    BSD license.
-from builtins import zip
-from builtins import map
-from builtins import range
 import networkx as nx
 from networkx.utils import *
 __author__ = "\n".join(['Aric Hagberg (hagberg@lanl.gov)',
@@ -86,7 +83,7 @@ def communicability_centrality_exp(G):
     A[A!=0.0] = 1
     expA = scipy.linalg.expm(A)
     # convert diagonal to dictionary keyed by node
-    sc = dict(list(zip(nodelist,list(map(float,expA.diagonal())))))
+    sc = dict(zip(nodelist,map(float,expA.diagonal())))
     return sc
 
 @not_implemented_for('directed')
@@ -160,7 +157,7 @@ def communicability_centrality(G):
     expw = numpy.exp(w)
     xg = numpy.dot(vsquare,expw)
     # convert vector dictionary keyed by node
-    sc = dict(list(zip(nodelist,list(map(float,xg)))))
+    sc = dict(zip(nodelist,map(float,xg)))
     return sc
 
 @not_implemented_for('directed')
@@ -245,7 +242,7 @@ def communicability_betweenness_centrality(G, normalized=True):
     # convert to 0-1 matrix
     A[A!=0.0] = 1
     expA = scipy.linalg.expm(A)
-    mapping = dict(list(zip(nodelist,list(range(n)))))
+    mapping = dict(zip(nodelist,range(n)))
     sc = {}
     for v in G:
         # remove row and col of node v
@@ -349,7 +346,7 @@ def communicability(G):
     A[A!=0.0] = 1
     w,vec = numpy.linalg.eigh(A)
     expw = numpy.exp(w)
-    mapping = dict(list(zip(nodelist,list(range(len(nodelist))))))
+    mapping = dict(zip(nodelist,range(len(nodelist))))
     sc={}
     # computing communicabilities
     for u in G:
@@ -429,7 +426,7 @@ def communicability_exp(G):
     A[A!=0.0] = 1
     # communicability matrix
     expA = scipy.linalg.expm(A)
-    mapping = dict(list(zip(nodelist,list(range(len(nodelist))))))
+    mapping = dict(zip(nodelist,range(len(nodelist))))
     sc = {}
     for u in G:
         sc[u]={}

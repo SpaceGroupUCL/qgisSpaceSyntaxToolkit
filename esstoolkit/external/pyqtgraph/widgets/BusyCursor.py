@@ -1,4 +1,3 @@
-from builtins import object
 from ..Qt import QtGui, QtCore
 
 __all__ = ['BusyCursor']

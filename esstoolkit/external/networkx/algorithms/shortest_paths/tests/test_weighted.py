@@ -1,6 +1,3 @@
-from builtins import zip
-from builtins import range
-from builtins import object
 from nose.tools import *
 import networkx as nx
 
@@ -52,7 +49,7 @@ def validate_path(G, s, t, soln_len, path):
                           for u, v in zip(path[:-1], path[1:])))
     else:
         assert_equal(
-            soln_len, sum(min(e.get('weight', 1) for e in list(G[u][v].values()))
+            soln_len, sum(min(e.get('weight', 1) for e in G[u][v].values())
                           for u, v in zip(path[:-1], path[1:])))
 
 
@@ -61,7 +58,7 @@ def validate_length_path(G, s, t, soln_len, length, path):
     validate_path(G, s, t, length, path)
 
 
-class TestWeightedPath(object):
+class TestWeightedPath:
 
     setUp = _setUp
 
@@ -201,7 +198,7 @@ class TestWeightedPath(object):
         assert_raises(ValueError, nx.bidirectional_dijkstra, G, 8, 10)
 
 
-class TestBellmanFordAndGoldbergRadizk(object):
+class TestBellmanFordAndGoldbergRadizk:
 
     setUp = _setUp
 
@@ -308,7 +305,7 @@ class TestBellmanFordAndGoldbergRadizk(object):
                      [((0, 0), 0), ((0, 1), 1), ((1, 0), 1), ((1, 1), 2)])
 
 
-class TestJohnsonAlgorithm(object):
+class TestJohnsonAlgorithm:
 
     setUp = _setUp
 

@@ -4,8 +4,6 @@ Flow based connectivity algorithms
 """
 from __future__ import division
 
-from builtins import next
-from builtins import range
 import itertools
 
 import networkx as nx
@@ -329,7 +327,7 @@ def node_connectivity(G, s=None, t=None, flow_func=None):
     # Pick a node with minimum degree
     degree = G.degree()
     minimum_degree = min(degree.values())
-    v = next(n for n, d in list(degree.items()) if d == minimum_degree)
+    v = next(n for n, d in degree.items() if d == minimum_degree)
     # Node connectivity is bounded by degree.
     K = minimum_degree
     # compute local node connectivity with all its non-neighbors nodes

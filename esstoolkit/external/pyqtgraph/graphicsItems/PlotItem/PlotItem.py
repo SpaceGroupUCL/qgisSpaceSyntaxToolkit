@@ -16,9 +16,6 @@ This class is very heavily featured:
   - Control panel with a huge feature set including averaging, decimation,
     display, power spectrum, svg/png export, plot linking, and more.
 """
-from __future__ import print_function
-from builtins import str
-from builtins import range
 import sys
 import weakref
 import numpy as np
@@ -36,7 +33,7 @@ from .. GraphicsWidget import GraphicsWidget
 from .. ButtonItem import ButtonItem
 from .. InfiniteLine import InfiniteLine
 from ...WidgetGroup import WidgetGroup
-from ...python2_3 import str
+from ...python2_3 import basestring
 
 if QT_LIB == 'PyQt4':
     from .plotConfigTemplate_pyqt import *
@@ -282,7 +279,7 @@ class PlotItem(GraphicsWidget):
                 labels[label] = kargs[label]
                 del kargs[label]
         for k in labels:
-            if isinstance(labels[k], str):
+            if isinstance(labels[k], basestring):
                 labels[k] = (labels[k],)
             self.setLabel(k, *labels[k])
                 
@@ -1112,11 +1109,11 @@ class PlotItem(GraphicsWidget):
         Keyword arguments can be 'title', 'left', 'bottom', 'right', or 'top'.
         Values may be strings or a tuple of arguments to pass to setLabel.
         """
-        for k,v in list(kwds.items()):
+        for k,v in kwds.items():
             if k == 'title':
                 self.setTitle(v)
             else:
-                if isinstance(v, str):
+                if isinstance(v, basestring):
                     v = (v,)
                 self.setLabel(k, *v)
         

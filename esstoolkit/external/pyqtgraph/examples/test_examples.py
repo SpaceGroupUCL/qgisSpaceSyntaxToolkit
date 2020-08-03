@@ -16,7 +16,7 @@ except ImportError:
 files = utils.buildFileList(utils.examples)
 frontends = {Qt.PYQT4: False, Qt.PYSIDE: False}
 # sort out which of the front ends are available
-for frontend in list(frontends.keys()):
+for frontend in frontends.keys():
     try:
         importlib.import_module(frontend)
         frontends[frontend] = True

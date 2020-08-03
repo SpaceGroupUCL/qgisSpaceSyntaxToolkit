@@ -1,8 +1,5 @@
 #!/usr/bin/env python
 
-from __future__ import print_function
-from builtins import range
-from builtins import object
 from nose.tools import *
 from networkx import *
 from networkx.algorithms.bipartite.generators import *
@@ -11,7 +8,7 @@ from networkx.algorithms.bipartite.generators import *
 ----------------------
 """
 
-class TestGeneratorsBipartite(object):
+class TestGeneratorsBipartite():
     def test_complete_bipartite_graph(self):
         G=complete_bipartite_graph(0,0)
         assert_true(is_isomorphic( G, null_graph() ))
@@ -68,10 +65,10 @@ class TestGeneratorsBipartite(object):
         assert_equal(sorted(G.degree().values()),
                      [1, 1, 1, 2, 2, 2, 3, 3, 3])
 
-        GU=project(Graph(G),list(range(len(aseq))))
+        GU=project(Graph(G),range(len(aseq)))
         assert_equal(GU.number_of_nodes(), 6)
 
-        GD=project(Graph(G),list(range(len(aseq),len(aseq)+len(bseq))))
+        GD=project(Graph(G),range(len(aseq),len(aseq)+len(bseq)))
         assert_equal(GD.number_of_nodes(), 3)
 
         assert_raises(networkx.exception.NetworkXError,
@@ -95,10 +92,10 @@ class TestGeneratorsBipartite(object):
         assert_equal(sorted(G.degree().values()),
                      [2, 2, 2, 2, 2, 2, 3, 3, 3, 3])
 
-        GU=project(Graph(G),list(range(len(aseq))))
+        GU=project(Graph(G),range(len(aseq)))
         assert_equal(GU.number_of_nodes(), 6)
 
-        GD=project(Graph(G),list(range(len(aseq),len(aseq)+len(bseq))))
+        GD=project(Graph(G),range(len(aseq),len(aseq)+len(bseq)))
         assert_equal(GD.number_of_nodes(), 4)
         assert_raises(networkx.exception.NetworkXError,
                       havel_hakimi_graph, aseq, bseq,
@@ -127,10 +124,10 @@ class TestGeneratorsBipartite(object):
         assert_equal(sorted(G.degree().values()),
                      [1, 1, 1, 2, 2, 2, 3, 3, 3])
 
-        GU=project(Graph(G),list(range(len(aseq))))
+        GU=project(Graph(G),range(len(aseq)))
         assert_equal(GU.number_of_nodes(), 6)
 
-        GD=project(Graph(G),list(range(len(aseq),len(aseq)+len(bseq))))
+        GD=project(Graph(G),range(len(aseq),len(aseq)+len(bseq)))
         assert_equal(GD.number_of_nodes(), 3)
         assert_raises(networkx.exception.NetworkXError,
                       reverse_havel_hakimi_graph, aseq, bseq,
@@ -159,10 +156,10 @@ class TestGeneratorsBipartite(object):
         assert_equal(sorted(G.degree().values()),
                      [1, 1, 1, 2, 2, 2, 3, 3, 3])
 
-        GU=project(Graph(G),list(range(len(aseq))))
+        GU=project(Graph(G),range(len(aseq)))
         assert_equal(GU.number_of_nodes(), 6)
 
-        GD=project(Graph(G),list(range(len(aseq),len(aseq)+len(bseq))))
+        GD=project(Graph(G),range(len(aseq),len(aseq)+len(bseq)))
         assert_equal(GD.number_of_nodes(), 3)
 
         assert_raises(networkx.exception.NetworkXError,

@@ -6,13 +6,11 @@ Generators - Non Isomorphic Trees
 
 Unit tests for WROM algorithm generator in generators/nonisomorphic_trees.py
 """
-from builtins import range
-from builtins import object
 from nose.tools import *
 from networkx import *
 
 
-class TestGeneratorNonIsomorphicTrees(object):
+class TestGeneratorNonIsomorphicTrees():
 
     def test_tree_structure(self):
         # test for tree structure for nx.nonisomorphic_trees()

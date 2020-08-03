@@ -5,7 +5,6 @@ Cuthill-McKee ordering of graph nodes to produce sparse matrices
 #    Aric Hagberg <aric.hagberg@gmail.com>
 #    All rights reserved.
 #    BSD license.
-from builtins import next
 from collections import deque
 from operator import itemgetter
 import networkx as nx
@@ -139,7 +138,7 @@ def connected_cuthill_mckee_ordering(G, heuristic=None):
     while queue:
         parent = queue.popleft()
         yield parent
-        nd = sorted(list(G.degree(set(G[parent]) - visited).items()),
+        nd = sorted(G.degree(set(G[parent]) - visited).items(),
                     key=itemgetter(1))
         children = [n for n, d in nd]
         visited.update(children)
@@ -158,6 +157,6 @@ def pseudo_peripheral_node(G):
         if l <= lp:
             break
         lp = l
-        farthest = (n for n, dist in list(spl.items()) if dist == l)
-        v, deg = min(list(G.degree(farthest).items()), key=itemgetter(1))
+        farthest = (n for n, dist in spl.items() if dist == l)
+        v, deg = min(G.degree(farthest).items(), key=itemgetter(1))
     return v

@@ -1,6 +1,3 @@
-from builtins import next
-from builtins import range
-from builtins import object
 import itertools
 from nose.tools import assert_equal, assert_true, assert_false, assert_raises
 import networkx as nx
@@ -283,7 +280,7 @@ def test_edge_connectivity_flow_vs_stoer_wagner():
         assert_equal(nx.stoer_wagner(G)[0], nx.edge_connectivity(G))
 
 
-class TestAllPairsNodeConnectivity(object):
+class TestAllPairsNodeConnectivity:
 
     def setUp(self):
         self.path = nx.path_graph(7)
@@ -302,28 +299,28 @@ class TestAllPairsNodeConnectivity(object):
     def test_cycles(self):
         K_undir = nx.all_pairs_node_connectivity(self.cycle)
         for source in K_undir:
-            for target, k in list(K_undir[source].items()):
+            for target, k in K_undir[source].items():
                 assert_true(k == 2)
         K_dir = nx.all_pairs_node_connectivity(self.directed_cycle)
         for source in K_dir:
-            for target, k in list(K_dir[source].items()):
+            for target, k in K_dir[source].items():
                 assert_true(k == 1)
 
     def test_complete(self):
         for G in [self.K10, self.K5, self.K20]:
             K = nx.all_pairs_node_connectivity(G)
             for source in K:
-                for target, k in list(K[source].items()):
+                for target, k in K[source].items():
                     assert_true(k == len(G)-1)
 
     def test_paths(self):
         K_undir = nx.all_pairs_node_connectivity(self.path)
         for source in K_undir:
-            for target, k in list(K_undir[source].items()):
+            for target, k in K_undir[source].items():
                 assert_true(k == 1)
         K_dir = nx.all_pairs_node_connectivity(self.directed_path)
         for source in K_dir:
-            for target, k in list(K_dir[source].items()):
+            for target, k in K_dir[source].items():
                 if source < target:
                     assert_true(k == 1)
                 else:
@@ -348,8 +345,8 @@ class TestAllPairsNodeConnectivity(object):
         for u, v in itertools.combinations(nodes,2):
             A[u][v] = A[v][u] = nx.node_connectivity(G, u, v)
         C = nx.all_pairs_node_connectivity(G)
-        assert_equal(sorted((k, sorted(v)) for k, v in list(A.items())),
-                     sorted((k, sorted(v)) for k, v in list(C.items())))
+        assert_equal(sorted((k, sorted(v)) for k, v in A.items()),
+                     sorted((k, sorted(v)) for k, v in C.items()))
 
     def test_all_pairs_connectivity_directed(self):
         G = nx.DiGraph()
@@ -359,8 +356,8 @@ class TestAllPairsNodeConnectivity(object):
         for u, v in itertools.permutations(nodes, 2):
             A[u][v] = nx.node_connectivity(G, u, v)
         C = nx.all_pairs_node_connectivity(G)
-        assert_equal(sorted((k, sorted(v)) for k, v in list(A.items())),
-                     sorted((k, sorted(v)) for k, v in list(C.items())))
+        assert_equal(sorted((k, sorted(v)) for k, v in A.items()),
+                     sorted((k, sorted(v)) for k, v in C.items()))
 
     def test_all_pairs_connectivity_nbunch(self):
         G = nx.complete_graph(5)
@@ -369,8 +366,8 @@ class TestAllPairsNodeConnectivity(object):
         for u, v in itertools.combinations(nbunch, 2):
             A[u][v] = A[v][u] = nx.node_connectivity(G, u, v)
         C = nx.all_pairs_node_connectivity(G, nbunch=nbunch)
-        assert_equal(sorted((k, sorted(v)) for k, v in list(A.items())),
-                     sorted((k, sorted(v)) for k, v in list(C.items())))
+        assert_equal(sorted((k, sorted(v)) for k, v in A.items()),
+                     sorted((k, sorted(v)) for k, v in C.items()))
 
     def test_all_pairs_connectivity_nbunch_iter(self):
         G = nx.complete_graph(5)
@@ -379,5 +376,5 @@ class TestAllPairsNodeConnectivity(object):
         for u, v in itertools.combinations(nbunch, 2):
             A[u][v] = A[v][u] = nx.node_connectivity(G, u, v)
         C = nx.all_pairs_node_connectivity(G, nbunch=iter(nbunch))
-        assert_equal(sorted((k, sorted(v)) for k, v in list(A.items())),
-                     sorted((k, sorted(v)) for k, v in list(C.items())))
+        assert_equal(sorted((k, sorted(v)) for k, v in A.items()),
+                     sorted((k, sorted(v)) for k, v in C.items()))

@@ -5,9 +5,8 @@ This example shows all the scatter plot symbols available in pyqtgraph.
 These symbols are used to mark point locations for scatter plots and some line
 plots, similar to "markers" in matplotlib and vispy.
 """
-from __future__ import absolute_import
 
-from . import initExample ## Add path to library (just for examples; you do not need this)
+import initExample ## Add path to library (just for examples; you do not need this)
 from pyqtgraph.Qt import QtGui, QtCore
 import pyqtgraph as pg
 

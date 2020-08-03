@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 from __future__ import print_function
-from builtins import object
 from nose.tools import *
 from collections import OrderedDict
 import networkx as nx

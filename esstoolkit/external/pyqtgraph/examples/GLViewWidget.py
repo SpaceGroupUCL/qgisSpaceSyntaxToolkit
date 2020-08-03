@@ -3,9 +3,8 @@
 Very basic 3D graphics example; create a view widget and add a few items.
 
 """
-from __future__ import absolute_import
 ## Add path to library (just for examples; you do not need this)
-from . import initExample
+import initExample
 
 from pyqtgraph.Qt import QtCore, QtGui
 import pyqtgraph.opengl as gl

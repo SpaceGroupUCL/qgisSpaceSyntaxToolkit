@@ -137,8 +137,6 @@ In general, this problem is NP-Complete.
 #    James P. Crutchfield, principal investigator.
 #    Complexity Sciences Center and Physics Department, UC Davis.
 
-from builtins import next
-from builtins import object
 import sys
 import networkx as nx
 

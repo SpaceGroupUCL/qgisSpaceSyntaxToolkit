@@ -4,10 +4,9 @@ labels
 
 
 """
-from __future__ import absolute_import
 
 ## Add path to library (just for examples; you do not need this)
-from . import initExample
+import initExample
 
 from pyqtgraph.Qt import QtGui, QtCore
 import pyqtgraph as pg

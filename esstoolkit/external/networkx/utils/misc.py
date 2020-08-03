@@ -14,10 +14,6 @@ True
 #    Pieter Swart <swart@lanl.gov>
 #    All rights reserved.
 #    BSD license.
-from builtins import next
-from builtins import zip
-from builtins import str
-from builtins import range
 import sys
 import uuid
 # itertools.accumulate is only available on Python 3.2 or later.
@@ -93,7 +89,7 @@ PY2 = sys.version_info[0] == 2
 if PY2:
     def make_str(x):
         """Return the string representation of t."""
-        if isinstance(x, str):
+        if isinstance(x, unicode):
             return x
         else:
             # Note, this will not work unless x is ascii-encoded.
@@ -104,7 +100,7 @@ if PY2:
             # Also, the str() is necessary to convert integers, etc.
             # unicode(3) works, but unicode(3, 'unicode-escape') wants a buffer.
             #
-            return str(str(x), 'unicode-escape')
+            return unicode(str(x), 'unicode-escape')
 else:
     def make_str(x):
         """Return the string representation of t."""
@@ -151,13 +147,13 @@ def dict_to_numpy_array2(d,mapping=None):
     import numpy
     if mapping is None:
         s=set(d.keys())
-        for k,v in list(d.items()):
-            s.update(list(v.keys()))
-        mapping=dict(list(zip(s,list(range(len(s))))))
+        for k,v in d.items():
+            s.update(v.keys())
+        mapping=dict(zip(s,range(len(s))))
     n=len(mapping)
     a = numpy.zeros((n, n))
-    for k1, i in list(mapping.items()):
-        for k2, j in list(mapping.items()):
+    for k1, i in mapping.items():
+        for k2, j in mapping.items():
             try:
                 a[i,j]=d[k1][k2]
             except KeyError:
@@ -172,10 +168,10 @@ def dict_to_numpy_array1(d,mapping=None):
     import numpy
     if mapping is None:
         s = set(d.keys())
-        mapping = dict(list(zip(s,list(range(len(s))))))
+        mapping = dict(zip(s,range(len(s))))
     n = len(mapping)
     a = numpy.zeros(n)
-    for k1,i in list(mapping.items()):
+    for k1,i in mapping.items():
         i = mapping[k1]
         a[i] = d[k1]
     return a

@@ -24,7 +24,7 @@ from networkx.algorithms.bipartite import node_redundancy
 def test_no_redundant_nodes():
     G = complete_bipartite_graph(2, 2)
     rc = node_redundancy(G)
-    assert_true(all(redundancy == 1 for redundancy in list(rc.values())))
+    assert_true(all(redundancy == 1 for redundancy in rc.values()))
 
 
 def test_redundant_nodes():

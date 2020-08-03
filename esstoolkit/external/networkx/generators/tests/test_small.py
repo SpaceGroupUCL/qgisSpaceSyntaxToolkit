@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-from builtins import object
 from nose.tools import *
 from networkx import *
 from networkx.algorithms.isomorphism.isomorph import graph_could_be_isomorphic
@@ -14,7 +13,7 @@ Some small graphs
 
 null=null_graph()
 
-class TestGeneratorsSmall(object):
+class TestGeneratorsSmall():
     def test_make_small_graph(self):
         d=["adjacencylist","Bull Graph",5,[[2,3],[1,3,4],[1,2,5],[2],[3]]]
         G=make_small_graph(d)

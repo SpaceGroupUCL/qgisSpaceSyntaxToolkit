@@ -1,4 +1,3 @@
-from builtins import range
 import pyqtgraph as pg
 import numpy as np
 import time

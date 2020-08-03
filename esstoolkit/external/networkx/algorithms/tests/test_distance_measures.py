@@ -1,9 +1,8 @@
 #!/usr/bin/env python
-from builtins import object
 from nose.tools import *
 import networkx
 
-class TestDistance(object):
+class TestDistance:
 
     def setUp(self):
         G=networkx.Graph()

@@ -1,4 +1,3 @@
-from builtins import object
 import networkx as nx
 from nose.tools import *
 
@@ -44,7 +43,7 @@ def test_sorted_edge():
     assert_equal( (1,2), line._sorted_edge(1,2) )
     assert_equal( (1,2), line._sorted_edge(2,1) )
 
-class TestGeneratorLine(object):
+class TestGeneratorLine():
     def test_star(self):
         G = nx.star_graph(5)
         L = nx.line_graph(G)

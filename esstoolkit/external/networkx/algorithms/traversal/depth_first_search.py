@@ -8,7 +8,6 @@ Basic algorithms for depth-first searching the nodes of a graph.
 Based on http://www.ics.uci.edu/~eppstein/PADS/DFS.py
 by D. Eppstein, July 2004.
 """
-from builtins import next
 import networkx as nx
 from collections import defaultdict
 __author__ = """\n""".join(['Aric Hagberg <aric.hagberg@gmail.com>'])

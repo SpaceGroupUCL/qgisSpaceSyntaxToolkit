@@ -7,9 +7,6 @@
 #    Pieter Swart <swart@lanl.gov>
 #    All rights reserved.
 #    BSD license.
-from builtins import next
-from builtins import range
-from builtins import object
 import heapq
 from itertools import combinations, permutations
 import math
@@ -778,7 +775,7 @@ class DegreeSequenceRandomGraph(object):
         while len(self.remaining_degree) >= 2 * self.dmax:
             norm = float(max(self.remaining_degree.values()))**2
             while True:
-                u,v = sorted(random.sample(list(self.remaining_degree.keys()), 2))
+                u,v = sorted(random.sample(self.remaining_degree.keys(), 2))
                 if self.graph.has_edge(u,v):
                     continue
                 if random.random() < self.q(u,v):

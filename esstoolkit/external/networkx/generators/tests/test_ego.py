@@ -4,11 +4,10 @@ ego graph
 ---------
 """
 
-from builtins import object
 from nose.tools import assert_true, assert_equal
 import networkx as nx
 
-class TestGeneratorEgo(object):
+class TestGeneratorEgo():
     def test_ego(self):
         G=nx.star_graph(3)
         H=nx.ego_graph(G,0)

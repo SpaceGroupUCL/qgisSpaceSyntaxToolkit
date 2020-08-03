@@ -1,13 +1,11 @@
 #!/usr/bin/env python
-from builtins import range
-from builtins import object
 from itertools import combinations
 from nose.tools import *
 from networkx.testing.utils import assert_edges_equal
 import networkx as nx
 
 
-class TestDAG(object):
+class TestDAG:
 
     def setUp(self):
         pass

@@ -8,16 +8,14 @@ positions. Unix users may compile a small math library to speed this up by
 running the `examples/verlet_chain/make` script.
 
 """
-from __future__ import absolute_import
 
-from builtins import range
-from . import initExample ## Add path to library (just for examples; you do not need this)
+import initExample ## Add path to library (just for examples; you do not need this)
 
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore, QtGui
 import numpy as np
 
-from . import verlet_chain
+import verlet_chain
 
 sim = verlet_chain.ChainSim()
 

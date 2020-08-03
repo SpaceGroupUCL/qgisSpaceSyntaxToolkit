@@ -1,10 +1,7 @@
-from __future__ import print_function
-from builtins import str
-from builtins import object
 from ..Qt import QtGui, QtCore
 import os, weakref, re
 from ..pgcollections import OrderedDict
-from ..python2_3 import asUnicode, str
+from ..python2_3 import asUnicode, basestring
 from .ParameterItem import ParameterItem
 
 PARAM_TYPES = {}
@@ -178,7 +175,7 @@ class Parameter(QtCore.QObject):
         if 'value' not in self.opts:
             self.opts['value'] = None
         
-        if 'name' not in self.opts or not isinstance(self.opts['name'], str):
+        if 'name' not in self.opts or not isinstance(self.opts['name'], basestring):
             raise Exception("Parameter must have a string name specified in opts.")
         self.setName(opts['name'])
         
@@ -321,7 +318,7 @@ class Parameter(QtCore.QObject):
         ## list of children may be stored either as list or dict.
         if isinstance(childState, dict):
             cs = []
-            for k,v in list(childState.items()):
+            for k,v in childState.items():
                 cs.append(v.copy())
                 cs[-1].setdefault('name', k)
             childState = cs
@@ -507,7 +504,7 @@ class Parameter(QtCore.QObject):
         ## If children was specified as dict, then assume keys are the names.
         if isinstance(children, dict):
             ch2 = []
-            for name, opts in list(children.items()):
+            for name, opts in children.items():
                 if isinstance(opts, dict) and 'name' not in opts:
                     opts = opts.copy()
                     opts['name'] = name
@@ -638,7 +635,7 @@ class Parameter(QtCore.QObject):
         
             param[('child', 'grandchild')] = value
         """
-        if isinstance(names, str):
+        if isinstance(names, basestring):
             names = (names,)
         return self.param(*names).setValue(value)
 

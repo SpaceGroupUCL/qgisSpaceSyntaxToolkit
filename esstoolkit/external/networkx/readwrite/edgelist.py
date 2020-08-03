@@ -26,8 +26,6 @@ Arbitrary data::
 
  1 2 7 green
 """
-from builtins import zip
-from builtins import map
 __author__ = """Aric Hagberg (hagberg@lanl.gov)\nDan Schult (dschult@colgate.edu)"""
 #    Copyright (C) 2004-2015 by
 #    Aric Hagberg <hagberg@lanl.gov>

@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from builtins import next
 from fractions import gcd
 import networkx as nx
 from networkx.utils.decorators import *
@@ -423,7 +422,7 @@ def dag_longest_path(G):
             dist[node] = max(pairs)
         else:
             dist[node] = (0, node)
-    node, (length, _) = max(list(dist.items()), key=lambda x: x[1])
+    node, (length, _) = max(dist.items(), key=lambda x: x[1])
     path = []
     while length > 0:
         path.append(node)

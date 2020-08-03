@@ -7,9 +7,8 @@ coordinate system, but which is always displayed unscaled.
 For text that scales with the data, use QTextItem. 
 For text that can be placed in a layout, use LabelItem.
 """
-from __future__ import absolute_import
 
-from . import initExample ## Add path to library (just for examples; you do not need this)
+import initExample ## Add path to library (just for examples; you do not need this)
 
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore, QtGui

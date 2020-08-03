@@ -13,7 +13,6 @@ PyDotPlus: https://github.com/carlos-jenkins/pydotplus
 Graphviz:          http://www.research.att.com/sw/tools/graphviz/
 DOT Language:  http://www.graphviz.org/doc/info/lang.html
 """
-from __future__ import print_function
 # Author: Aric Hagberg (aric.hagberg@gmail.com)
 
 #    Copyright (C) 2004-2016 by
@@ -31,9 +30,9 @@ __all__ = ['write_dot', 'read_dot', 'graphviz_layout', 'pydot_layout',
 
 # 2.x/3.x compatibility
 try:
-    str
+    basestring
 except NameError:
-    str = str
+    basestring = str
 
 @open_file(1, mode='w')
 def write_dot(G, path):
@@ -126,13 +125,13 @@ def from_pydot(P):
         s=[]
         d=[]
 
-        if isinstance(u, str):
+        if isinstance(u, basestring):
             s.append(u.strip('"'))
         else:
             for unodes in u['nodes']:
                 s.append(unodes.strip('"'))
 
-        if isinstance(v, str):
+        if isinstance(v, basestring):
             d.append(v.strip('"'))
         else:
             for vnodes in v['nodes']:
@@ -199,20 +198,20 @@ def to_pydot(N, strict=True):
         pass
 
     for n,nodedata in N.nodes_iter(data=True):
-        str_nodedata=dict((k,make_str(v)) for k,v in list(nodedata.items()))
+        str_nodedata=dict((k,make_str(v)) for k,v in nodedata.items())
         p=pydotplus.Node(make_str(n),**str_nodedata)
         P.add_node(p)
 
     if N.is_multigraph():
         for u,v,key,edgedata in N.edges_iter(data=True,keys=True):
-            str_edgedata=dict((k,make_str(v)) for k,v in list(edgedata.items()))
+            str_edgedata=dict((k,make_str(v)) for k,v in edgedata.items())
             edge=pydotplus.Edge(make_str(u), make_str(v),
                     key=make_str(key), **str_edgedata)
             P.add_edge(edge)
 
     else:
         for u,v,edgedata in N.edges_iter(data=True):
-            str_edgedata=dict((k,make_str(v)) for k,v in list(edgedata.items()))
+            str_edgedata=dict((k,make_str(v)) for k,v in edgedata.items())
             edge=pydotplus.Edge(make_str(u),make_str(v),**str_edgedata)
             P.add_edge(edge)
     return P

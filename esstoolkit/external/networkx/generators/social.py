@@ -1,7 +1,6 @@
 """
 Famous social networks.
 """
-from builtins import range
 import networkx as nx
 __author__ = """\n""".join(['Jordi Torrents <jtorrents@milnou.net>',
                             'Katy Bold <kbold@princeton.edu>',

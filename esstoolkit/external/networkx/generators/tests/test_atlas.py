@@ -1,4 +1,3 @@
-from builtins import object
 from nose.tools import *
 from nose import SkipTest
 

@@ -2,8 +2,6 @@
 Test for unwanted reference cycles
 
 """
-from builtins import map
-from builtins import range
 import pyqtgraph as pg
 import numpy as np
 import gc, weakref
@@ -39,7 +37,7 @@ def mkrefs(*objs):
         for o in obj:
             allObjs[id(o)] = o
             
-    return list(map(weakref.ref, list(allObjs.values())))
+    return map(weakref.ref, allObjs.values())
 
 
 @pytest.mark.skipif(six.PY3 or pg.Qt.USE_PYSIDE, reason=skipreason)

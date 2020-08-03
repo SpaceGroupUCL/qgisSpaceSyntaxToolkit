@@ -1,4 +1,3 @@
-from __future__ import print_function
 from ..Qt import QtCore, QtGui, QtOpenGL
 from OpenGL.GL import *
 app = QtGui.QApplication([])

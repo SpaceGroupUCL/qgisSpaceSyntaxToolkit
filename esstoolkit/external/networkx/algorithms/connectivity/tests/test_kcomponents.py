@@ -16,7 +16,7 @@ def torrents_and_ferraro_graph():
         label_attribute='labels',
     )
     rlabels = nx.get_node_attributes(G, 'labels')
-    labels = {v: k for k, v in list(rlabels.items())}
+    labels = {v: k for k, v in rlabels.items()}
 
     for nodes in [(labels[(0,4)], labels[(1,4)]),
                   (labels[(3,4)], labels[(4,4)])]:
@@ -82,7 +82,7 @@ def test_directed():
 # Helper function
 def _check_connectivity(G):
     result = nx.k_components(G)
-    for k, components in list(result.items()):
+    for k, components in result.items():
         if k < 3:
             continue
         for component in components:
@@ -148,7 +148,7 @@ def test_torrents_and_ferraro_detail_3_and_4():
     }
     G = torrents_and_ferraro_graph()
     result = nx.k_components(G)
-    for k, components in list(result.items()):
+    for k, components in result.items():
         if k < 3:
             continue
         assert_true(len(components) == len(solution[k]))
@@ -221,7 +221,7 @@ def test_davis_southern_women_detail_3_and_4():
     }
     G = nx.davis_southern_women_graph()
     result = nx.k_components(G)
-    for k, components in list(result.items()):
+    for k, components in result.items():
         if k < 3:
             continue
         assert_true(len(components) == len(solution[k]))

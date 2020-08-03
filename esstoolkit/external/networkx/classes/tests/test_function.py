@@ -1,7 +1,4 @@
 #!/usr/bin/env python
-from builtins import zip
-from builtins import range
-from builtins import object
 import random
 from nose.tools import *
 import networkx as nx
@@ -187,7 +184,7 @@ class TestFunction(object):
 
         # disconnected graph
         graph = nx.Graph()
-        graph.add_nodes_from(list(range(10)))
+        graph.add_nodes_from(range(10))
         nbors = list(nx.non_neighbors(graph, 0))
         assert_equal(len(nbors), 9)
 
@@ -273,7 +270,7 @@ class TestFunction(object):
         assert_raises(nx.NetworkXError, nx.is_negatively_weighted, G, (1, 4))
 
 
-class TestCommonNeighbors(object):
+class TestCommonNeighbors():
     def setUp(self):
         self.func = nx.common_neighbors
         def test_func(G, u, v, expected):
@@ -332,7 +329,7 @@ def test_set_node_attributes():
 
         # Test multiple values
         attr = 'hi'
-        vals = dict(list(zip(sorted(G.nodes()), list(range(len(G))))))
+        vals = dict(zip(sorted(G.nodes()), range(len(G))))
         nx.set_node_attributes(G, attr, vals)
         assert_equal(G.node[0][attr], 0)
         assert_equal(G.node[1][attr], 1)
@@ -353,7 +350,7 @@ def test_set_edge_attributes():
         # Test multiple values
         attr = 'hi'
         edges = [(0,1), (1,2)]
-        vals = dict(list(zip(edges, list(range(len(edges))))))
+        vals = dict(zip(edges, range(len(edges))))
         nx.set_edge_attributes(G, attr, vals)
         assert_equal(G[0][1][attr], 0)
         assert_equal(G[1][2][attr], 1)
@@ -373,7 +370,7 @@ def test_set_edge_attributes_multi():
         # Test multiple values
         attr = 'hi'
         edges = [(0,1,0), (1,2,0)]
-        vals = dict(list(zip(edges, list(range(len(edges))))))
+        vals = dict(zip(edges, range(len(edges))))
         nx.set_edge_attributes(G, attr, vals)
         assert_equal(G[0][1][0][attr], 0)
         assert_equal(G[1][2][0][attr], 1)
@@ -412,7 +409,7 @@ def test_is_empty():
     graphs = [nx.Graph(), nx.DiGraph(), nx.MultiGraph(), nx.MultiDiGraph()]
     for G in graphs:
         assert_true(nx.is_empty(G))
-        G.add_nodes_from(list(range(5)))
+        G.add_nodes_from(range(5))
         assert_true(nx.is_empty(G))
         G.add_edges_from([(1, 2), (3, 4)])
         assert_false(nx.is_empty(G))

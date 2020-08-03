@@ -7,8 +7,6 @@
 # NetworkX is distributed under a BSD license; see LICENSE.txt for more
 # information.
 """Unit tests for the :mod:`networkx.algorithms.bipartite.matching` module."""
-from builtins import range
-from builtins import object
 import itertools
 
 import networkx as nx
@@ -19,7 +17,7 @@ from networkx.algorithms.bipartite.matching import maximum_matching
 from networkx.algorithms.bipartite.matching import to_vertex_cover
 
 
-class TestMatching(object):
+class TestMatching():
     """Tests for bipartite matching algorithms."""
 
     def setup(self):
@@ -33,7 +31,7 @@ class TestMatching(object):
         edges = [(0, 7), (0, 8), (2, 6), (2, 9), (3, 8), (4, 8), (4, 9),
                  (5, 11)]
         self.graph = nx.Graph()
-        self.graph.add_nodes_from(list(range(12)))
+        self.graph.add_nodes_from(range(12))
         self.graph.add_edges_from(edges)
 
     def check_match(self, matching):
@@ -43,9 +41,9 @@ class TestMatching(object):
         """
         # For the sake of brevity, rename `matching` to `M`.
         M = matching
-        matched_vertices = frozenset(itertools.chain(*list(M.items())))
+        matched_vertices = frozenset(itertools.chain(*M.items()))
         # Assert that the maximum number of vertices (10) is matched.
-        assert matched_vertices == frozenset(list(range(12))) - {1, 10}
+        assert matched_vertices == frozenset(range(12)) - {1, 10}
         # Assert that no vertex appears in two edges, or in other words, that
         # the matching (u, v) and (v, u) both appear in the matching
         # dictionary.

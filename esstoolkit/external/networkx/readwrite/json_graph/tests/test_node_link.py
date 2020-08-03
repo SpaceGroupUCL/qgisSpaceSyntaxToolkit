@@ -1,12 +1,10 @@
 #  -*- coding: utf-8 -*-
-from builtins import str
-from builtins import object
 import json
 from nose.tools import assert_equal, assert_raises, assert_not_equal, assert_true, raises
 import networkx as nx
 from networkx.readwrite.json_graph import *
 
-class TestNodeLink(object):
+class TestNodeLink:
 
     def test_graph(self):
         G = nx.path_graph(4)
@@ -48,7 +46,7 @@ class TestNodeLink(object):
 
     def test_unicode_keys(self):
         try:
-            q = str("qualité",'utf-8')
+            q = unicode("qualité",'utf-8')
         except NameError:
             q = "qualité"
         G = nx.Graph()

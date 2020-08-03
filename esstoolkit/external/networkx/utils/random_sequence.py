@@ -8,7 +8,6 @@ random selections.
 #    Pieter Swart <swart@lanl.gov>
 #    All rights reserved.
 #    BSD license.
-from builtins import range
 import random
 import sys
 import networkx as nx
@@ -218,7 +217,7 @@ def weighted_choice(mapping):
     """
     # use roulette method
     rnd = random.random() * sum(mapping.values())
-    for k, w in list(mapping.items()):
+    for k, w in mapping.items():
         rnd -= w
         if rnd < 0:
             return k

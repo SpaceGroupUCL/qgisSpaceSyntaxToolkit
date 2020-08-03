@@ -12,10 +12,6 @@ TimingMultiGraph and TimingMultiDiGraph
 #    Pieter Swart <swart@lanl.gov>
 #    All rights reserved.
 #    BSD license.
-from builtins import next
-from builtins import map
-from builtins import zip
-from builtins import object
 from copy import deepcopy
 import networkx as nx
 from networkx.exception import NetworkXError
@@ -555,7 +551,7 @@ class TimingGraph(object):
         [{}, {}, {}]
         """
         if data:
-            return iter(list(self.node.items()))
+            return iter(self.node.items())
         return iter(self.node)
 
     def nodes(self, data=False):
@@ -1094,12 +1090,12 @@ class TimingGraph(object):
         """
         seen={}     # helper dict to keep track of multiply stored edges
         if nbunch is None:
-            nodes_nbrs = list(self.adj.items())
+            nodes_nbrs = self.adj.items()
         else:
             nodes_nbrs=((n,self.adj[n]) for n in self.nbunch_iter(nbunch))
         if data:
             for n,nbrs in nodes_nbrs:
-                for nbr,data in list(nbrs.items()):
+                for nbr,data in nbrs.items():
                     if nbr not in seen:
                         yield (n,nbr,data)
                 seen[n]=1
@@ -1184,7 +1180,7 @@ class TimingGraph(object):
         [[1], [0, 2], [1, 3], [2]]
 
         """
-        return list(map(list,iter(list(self.adj.values()))))
+        return list(map(list,iter(self.adj.values())))
 
     def adjacency_iter(self):
         """Return an iterator of (node, adjacency dict) tuples for all nodes.
@@ -1210,7 +1206,7 @@ class TimingGraph(object):
         [(0, {1: {}}), (1, {0: {}, 2: {}}), (2, {1: {}, 3: {}}), (3, {2: {}})]
 
         """
-        return iter(list(self.adj.items()))
+        return iter(self.adj.items())
 
     def degree(self, nbunch=None, weight=None):
         """Return the degree of a node or nodes.
@@ -1287,7 +1283,7 @@ class TimingGraph(object):
 
         """
         if nbunch is None:
-            nodes_nbrs = list(self.adj.items())
+            nodes_nbrs = self.adj.items()
         else:
             nodes_nbrs=((n,self.adj[n]) for n in self.nbunch_iter(nbunch))
 
@@ -1401,7 +1397,7 @@ class TimingGraph(object):
         G.add_nodes_from(self)
         G.add_edges_from( ((u,v,deepcopy(data))
                            for u,nbrs in self.adjacency_iter()
-                           for v,data in list(nbrs.items())) )
+                           for v,data in nbrs.items()) )
         G.graph=deepcopy(self.graph)
         G.node=deepcopy(self.node)
         return G
@@ -1495,7 +1491,7 @@ class TimingGraph(object):
         for n in H.node:
             Hnbrs={}
             H_adj[n]=Hnbrs
-            for nbr,d in list(self_adj[n].items()):
+            for nbr,d in self_adj[n].items():
                 if nbr in H_adj:
                     # add both representations of edge: n-nbr and nbr-n
                     Hnbrs[nbr]=d
@@ -1527,7 +1523,7 @@ class TimingGraph(object):
         >>> G.nodes_with_selfloops()
         [1]
         """
-        return [ n for n,nbrs in list(self.adj.items()) if n in nbrs ]
+        return [ n for n,nbrs in self.adj.items() if n in nbrs ]
 
     def selfloop_edges(self, data=False):
         """Return a list of selfloop edges.
@@ -1561,10 +1557,10 @@ class TimingGraph(object):
         """
         if data:
             return [ (n,n,nbrs[n])
-                     for n,nbrs in list(self.adj.items()) if n in nbrs ]
+                     for n,nbrs in self.adj.items() if n in nbrs ]
         else:
             return [ (n,n)
-                     for n,nbrs in list(self.adj.items()) if n in nbrs ]
+                     for n,nbrs in self.adj.items() if n in nbrs ]
 
 
     def number_of_selfloops(self):
@@ -1721,7 +1717,7 @@ class TimingGraph(object):
 
         """
         nlist = list(nodes)
-        edges=list(zip(nlist[:-1],nlist[1:]))
+        edges=zip(nlist[:-1],nlist[1:])
         self.add_edges_from(edges, **attr)
 
     def add_cycle(self, nodes, **attr):
@@ -1747,7 +1743,7 @@ class TimingGraph(object):
 
         """
         nlist = list(nodes)
-        edges=list(zip(nlist,nlist[1:]+[nlist[0]]))
+        edges=zip(nlist,nlist[1:]+[nlist[0]])
         self.add_edges_from(edges, **attr)
 
 
@@ -1793,7 +1789,7 @@ class TimingGraph(object):
         nbunch is not hashable, a NetworkXError is raised.
         """
         if nbunch is None:   # include all nodes via iterator
-            bunch=iter(list(self.adj.keys()))
+            bunch=iter(self.adj.keys())
         elif nbunch in self: # if nbunch is a single node
             bunch=iter([nbunch])
         else:                # if nbunch is a sequence of nodes
@@ -2538,12 +2534,12 @@ class TimingDiGraph(TimingGraph):
 
         """
         if nbunch is None:
-            nodes_nbrs=list(self.adj.items())
+            nodes_nbrs=self.adj.items()
         else:
             nodes_nbrs=((n,self.adj[n]) for n in self.nbunch_iter(nbunch))
         if data:
             for n,nbrs in nodes_nbrs:
-                for nbr,data in list(nbrs.items()):
+                for nbr,data in nbrs.items():
                     yield (n,nbr,data)
         else:
             for n,nbrs in nodes_nbrs:
@@ -2575,12 +2571,12 @@ class TimingDiGraph(TimingGraph):
         edges_iter : return an iterator of edges
         """
         if nbunch is None:
-            nodes_nbrs=list(self.pred.items())
+            nodes_nbrs=self.pred.items()
         else:
             nodes_nbrs=((n,self.pred[n]) for n in self.nbunch_iter(nbunch))
         if data:
             for n,nbrs in nodes_nbrs:
-                for nbr,data in list(nbrs.items()):
+                for nbr,data in nbrs.items():
                     yield (nbr,n,data)
         else:
             for n,nbrs in nodes_nbrs:
@@ -2632,11 +2628,11 @@ class TimingDiGraph(TimingGraph):
 
         """
         if nbunch is None:
-            nodes_nbrs=list(zip(iter(list(self.succ.items())),iter(list(self.pred.items()))))
+            nodes_nbrs=zip(iter(self.succ.items()),iter(self.pred.items()))
         else:
-            nodes_nbrs=list(zip(
+            nodes_nbrs=zip(
                 ((n,self.succ[n]) for n in self.nbunch_iter(nbunch)),
-                ((n,self.pred[n]) for n in self.nbunch_iter(nbunch))))
+                ((n,self.pred[n]) for n in self.nbunch_iter(nbunch)))
 
         if weight is None:
             for (n,succ),(n2,pred) in nodes_nbrs:
@@ -2685,7 +2681,7 @@ class TimingDiGraph(TimingGraph):
 
         """
         if nbunch is None:
-            nodes_nbrs=list(self.pred.items())
+            nodes_nbrs=self.pred.items()
         else:
             nodes_nbrs=((n,self.pred[n]) for n in self.nbunch_iter(nbunch))
 
@@ -2695,7 +2691,7 @@ class TimingDiGraph(TimingGraph):
         else:
         # edge weighted graph - degree is sum of edge weights
             for n,nbrs in nodes_nbrs:
-                yield (n, sum(data.get(weight,1) for data in list(nbrs.values())))
+                yield (n, sum(data.get(weight,1) for data in nbrs.values()))
 
 
     def out_degree_iter(self, nbunch=None, weight=None):
@@ -2734,7 +2730,7 @@ class TimingDiGraph(TimingGraph):
 
         """
         if nbunch is None:
-            nodes_nbrs=list(self.succ.items())
+            nodes_nbrs=self.succ.items()
         else:
             nodes_nbrs=((n,self.succ[n]) for n in self.nbunch_iter(nbunch))
 
@@ -2744,7 +2740,7 @@ class TimingDiGraph(TimingGraph):
         else:
         # edge weighted graph - degree is sum of edge weights
             for n,nbrs in nodes_nbrs:
-                yield (n, sum(data.get(weight,1) for data in list(nbrs.values())))
+                yield (n, sum(data.get(weight,1) for data in nbrs.values()))
 
 
     def in_degree(self, nbunch=None, weight=None):
@@ -2941,12 +2937,12 @@ class TimingDiGraph(TimingGraph):
         if reciprocal is True:
             H.add_edges_from( (u,v,deepcopy(d))
                               for u,nbrs in self.adjacency_iter()
-                              for v,d in list(nbrs.items())
+                              for v,d in nbrs.items()
                               if v in self.pred[u])
         else:
             H.add_edges_from( (u,v,deepcopy(d))
                               for u,nbrs in self.adjacency_iter()
-                              for v,d in list(nbrs.items()) )
+                              for v,d in nbrs.items() )
         H.graph=deepcopy(self.graph)
         H.node=deepcopy(self.node)
         return H
@@ -3035,7 +3031,7 @@ class TimingDiGraph(TimingGraph):
         # add edges
         for u in H_succ:
             Hnbrs=H_succ[u]
-            for v,datadict in list(self_succ[u].items()):
+            for v,datadict in self_succ[u].items():
                 if v in H_succ:
                     # add both representations of edge: u-v and v-u
                     Hnbrs[v]=datadict
@@ -3646,14 +3642,14 @@ class TimingMultiGraph(TimingGraph):
         """
         seen={}     # helper dict to keep track of multiply stored edges
         if nbunch is None:
-            nodes_nbrs = list(self.adj.items())
+            nodes_nbrs = self.adj.items()
         else:
             nodes_nbrs=((n,self.adj[n]) for n in self.nbunch_iter(nbunch))
         if data:
             for n,nbrs in nodes_nbrs:
-                for nbr,keydict in list(nbrs.items()):
+                for nbr,keydict in nbrs.items():
                     if nbr not in seen:
-                        for key,data in list(keydict.items()):
+                        for key,data in keydict.items():
                             if keys:
                                 yield (n,nbr,key,data)
                             else:
@@ -3661,9 +3657,9 @@ class TimingMultiGraph(TimingGraph):
                 seen[n]=1
         else:
             for n,nbrs in nodes_nbrs:
-                for nbr,keydict in list(nbrs.items()):
+                for nbr,keydict in nbrs.items():
                     if nbr not in seen:
-                        for key,data in list(keydict.items()):
+                        for key,data in keydict.items():
                             if keys:
                                 yield (n,nbr,key)
                             else:
@@ -3763,23 +3759,23 @@ class TimingMultiGraph(TimingGraph):
 
         """
         if nbunch is None:
-            nodes_nbrs = list(self.adj.items())
+            nodes_nbrs = self.adj.items()
         else:
             nodes_nbrs=((n,self.adj[n]) for n in self.nbunch_iter(nbunch))
 
         if weight is None:
             for n,nbrs in nodes_nbrs:
-                deg = sum([len(data) for data in list(nbrs.values())])
+                deg = sum([len(data) for data in nbrs.values()])
                 yield (n, deg+(n in nbrs and len(nbrs[n])))
         else:
         # edge weighted graph - degree is sum of nbr edge weights
             for n,nbrs in nodes_nbrs:
                 deg = sum([d.get(weight,1)
-                           for data in list(nbrs.values())
-                           for d in list(data.values())])
+                           for data in nbrs.values()
+                           for d in data.values()])
                 if n in nbrs:
                     deg += sum([d.get(weight,1)
-                           for key,d in list(nbrs[n].items())])
+                           for key,d in nbrs[n].items()])
                 yield (n, deg)
 
 
@@ -3835,8 +3831,8 @@ class TimingMultiGraph(TimingGraph):
         G.add_nodes_from(self)
         G.add_edges_from( (u,v,key,deepcopy(datadict))
                            for u,nbrs in self.adjacency_iter()
-                           for v,keydict in list(nbrs.items())
-                           for key,datadict in list(keydict.items()) ) 
+                           for v,keydict in nbrs.items()
+                           for key,datadict in keydict.items() ) 
         G.graph=deepcopy(self.graph)
         G.node=deepcopy(self.node)
         return G
@@ -3881,22 +3877,22 @@ class TimingMultiGraph(TimingGraph):
         if data:
             if keys:
                 return [ (n,n,k,d) 
-                         for n,nbrs in list(self.adj.items()) 
-                         if n in nbrs for k,d in list(nbrs[n].items())]
+                         for n,nbrs in self.adj.items() 
+                         if n in nbrs for k,d in nbrs[n].items()]
             else:
                 return [ (n,n,d) 
-                         for n,nbrs in list(self.adj.items()) 
-                         if n in nbrs for d in list(nbrs[n].values())]
+                         for n,nbrs in self.adj.items() 
+                         if n in nbrs for d in nbrs[n].values()]
         else:
             if keys:
                 return [ (n,n,k)
-                     for n,nbrs in list(self.adj.items()) 
-                     if n in nbrs for k in list(nbrs[n].keys())]
+                     for n,nbrs in self.adj.items() 
+                     if n in nbrs for k in nbrs[n].keys()]
 
             else:
                 return [ (n,n)
-                     for n,nbrs in list(self.adj.items()) 
-                     if n in nbrs for d in list(nbrs[n].values())]
+                     for n,nbrs in self.adj.items() 
+                     if n in nbrs for d in nbrs[n].values()]
 
 
     def number_of_edges(self, u=None, v=None):
@@ -3990,7 +3986,7 @@ class TimingMultiGraph(TimingGraph):
         for n in H:
             Hnbrs={}
             H_adj[n]=Hnbrs
-            for nbr,edgedict in list(self_adj[n].items()):
+            for nbr,edgedict in self_adj[n].items():
                 if nbr in H_adj:
                     # add both representations of edge: n-nbr and nbr-n
                     # they share the same edgedict
@@ -4358,21 +4354,21 @@ class TimingMultiDiGraph(TimingMultiGraph,TimingDiGraph):
 
         """
         if nbunch is None:
-            nodes_nbrs = list(self.adj.items())
+            nodes_nbrs = self.adj.items()
         else:
             nodes_nbrs=((n,self.adj[n]) for n in self.nbunch_iter(nbunch))
         if data:
             for n,nbrs in nodes_nbrs:
-                for nbr,keydict in list(nbrs.items()):
-                    for key,data in list(keydict.items()):
+                for nbr,keydict in nbrs.items():
+                    for key,data in keydict.items():
                         if keys:
                             yield (n,nbr,key,data)
                         else:
                             yield (n,nbr,data)
         else:
             for n,nbrs in nodes_nbrs:
-                for nbr,keydict in list(nbrs.items()):
-                    for key,data in list(keydict.items()):
+                for nbr,keydict in nbrs.items():
+                    for key,data in keydict.items():
                         if keys:
                             yield (n,nbr,key)
                         else:
@@ -4437,21 +4433,21 @@ class TimingMultiDiGraph(TimingMultiGraph,TimingDiGraph):
         edges_iter : return an iterator of edges
         """
         if nbunch is None:
-            nodes_nbrs=list(self.pred.items())
+            nodes_nbrs=self.pred.items()
         else:
             nodes_nbrs=((n,self.pred[n]) for n in self.nbunch_iter(nbunch))
         if data:
             for n,nbrs in nodes_nbrs:
-                for nbr,keydict in list(nbrs.items()):
-                    for key,data in list(keydict.items()):
+                for nbr,keydict in nbrs.items():
+                    for key,data in keydict.items():
                         if keys:
                             yield (nbr,n,key,data)
                         else:
                             yield (nbr,n,data)
         else:
             for n,nbrs in nodes_nbrs:
-                for nbr,keydict in list(nbrs.items()):
-                    for key,data in list(keydict.items()):
+                for nbr,keydict in nbrs.items():
+                    for key,data in keydict.items():
                         if keys:
                             yield (nbr,n,key)
                         else:
@@ -4518,26 +4514,26 @@ class TimingMultiDiGraph(TimingMultiGraph,TimingDiGraph):
 
         """
         if nbunch is None:
-            nodes_nbrs=list(zip(iter(list(self.succ.items())),iter(list(self.pred.items()))))
+            nodes_nbrs=zip(iter(self.succ.items()),iter(self.pred.items()))
         else:
-            nodes_nbrs=list(zip(
+            nodes_nbrs=zip(
                 ((n,self.succ[n]) for n in self.nbunch_iter(nbunch)),
-                ((n,self.pred[n]) for n in self.nbunch_iter(nbunch))))
+                ((n,self.pred[n]) for n in self.nbunch_iter(nbunch)))
 
         if weight is None:
             for (n,succ),(n2,pred) in nodes_nbrs:
-                indeg = sum([len(data) for data in list(pred.values())])
-                outdeg = sum([len(data) for data in list(succ.values())])
+                indeg = sum([len(data) for data in pred.values()])
+                outdeg = sum([len(data) for data in succ.values()])
                 yield (n, indeg + outdeg)
         else:
         # edge weighted graph - degree is sum of nbr edge weights
             for (n,succ),(n2,pred) in nodes_nbrs:
                 deg = sum([d.get(weight,1)
-                           for data in list(pred.values())
-                           for d in list(data.values())])
+                           for data in pred.values()
+                           for d in data.values()])
                 deg += sum([d.get(weight,1)
-                           for data in list(succ.values())
-                           for d in list(data.values())])
+                           for data in succ.values()
+                           for d in data.values()])
                 yield (n, deg)
 
 
@@ -4577,19 +4573,19 @@ class TimingMultiDiGraph(TimingMultiGraph,TimingDiGraph):
 
         """
         if nbunch is None:
-            nodes_nbrs=list(self.pred.items())
+            nodes_nbrs=self.pred.items()
         else:
             nodes_nbrs=((n,self.pred[n]) for n in self.nbunch_iter(nbunch))
 
         if weight is None:
             for n,nbrs in nodes_nbrs:
-                yield (n, sum([len(data) for data in list(nbrs.values())]) )
+                yield (n, sum([len(data) for data in nbrs.values()]) )
         else:
             # edge weighted graph - degree is sum of nbr edge weights
             for n,pred in nodes_nbrs:
                 deg = sum([d.get(weight,1)
-                           for data in list(pred.values())
-                           for d in list(data.values())])
+                           for data in pred.values()
+                           for d in data.values()])
                 yield (n, deg)
 
 
@@ -4629,18 +4625,18 @@ class TimingMultiDiGraph(TimingMultiGraph,TimingDiGraph):
 
         """
         if nbunch is None:
-            nodes_nbrs=list(self.succ.items())
+            nodes_nbrs=self.succ.items()
         else:
             nodes_nbrs=((n,self.succ[n]) for n in self.nbunch_iter(nbunch))
 
         if weight is None:
             for n,nbrs in nodes_nbrs:
-                yield (n, sum([len(data) for data in list(nbrs.values())]) )
+                yield (n, sum([len(data) for data in nbrs.values()]) )
         else:
             for n,succ in nodes_nbrs:
                 deg = sum([d.get(weight,1)
-                           for data in list(succ.values())
-                           for d in list(data.values())])
+                           for data in succ.values()
+                           for d in data.values()])
                 yield (n, deg)
 
     def is_multigraph(self):
@@ -4732,14 +4728,14 @@ class TimingMultiDiGraph(TimingMultiGraph,TimingDiGraph):
         if reciprocal is True:
             H.add_edges_from( (u,v,key,deepcopy(data))
                               for u,nbrs in self.adjacency_iter()
-                              for v,keydict in list(nbrs.items())
-                              for key,data in list(keydict.items())
+                              for v,keydict in nbrs.items()
+                              for key,data in keydict.items()
                               if self.has_edge(v,u,key))
         else:
             H.add_edges_from( (u,v,key,deepcopy(data))
                               for u,nbrs in self.adjacency_iter()
-                              for v,keydict in list(nbrs.items())
-                              for key,data in list(keydict.items()))
+                              for v,keydict in nbrs.items()
+                              for key,data in keydict.items())
         H.graph=deepcopy(self.graph)
         H.node=deepcopy(self.node)
         return H
@@ -4801,7 +4797,7 @@ class TimingMultiDiGraph(TimingMultiGraph,TimingDiGraph):
         # add edges
         for u in H_succ:
             Hnbrs=H_succ[u]
-            for v,edgedict in list(self_succ[u].items()):
+            for v,edgedict in self_succ[u].items():
                 if v in H_succ:
                     # add both representations of edge: u-v and v-u
                     # they share the same edgedict

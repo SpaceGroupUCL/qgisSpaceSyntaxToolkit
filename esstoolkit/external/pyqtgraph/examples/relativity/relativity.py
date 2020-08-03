@@ -1,6 +1,3 @@
-from builtins import str
-from builtins import range
-from builtins import object
 import numpy as np
 import collections
 import sys, os
@@ -405,7 +402,7 @@ class Clock(object):
         return curve, points
 
 
-class Simulation(object):
+class Simulation:
     def __init__(self, clocks, ref, duration, dt):
         self.clocks = clocks
         self.ref = ref
@@ -504,7 +501,7 @@ class Simulation(object):
         
     def run(self):
         nPts = int(self.duration/self.dt)+1
-        for cl in list(self.clocks.values()):
+        for cl in self.clocks.values():
             cl.init(nPts)
             
         if self.ref is None:
@@ -516,8 +513,8 @@ class Simulation(object):
         clocks = self.clocks
         dt = self.dt
         tVals = np.linspace(0, dt*(nPts-1), nPts)
-        for cl in list(self.clocks.values()):
-            for i in range(1,nPts):
+        for cl in self.clocks.values():
+            for i in xrange(1,nPts):
                 nextT = tVals[i]
                 while True:
                     tau1, tau2 = cl.accelLimits()
@@ -551,7 +548,7 @@ class Simulation(object):
         
         ## make sure reference clock is not present in the list of clocks--this will be handled separately.
         clocks = clocks.copy()
-        for k,v in list(clocks.items()):
+        for k,v in clocks.items():
             if v is ref:
                 del clocks[k]
                 break
@@ -563,7 +560,7 @@ class Simulation(object):
         ## These are the set of proper times (in the reference frame) that will be simulated
         ptVals = np.linspace(ref.pt, ref.pt + dt*(nPts-1), nPts)
         
-        for i in range(1,nPts):
+        for i in xrange(1,nPts):
                 
             ## step reference clock ahead one time step in its proper time
             nextPt = ptVals[i]  ## this is where (when) we want to end up
@@ -588,7 +585,7 @@ class Simulation(object):
             
             
             ## update all other clocks
-            for cl in list(clocks.values()):
+            for cl in clocks.values():
                 while True:
                     g = cl.acceleration()
                     tau1, tau2 = cl.accelLimits()
@@ -637,7 +634,7 @@ class Simulation(object):
         
     def plot(self, plot):
         plot.clear()
-        for cl in list(self.clocks.values()):
+        for cl in self.clocks.values():
             c, p = cl.getCurve()
             plot.addItem(c)
             plot.addItem(p)
@@ -649,7 +646,7 @@ class Animation(pg.ItemGroup):
         self.clocks = sim.clocks
         
         self.items = {}
-        for name, cl in list(self.clocks.items()):
+        for name, cl in self.clocks.items():
             item = ClockItem(cl)
             self.addItem(item)
             self.items[name] = item
@@ -664,11 +661,11 @@ class Animation(pg.ItemGroup):
             #self.timer.start(self.dt)
         
     def restart(self):
-        for cl in list(self.items.values()):
+        for cl in self.items.values():
             cl.reset()
         
     def stepTo(self, t):
-        for i in list(self.items.values()):
+        for i in self.items.values():
             i.stepTo(t)
         
 

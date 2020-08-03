@@ -7,7 +7,6 @@
 #    Pieter Swart <swart@lanl.gov>
 #    All rights reserved.
 #    BSD license.
-from builtins import range
 import networkx as nx
 from networkx.utils.decorators import not_implemented_for
 
@@ -415,7 +414,7 @@ def condensation(G, scc=None):
         members[i] = component
         mapping.update((n, i) for n in component)
     number_of_components = i + 1
-    C.add_nodes_from(list(range(number_of_components)))
+    C.add_nodes_from(range(number_of_components))
     C.add_edges_from((mapping[u], mapping[v]) for u, v in G.edges_iter()
                      if mapping[u] != mapping[v])
     # Add a list of members (ie original nodes) to each node (ie scc) in C.

@@ -12,9 +12,6 @@ Widget used for displaying 2D or 3D data. Features:
   - ROI plotting
   - Image normalization through a variety of methods
 """
-from builtins import map
-from builtins import str
-from builtins import range
 import os
 import numpy as np
 

@@ -1,4 +1,3 @@
-from builtins import str
 from ..Qt import QtGui, QtCore
 try:
     from ..Qt import QtOpenGL

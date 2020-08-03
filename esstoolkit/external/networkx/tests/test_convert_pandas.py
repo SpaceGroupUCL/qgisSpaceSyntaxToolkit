@@ -1,4 +1,3 @@
-from builtins import object
 from nose import SkipTest
 from nose.tools import assert_true
 

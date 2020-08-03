@@ -1,12 +1,9 @@
 #!/usr/bin/env python
-from builtins import zip
-from builtins import range
-from builtins import object
 from nose.tools import *
 import networkx as nx
 from random import random, choice
 
-class TestAStar(object):
+class TestAStar:
 
     def setUp(self):
         self.XG=nx.DiGraph()
@@ -125,7 +122,7 @@ class TestAStar(object):
 
 
     def test_orderable(self):
-        class UnorderableClass(object): pass
+        class UnorderableClass: pass
         node_1 = UnorderableClass()
         node_2 = UnorderableClass()
         node_3 = UnorderableClass()

@@ -1,7 +1,3 @@
-from builtins import map
-from builtins import str
-from builtins import range
-from builtins import object
 import pyqtgraph as pg
 import numpy as np
 from numpy.testing import assert_array_almost_equal, assert_almost_equal
@@ -116,7 +112,7 @@ def test_subArray():
     
     
 def test_rescaleData():
-    dtypes = list(map(np.dtype, ('ubyte', 'uint16', 'byte', 'int16', 'int', 'float')))
+    dtypes = map(np.dtype, ('ubyte', 'uint16', 'byte', 'int16', 'int', 'float'))
     for dtype1 in dtypes:
         for dtype2 in dtypes:
             data = (np.random.random(size=10) * 2**32 - 2**31).astype(dtype1)

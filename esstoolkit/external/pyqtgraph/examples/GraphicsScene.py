@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 ## Add path to library (just for examples; you do not need this)
-from __future__ import print_function
-from __future__ import absolute_import
-from . import initExample
+import initExample
 
 from pyqtgraph.Qt import QtCore, QtGui
 import pyqtgraph as pg
