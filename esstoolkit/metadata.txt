@@ -9,10 +9,10 @@
 
 [general]
 name=Space Syntax Toolkit
-qgisMinimumVersion=2.14
+qgisMinimumVersion=3.10
 description=Collection of tools for space syntax analysis workflows in a GIS environment.
-version=0.2.1
-author=Jorge Gil, Ioanna Kovolou, Abhimanyu Acharya, Stephen Law, Laurens Versluis
+version=0.3.0
+author=Jorge Gil, Ioanna Kovolou, Abhimanyu Acharya, Stephen Law, Laurens Versluis, Petros Koutsolampros
 email=jorge.gil@ucl.ac.uk
 
 # end of mandatory metadata
