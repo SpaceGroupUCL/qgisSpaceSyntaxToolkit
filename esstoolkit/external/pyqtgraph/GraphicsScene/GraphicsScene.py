@@ -1,3 +1,6 @@
+from past.builtins import cmp
+from builtins import map
+from builtins import str
 import weakref
 from ..Qt import QtCore, QtGui
 from ..python2_3 import sortList, cmp

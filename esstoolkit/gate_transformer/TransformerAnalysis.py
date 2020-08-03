@@ -20,11 +20,12 @@
  *                                                                         *
  ***************************************************************************/
 """
+from __future__ import absolute_import
 from PyQt4.QtCore import *
 from qgis.core import *
 import math
 
-from network_transformer_dialog import NetworkTransformerDialog
+from .network_transformer_dialog import NetworkTransformerDialog
 
 # analysis class
 class GateTransformer(QObject):
@@ -57,7 +58,7 @@ class GateTransformer(QObject):
             self.dlg.close_button.clicked.disconnect(self.close_method)
 
     def get_layers(self):
-        layers = QgsMapLayerRegistry.instance().mapLayers().values()
+        layers = list(QgsMapLayerRegistry.instance().mapLayers().values())
         layer_objects = []
         for layer in layers:
             if layer.type() == QgsMapLayer.VectorLayer and layer.geometryType() == QGis.Line:

@@ -1,6 +1,7 @@
 
 # INPUT
 
+from past.builtins import execfile
 execfile(u'/Users/i.kolovou/Documents/Github/qgisSpaceSyntaxToolkit/esstoolkit/catchment_analyser/catchment_analysis.py'.encode('utf-8'))
 execfile(u'/Users/i.kolovou/Documents/Github/qgisSpaceSyntaxToolkit/esstoolkit/catchment_analyser/utility_functions.py'.encode('utf-8'))
 

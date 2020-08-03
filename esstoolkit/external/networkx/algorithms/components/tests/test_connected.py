@@ -1,10 +1,11 @@
 #!/usr/bin/env python
+from builtins import object
 from nose.tools import *
 import networkx as nx
 from networkx import convert_node_labels_to_integers as cnlti
 from networkx import NetworkXError,NetworkXNotImplemented
 
-class TestConnected:
+class TestConnected(object):
 
     def setUp(self):
         G1 = cnlti(nx.grid_2d_graph(2, 2), first_label=0, ordering="sorted")

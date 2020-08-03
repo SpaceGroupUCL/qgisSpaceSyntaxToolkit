@@ -20,14 +20,16 @@
  *                                                                         *
  ***************************************************************************/
 """
+from __future__ import print_function
+from __future__ import absolute_import
 
 import os
 
-from PyQt4 import QtGui, uic
-from PyQt4.QtCore import pyqtSignal
+from qgis.PyQt import QtGui, uic
+from qgis.PyQt.QtCore import pyqtSignal
 from qgis.core import QgsDataSourceURI
 
-from utility_functions import *
+from .utility_functions import *
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'DbSettings_dialog_base.ui'))
@@ -64,7 +66,7 @@ class DbSettingsDialog(QtGui.QDialog, FORM_CLASS):
 
     def getDbSettings(self):
         connection = self.dbCombo.currentText()
-        if connection in self.available_dbs.keys():
+        if connection in list(self.available_dbs.keys()):
             return {'dbname': connection,
                     'schema': self.schemaCombo.currentText(),
                     'table_name': self.nameLineEdit.text()}
@@ -80,13 +82,17 @@ class DbSettingsDialog(QtGui.QDialog, FORM_CLASS):
         selected_db = self.getSelectedDb()
         if len(self.getSelectedDb()) > 1:
             self.get_connstring(selected_db)
-            print 'connstring', self.connstring
+            # fix_print_with_import
+            # fix_print_with_import
+print('connstring', self.connstring)
             schemas = getPostgisSchemas(self.connstring)
         self.schemaCombo.addItems(schemas)
 
     def get_connstring(self, selected_db):
         db_info = self.available_dbs[selected_db]
-        print 'tries', db_info, selected_db
+        # fix_print_with_import
+        # fix_print_with_import
+print('tries', db_info, selected_db)
         self.connstring = ''
         try:
             db_info['user'] = db_info['username']
@@ -98,7 +104,7 @@ class DbSettingsDialog(QtGui.QDialog, FORM_CLASS):
             del db_info['database']
         except KeyError:
             pass
-        for k, v in db_info.items():
+        for k, v in list(db_info.items()):
             self.connstring += k + '=' + v + ' '
         return
 

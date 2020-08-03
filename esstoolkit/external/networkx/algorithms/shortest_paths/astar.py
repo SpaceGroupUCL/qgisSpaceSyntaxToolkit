@@ -9,6 +9,8 @@
 #    All rights reserved.
 #    BSD license.
 
+from builtins import zip
+from builtins import next
 from heapq import heappush, heappop
 from itertools import count
 from networkx import NetworkXError
@@ -111,7 +113,7 @@ def astar_path(G, source, target, heuristic=None, weight='weight'):
 
         explored[curnode] = parent
 
-        for neighbor, w in G[curnode].items():
+        for neighbor, w in list(G[curnode].items()):
             if neighbor in explored:
                 continue
             ncost = dist + w.get(weight, 1)

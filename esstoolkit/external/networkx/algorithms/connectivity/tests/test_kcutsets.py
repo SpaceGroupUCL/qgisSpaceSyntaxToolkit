@@ -1,5 +1,8 @@
+from __future__ import print_function
 # Jordi Torrents
 # Test for k-cutsets
+from builtins import next
+from builtins import range
 from operator import itemgetter
 from nose.tools import assert_equal, assert_false, assert_true, assert_raises
 import networkx as nx
@@ -19,7 +22,7 @@ def graph_example_1():
     G = nx.convert_node_labels_to_integers(nx.grid_graph([5,5]),
                                             label_attribute='labels')
     rlabels = nx.get_node_attributes(G, 'labels')
-    labels = dict((v, k) for k, v in rlabels.items())
+    labels = dict((v, k) for k, v in list(rlabels.items()))
 
     for nodes in [(labels[(0,0)], labels[(1,0)]),
                     (labels[(0,4)], labels[(1,4)]),
@@ -55,7 +58,7 @@ def torrents_and_ferraro_graph():
     G = nx.convert_node_labels_to_integers(nx.grid_graph([5,5]),
                                             label_attribute='labels')
     rlabels = nx.get_node_attributes(G, 'labels')
-    labels = dict((v, k) for k, v in rlabels.items())
+    labels = dict((v, k) for k, v in list(rlabels.items()))
 
     for nodes in [ (labels[(0,4)], labels[(1,4)]),
                     (labels[(3,4)], labels[(4,4)]) ]:

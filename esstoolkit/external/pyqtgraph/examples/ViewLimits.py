@@ -1,4 +1,5 @@
-import initExample ## Add path to library (just for examples; you do not need this)
+from __future__ import absolute_import
+from . import initExample ## Add path to library (just for examples; you do not need this)
 
 from pyqtgraph.Qt import QtGui, QtCore
 import pyqtgraph as pg

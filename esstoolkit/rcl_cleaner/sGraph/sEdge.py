@@ -1,6 +1,6 @@
 # general imports
 from qgis.core import QgsFeature, QgsGeometry, QgsField
-from PyQt4.QtCore import QObject, QVariant
+from qgis.PyQt.QtCore import QObject, QVariant
 
 class sEdge(QObject):
     def __init__(self, id, feature, nodes):

@@ -7,6 +7,8 @@ Current-flow betweenness centrality measures.
 #    Pieter Swart <swart@lanl.gov>
 #    All rights reserved.
 #    BSD license.
+from builtins import zip
+from builtins import range
 import random
 import networkx as nx
 from networkx.algorithms.centrality.flow_matrix import *
@@ -104,8 +106,8 @@ def approximate_current_flow_betweenness_centrality(G, normalized=True,
     ordering = list(reverse_cuthill_mckee_ordering(G))
     # make a copy with integer labels according to rcm ordering
     # this could be done without a copy if we really wanted to
-    H = nx.relabel_nodes(G,dict(zip(ordering,range(n))))
-    L = laplacian_sparse_matrix(H, nodelist=range(n), weight=weight,
+    H = nx.relabel_nodes(G,dict(list(zip(ordering,list(range(n))))))
+    L = laplacian_sparse_matrix(H, nodelist=list(range(n)), weight=weight,
                                 dtype=dtype, format='csc')
     C = solvername[solver](L, dtype=dtype) # initialize solver
     betweenness = dict.fromkeys(H,0.0)
@@ -118,7 +120,7 @@ def approximate_current_flow_betweenness_centrality(G, normalized=True,
                                'Increase kmax or epsilon')
     cstar2k = cstar/(2*k)
     for i in range(k):
-        s,t = random.sample(range(n),2)
+        s,t = random.sample(list(range(n)),2)
         b = np.zeros(n, dtype=dtype)
         b[s] = 1
         b[t] = -1
@@ -134,7 +136,7 @@ def approximate_current_flow_betweenness_centrality(G, normalized=True,
     else:
         factor = nb/2.0
     # remap to original node names and "unnormalize" if required
-    return dict((ordering[k],float(v*factor)) for k,v in betweenness.items())
+    return dict((ordering[k],float(v*factor)) for k,v in list(betweenness.items()))
 
 
 def current_flow_betweenness_centrality(G, normalized=True, weight='weight',
@@ -227,11 +229,11 @@ def current_flow_betweenness_centrality(G, normalized=True, weight='weight',
     ordering = list(reverse_cuthill_mckee_ordering(G))
     # make a copy with integer labels according to rcm ordering
     # this could be done without a copy if we really wanted to
-    H = nx.relabel_nodes(G,dict(zip(ordering,range(n))))
+    H = nx.relabel_nodes(G,dict(list(zip(ordering,list(range(n))))))
     betweenness = dict.fromkeys(H,0.0) # b[v]=0 for v in H
     for row,(s,t) in flow_matrix_row(H, weight=weight, dtype=dtype,
                                      solver=solver):
-        pos = dict(zip(row.argsort()[::-1],range(n)))
+        pos = dict(list(zip(row.argsort()[::-1],list(range(n)))))
         for i in range(n):
             betweenness[s] += (i-pos[i])*row[i]
             betweenness[t] += (n-i-1-pos[i])*row[i]
@@ -241,7 +243,7 @@ def current_flow_betweenness_centrality(G, normalized=True, weight='weight',
         nb = 2.0
     for i,v in enumerate(H): # map integers to nodes
         betweenness[v] = float((betweenness[v]-i)*2.0/nb)
-    return dict((ordering[k],v) for k,v in betweenness.items())
+    return dict((ordering[k],v) for k,v in list(betweenness.items()))
 
 
 def edge_current_flow_betweenness_centrality(G, normalized=True,
@@ -334,7 +336,7 @@ def edge_current_flow_betweenness_centrality(G, normalized=True,
     ordering = list(reverse_cuthill_mckee_ordering(G))
     # make a copy with integer labels according to rcm ordering
     # this could be done without a copy if we really wanted to
-    H = nx.relabel_nodes(G,dict(zip(ordering,range(n))))
+    H = nx.relabel_nodes(G,dict(list(zip(ordering,list(range(n))))))
     betweenness=(dict.fromkeys(H.edges(),0.0))
     if normalized:
         nb=(n-1.0)*(n-2.0) # normalization factor
@@ -342,13 +344,13 @@ def edge_current_flow_betweenness_centrality(G, normalized=True,
         nb=2.0
     for row,(e) in flow_matrix_row(H, weight=weight, dtype=dtype,
                                    solver=solver):
-        pos=dict(zip(row.argsort()[::-1],range(1,n+1)))
+        pos=dict(list(zip(row.argsort()[::-1],list(range(1,n+1)))))
         for i in range(n):
             betweenness[e]+=(i+1-pos[i])*row[i]
             betweenness[e]+=(n-i-pos[i])*row[i]
         betweenness[e]/=nb
     return dict(((ordering[s],ordering[t]),float(v))
-                for (s,t),v in betweenness.items())
+                for (s,t),v in list(betweenness.items()))
 
 
 # fixture for nose tests

@@ -3,6 +3,7 @@
 Capacity scaling minimum cost flow algorithm.
 """
 
+from builtins import next
 __author__ = """ysitu <ysitu@users.noreply.github.com>"""
 # Copyright (C) 2014 ysitu <ysitu@users.noreply.github.com>
 # All rights reserved.
@@ -28,10 +29,10 @@ def _detect_unboundedness(R):
     # True infinity.
     f_inf = float('inf')
     for u in R:
-        for v, e in R[u].items():
+        for v, e in list(R[u].items()):
             # Compute the minimum weight of infinite-capacity (u, v) edges.
             w = f_inf
-            for k, e in e.items():
+            for k, e in list(e.items()):
                 if e['capacity'] == inf:
                     w = min(w, e['weight'])
             if w != f_inf:
@@ -103,16 +104,16 @@ def _build_flow_dict(G, R, capacity, weight):
     if G.is_multigraph():
         for u in G:
             flow_dict[u] = {}
-            for v, es in G[u].items():
+            for v, es in list(G[u].items()):
                 flow_dict[u][v] = dict(
                     # Always saturate negative selfloops.
                     (k, (0 if (u != v or e.get(capacity, inf) <= 0 or
                                e.get(weight, 0) >= 0) else e[capacity]))
-                    for k, e in es.items())
-            for v, es in R[u].items():
+                    for k, e in list(es.items()))
+            for v, es in list(R[u].items()):
                 if v in flow_dict[u]:
                     flow_dict[u][v].update((k[0], e['flow'])
-                                           for k, e in es.items()
+                                           for k, e in list(es.items())
                                            if e['flow'] > 0)
     else:
         for u in G:
@@ -120,9 +121,9 @@ def _build_flow_dict(G, R, capacity, weight):
                 # Always saturate negative selfloops.
                 (v, (0 if (u != v or e.get(capacity, inf) <= 0 or
                            e.get(weight, 0) >= 0) else e[capacity]))
-                for v, e in G[u].items())
-            flow_dict[u].update((v, e['flow']) for v, es in R[u].items()
-                                for e in es.values() if e['flow'] > 0)
+                for v, e in list(G[u].items()))
+            flow_dict[u].update((v, e['flow']) for v, es in list(R[u].items())
+                                for e in list(es.values()) if e['flow'] > 0)
     return flow_dict
 
 
@@ -281,8 +282,8 @@ def capacity_scaling(G, demand='demand', capacity='capacity', weight='weight',
         # Δ-optimality.
         for u in R:
             p_u = R_node[u]['potential']
-            for v, es in R_succ[u].items():
-                for k, e in es.items():
+            for v, es in list(R_succ[u].items()):
+                for k, e in list(es.items()):
                     flow = e['capacity'] - e['flow']
                     if e['weight'] - p_u + R_node[v]['potential'] < 0:
                         flow = e['capacity'] - e['flow']
@@ -325,12 +326,12 @@ def capacity_scaling(G, demand='demand', capacity='capacity', weight='weight',
                     t = u
                     break
                 p_u = R_node[u]['potential']
-                for v, es in R_succ[u].items():
+                for v, es in list(R_succ[u].items()):
                     if v in d:
                         continue
                     wmin = inf
                     # Find the minimum-weighted (u, v) Δ-residual edge.
-                    for k, e in es.items():
+                    for k, e in list(es.items()):
                         if e['capacity'] - e['flow'] >= delta:
                             w = e['weight']
                             if w < wmin:
@@ -359,7 +360,7 @@ def capacity_scaling(G, demand='demand', capacity='capacity', weight='weight',
                     T_remove(t)
                 # Update node potentials.
                 d_t = d[t]
-                for u, d_u in d.items():
+                for u, d_u in list(d.items()):
                     R_node[u]['potential'] -= d_u - d_t
             else:
                 # Path not found.
@@ -371,8 +372,8 @@ def capacity_scaling(G, demand='demand', capacity='capacity', weight='weight',
 
     # Calculate the flow cost.
     for u in R:
-        for v, es in R_succ[u].items():
-            for e in es.values():
+        for v, es in list(R_succ[u].items()):
+            for e in list(es.values()):
                 flow = e['flow']
                 if flow > 0:
                     flow_cost += flow * e['weight']

@@ -11,7 +11,9 @@ of array data from ImageItems.
 The ROI class is meant to serve as the base for more specific types; see several examples
 of how to build an ROI at the bottom of the file.
 """
+from __future__ import print_function
 
+from builtins import range
 from ..Qt import QtCore, QtGui
 import numpy as np
 #from numpy.linalg import norm

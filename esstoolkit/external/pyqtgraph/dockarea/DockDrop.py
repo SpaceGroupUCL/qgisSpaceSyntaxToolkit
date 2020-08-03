@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from builtins import object
 from ..Qt import QtCore, QtGui
 
 class DockDrop(object):

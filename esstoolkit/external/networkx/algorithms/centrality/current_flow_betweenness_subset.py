@@ -7,6 +7,8 @@ Current-flow betweenness centrality measures for subsets of nodes.
 #    Pieter Swart <swart@lanl.gov>
 #    All rights reserved.
 #    BSD license.
+from builtins import zip
+from builtins import range
 __author__ = """Aric Hagberg (hagberg@lanl.gov)"""
 
 __all__ = ['current_flow_betweenness_centrality_subset',
@@ -115,7 +117,7 @@ def current_flow_betweenness_centrality_subset(G,sources,targets,
     ordering = list(reverse_cuthill_mckee_ordering(G))
     # make a copy with integer labels according to rcm ordering
     # this could be done without a copy if we really wanted to
-    mapping=dict(zip(ordering,range(n)))
+    mapping=dict(list(zip(ordering,list(range(n)))))
     H = nx.relabel_nodes(G,mapping)
     betweenness = dict.fromkeys(H,0.0) # b[v]=0 for v in H
     for row,(s,t) in flow_matrix_row(H, weight=weight, dtype=dtype, 
@@ -132,7 +134,7 @@ def current_flow_betweenness_centrality_subset(G,sources,targets,
         nb=2.0
     for v in H:
         betweenness[v]=betweenness[v]/nb+1.0/(2-n)
-    return dict((ordering[k],v) for k,v in betweenness.items())
+    return dict((ordering[k],v) for k,v in list(betweenness.items()))
 
 
 def edge_current_flow_betweenness_centrality_subset(G, sources, targets,
@@ -233,7 +235,7 @@ def edge_current_flow_betweenness_centrality_subset(G, sources, targets,
     ordering = list(reverse_cuthill_mckee_ordering(G))
     # make a copy with integer labels according to rcm ordering
     # this could be done without a copy if we really wanted to
-    mapping=dict(zip(ordering,range(n)))
+    mapping=dict(list(zip(ordering,list(range(n)))))
     H = nx.relabel_nodes(G,mapping)
     betweenness=(dict.fromkeys(H.edges(),0.0))
     if normalized:
@@ -249,7 +251,7 @@ def edge_current_flow_betweenness_centrality_subset(G, sources, targets,
                 betweenness[e]+=0.5*np.abs(row[i]-row[j]) 
         betweenness[e]/=nb
     return dict(((ordering[s],ordering[t]),v) 
-                for (s,t),v in betweenness.items())
+                for (s,t),v in list(betweenness.items()))
 
 
 # fixture for nose tests

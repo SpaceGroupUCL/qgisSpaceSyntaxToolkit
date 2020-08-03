@@ -23,7 +23,7 @@
 
 # Initialize Qt resources from file resources.py
 
-from PyQt4 import QtGui, uic
+from qgis.PyQt import QtGui, uic
 
 import os.path
 from .. import resources

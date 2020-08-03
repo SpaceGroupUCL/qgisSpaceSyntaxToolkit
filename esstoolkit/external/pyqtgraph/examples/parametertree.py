@@ -6,9 +6,12 @@ demonstrates a variety of different parameter types (int, float, list, etc.)
 as well as some customized parameter types
 
 """
+from __future__ import print_function
+from __future__ import absolute_import
 
 
-import initExample ## Add path to library (just for examples; you do not need this)
+from builtins import str
+from . import initExample ## Add path to library (just for examples; you do not need this)
 
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore, QtGui

@@ -20,10 +20,12 @@
  *                                                                         *
  ***************************************************************************/
  """
+from __future__ import print_function
 
 # Import the PyQt and QGIS libraries
+from builtins import str
 from PyQt4.QtCore import *
-from PyQt4 import QtGui
+from qgis.PyQt import QtGui
 
 from qgis.core import *
 from qgis.gui import *
@@ -125,18 +127,20 @@ class EntranceTool(QObject):
                 db_con_info = self.entrancedlg.dbsettings_dlg.available_dbs[database]
                 uri = QgsDataSourceURI()
                 # passwords, usernames need to be empty if not provided or else connection will fail
-                if 'service' in db_con_info.keys():
+                if 'service' in list(db_con_info.keys()):
                     uri.setConnection(db_con_info['service'], '', '', '')
-                elif 'password' in db_con_info.keys():
+                elif 'password' in list(db_con_info.keys()):
                     uri.setConnection(db_con_info['host'], db_con_info['port'], db_con_info['dbname'], db_con_info['user'],
                                       db_con_info['password'])
                 else:
-                    print db_con_info #db_con_info['host']
+                    # fix_print_with_import
+                    print(db_con_info) #db_con_info['host']
                     uri.setConnection('', db_con_info['port'], db_con_info['dbname'], '', '')
                 uri.setDataSource(schema, table_name, "geom")
                 error = QgsVectorLayerImport.importLayer(vl, uri.uri(), "postgres", vl.crs(), False, False)
                 if error[0] != 0:
-                    print "Error when creating postgis layer: ", error[1]
+                    # fix_print_with_import
+                    print("Error when creating postgis layer: ", error[1])
                     vl = 'duplicate'
                 else:
                     vl = QgsVectorLayer(uri.uri(), table_name, "postgres")

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 from nose.tools import *
 from nose import SkipTest
 import networkx as nx

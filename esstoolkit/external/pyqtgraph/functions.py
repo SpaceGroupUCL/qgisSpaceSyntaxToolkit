@@ -6,12 +6,17 @@ Distributed under MIT/X11 license. See license.txt for more infomation.
 """
 
 from __future__ import division
+from __future__ import print_function
+from builtins import map
+from builtins import bytes
+from builtins import str
+from builtins import range
 import warnings
 import numpy as np
 import decimal, re
 import ctypes
 import sys, struct
-from .python2_3 import asUnicode, basestring
+from .python2_3 import asUnicode, str
 from .Qt import QtGui, QtCore, USE_PYSIDE
 from . import getConfigOption, setConfigOptions
 from . import debug
@@ -55,7 +60,8 @@ def siScale(x, minVal=1e-25, allowUnicode=True):
         if np.isnan(x) or np.isinf(x):
             return(1, '')
     except:
-        print(x, type(x))
+        # fix_print_with_import
+        print((x, type(x)))
         raise
     if abs(x) < minVal:
         m = 0
@@ -163,7 +169,7 @@ def mkColor(*args):
     """
     err = 'Not sure how to make a color from "%s"' % str(args)
     if len(args) == 1:
-        if isinstance(args[0], basestring):
+        if isinstance(args[0], str):
             c = args[0]
             if c[0] == '#':
                 c = c[1:]
@@ -388,8 +394,12 @@ def eq(a, b):
         return False
     except:
         print('failed to evaluate equivalence for:')
-        print("  a:", str(type(a)), str(a))
-        print("  b:", str(type(b)), str(b))
+        # fix_print_with_import
+        # fix_print_with_import
+print(("  a:", str(type(a)), str(a)))
+        # fix_print_with_import
+        # fix_print_with_import
+print(("  b:", str(type(b)), str(b)))
         raise
     t = type(e)
     if t is bool:
@@ -1663,7 +1673,7 @@ def isocurve(data, level, connected=False, extendToEdge=False, path=False):
 
     ## extract point locations 
     lines = []
-    for chain in points.values():
+    for chain in list(points.values()):
         if len(chain) == 2:
             chain = chain[1][1:][::-1] + chain[0]  # join together ends of chain
         else:
@@ -2306,7 +2316,7 @@ def toposort(deps, nodes=None, seen=None, stack=None, depth=0):
     if nodes is None:
         ## run through deps to find nodes that are not depended upon
         rem = set()
-        for dep in deps.values():
+        for dep in list(deps.values()):
             rem |= set(dep)
         nodes = set(deps.keys()) - rem
     if seen is None:

@@ -21,8 +21,9 @@
  ***************************************************************************/
 """
 
-from PyQt4 import QtCore, QtGui
-from ui_VerificationSettings import Ui_VerificationSettingsDialog
+from builtins import str
+from qgis.PyQt import QtCore, QtGui
+from .ui_VerificationSettings import Ui_VerificationSettingsDialog
 
 from ..utility_functions import *
 

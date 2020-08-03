@@ -14,7 +14,10 @@ of local stack frames. This has two major effects:
 The module also provides a callback mechanism allowing others to respond 
 to exceptions.
 """
+from __future__ import print_function
 
+from builtins import str
+from builtins import object
 import sys, time
 #from lib.Manager import logMsg
 import traceback

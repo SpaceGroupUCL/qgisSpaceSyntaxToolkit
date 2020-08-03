@@ -29,7 +29,7 @@ from qgis.core import *
 from . import utility_functions as uf
 
 # import toolkit settings dialog
-from ui_Settings import Ui_SettingsDialog
+from .ui_Settings import Ui_SettingsDialog
 
 class SettingsManager(QObject):
 
@@ -59,4 +59,4 @@ class SettingsDialog(QDialog, Ui_SettingsDialog):
         # Set up the user interface from Designer.
         self.setupUi(self)
         # set up internal GUI signals
-        QObject.connect(self.closeButtonBox,SIGNAL("rejected()"),self.close)
+        self.closeButtonBox.rejected.connect(self.close)

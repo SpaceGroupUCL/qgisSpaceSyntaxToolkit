@@ -21,8 +21,9 @@
  ***************************************************************************/
  This script initializes the plugin, making it known to QGIS.
 """
+from __future__ import absolute_import
 
 def classFactory(iface):
     # load essToolkit class from file essToolkit
-    from EssToolkit import EssToolkit
+    from .EssToolkit import EssToolkit
     return EssToolkit(iface)

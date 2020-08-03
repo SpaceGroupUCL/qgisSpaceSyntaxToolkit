@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+from __future__ import print_function
+from builtins import str
+from builtins import range
 from ..Node import Node
 from ...Qt import QtGui, QtCore
 import numpy as np
@@ -118,11 +121,11 @@ class RegionSelectNode(CtrlNode):
         self.ctrls['movable'].toggled.connect(self.movableToggled)
         
     def displayToggled(self, b):
-        for item in self.items.values():
+        for item in list(self.items.values()):
             item.setVisible(b)
             
     def movableToggled(self, b):
-        for item in self.items.values():
+        for item in list(self.items.values()):
             item.setMovable(b)
             
         

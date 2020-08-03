@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+from builtins import zip
+from builtins import range
+from builtins import object
 from nose.tools import *
 import networkx
 import networkx as nx
@@ -7,7 +10,7 @@ from networkx.algorithms import find_cycle
 FORWARD = nx.algorithms.edgedfs.FORWARD
 REVERSE = nx.algorithms.edgedfs.REVERSE
 
-class TestCycles:
+class TestCycles(object):
     def setUp(self):
         G=networkx.Graph()
         G.add_cycle([0,1,2,3])
@@ -87,7 +90,7 @@ class TestCycles:
     def test_complete_directed_graph(self):
         # see table 2 in Johnson's paper
         ncircuits=[1,5,20,84,409,2365,16064]
-        for n,c in zip(range(2,9),ncircuits):
+        for n,c in zip(list(range(2,9)),ncircuits):
             G=nx.DiGraph(nx.complete_graph(n))
             assert_equal(len(list(nx.simple_cycles(G))),c)
 

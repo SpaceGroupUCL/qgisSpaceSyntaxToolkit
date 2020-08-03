@@ -7,7 +7,9 @@
 #
 # WARNING! All changes made in this file will be lost!
 
-from PyQt4 import QtCore, QtGui
+from __future__ import absolute_import
+from builtins import object
+from qgis.PyQt import QtCore, QtGui
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -88,5 +90,5 @@ class Ui_Form(object):
         self.reflectSelectionBtn.setText(QtGui.QApplication.translate("Form", "MirrorXY", None, QtGui.QApplication.UnicodeUTF8))
 
 from ..widgets.TreeWidget import TreeWidget
-from CanvasManager import CanvasCombo
+from .CanvasManager import CanvasCombo
 from ..widgets.GraphicsView import GraphicsView

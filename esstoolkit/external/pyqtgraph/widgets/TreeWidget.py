@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+from builtins import str
+from builtins import map
+from builtins import range
 from weakref import *
 from ..Qt import QtGui, QtCore
 from ..python2_3 import xrange
@@ -166,7 +169,7 @@ class TreeWidget(QtGui.QTreeWidget):
         if hasattr(item, 'treeWidgetChanged'):
             item.treeWidgetChanged()
         else:
-            for i in xrange(item.childCount()):
+            for i in range(item.childCount()):
                 TreeWidget.informTreeWidgetChange(item.child(i))
         
         
@@ -198,7 +201,7 @@ class TreeWidget(QtGui.QTreeWidget):
         return item
 
     def topLevelItems(self):
-        return map(self.topLevelItem, xrange(self.topLevelItemCount()))
+        return list(map(self.topLevelItem, range(self.topLevelItemCount())))
         
     def clear(self):
         items = self.topLevelItems()
@@ -249,7 +252,7 @@ class TreeWidgetItem(QtGui.QTreeWidgetItem):
         self._tree = self.treeWidget()
         if tree is None:
             return
-        for col, widget in self._widgets.items():
+        for col, widget in list(self._widgets.items()):
             tree.setItemWidget(self, col, widget)
             
     def addChild(self, child):

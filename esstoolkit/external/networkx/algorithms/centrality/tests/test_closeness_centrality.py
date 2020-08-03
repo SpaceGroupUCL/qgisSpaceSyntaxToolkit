@@ -1,10 +1,11 @@
 """
 Tests for degree centrality.
 """
+from builtins import object
 from nose.tools import *
 import networkx as nx
 
-class TestClosenessCentrality:
+class TestClosenessCentrality(object):
     def setUp(self):
 
         self.K = nx.krackhardt_kite_graph()

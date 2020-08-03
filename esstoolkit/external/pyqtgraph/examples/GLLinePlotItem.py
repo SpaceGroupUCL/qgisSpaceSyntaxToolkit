@@ -3,8 +3,10 @@
 Demonstrate use of GLLinePlotItem to draw cross-sections of a surface.
 
 """
+from __future__ import absolute_import
 ## Add path to library (just for examples; you do not need this)
-import initExample
+from builtins import range
+from . import initExample
 
 from pyqtgraph.Qt import QtCore, QtGui
 import pyqtgraph.opengl as gl

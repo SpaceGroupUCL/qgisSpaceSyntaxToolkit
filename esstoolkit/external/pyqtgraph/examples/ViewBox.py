@@ -7,10 +7,11 @@ zoom / pan to inspect any area of a 2D coordinate system.
 This unimaginative example demonstrates the constrution of a ViewBox-based
 plot area with axes, very similar to the way PlotItem is built.
 """
+from __future__ import absolute_import
 
 
 ## Add path to library (just for examples; you do not need this)
-import initExample
+from . import initExample
 
 ## This example uses a ViewBox to create a PlotWidget-like interface
 

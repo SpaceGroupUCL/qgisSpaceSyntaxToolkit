@@ -1,3 +1,5 @@
+from builtins import range
+from builtins import object
 from contextlib import contextmanager
 from math import sqrt
 import networkx as nx
@@ -85,7 +87,7 @@ class TestAlgebraicConnectivity(object):
     @preserve_random_state
     def test_disconnected(self):
         G = nx.Graph()
-        G.add_nodes_from(range(2))
+        G.add_nodes_from(list(range(2)))
         for method in self._methods:
             assert_equal(nx.algebraic_connectivity(G), 0)
             assert_raises(nx.NetworkXError, nx.fiedler_vector, G,
@@ -251,8 +253,8 @@ class TestSpectralOrdering(object):
     @preserve_random_state
     def test_disconnected(self):
         G = nx.Graph()
-        G.add_path(range(0, 10, 2))
-        G.add_path(range(1, 10, 2))
+        G.add_path(list(range(0, 10, 2)))
+        G.add_path(list(range(1, 10, 2)))
         for method in self._methods:
             order = nx.spectral_ordering(G, method=method)
             assert_equal(set(order), set(G))

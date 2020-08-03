@@ -1,3 +1,5 @@
+from builtins import str
+from builtins import object
 from ..pgcollections import OrderedDict
 from .Node import Node
 
@@ -11,7 +13,7 @@ def isNodeClass(cls):
 
 
 
-class NodeLibrary:
+class NodeLibrary(object):
     """
     A library of flowchart Node types. Custom libraries may be built to provide 
     each flowchart with a specific set of allowed Node types.
@@ -72,7 +74,7 @@ class NodeLibrary:
     @staticmethod
     def treeCopy(tree):
         copy = OrderedDict()
-        for k,v in tree.items():
+        for k,v in list(tree.items()):
             if isNodeClass(v):
                 copy[k] = v
             else:

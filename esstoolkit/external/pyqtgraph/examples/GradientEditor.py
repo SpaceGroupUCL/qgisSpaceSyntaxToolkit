@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 ## Add path to library (just for examples; you do not need this)                                                                           
-import initExample
+from __future__ import absolute_import
+# -*- coding: utf-8 -*-
+## Add path to library (just for examples; you do not need this)                                                                           
+from . import initExample
 
 import numpy as np
 from pyqtgraph.Qt import QtGui, QtCore

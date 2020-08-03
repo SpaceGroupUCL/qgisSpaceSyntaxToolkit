@@ -52,7 +52,7 @@ class ParameterSystem(GroupParameter):
         
         sys.defaultState.update(defaults)
         sys.reset()
-        for name, value in vals.items():
+        for name, value in list(vals.items()):
             setattr(sys, name, value)
         
         self.updateAllParams()
@@ -86,7 +86,7 @@ class ParameterSystem(GroupParameter):
     def updateAllParams(self):
         try:
             self.sigTreeStateChanged.disconnect(self.updateSystem)
-            for name, state in self._system._vars.items():
+            for name, state in list(self._system._vars.items()):
                 param = self.child(name)
                 try:
                     v = getattr(self._system, name)

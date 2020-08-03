@@ -23,7 +23,7 @@
 
 import os
 
-from PyQt4 import QtCore, QtGui, uic
+from qgis.PyQt import QtCore, QtGui, uic
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'CreateNew_Entrance_dialog_base.ui'))

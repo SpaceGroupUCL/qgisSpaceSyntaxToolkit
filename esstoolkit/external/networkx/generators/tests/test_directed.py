@@ -4,11 +4,12 @@
 ----------------------------
 """
 
+from builtins import object
 from nose.tools import *
 from networkx import *
 from networkx.generators.directed import *
 
-class TestGeneratorsDirected():
+class TestGeneratorsDirected(object):
     def test_smoke_test_random_graphs(self):
         G=gn_graph(100)
         G=gnr_graph(100,0.5)

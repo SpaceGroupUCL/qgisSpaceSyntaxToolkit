@@ -1,11 +1,14 @@
 #!/usr/bin/env python
+from builtins import zip
+from builtins import range
+from builtins import object
 from nose.tools import *
 from networkx import *
 from networkx.convert import *
 from networkx.algorithms.operators import *
 from networkx.generators.classic import barbell_graph,cycle_graph
 
-class TestConvert():
+class TestConvert(object):
     def edgelists_equal(self,e1,e2):
         return sorted(sorted(e) for e in e1)==sorted(sorted(e) for e in e2)
 
@@ -68,7 +71,7 @@ class TestConvert():
         e=G.edges()
         source=[u for u,v in e]
         dest=[v for u,v in e]
-        ex=zip(source,dest,source)
+        ex=list(zip(source,dest,source))
         G=Graph()
         G.add_weighted_edges_from(ex)
 

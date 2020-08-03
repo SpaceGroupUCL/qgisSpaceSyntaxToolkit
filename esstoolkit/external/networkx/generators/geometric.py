@@ -9,6 +9,8 @@ Generators for geometric graphs.
 #    All rights reserved.
 #    BSD license.
 
+from builtins import zip
+from builtins import range
 __author__ = "\n".join(['Aric Hagberg (hagberg@lanl.gov)',
                         'Dan Schult (dschult@colgate.edu)',
                         'Ben Edwards (BJEdwards@gmail.com)'])
@@ -82,7 +84,7 @@ def random_geometric_graph(n, radius, dim=2, pos=None):
     """
     G=nx.Graph()
     G.name="Random Geometric Graph"
-    G.add_nodes_from(range(n))
+    G.add_nodes_from(list(range(n)))
     if pos is None:
         # random positions
         for n in G:
@@ -250,7 +252,7 @@ def waxman_graph(n, alpha=0.4, beta=0.1, L=None, domain=(0, 0, 1, 1)):
     """
     # build graph of n nodes with random positions in the unit square
     G = nx.Graph()
-    G.add_nodes_from(range(n))
+    G.add_nodes_from(list(range(n)))
     (xmin,ymin,xmax,ymax)=domain
     for n in G:
         G.node[n]['pos']=(xmin + ((xmax-xmin)*random.random()),
@@ -345,7 +347,7 @@ def navigable_small_world_graph(n, p=1, q=1, r=2, dim=2, seed=None):
     if not seed is None:
         random.seed(seed)
     G = nx.DiGraph()
-    nodes = list(product(range(n),repeat=dim))
+    nodes = list(product(list(range(n)),repeat=dim))
     for p1 in nodes:
         probs = [0]
         for p2 in nodes:

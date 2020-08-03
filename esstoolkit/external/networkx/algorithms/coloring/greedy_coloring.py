@@ -8,6 +8,7 @@ Greedy graph coloring using various strategies.
 #    Henrik Haugbølle <hhau@itu.dk>
 #    All rights reserved.
 #    BSD license.
+from builtins import range
 import networkx as nx
 import random
 import itertools
@@ -171,7 +172,7 @@ def strategy_saturation_largest_first(G, colors):
             highest_saturation = -1
             highest_saturation_nodes = []
 
-            for node, distinct in distinct_colors.items():
+            for node, distinct in list(distinct_colors.items()):
                 if node not in colors:  # If the node is not already colored
                     saturation = len(distinct)
                     if saturation > highest_saturation:

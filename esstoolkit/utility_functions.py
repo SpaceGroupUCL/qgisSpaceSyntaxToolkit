@@ -20,7 +20,11 @@
  *                                                                         *
  ***************************************************************************/
 """
+from __future__ import print_function
 
+from builtins import zip
+from builtins import str
+from builtins import range
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from qgis.core import *
@@ -32,7 +36,7 @@ import numpy as np
 import os.path
 import math
 import sys
-from itertools import izip_longest
+from itertools import zip_longest
 
 
 #------------------------------
@@ -51,7 +55,7 @@ from itertools import izip_longest
 def getVectorLayers(geom='all', provider='all'):
     """Return list of valid QgsVectorLayer in QgsMapLayerRegistry, with specific geometry type and/or data provider"""
     layers_list = []
-    for layer in QgsMapLayerRegistry.instance().mapLayers().values():
+    for layer in list(QgsMapLayerRegistry.instance().mapLayers().values()):
         add_layer = False
         if layer.isValid() and layer.type() == QgsMapLayer.VectorLayer:
             if layer.hasGeometryType() and (geom is 'all' or layer.geometryType() in geom):
@@ -99,7 +103,7 @@ def isLayerProjected(layer):
 
 def getLayerByName(name):
     layer = None
-    for i in QgsMapLayerRegistry.instance().mapLayers().values():
+    for i in list(QgsMapLayerRegistry.instance().mapLayers().values()):
         if i.name() == name:
             layer = i
     return layer
@@ -312,7 +316,7 @@ def getFieldsListValues(layer, fieldnames, null=True, selection=False):
                     attributes.append(val)
                     ids.append(feature.id())
         field_values['id'] = ids
-        values = zip(*attributes)
+        values = list(zip(*attributes))
         for seq, field in enumerate(fields):
             field_values[str(field)] = values[seq]
     else:
@@ -480,7 +484,7 @@ def pop_up_error(msg=''):
 # Return iterator with items of iterable grouped by n
 def grouper(iterable, n, fillvalue=None):
     args = [iter(iterable)] * n
-    return izip_longest(*args, fillvalue=fillvalue)
+    return zip_longest(*args, fillvalue=fillvalue)
 
 
 # check if a text string is of numeric type
@@ -490,7 +494,7 @@ def isNumeric(txt):
         return True
     except ValueError:
         try:
-            long(txt)
+            int(txt)
             return True
         except ValueError:
             try:
@@ -506,7 +510,7 @@ def convertNumeric(txt):
         value = int(txt)
     except ValueError:
         try:
-            value = long(txt)
+            value = int(txt)
         except ValueError:
             try:
                 value = float(txt)
@@ -520,7 +524,7 @@ def convertNumeric(txt):
 # some principles found here: http://www.tc3.edu/instruct/sbrown/stat/rounding.htm
 def roundNumber(num):
     if isNumeric(num):
-        if isinstance(num, basestring):
+        if isinstance(num, str):
             convertNumeric(num)
         rounded = num
         if num > 100 or num < -100:
@@ -558,8 +562,10 @@ def isNumericNew(num):
     # fixme: breaks if value comes out in scientific notation, considers it non numeric!
     # then make a unicode version so we can ensure we're dealing with
     # something that represents a numeric value:
-    uRep = unicode(strRep)
-    print uRep
+    uRep = str(strRep)
+    # fix_print_with_import
+    # fix_print_with_import
+print(uRep)
     if ('.' in uRep) and all([x.isnumeric() for x in uRep.split('.')]):
         return True # there's a decimal and everything to the right
                     # and left of it is numeric
@@ -727,7 +733,8 @@ def createTempLayer(name, srid, attributes, types, values, coords):
     vlayer.commitChanges()
     vlayer.updateExtents()
     if not vlayer.isValid():
-        print "Layer failed to load!"
+        # fix_print_with_import
+        print("Layer failed to load!")
         return None
     return vlayer
 
@@ -849,8 +856,8 @@ def listSpatialiteConnections():
     res['idx'] = 0
     settings = QSettings()
     settings.beginGroup('/SpatiaLite/connections')
-    res['name'] = [unicode(item) for item in settings.childGroups()]
-    res['path'] = [unicode(settings.value(u'%s/sqlitepath' % unicode(item))) for item in settings.childGroups()]
+    res['name'] = [str(item) for item in settings.childGroups()]
+    res['path'] = [str(settings.value(u'%s/sqlitepath' % str(item))) for item in settings.childGroups()]
     settings.endGroup()
     #case: no connection available
     if len(res['name']) > 0:
@@ -873,14 +880,14 @@ def createSpatialiteConnection(name, path):
         settings.beginGroup('/SpatiaLite/connections')
         settings.setValue(u'%s/sqlitepath' % name, '%s' % path)
         settings.endGroup()
-    except sqlite.OperationalError, error:
+    except sqlite.OperationalError as error:
         pop_up_error("Unable to create connection to selected database: \n %s" % error)
 
 
 def getSpatialiteConnection(path):
     try:
         connection=sqlite.connect(path)
-    except sqlite.OperationalError, error:
+    except sqlite.OperationalError as error:
         #pop_up_error("Unable to connect to selected database: \n %s" % error)
         connection = None
     return connection
@@ -899,7 +906,7 @@ def executeSpatialiteQuery(connection, query, params=(), commit=False):
     """Execute query (string) with given parameters (tuple)
     (optionally perform commit to save Db) and return result set [header,data]
     or [error] error"""
-    query = unicode(query)
+    query = str(query)
     header = []
     data = []
     error = ''
@@ -911,7 +918,7 @@ def executeSpatialiteQuery(connection, query, params=(), commit=False):
         data = [row for row in cursor]
         if commit:
             connection.commit()
-    except sqlite.Error, error:
+    except sqlite.Error as error:
         connection.rollback()
         pop_up_error("The SQL query seems to be invalid. \n %s" % query)
     cursor.close()
@@ -1065,7 +1072,7 @@ def insertSpatialiteValues(connection, name, attributes, values, coords=None):
                 WKT = "POINT(%s %s)" % (val[coords[0]],val[coords[1]])
                 geometry_values = "CastToMulti(GeomFromText('%s', %s))" % (WKT, srid)
                 #Create line in DB table
-                attr_values = ','.join(tuple([unicode(value) for value in val]))
+                attr_values = ','.join(tuple([str(value) for value in val]))
                 query = """INSERT INTO "%s" ("%s","%s") VALUES (%s,%s)""" % (tablename, geometry_attr, '","'.join(attributes), geometry_values, attr_values)
                 header, data, error = executeSpatialiteQuery(connection, query, commit=False)
                 if error:
@@ -1076,7 +1083,7 @@ def insertSpatialiteValues(connection, name, attributes, values, coords=None):
             for val in values:
                 WKT = "LINESTRING(%s %s, %s %s)" % (val[coords[0]],val[coords[1]],val[coords[2]],val[coords[3]])
                 geometry_values = "CastToMulti(GeomFromText('%s',%s))" % (WKT, srid)
-                attr_values = ','.join(tuple([unicode(value) for value in val]))
+                attr_values = ','.join(tuple([str(value) for value in val]))
                 query = """INSERT INTO "%s" ("%s","%s") VALUES (%s,%s)""" % (tablename, geometry_attr, '","'.join(attributes), geometry_values, attr_values)
                 header, data, error = executeSpatialiteQuery(connection, query, commit=False)
                 if error:
@@ -1084,7 +1091,7 @@ def insertSpatialiteValues(connection, name, attributes, values, coords=None):
                     break
         else:
             for val in values:
-                attr_values = ','.join(tuple([unicode(value) for value in val]))
+                attr_values = ','.join(tuple([str(value) for value in val]))
                 query = """INSERT INTO "%s" ("%s") VALUES (%s)""" % (tablename, '","'.join(attributes), attr_values)
                 header, data, error = executeSpatialiteQuery(connection, query, commit=False)
                 if error:
@@ -1108,7 +1115,7 @@ def addSpatialiteColumns(connection, name, columns, types):
     fields = listSpatialiteColumns(connection, name)
     for i, attr in enumerate(columns):
         #add new field if it doesn't exist
-        if attr not in fields.keys():
+        if attr not in list(fields.keys()):
             field_type = ''
             if types[i] in (QVariant.Char,QVariant.String): # field type is TEXT
                 field_type = 'TEXT'
@@ -1139,7 +1146,7 @@ def dropSpatialiteColumns(connection, name, columns):
     res = True
     fields = listSpatialiteColumns(connection, name)
     new_cols = []
-    for attr in fields.keys():
+    for attr in list(fields.keys()):
         #drop column if it exists
         if attr not in columns:
             new_cols.append(attr)
@@ -1164,7 +1171,7 @@ def addSpatialiteAttributes(connection, name, id, attributes, types, values):
         attr_index = {}
         attr_id = 0
         for j, attr in enumerate(attributes):
-            if attr in fields.keys() and attr != id:
+            if attr in list(fields.keys()) and attr != id:
                 attr_index[attr] = j
             # the id attribute is identified but kept separate, not updated
             elif attr == id:
@@ -1172,7 +1179,7 @@ def addSpatialiteAttributes(connection, name, id, attributes, types, values):
         # get values for attributes
         for val in values:
             new_values = []
-            for attr in attr_index.iterkeys():
+            for attr in attr_index.keys():
                 # add quotes if inserting a text value
                 if types[attr_index[attr]] in (QVariant.Char,QVariant.String):
                     new_values.append("""'%s' = '%s'""" % (attr,val[attr_index[attr]]))
@@ -1207,13 +1214,13 @@ def copyLayerToSpatialite(connection, layer, path, name):
     fieldsNames=[]
     mapinfoDate=[]
     for id,field in enumerate(provider.fields().toList()):
-        fldName=unicode(field.name()).replace("'"," ").replace('"'," ")
+        fldName=str(field.name()).replace("'"," ").replace('"'," ")
         #Avoid two columns with same name:
         while fldName.upper() in fieldsNames:
             fldName='%s_2'%fldName
         fldType=field.type()
-        fldTypeName=unicode(field.typeName()).upper()
-        if fldTypeName=='DATE' and unicode(provider.storageType()).lower()==u'mapinfo file': # Mapinfo DATE compatibility
+        fldTypeName=str(field.typeName()).upper()
+        if fldTypeName=='DATE' and str(provider.storageType()).lower()==u'mapinfo file': # Mapinfo DATE compatibility
             fldType='DATE'
             mapinfoDate.append([id,fldName]) #stock id and name of DATE field for MAPINFO layers
         elif fldType in (QVariant.Char,QVariant.String): # field type is TEXT
@@ -1266,9 +1273,9 @@ def copyLayerToSpatialite(connection, layer, path, name):
             values.append(feat[val])
         #Create line in DB table
         if len(fields)>0:
-            header, data, error = executeSpatialiteQuery(connection,"""INSERT INTO "%s" VALUES (%s,%s)""" % (name,','.join([unicode(value).encode('utf-8') for value in values_auto]), ','.join('?'*len(values))), tuple([unicode(value) for value in values]))
+            header, data, error = executeSpatialiteQuery(connection,"""INSERT INTO "%s" VALUES (%s,%s)""" % (name,','.join([str(value).encode('utf-8') for value in values_auto]), ','.join('?'*len(values))), tuple([str(value) for value in values]))
         else: #no attribute data
-            header, data, error = executeSpatialiteQuery(connection,"""INSERT INTO "%s" VALUES (%s)""" % (name,','.join([unicode(value).encode('utf-8') for value in values_auto])))
+            header, data, error = executeSpatialiteQuery(connection,"""INSERT INTO "%s" VALUES (%s)""" % (name,','.join([str(value).encode('utf-8') for value in values_auto])))
     for date in mapinfoDate: #mapinfo compatibility: convert date in SQLITE format (2010/02/11 -> 2010-02-11 ) or rollback if any error
         header, data, error = executeSpatialiteQuery(connection,"""UPDATE OR ROLLBACK "%s" set '%s'=replace( "%s", '/' , '-' )  """%(name,date[1],date[1]))
     #Commit changes to connection:
@@ -1325,7 +1332,8 @@ def copyLayerToShapeFile(layer, path, name):
     # create an instance of vector file writer, which will create the vector file.
     writer = QgsVectorFileWriter(filename, "System", fields, geometry, srid, "ESRI Shapefile")
     if writer.hasError() != QgsVectorFileWriter.NoError:
-        print "Error when creating shapefile: ", writer.hasError()
+        # fix_print_with_import
+        print("Error when creating shapefile: ", writer.hasError())
         return None
     # add features by iterating the values
     for feat in layer.getFeatures():
@@ -1335,7 +1343,8 @@ def copyLayerToShapeFile(layer, path, name):
     # open the newly created file
     vlayer = QgsVectorLayer(filename, name, "ogr")
     if not vlayer.isValid():
-        print "Layer failed to load!"
+        # fix_print_with_import
+        print("Layer failed to load!")
         return None
     return vlayer
 
@@ -1356,7 +1365,8 @@ def createShapeFileFullLayer(path, name, srid, attributes, types, values, coords
         type = 'line'
         writer = QgsVectorFileWriter(filename, "System", fields, QGis.WKBLineString, srid, "ESRI Shapefile")
     if writer.hasError() != QgsVectorFileWriter.NoError:
-        print "Error when creating shapefile: ", writer.hasError()
+        # fix_print_with_import
+        print("Error when creating shapefile: ", writer.hasError())
         return None
     # add features by iterating the values
     feat = QgsFeature()
@@ -1380,7 +1390,8 @@ def createShapeFileFullLayer(path, name, srid, attributes, types, values, coords
     # open the newly created file
     vlayer = QgsVectorLayer(filename, name, "ogr")
     if not vlayer.isValid():
-        print "Layer failed to load!"
+        # fix_print_with_import
+        print("Layer failed to load!")
         return None
     return vlayer
 
@@ -1403,14 +1414,16 @@ def createShapeFileLayer(path, name, srid, attributes, types, geometrytype):
     elif 'polygon' in geometrytype.lower():
         writer = QgsVectorFileWriter(filename, "System", fields, QGis.WKBPolygon, srid, "ESRI Shapefile")
     if writer.hasError() != QgsVectorFileWriter.NoError:
-        print "Error when creating shapefile: ", writer.hasError()
+        # fix_print_with_import
+        print("Error when creating shapefile: ", writer.hasError())
         return None
     # delete the writer to flush features to disk (optional)
     del writer
     # open the newly created file
     vlayer = QgsVectorLayer(filename, name, "ogr")
     if not vlayer.isValid():
-        print "Layer failed to open!"
+        # fix_print_with_import
+        print("Layer failed to open!")
         return None
     return vlayer
 
@@ -1486,7 +1499,7 @@ def addShapeFileAttributes(layer, attributes, types, values):
                 fid = feature.id()
                 #to update the features the attribute/value pairs must be converted to a dictionary for each feature
                 attrs = {}
-                for j in attributes_pos.iterkeys():
+                for j in attributes_pos.keys():
                     field_id = attributes_pos[j]
                     val = values[i][j]
                     attrs.update({field_id: val})
@@ -1510,7 +1523,7 @@ def listPostgisConnectionNames():
     """
     settings = QSettings()
     settings.beginGroup('/PostgreSQL/connections')
-    connection_names = [unicode(item) for item in settings.childGroups()]
+    connection_names = [str(item) for item in settings.childGroups()]
     return connection_names
 
 
@@ -1537,13 +1550,13 @@ def getPostgisConnectionSettings():
     settings.beginGroup('/PostgreSQL/connections')
     for item in settings.childGroups():
         con = dict()
-        con['name'] = unicode(item)
-        con['service'] = unicode(settings.value(u'%s/service' % unicode(item)))
-        con['host'] = unicode(settings.value(u'%s/host' % unicode(item)))
-        con['port'] = unicode(settings.value(u'%s/port' % unicode(item)))
-        con['database'] = unicode(settings.value(u'%s/database' % unicode(item)))
-        con['username'] = unicode(settings.value(u'%s/username' % unicode(item)))
-        con['password'] = unicode(settings.value(u'%s/password' % unicode(item)))
+        con['name'] = str(item)
+        con['service'] = str(settings.value(u'%s/service' % str(item)))
+        con['host'] = str(settings.value(u'%s/host' % str(item)))
+        con['port'] = str(settings.value(u'%s/port' % str(item)))
+        con['database'] = str(settings.value(u'%s/database' % str(item)))
+        con['username'] = str(settings.value(u'%s/username' % str(item)))
+        con['password'] = str(settings.value(u'%s/password' % str(item)))
         con_settings.append(con)
     settings.endGroup()
     if len(con_settings) < 1:
@@ -1587,8 +1600,9 @@ def getPostgisConnection(name):
     con_str = getPostgisConnectionString(name)
     try:
         connection=pgsql.connect(con_str)
-    except pgsql.Error, e:
-        print e.pgerror
+    except pgsql.Error as e:
+        # fix_print_with_import
+        print(e.pgerror)
         connection = None
     return connection
 
@@ -1620,7 +1634,7 @@ def executePostgisQuery(connection, query, params='',commit=False):
     (optionally perform commit to save Db)
     :return: result set [header,data] or [error] error
     """
-    query = unicode(query)
+    query = str(query)
     header = []
     data = []
     error = ''
@@ -1632,7 +1646,7 @@ def executePostgisQuery(connection, query, params='',commit=False):
             data = cursor.fetchall()
         if commit:
             connection.commit()
-    except pgsql.Error, e:
+    except pgsql.Error as e:
         error = e.pgerror
         connection.rollback()
     cursor.close()
@@ -1889,7 +1903,7 @@ def insertPostgisValues(connection, schema, name, attributes, values, coords=Non
                 WKT = "POINT(%s %s)" % (val[coords[0]],val[coords[1]])
                 geometry_values = "ST_Multi(ST_GeomFromText('%s',%s))" % (WKT, srid)
                 #Create line in DB table
-                attr_values = ','.join(tuple([unicode(value) for value in val]))
+                attr_values = ','.join(tuple([str(value) for value in val]))
                 query = """INSERT INTO "%s"."%s" ("%s","%s") VALUES (%s,%s)""" % (schema, name, geometry_attr, '","'.join(attributes), geometry_values, attr_values)
                 header, data, error = executePostgisQuery(connection, query, commit=False)
                 if error:
@@ -1899,7 +1913,7 @@ def insertPostgisValues(connection, schema, name, attributes, values, coords=Non
             for val in values:
                 WKT = "LINESTRING(%s %s, %s %s)" % (val[coords[0]],val[coords[1]],val[coords[2]],val[coords[3]])
                 geometry_values = "ST_Multi(ST_GeomFromText('%s',%s))" % (WKT, srid)
-                attr_values = ','.join(tuple([unicode(value) for value in val]))
+                attr_values = ','.join(tuple([str(value) for value in val]))
                 query = """INSERT INTO "%s"."%s" ("%s","%s") VALUES (%s,%s)""" % (schema, name, geometry_attr, '","'.join(attributes), geometry_values, attr_values)
                 header, data, error = executePostgisQuery(connection, query, commit=False)
                 if error:
@@ -1907,7 +1921,7 @@ def insertPostgisValues(connection, schema, name, attributes, values, coords=Non
                     break
         else:
             for val in values:
-                attr_values = ','.join(tuple([unicode(value) for value in val]))
+                attr_values = ','.join(tuple([str(value) for value in val]))
                 query = """INSERT INTO "%s"."%s" ("%s") VALUES (%s)""" % (schema, name, '","'.join(attributes), attr_values)
                 header, data, error = executePostgisQuery(connection, query, commit=False)
                 if error:
@@ -1927,7 +1941,7 @@ def addPostgisColumns(connection, schema, name, columns, types):
     fields = listPostgisColumns(connection, schema, name)
     for i, attr in enumerate(columns):
         #add new field if it doesn't exist
-        if attr not in fields.keys():
+        if attr not in list(fields.keys()):
             res = True
             field_type = ''
             if types[i] in (QVariant.Char,QVariant.String): # field type is TEXT
@@ -1957,14 +1971,14 @@ def addPostgisAttributes(connection, schema, name, id, attributes, types, values
         attr_index = {}
         attr_id = 0
         for j, attr in enumerate(attributes):
-            if attr in fields.keys() and attr != id:
+            if attr in list(fields.keys()) and attr != id:
                 attr_index[attr] = j
             elif attr == id:
                 attr_id = j
         # get values for attributes
         for val in values:
             new_values = []
-            for attr in attr_index.iterkeys():
+            for attr in attr_index.keys():
                 # add quotes if inserting a text value
                 if types[attr_index[attr]] in (QVariant.Char,QVariant.String):
                     new_values.append(""" "%s" = '%s'""" % (attr,val[attr_index[attr]]))

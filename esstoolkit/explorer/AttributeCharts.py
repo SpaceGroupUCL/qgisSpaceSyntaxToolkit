@@ -33,11 +33,11 @@ import time
 try:
     import pyqtgraph as pg
     has_pyqtgraph = True
-except ImportError, e:
+except ImportError as e:
     try:
         from ..external import pyqtgraph as pg
         has_pyqtgraph = True
-    except ImportError, e:
+    except ImportError as e:
         has_pyqtgraph = False
 
 import numpy as np

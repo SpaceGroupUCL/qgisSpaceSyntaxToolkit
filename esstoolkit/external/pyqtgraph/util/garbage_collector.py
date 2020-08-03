@@ -1,3 +1,5 @@
+from __future__ import print_function
+from builtins import object
 import gc
 
 from ..Qt import QtCore
@@ -30,7 +32,8 @@ class GarbageCollector(object):
         #return self.debug_cycles() # uncomment to just debug cycles
         l0, l1, l2 = gc.get_count()
         if self.debug:
-            print('gc_check called:', l0, l1, l2)
+            # fix_print_with_import
+            print(('gc_check called:', l0, l1, l2))
         if l0 > self.threshold[0]:
             num = gc.collect(0)
             if self.debug:
@@ -47,4 +50,5 @@ class GarbageCollector(object):
     def debug_cycles(self):
         gc.collect()
         for obj in gc.garbage:
-            print(obj, repr(obj), type(obj))
+            # fix_print_with_import
+            print((obj, repr(obj), type(obj)))

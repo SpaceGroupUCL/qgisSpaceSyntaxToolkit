@@ -1,3 +1,5 @@
+from builtins import chr
+from builtins import range
 from ..Qt import QtGui, QtCore, USE_PYSIDE
 if not USE_PYSIDE:
     import sip

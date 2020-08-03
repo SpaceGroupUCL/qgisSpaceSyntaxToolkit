@@ -21,8 +21,9 @@
  ***************************************************************************/
 """
 
-from PyQt4 import QtCore, QtGui
-from ui_DepthmapAdvanced import Ui_DepthmapAdvancedDialog
+from builtins import str
+from qgis.PyQt import QtCore, QtGui
+from .ui_DepthmapAdvanced import Ui_DepthmapAdvancedDialog
 
 
 class DepthmapAdvancedDialog(QtGui.QDialog, Ui_DepthmapAdvancedDialog):

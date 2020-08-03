@@ -20,11 +20,13 @@
  *                                                                         *
  ***************************************************************************/
 """
+from __future__ import print_function
+from __future__ import absolute_import
 
 import os
-from PyQt4 import QtCore, QtGui, uic
-from utility_functions import getQGISDbs
-from DbSettings_dialog import DbSettingsDialog
+from qgis.PyQt import QtCore, QtGui, uic
+from .utility_functions import getQGISDbs
+from .DbSettings_dialog import DbSettingsDialog
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'CreateNew_dialog_base.ui'))
@@ -84,11 +86,15 @@ class CreatenewDialog(QtGui.QDialog, FORM_CLASS):
             self.setOutput()
             self.dbsettings_dlg.show()
             self.dbsettings = self.dbsettings_dlg.getDbSettings()
-            print 'self.dbsettings', self.dbsettings
+            # fix_print_with_import
+            # fix_print_with_import
+print('self.dbsettings', self.dbsettings)
             if self.dbsettings:
                 db_layer_name = "%s:%s:%s" % (
                     self.dbsettings['dbname'], self.dbsettings['schema'], self.dbsettings['table_name'])
-                print 'db_layer_name'
+                # fix_print_with_import
+                # fix_print_with_import
+print('db_layer_name')
                 self.lineEditFrontages.setText(db_layer_name)
         elif self.f_memory_radioButton.isChecked():
             self.lineEditFrontages.clear()
@@ -98,7 +104,8 @@ class CreatenewDialog(QtGui.QDialog, FORM_CLASS):
         self.create_new_layer.emit()
 
     def setDbPath(self):
-        print 'setdbpath'
+        # fix_print_with_import
+        print('setdbpath')
         if self.f_postgis_radioButton.isChecked():
             try:
                 self.dbsettings = self.dbsettings_dlg.getDbSettings()
@@ -119,7 +126,9 @@ class CreatenewDialog(QtGui.QDialog, FORM_CLASS):
             self.lineEditFrontages.clear()
             self.dbsettings = self.dbsettings_dlg.getDbSettings()
             self.pushButtonSelectLocation.setDisabled(False)
-            print 'dbs1', self.dbsettings
+            # fix_print_with_import
+            # fix_print_with_import
+print('dbs1', self.dbsettings)
             if self.dbsettings != {}:
                 db_layer_name = "%s:%s:%s" % (
                     self.dbsettings['dbname'], self.dbsettings['schema'], self.dbsettings['table_name'])

@@ -1,10 +1,14 @@
+from __future__ import print_function
+from __future__ import absolute_import
+from builtins import zip
+from builtins import range
 import itertools
-from PyQt4.QtCore import QObject, pyqtSignal, QVariant
+from qgis.PyQt.QtCore import QObject, pyqtSignal, QVariant
 from qgis.core import QgsSpatialIndex, QgsGeometry, QgsDistanceArea, QgsFeature, QgsField, QgsFields, NULL
 import traceback
 
 try:
-    from utilityFunctions import prototype_feature
+    from .utilityFunctions import prototype_feature
 except ImportError:
     pass
 
@@ -12,7 +16,7 @@ except ImportError:
 class segmentor(QObject):
 
     finished = pyqtSignal(object)
-    error = pyqtSignal(Exception, basestring)
+    error = pyqtSignal(Exception, str)
     progress = pyqtSignal(float)
     warning = pyqtSignal(str)
     killed = pyqtSignal(bool)
@@ -42,15 +46,15 @@ class segmentor(QObject):
     def load_graph(self):
 
         # load graph
-        res = map(lambda feat: self.spIndex.insertFeature(feat), self.feat_iter(self.layer))
+        res = [self.spIndex.insertFeature(feat) for feat in self.feat_iter(self.layer)]
         self.step = 80/float(len(res))
 
         # feats need to be created - after iter
-        self.unlinks_points = {ml_id: [] for ml_id in self.feats.keys()}
+        self.unlinks_points = {ml_id: [] for ml_id in list(self.feats.keys())}
 
         # unlink validity
         if self.unlinks:
-            res = map(lambda unlink: self.load_unlink(unlink), filter(lambda u: u.geometry() is not NULL and u.geometry(), self.unlinks.getFeatures()))
+            res = [self.load_unlink(unlink) for unlink in [u for u in self.unlinks.getFeatures() if u.geometry() is not NULL and u.geometry()]]
         del res
         return
 
@@ -59,8 +63,7 @@ class segmentor(QObject):
         unlink_geom = unlink.geometry()
         if self.buffer != 0 and self.buffer:
             unlink_geom = unlink_geom.buffer(self.buffer, 36)
-        lines = filter(lambda i: unlink_geom.intersects(self.feats[i].geometry()),
-                       self.spIndex.intersects(unlink_geom.boundingBox()))
+        lines = [i for i in self.spIndex.intersects(unlink_geom.boundingBox()) if unlink_geom.intersects(self.feats[i].geometry())]
         lines = list(set(lines))
         #if unlink_geom.wkbType() == 3:
         if len(lines) != 2:
@@ -120,8 +123,7 @@ class segmentor(QObject):
     def break_segm(self, feat):
 
         f_geom = feat.geometry()
-        inter_lines = filter(lambda line: feat.geometry().distance(self.feats[line].geometry()) <= 0.00001,
-                             self.spIndex.intersects(f_geom.boundingBox()))
+        inter_lines = [line for line in self.spIndex.intersects(f_geom.boundingBox()) if feat.geometry().distance(self.feats[line].geometry()) <= 0.00001]
         # TODO: group by factor because some times slightly different points are returned
         # TODO: keep order
         cross_p = {factor: p for (factor, p) in sorted(set(self.point_iter(inter_lines, f_geom))) if p not in self.unlinks_points[feat.id()]}
@@ -129,7 +131,7 @@ class segmentor(QObject):
         cross_p = [p for (factor, p) in cross_p]
 
         if self.stub_ratio:
-            cross_p = map(lambda p: p, self.stubs_clean_iter(cross_p, f_geom.asPolyline()))
+            cross_p = [p for p in self.stubs_clean_iter(cross_p, f_geom.asPolyline())]
 
         return cross_p
 
@@ -166,24 +168,25 @@ class segmentor(QObject):
             self.load_graph()
             # self.step specified in load_graph
             # progress emitted by break_segm & break_feats_iter
-            cross_p_list = map(lambda feat: self.break_segm(feat), self.list_iter(self.feats.values()))
+            cross_p_list = [self.break_segm(feat) for feat in self.list_iter(list(self.feats.values()))]
             self.step = 20/float(len(cross_p_list))
-            segmented_feats = map(lambda (feat, geom, fid): self.copy_feat(feat, geom, fid), self.break_feats_iter(cross_p_list))
+            segmented_feats = [self.copy_feat(feat_geom_fid[0], feat_geom_fid[1], feat_geom_fid[2]) for feat_geom_fid in self.break_feats_iter(cross_p_list)]
 
             if self.errors:
 
                 cross_p_list = set(list(itertools.chain.from_iterable(cross_p_list)))
 
                 ids1 = [i for i in range(0, len(cross_p_list))]
-                break_point_feats = map(lambda (p, fid) : self.copy_feat(self.break_f, QgsGeometry.fromPoint(p), fid), (zip(cross_p_list, ids1)))
+                break_point_feats = [self.copy_feat(self.break_f, QgsGeometry.fromPoint(p_fid[0]), p_fid[1]) for p_fid in (list(zip(cross_p_list, ids1)))]
                 ids2 = [i for i in range(max(ids1) + 1, max(ids1) + 1 + len(self.invalid_unlinks))]
-                invalid_unlink_point_feats = map(lambda (p, fid) : self.copy_feat(self.invalid_unlink_f, QgsGeometry.fromPoint(p), fid), (zip(self.invalid_unlinks, ids2)))
+                invalid_unlink_point_feats = [self.copy_feat(self.invalid_unlink_f, QgsGeometry.fromPoint(p_fid1[0]), p_fid1[1]) for p_fid1 in (list(zip(self.invalid_unlinks, ids2)))]
                 ids = [i for i in range(max(ids1 + ids2) + 1, max(ids1 + ids2) + 1 + len(self.stubs_points))]
-                stubs_point_feats = map(lambda (p, fid): self.copy_feat(self.stub_f, QgsGeometry.fromPoint(p), fid), (zip(self.stubs_points, ids)))
+                stubs_point_feats = [self.copy_feat(self.stub_f, QgsGeometry.fromPoint(p_fid2[0]), p_fid2[1]) for p_fid2 in (list(zip(self.stubs_points, ids)))]
 
 
-        except Exception, exc:
-            print exc, traceback.format_exc()
+        except Exception as exc:
+            # fix_print_with_import
+            print(exc, traceback.format_exc())
             # TODO: self.error.emit(exc, traceback.format_exc())
 
         return segmented_feats, break_point_feats + invalid_unlink_point_feats + stubs_point_feats
@@ -216,7 +219,7 @@ class segmentor(QObject):
     def get_no_inter_lines(self, point):
         point_geom = QgsGeometry.fromPoint(point)
         lines = self.spIndex.intersects(point_geom.boundingBox())
-        filtered_lines = filter(lambda l: self.feats[l].geometry().intersects(point_geom) , lines)
+        filtered_lines = [l for l in lines if self.feats[l].geometry().intersects(point_geom)]
         return len(set(filtered_lines))
 
     def copy_feat(self, f, geom, id):

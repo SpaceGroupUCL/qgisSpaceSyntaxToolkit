@@ -7,6 +7,8 @@
 # NetworkX is distributed under a BSD license; see LICENSE.txt for more
 # information.
 """Unit tests for the :mod:`networkx.algorithms.minors` module."""
+from builtins import next
+from builtins import object
 from nose.tools import assert_equal
 from nose.tools import assert_true
 from nose.tools import raises

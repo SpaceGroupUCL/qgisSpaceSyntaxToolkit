@@ -8,6 +8,7 @@ Connected components.
 #    Pieter Swart <swart@lanl.gov>
 #    All rights reserved.
 #    BSD license.
+from builtins import next
 import networkx as nx
 from networkx.utils.decorators import not_implemented_for
 

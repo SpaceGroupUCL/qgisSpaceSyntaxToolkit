@@ -1,3 +1,5 @@
+from __future__ import print_function
+from builtins import zip
 from nose import SkipTest
 from nose.tools import *
 
@@ -115,7 +117,7 @@ def assert_equal_branchings(G1, G2, attr='weight', default=1):
     # If we have an exception, let's see the edges.
     print(e1)
     print(e2)
-    print
+    print()
 
     for a, b in zip(e1, e2):
         assert_equal(a[:2], b[:2])

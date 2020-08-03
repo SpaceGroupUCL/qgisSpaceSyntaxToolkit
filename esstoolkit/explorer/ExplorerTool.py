@@ -21,16 +21,17 @@
  ***************************************************************************/
 
 """
+from __future__ import absolute_import
 # Import the PyQt and QGIS libraries
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from qgis.core import *
 
 # Import required modules
-from ExplorerDialog import ExplorerDialog
-from AttributeSymbology import *
-from AttributeStats import *
-from AttributeCharts import *
+from .ExplorerDialog import ExplorerDialog
+from .AttributeSymbology import *
+from .AttributeStats import *
+from .AttributeCharts import *
 from .. import utility_functions as uf
 
 import numpy as np
@@ -551,9 +552,9 @@ class ExplorerTool(QObject):
                 chart_type = self.dlg.getChartType()
                 if chart_type == 0:
                     features = uf.getFeaturesRangeValues(self.current_layer, self.layer_attributes[current_attribute]['name'], selection[0], selection[1])
-                    self.current_layer.setSelectedFeatures(features.keys())
-                    self.selection_values = features.values()
-                    self.selection_ids = features.keys()
+                    self.current_layer.setSelectedFeatures(list(features.keys()))
+                    self.selection_values = list(features.values())
+                    self.selection_ids = list(features.keys())
                 elif chart_type == 1:
                     self.current_layer.setSelectedFeatures(selection)
 

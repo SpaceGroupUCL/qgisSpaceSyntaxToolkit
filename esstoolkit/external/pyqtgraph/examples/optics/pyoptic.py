@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
+from builtins import map
+from builtins import range
+from builtins import object
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtGui, QtCore
 import numpy as np
 import csv, gzip, os
 from pyqtgraph import Point
 
-class GlassDB:
+class GlassDB(object):
     """
     Database of dispersion coefficients for Schott glasses
      + Corning 7980
@@ -13,7 +16,7 @@ class GlassDB:
     def __init__(self, fileName='schott_glasses.csv'):
         path = os.path.dirname(__file__)
         fh = gzip.open(os.path.join(path, 'schott_glasses.csv.gz'), 'rb')
-        r = csv.reader(map(str, fh.readlines()))
+        r = csv.reader(list(map(str, fh.readlines())))
         lines = [x for x in r]
         self.data = {}
         header = lines[0]
@@ -55,7 +58,7 @@ class GlassDB:
         
     def transmissionCurve(self, glass):
         data = self.data[glass]
-        keys = [int(x[7:]) for x in data.keys() if 'TAUI25' in x]
+        keys = [int(x[7:]) for x in list(data.keys()) if 'TAUI25' in x]
         keys.sort()
         curve = np.empty((2,len(keys)))
         for i in range(len(keys)):

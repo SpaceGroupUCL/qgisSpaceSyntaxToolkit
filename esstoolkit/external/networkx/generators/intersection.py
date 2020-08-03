@@ -8,6 +8,8 @@ Generators for random intersection graphs.
 #    Pieter Swart <swart@lanl.gov>
 #    All rights reserved.
 #    BSD license.
+from builtins import zip
+from builtins import range
 import random
 import networkx as nx
 from networkx.algorithms import bipartite
@@ -47,7 +49,7 @@ def uniform_random_intersection_graph(n, m, p, seed=None):
        and g(n, p) models. Random Struct. Algorithms 16, 2 (2000), 156–176.
     """
     G=bipartite.random_graph(n, m, p, seed=seed)
-    return nx.projected_graph(G, range(n)) 
+    return nx.projected_graph(G, list(range(n))) 
 
 def k_random_intersection_graph(n,m,k):
     """Return a intersection graph with randomly chosen attribute sets for
@@ -75,11 +77,11 @@ def k_random_intersection_graph(n,m,k):
        Electronic Notes in Discrete Mathematics 10 (2001), 129--132.
     """
     G = nx.empty_graph(n + m)
-    mset = range(n,n+m)
+    mset = list(range(n,n+m))
     for v in range(n):
         targets = random.sample(mset, k)
-        G.add_edges_from(zip([v]*len(targets), targets))
-    return nx.projected_graph(G, range(n))
+        G.add_edges_from(list(zip([v]*len(targets), targets)))
+    return nx.projected_graph(G, list(range(n)))
 
 def general_random_intersection_graph(n,m,p):
     """Return a random intersection graph with independent probabilities
@@ -111,10 +113,10 @@ def general_random_intersection_graph(n,m,p):
     if len(p)!=m:
         raise ValueError("Probability list p must have m elements.")
     G = nx.empty_graph(n + m)
-    mset = range(n,n+m)
+    mset = list(range(n,n+m))
     for u in range(n):
         for v,q in zip(mset,p):
             if random.random()<q:
                 G.add_edge(u,v)
-    return nx.projected_graph(G, range(n))
+    return nx.projected_graph(G, list(range(n)))
 

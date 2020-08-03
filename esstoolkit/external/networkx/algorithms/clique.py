@@ -17,10 +17,12 @@ http://en.wikipedia.org/wiki/Clique_problem
 #    Pieter Swart <swart@lanl.gov>
 #    All rights reserved.
 #    BSD license.
+from builtins import map
+from builtins import filter
 from collections import deque
 from itertools import chain, islice
 try:
-    from itertools import ifilter as filter
+    
 except ImportError:
     pass
 import networkx
@@ -92,13 +94,13 @@ def enumerate_all_cliques(G):
     # 2. (base + cnbrs) is sorted with respect to the iteration order of G.
     # 3. cnbrs is a set of common neighbors of nodes in base.
     while queue:
-        base, cnbrs = map(list, queue.popleft())
+        base, cnbrs = list(map(list, queue.popleft()))
         yield base
         for i, u in enumerate(cnbrs):
             # Use generators to reduce memory consumption.
             queue.append((chain(base, [u]),
-                          filter(nbrs[u].__contains__,
-                                 islice(cnbrs, i + 1, None))))
+                          list(filter(nbrs[u].__contains__,
+                                 islice(cnbrs, i + 1, None)))))
 
 
 @not_implemented_for('directed')

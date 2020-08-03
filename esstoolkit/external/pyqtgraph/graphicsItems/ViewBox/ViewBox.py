@@ -1,9 +1,13 @@
+from __future__ import print_function
+from past.builtins import cmp
+from builtins import str
+from builtins import object
 import weakref
 import sys
 from copy import deepcopy
 import numpy as np
 from ...Qt import QtGui, QtCore
-from ...python2_3 import sortList, basestring, cmp
+from ...python2_3 import sortList, str, cmp
 from ...Point import Point
 from ... import functions as fn
 from .. ItemGroup import ItemGroup
@@ -307,7 +311,7 @@ class ViewBox(GraphicsWidget):
         for v in state['linkedViews']:
             if isinstance(v, weakref.ref):
                 v = v()
-            if v is None or isinstance(v, basestring):
+            if v is None or isinstance(v, str):
                 views.append(v)
             else:
                 views.append(v.name)
@@ -443,7 +447,8 @@ class ViewBox(GraphicsWidget):
             vr1 = self.state['viewRange'][1]
             return QtCore.QRectF(vr0[0], vr1[0], vr0[1]-vr0[0], vr1[1] - vr1[0])
         except:
-            print("make qrectf failed:", self.state['viewRange'])
+            # fix_print_with_import
+            print(("make qrectf failed:", self.state['viewRange']))
             raise
     
     def targetRange(self):
@@ -460,7 +465,8 @@ class ViewBox(GraphicsWidget):
             tr1 = self.state['targetRange'][1]
             return QtCore.QRectF(tr0[0], tr1[0], tr0[1]-tr0[0], tr1[1] - tr1[0])
         except:
-            print("make qrectf failed:", self.state['targetRange'])
+            # fix_print_with_import
+            print(("make qrectf failed:", self.state['targetRange']))
             raise
 
     def _resetTarget(self):
@@ -513,7 +519,7 @@ class ViewBox(GraphicsWidget):
         
         # Update axes one at a time
         changed = [False, False]
-        for ax, range in changes.items():
+        for ax, range in list(changes.items()):
             mn = min(range)
             mx = max(range)
             
@@ -930,7 +936,7 @@ class ViewBox(GraphicsWidget):
         Link X or Y axes of two views and unlink any previously connected axes. *axis* must be ViewBox.XAxis or ViewBox.YAxis.
         If view is None, the axis is left unlinked.
         """
-        if isinstance(view, basestring):
+        if isinstance(view, str):
             if view == '':
                 view = None
             else:
@@ -958,7 +964,7 @@ class ViewBox(GraphicsWidget):
                 pass
             
         
-        if view is None or isinstance(view, basestring):
+        if view is None or isinstance(view, str):
             self.state['linkedViews'][axis] = view
         else:
             self.state['linkedViews'][axis] = weakref.ref(view)
@@ -991,7 +997,7 @@ class ViewBox(GraphicsWidget):
         ## Return the linked view for axis *ax*.
         ## this method _always_ returns either a ViewBox or None.
         v = self.state['linkedViews'][ax]
-        if v is None or isinstance(v, basestring):
+        if v is None or isinstance(v, str):
             return None
         else:
             return v()  ## dereference weakref pointer. If the reference is dead, this returns None
@@ -1672,7 +1678,7 @@ class ViewBox(GraphicsWidget):
         
         for ax in [0,1]:
             link = self.state['linkedViews'][ax]
-            if isinstance(link, basestring):     ## axis has not been linked yet; see if it's possible now
+            if isinstance(link, str):     ## axis has not been linked yet; see if it's possible now
                 for v in nv:
                     if link == v.name:
                         self.linkView(ax, v)

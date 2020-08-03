@@ -6,7 +6,8 @@ Many of the features demonstrated here are already provided by the ImageView
 widget, but here we present a lower-level approach that provides finer control
 over the user interface.
 """
-import initExample ## Add path to library (just for examples; you do not need this)
+from __future__ import absolute_import
+from . import initExample ## Add path to library (just for examples; you do not need this)
 
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore, QtGui

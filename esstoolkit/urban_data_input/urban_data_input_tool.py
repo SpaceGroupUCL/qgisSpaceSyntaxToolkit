@@ -20,14 +20,15 @@
  *                                                                         *
  ***************************************************************************/
 """
+from __future__ import absolute_import
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from qgis.core import *
 
-from urban_data_input_dockwidget import UrbanDataInputDockWidget
-from frontages import FrontageTool
-from entrances import EntranceTool
-from landuse import LanduseTool
+from .urban_data_input_dockwidget import UrbanDataInputDockWidget
+from .frontages import FrontageTool
+from .entrances import EntranceTool
+from .landuse import LanduseTool
  
 
 class UrbanDataInputTool(QObject):

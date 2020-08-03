@@ -6,7 +6,9 @@
 #
 # WARNING! All changes made in this file will be lost!
 
-from PyQt4 import QtCore, QtGui
+from __future__ import absolute_import
+from builtins import object
+from qgis.PyQt import QtCore, QtGui
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -76,4 +78,4 @@ class Ui_AboutDialog(object):
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Lucida Grande\';\">(C) 2015, UCL</span></p></body></html>", None))
         self.closeButton.setText(_translate("AboutDialog", "Close", None))
 
-import resources_rc
+from . import resources_rc

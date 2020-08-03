@@ -8,12 +8,14 @@ Used for reading and writing dictionary objects to a python-like configuration
 file format. Data structures may be nested and contain any data type as long
 as it can be converted to/from a string using repr and eval.
 """
+from __future__ import print_function
 
+from builtins import str
 import re, os, sys
 import numpy
 from .pgcollections import OrderedDict
 from . import units
-from .python2_3 import asUnicode, basestring
+from .python2_3 import asUnicode, str
 from .Qt import QtCore
 from .Point import Point
 from .colormap import ColorMap
@@ -99,7 +101,7 @@ def genString(data, indent=''):
 def parseString(lines, start=0):
     
     data = OrderedDict()
-    if isinstance(lines, basestring):
+    if isinstance(lines, str):
         lines = lines.split('\n')
         lines = [l for l in lines if re.search(r'\S', l) and not re.match(r'\s*#', l)]  ## remove empty lines
         

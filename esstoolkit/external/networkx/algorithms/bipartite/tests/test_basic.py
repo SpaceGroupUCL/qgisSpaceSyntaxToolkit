@@ -1,11 +1,13 @@
 #!/usr/bin/env python
+from builtins import range
+from builtins import object
 from nose.tools import *
 from nose import SkipTest
 from nose.plugins.attrib import attr
 import networkx as nx
 from networkx.algorithms import bipartite
 
-class TestBipartiteBasic:
+class TestBipartiteBasic(object):
 
     def test_is_bipartite(self):
         assert_true(bipartite.is_bipartite(nx.path_graph(4)))

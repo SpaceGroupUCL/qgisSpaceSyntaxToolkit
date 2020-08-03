@@ -1,9 +1,11 @@
 #!/usr/bin/env python
+from builtins import range
+from builtins import object
 from nose.tools import *
 from networkx import *
 from networkx.generators.random_graphs import *
 
-class TestGeneratorsRandom():
+class TestGeneratorsRandom(object):
     def smoke_test_random_graph(self):
         seed = 42
         G=gnp_random_graph(100,0.25,seed)

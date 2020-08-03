@@ -119,7 +119,7 @@ def _node_betweenness(G,source,cutoff=False,normalized=True,weight=None):
         (pred,length)=nx.dijkstra_predecessor_and_distance(G,source,weight=weight)
 
     # order the nodes by path length
-    onodes = [ (l,vert) for (vert,l) in length.items() ]
+    onodes = [ (l,vert) for (vert,l) in list(length.items()) ]
     onodes.sort()
     onodes[:] = [vert for (l,vert) in onodes if l>0]
 
@@ -163,7 +163,7 @@ def edge_load(G,nodes=None,cutoff=False):
         nodes=G.nodes()   # that probably is what you want...
     for source in nodes:
         ubetween=_edge_betweenness(G,source,nodes,cutoff=cutoff)
-        for v in ubetween.keys():
+        for v in list(ubetween.keys()):
             b=betweenness.setdefault(v,0)  # get or set default
             betweenness[v]=ubetween[v]+b    # cumulative total
     return betweenness
@@ -177,7 +177,7 @@ def _edge_betweenness(G,source,nodes,cutoff=False):
     #(pred,length)=_fast_predecessor(G,source,cutoff=cutoff)
     (pred,length)=nx.predecessor(G,source,cutoff=cutoff,return_seen=True)
     # order the nodes by path length
-    onodes = [ nn for dd,nn in sorted( (dist,n) for n,dist in length.items() )]
+    onodes = [ nn for dd,nn in sorted( (dist,n) for n,dist in list(length.items()) )]
     # intialize betweenness, doesn't account for any edge weights
     for u,v in G.edges(nodes):
         between[(u,v)]=1.0

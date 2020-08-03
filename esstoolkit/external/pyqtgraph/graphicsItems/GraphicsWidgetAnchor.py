@@ -1,3 +1,4 @@
+from builtins import object
 from ..Qt import QtGui, QtCore
 from ..Point import Point
 

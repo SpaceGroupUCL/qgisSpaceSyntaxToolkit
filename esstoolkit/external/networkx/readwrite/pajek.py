@@ -18,6 +18,11 @@ for format information.
 #    Pieter Swart <swart@lanl.gov>
 #    All rights reserved.
 #    BSD license.
+from builtins import map
+from builtins import next
+from builtins import zip
+from builtins import str
+from builtins import range
 import networkx as nx
 from networkx.utils import is_string_like, open_file, make_str
 __author__ = """Aric Hagberg <aric.hagberg@gmail.com>"""
@@ -48,7 +53,7 @@ def generate_pajek(G):
     yield '*vertices %s'%(G.order())
     nodes = G.nodes()
     # make dictionary mapping nodes to integers
-    nodenumber=dict(zip(nodes,range(1,len(nodes)+1)))
+    nodenumber=dict(list(zip(nodes,list(range(1,len(nodes)+1)))))
     for n in nodes:
         na=G.node.get(n,{})
         x=na.get('x',0.0)
@@ -57,7 +62,7 @@ def generate_pajek(G):
         nodenumber[n]=id
         shape=na.get('shape','ellipse')
         s=' '.join(map(make_qstr,(id,n,x,y,shape)))
-        for k,v in na.items():
+        for k,v in list(na.items()):
             s+=' %s %s'%(make_qstr(k),make_qstr(v))
         yield s
 
@@ -70,7 +75,7 @@ def generate_pajek(G):
         d=edgedata.copy()
         value=d.pop('weight',1.0) # use 1 as default edge value
         s=' '.join(map(make_qstr,(nodenumber[u],nodenumber[v],value)))
-        for k,v in d.items():
+        for k,v in list(d.items()):
             s+=' %s %s'%(make_qstr(k),make_qstr(v))
             s+=' %s %s'%(k,v)
         yield s
@@ -189,7 +194,7 @@ def parse_pajek(lines):
                                           'shape':shape})
                 except:
                     pass
-                extra_attr=zip(splitline[5::2],splitline[6::2])
+                extra_attr=list(zip(splitline[5::2],splitline[6::2]))
                 G.node[label].update(extra_attr)
         elif l.lower().startswith("*edges") or l.lower().startswith("*arcs"):
             if l.lower().startswith("*edge"):
@@ -220,7 +225,7 @@ def parse_pajek(lines):
                     pass
                     # if there isn't, just assign a 1
 #                    edge_data.update({'value':1})
-                extra_attr=zip(splitline[3::2],splitline[4::2])
+                extra_attr=list(zip(splitline[3::2],splitline[4::2]))
                 edge_data.update(extra_attr)
                 # if G.has_edge(u,v):
                 #     multigraph=True

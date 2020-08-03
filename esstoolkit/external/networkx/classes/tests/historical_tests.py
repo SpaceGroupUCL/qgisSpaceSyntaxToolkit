@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 """Original NetworkX graph tests"""
+from builtins import str
+from builtins import zip
+from builtins import object
 from nose.tools import *
 import networkx
 import networkx as nx
@@ -194,7 +197,7 @@ class HistoricalTests(object):
             
     def test_add_edges_from3(self):
         G=self.G()
-        G.add_edges_from(zip(list('ACD'),list('CDE'))) 
+        G.add_edges_from(list(zip(list('ACD'),list('CDE')))) 
         assert_true(G.has_edge('D','E'))
         assert_false(G.has_edge('E','C'))
 
@@ -202,7 +205,7 @@ class HistoricalTests(object):
         G=self.G()
         G.add_nodes_from([1, 2, 3, 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'])
 
-        G.add_edges_from(zip(list('MNOP'),list('NOPM')))
+        G.add_edges_from(list(zip(list('MNOP'),list('NOPM'))))
         assert_true(G.has_edge('O','P'))
         assert_true( G.has_edge('P','M'))
         G.remove_node('P')    # tests remove_node()'s handling of edges.

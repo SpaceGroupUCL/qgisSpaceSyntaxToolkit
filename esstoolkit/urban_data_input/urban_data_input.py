@@ -20,11 +20,13 @@
  *                                                                         *
  ***************************************************************************/
 """
+from __future__ import absolute_import
+from builtins import object
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from qgis.core import *
 
-import urban_data_input_tool
+from . import urban_data_input_tool
 
 import os.path
 
@@ -35,11 +37,11 @@ is_debug = False
 try:
     import pydevd
     has_pydevd = True
-except ImportError, e:
+except ImportError as e:
     has_pydevd = False
 
 
-class UrbanDataInput:
+class UrbanDataInput(object):
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):

@@ -20,15 +20,18 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, Qt, QThread
-from PyQt4.QtGui import QAction, QIcon
-from PyQt4 import QtGui, uic
+from __future__ import absolute_import
+from builtins import object
+from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, Qt, QThread
+from qgis.PyQt.QtWidgets import QAction
+from qgis.PyQt.QtGui import QIcon
+from qgis.PyQt import QtGui, uic
 from qgis.core import *
 from qgis.gui import *
 
 import os.path
 
-import network_segmenter_tool
+from . import network_segmenter_tool
 
 # Import the debug library
 # set is_debug to False in release version
@@ -36,12 +39,12 @@ is_debug = False
 try:
     import pydevd
     has_pydevd = True
-except ImportError, e:
+except ImportError as e:
     has_pydevd = False
     is_debug = False
 
 
-class NetworkSegmenter:
+class NetworkSegmenter(object):
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):

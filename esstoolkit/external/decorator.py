@@ -33,6 +33,10 @@ for the documentation.
 """
 from __future__ import print_function
 
+from builtins import zip
+from builtins import next
+from builtins import range
+from builtins import object
 import re
 import sys
 import inspect

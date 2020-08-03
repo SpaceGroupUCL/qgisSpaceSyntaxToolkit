@@ -1,3 +1,4 @@
+from builtins import object
 from nose import SkipTest
 
 import networkx as nx

@@ -1,3 +1,5 @@
+from builtins import bytes
+from builtins import str
 from .Exporter import Exporter
 from ..parametertree import Parameter
 from ..Qt import QtGui, QtCore, QtSvg, USE_PYSIDE

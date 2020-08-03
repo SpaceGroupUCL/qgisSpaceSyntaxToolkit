@@ -20,13 +20,14 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4 import QtGui, uic
-from PyQt4.QtCore import pyqtSignal, Qt
+from __future__ import absolute_import
+from qgis.PyQt import QtGui, uic
+from qgis.PyQt.QtCore import pyqtSignal, Qt
 
 import os.path
-import resources
+from . import resources
 
-from DbSettings_dialog import DbSettingsDialog
+from .DbSettings_dialog import DbSettingsDialog
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'road_network_cleaner_dialog_base.ui'))

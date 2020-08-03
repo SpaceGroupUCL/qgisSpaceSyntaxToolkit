@@ -1,3 +1,4 @@
+from builtins import str
 from ..Qt import QtGui, QtCore
 from .. import parametertree as ptree
 import numpy as np
@@ -64,7 +65,7 @@ class ColorMapParameter(ptree.types.GroupParameter):
         return item
         
     def fieldNames(self):
-        return self.fields.keys()
+        return list(self.fields.keys())
     
     def setFields(self, fields):
         """
@@ -107,7 +108,7 @@ class ColorMapParameter(ptree.types.GroupParameter):
         ==============  =================================================================
         """
         if isinstance(data, dict):
-            data = np.array([tuple(data.values())], dtype=[(k, float) for k in data.keys()])
+            data = np.array([tuple(data.values())], dtype=[(k, float) for k in list(data.keys())])
 
         colors = np.zeros((len(data),4))
         for item in self.children():
@@ -205,7 +206,7 @@ class EnumColorMapItem(ptree.types.GroupParameter):
         childs = [{'name': v, 'type': 'color'} for v in vals]
         
         childs = []
-        for val,vname in vals.items():
+        for val,vname in list(vals.items()):
             ch = ptree.Parameter.create(name=vname, type='color')
             ch.maskValue = val
             childs.append(ch)

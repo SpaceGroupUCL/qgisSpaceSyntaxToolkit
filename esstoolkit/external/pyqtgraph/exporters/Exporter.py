@@ -1,6 +1,7 @@
+from builtins import object
 from ..widgets.FileDialog import FileDialog
 from ..Qt import QtGui, QtCore, QtSvg
-from ..python2_3 import asUnicode, basestring
+from ..python2_3 import asUnicode, str
 from ..GraphicsScene import GraphicsScene
 import os, re
 LastExportDirectory = None
@@ -48,7 +49,7 @@ class Exporter(object):
         self.fileDialog.setFileMode(QtGui.QFileDialog.AnyFile)
         self.fileDialog.setAcceptMode(QtGui.QFileDialog.AcceptSave)
         if filter is not None:
-            if isinstance(filter, basestring):
+            if isinstance(filter, str):
                 self.fileDialog.setNameFilter(filter)
             elif isinstance(filter, list):
                 self.fileDialog.setNameFilters(filter)
@@ -119,7 +120,7 @@ class Exporter(object):
         preItems = []
         postItems = []
         if isinstance(root, QtGui.QGraphicsScene):
-            childs = [i for i in root.items() if i.parentItem() is None]
+            childs = [i for i in list(root.items()) if i.parentItem() is None]
             rootItem = []
         else:
             childs = root.childItems()

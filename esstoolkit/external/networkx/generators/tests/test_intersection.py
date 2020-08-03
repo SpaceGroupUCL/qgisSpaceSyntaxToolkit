@@ -1,8 +1,9 @@
 #!/usr/bin/env python
+from builtins import object
 from nose.tools import *
 import networkx as nx
 
-class TestIntersectionGraph():
+class TestIntersectionGraph(object):
     def test_random_intersection_graph(self):
         G=nx.uniform_random_intersection_graph(10,5,0.5)
         assert_equal(len(G),10)

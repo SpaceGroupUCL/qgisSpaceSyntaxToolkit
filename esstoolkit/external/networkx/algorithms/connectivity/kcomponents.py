@@ -2,6 +2,8 @@
 """
 Moody and White algorithm for k-components
 """
+from builtins import next
+from builtins import range
 from collections import defaultdict
 from itertools import combinations
 from operator import itemgetter
@@ -180,7 +182,7 @@ def _generate_partition(G, cuts, k):
                 return True
         return False
     components = []
-    nodes = ({n for n, d in G.degree().items() if d > k} - 
+    nodes = ({n for n, d in list(G.degree().items()) if d > k} - 
              {n for cut in cuts for n in cut})
     H = G.subgraph(nodes)
     for cc in nx.connected_components(H):
@@ -198,7 +200,7 @@ def _generate_partition(G, cuts, k):
 def _reconstruct_k_components(k_comps):
     result = dict()
     max_k = max(k_comps)
-    for k in reversed(range(1, max_k+1)):
+    for k in reversed(list(range(1, max_k+1))):
         if k == max_k:
             result[k] = list(_consolidate(k_comps[k], k))
         elif k not in k_comps:
@@ -215,7 +217,7 @@ def _reconstruct_k_components(k_comps):
 
 def build_k_number_dict(kcomps):
     result = {}
-    for k, comps in sorted(kcomps.items(), key=itemgetter(0)):
+    for k, comps in sorted(list(kcomps.items()), key=itemgetter(0)):
         for comp in comps:
             for node in comp:
                 result[node] = k

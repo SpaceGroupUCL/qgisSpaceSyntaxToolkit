@@ -4,6 +4,8 @@
 #    Jordi Torrents <jtorrents@milnou.net>
 #    All rights reserved.
 #    BSD license.
+from builtins import next
+from builtins import range
 import itertools
 import collections
 
@@ -165,7 +167,7 @@ def k_components(G, min_density=0.95):
 def _cliques_heuristic(G, H, k, min_density):
     h_cnumber = nx.core_number(H)
     for i, c_value in enumerate(sorted(set(h_cnumber.values()), reverse=True)):
-        cands = set(n for n, c in h_cnumber.items() if c == c_value)
+        cands = set(n for n, c in list(h_cnumber.items()) if c == c_value)
         # Skip checking for overlap for the highest core value
         if i == 0:
             overlap = False
@@ -186,7 +188,7 @@ def _cliques_heuristic(G, H, k, min_density):
             sh_cnumber = nx.core_number(SH)
             sh_deg = SH.degree()
             min_deg = min(sh_deg.values())
-            SH.remove_nodes_from(n for n, d in sh_deg.items() if d == min_deg)
+            SH.remove_nodes_from(n for n, d in list(sh_deg.items()) if d == min_deg)
             SG = nx.k_core(G.subgraph(SH), k)
         else:
             yield SG

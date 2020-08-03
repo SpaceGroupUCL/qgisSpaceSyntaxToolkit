@@ -1,4 +1,5 @@
 # Test for approximation to k-components algorithm
+from builtins import object
 from nose.tools import assert_equal, assert_true, assert_false, assert_raises, raises
 import networkx as nx
 from networkx.algorithms.approximation import k_components
@@ -20,7 +21,7 @@ def graph_example_1():
     G = nx.convert_node_labels_to_integers(nx.grid_graph([5,5]),
                                             label_attribute='labels')
     rlabels = nx.get_node_attributes(G, 'labels')
-    labels = dict((v, k) for k, v in rlabels.items())
+    labels = dict((v, k) for k, v in list(rlabels.items()))
 
     for nodes in [(labels[(0,0)], labels[(1,0)]),
                     (labels[(0,4)], labels[(1,4)]),
@@ -55,7 +56,7 @@ def torrents_and_ferraro_graph():
     G = nx.convert_node_labels_to_integers(nx.grid_graph([5,5]),
                                             label_attribute='labels')
     rlabels = nx.get_node_attributes(G, 'labels')
-    labels = dict((v, k) for k, v in rlabels.items())
+    labels = dict((v, k) for k, v in list(rlabels.items()))
 
     for nodes in [ (labels[(0,4)], labels[(1,4)]),
                     (labels[(3,4)], labels[(4,4)]) ]:
@@ -116,7 +117,7 @@ def torrents_and_ferraro_graph():
 # Helper function
 def _check_connectivity(G):
     result = k_components(G)
-    for k, components in result.items():
+    for k, components in list(result.items()):
         if k < 3:
             continue
         for component in components:
@@ -169,7 +170,7 @@ def test_example_1_detail_3_and_4():
     }
     G = graph_example_1()
     result = k_components(G)
-    for k, components in result.items():
+    for k, components in list(result.items()):
         if k < 3:
             continue
         for component in components:
@@ -191,7 +192,7 @@ def test_same():
     assert_false(_same(different, tol=4))
 
 
-class TestAntiGraph:
+class TestAntiGraph(object):
     def setUp(self):
         self.Gnp = nx.gnp_random_graph(20,0.8)
         self.Anp = _AntiGraph(nx.complement(self.Gnp))

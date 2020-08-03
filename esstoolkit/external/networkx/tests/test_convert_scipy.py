@@ -1,3 +1,6 @@
+from builtins import zip
+from builtins import range
+from builtins import object
 from nose import SkipTest
 from nose.tools import assert_raises, assert_true, assert_equal, raises
 
@@ -32,7 +35,7 @@ class TestConvertNumpy(object):
         source = [u for u,v in e]
         dest = [v for u,v in e]
         weight = [s+10 for s in source]
-        ex = zip(source, dest, weight)
+        ex = list(zip(source, dest, weight))
         G.add_weighted_edges_from(ex)
         return G
 

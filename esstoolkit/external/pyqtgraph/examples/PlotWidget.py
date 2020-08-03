@@ -3,9 +3,12 @@
 Demonstrates use of PlotWidget class. This is little more than a 
 GraphicsView with a PlotItem placed in its center.
 """
+from __future__ import print_function
+from __future__ import absolute_import
 
 
-import initExample ## Add path to library (just for examples; you do not need this)
+from builtins import range
+from . import initExample ## Add path to library (just for examples; you do not need this)
 
 
 from pyqtgraph.Qt import QtGui, QtCore

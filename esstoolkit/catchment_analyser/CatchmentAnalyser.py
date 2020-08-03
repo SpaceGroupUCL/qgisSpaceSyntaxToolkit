@@ -20,6 +20,9 @@
  *                                                                         *
  ***************************************************************************/
 """
+from __future__ import print_function
+from __future__ import absolute_import
+from builtins import str
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 
@@ -31,15 +34,15 @@ import itertools, operator
 
 
 # Initialize Qt resources from file resources.py
-import resources
+from . import resources
 
 # Import the code for the dialog
-from catchment_analyser_dialog import CatchmentAnalyserDialog
+from .catchment_analyser_dialog import CatchmentAnalyserDialog
 # import the main analysis module
-import catchment_analysis as ca
+from . import catchment_analysis as ca
 
 # Import utility tools
-import utility_functions as uf
+from . import utility_functions as uf
 
 
 class CatchmentTool(QObject):
@@ -88,7 +91,7 @@ class CatchmentTool(QObject):
         settings = QSettings()
         settings.beginGroup('/PostgreSQL/connections')
         named_dbs = settings.childGroups()
-        all_info = [i.split("/") + [unicode(settings.value(i))] for i in settings.allKeys() if
+        all_info = [i.split("/") + [str(settings.value(i))] for i in settings.allKeys() if
                     settings.value(i) != NULL and settings.value(i) != '']
         all_info = [i for i in all_info if
                     i[0] in named_dbs and i[2] != NULL and i[1] in ['name', 'host', 'service', 'password', 'username',
@@ -246,7 +249,9 @@ class CatchmentTool(QObject):
             output_network_features = output['output network features']
             # create layer
             new_fields = output_network_features[0].fields()
-            print new_fields, self.settings['network'].crs(), self.settings['network'].dataProvider().encoding(), 'Linestring',self.settings['layer_type'], self.settings['output path'][0]
+            # fix_print_with_import
+            # fix_print_with_import
+print(new_fields, self.settings['network'].crs(), self.settings['network'].dataProvider().encoding(), 'Linestring',self.settings['layer_type'], self.settings['output path'][0])
             output_network = uf.to_layer(new_fields, self.settings['network'].crs(), self.settings['network'].dataProvider().encoding(), 'Linestring',
                                          self.settings['layer_type'], self.settings['output path'][0])
 

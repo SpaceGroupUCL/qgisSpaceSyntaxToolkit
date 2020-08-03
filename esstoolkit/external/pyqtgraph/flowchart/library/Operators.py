@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from builtins import str
 from ..Node import Node
 
 class UniOpNode(Node):

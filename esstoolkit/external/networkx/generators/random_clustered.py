@@ -7,6 +7,7 @@
 #    Pieter Swart <swart@lanl.gov>
 #    All rights reserved.
 #    BSD license.
+from builtins import range
 import random
 import networkx as nx
 __author__ = "\n".join(['Aric Hagberg (hagberg@lanl.gov)',

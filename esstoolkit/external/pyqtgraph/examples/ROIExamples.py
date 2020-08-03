@@ -4,8 +4,9 @@ Demonstrates a variety of uses for ROI. This class provides a user-adjustable
 region of interest marker. It is possible to customize the layout and 
 function of the scale/rotate handles in very flexible ways. 
 """
+from __future__ import absolute_import
 
-import initExample ## Add path to library (just for examples; you do not need this)
+from . import initExample ## Add path to library (just for examples; you do not need this)
 
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore, QtGui

@@ -6,7 +6,9 @@
 #
 # WARNING! All changes made in this file will be lost!
 
-from PyQt4 import QtCore, QtGui
+from __future__ import absolute_import
+from builtins import object
+from qgis.PyQt import QtCore, QtGui
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -96,4 +98,4 @@ class Ui_SettingsDialog(object):
         self.colourLabel.setText(_translate("SettingsDialog", "Default colour range:", None))
         self.settingsTab.setTabText(self.settingsTab.indexOf(self.explorerTab), _translate("SettingsDialog", "Explorer", None))
 
-import resources_rc
+from . import resources_rc

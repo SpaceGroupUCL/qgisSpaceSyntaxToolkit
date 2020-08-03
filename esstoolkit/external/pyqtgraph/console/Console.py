@@ -1,8 +1,10 @@
+from builtins import str
+from builtins import range
 import sys, re, os, time, traceback, subprocess
 import pickle
 
 from ..Qt import QtCore, QtGui, USE_PYSIDE, USE_PYQT5
-from ..python2_3 import basestring
+from ..python2_3 import str
 from .. import exceptionHandling as exceptionHandling
 from .. import getConfigOption
 if USE_PYSIDE:
@@ -348,7 +350,7 @@ class ConsoleWidget(QtGui.QWidget):
         if filterStr != '':
             if isinstance(exc, Exception):
                 msg = exc.message
-            elif isinstance(exc, basestring):
+            elif isinstance(exc, str):
                 msg = exc
             else:
                 msg = repr(exc)

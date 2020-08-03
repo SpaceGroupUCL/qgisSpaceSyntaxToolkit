@@ -13,6 +13,8 @@ Tests for maximal (not maximum) independent sets.
 #    All rights reserved.
 #    BSD license.
 
+from builtins import range
+from builtins import object
 __author__ = """Leo Lopes (leo.lopes@monash.edu)"""
 
 from nose.tools import *

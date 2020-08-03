@@ -20,14 +20,16 @@
  *                                                                         *
  ***************************************************************************/
 """
+from __future__ import print_function
+from __future__ import absolute_import
 
 import os
 
-from PyQt4.QtCore import pyqtSignal
-from PyQt4 import QtGui, uic
+from qgis.PyQt.QtCore import pyqtSignal
+from qgis.PyQt import QtGui, uic
 
 from qgis.core import QgsDataSourceURI
-from sGraph.utilityFunctions import *
+from .sGraph.utilityFunctions import *
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'DbSettings_dialog_base.ui'))
@@ -59,7 +61,7 @@ class DbSettingsDialog(QtGui.QDialog, FORM_CLASS):
 
 
         self.popDbs()
-        if self.dbCombo.currentText() in self.available_dbs.keys():
+        if self.dbCombo.currentText() in list(self.available_dbs.keys()):
             self.popSchemas()
 
     def popDbs(self):
@@ -72,7 +74,7 @@ class DbSettingsDialog(QtGui.QDialog, FORM_CLASS):
 
     def getDbSettings(self):
         connection = self.dbCombo.currentText()
-        if connection in self.available_dbs.keys():
+        if connection in list(self.available_dbs.keys()):
             return {'dbname': self.available_dbs[connection]['name'],
         'user': self.available_dbs[connection]['username'],
         'host': self.available_dbs[connection]['host'],
@@ -89,10 +91,13 @@ class DbSettingsDialog(QtGui.QDialog, FORM_CLASS):
         selected_db = self.getSelectedDb()
         if len(self.getSelectedDb()) > 1:
             try:
-                print 'tries'
+                # fix_print_with_import
+                print('tries')
                 uri = QgsDataSourceURI()
                 db_info = self.available_dbs[selected_db]
-                print db_info, selected_db
+                # fix_print_with_import
+                # fix_print_with_import
+print(db_info, selected_db)
                 conname = selected_db
                 dbname = db_info['database']
                 user = db_info['username']
@@ -103,7 +108,8 @@ class DbSettingsDialog(QtGui.QDialog, FORM_CLASS):
                 connstring = "dbname=%s user=%s host=%s port=%s password=%s" % (dbname, user, host, port, password)
                 schemas = getPostgisSchemas(connstring)
             except:
-                print 'error'
+                # fix_print_with_import
+                print('error')
                 pass
         self.schemaCombo.addItems(schemas)
 

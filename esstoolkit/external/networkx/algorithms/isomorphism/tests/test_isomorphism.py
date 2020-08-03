@@ -1,9 +1,10 @@
 #!/usr/bin/env python
+from builtins import object
 from nose.tools import *
 import networkx as nx
 from networkx.algorithms import isomorphism as iso
 
-class TestIsomorph:
+class TestIsomorph(object):
 
     def setUp(self):
         self.G1=nx.Graph()

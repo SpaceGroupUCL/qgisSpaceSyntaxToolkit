@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 """Original NetworkX graph tests"""
+from builtins import range
 from nose.tools import *
 import networkx
 import networkx as nx

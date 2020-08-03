@@ -1,9 +1,10 @@
 #!/usr/bin/env python
+from builtins import object
 from nose.tools import *
 from nose import SkipTest
 import networkx as nx
 
-class TestFloyd:
+class TestFloyd(object):
     def setUp(self):
         pass
 

@@ -3,7 +3,9 @@
 PyQtGraph - Scientific Graphics and GUI Library for Python
 www.pyqtgraph.org
 """
+from __future__ import print_function
 
+from builtins import range
 __version__ = '0.10.0'
 
 ### import all the goodies and add some helper functions for easy CLI use
@@ -79,7 +81,7 @@ def setConfigOptions(**opts):
     
     Each keyword argument sets one global option. 
     """
-    for k,v in opts.items():
+    for k,v in list(opts.items()):
         setConfigOption(k, v)
 
 def getConfigOption(opt):

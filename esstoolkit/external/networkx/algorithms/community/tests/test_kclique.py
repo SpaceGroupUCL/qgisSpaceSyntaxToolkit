@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from builtins import range
 from nose.tools import *
 import networkx as nx
 from itertools import combinations
@@ -6,8 +7,8 @@ from networkx import k_clique_communities
 
 def test_overlaping_K5():
     G = nx.Graph()
-    G.add_edges_from(combinations(range(5), 2)) # Add a five clique
-    G.add_edges_from(combinations(range(2,7), 2)) # Add another five clique
+    G.add_edges_from(combinations(list(range(5)), 2)) # Add a five clique
+    G.add_edges_from(combinations(list(range(2,7)), 2)) # Add another five clique
     c = list(nx.k_clique_communities(G, 4))
     assert_equal(c,[frozenset([0, 1, 2, 3, 4, 5, 6])])
     c= list(nx.k_clique_communities(G, 5))
@@ -15,8 +16,8 @@ def test_overlaping_K5():
 
 def test_isolated_K5():
     G = nx.Graph()
-    G.add_edges_from(combinations(range(0,5), 2)) # Add a five clique
-    G.add_edges_from(combinations(range(5,10), 2)) # Add another five clique
+    G.add_edges_from(combinations(list(range(0,5)), 2)) # Add a five clique
+    G.add_edges_from(combinations(list(range(5,10)), 2)) # Add another five clique
     c= list(nx.k_clique_communities(G, 5))
     assert_equal(set(c),set([frozenset([0,1,2,3,4]),frozenset([5,6,7,8,9])]))
 

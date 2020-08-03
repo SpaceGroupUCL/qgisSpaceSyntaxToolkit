@@ -2,10 +2,11 @@
 """
 This example demonstrates the use of GLSurfacePlotItem.
 """
+from __future__ import absolute_import
 
 
 ## Add path to library (just for examples; you do not need this)
-import initExample
+from . import initExample
 
 from pyqtgraph.Qt import QtCore, QtGui
 import pyqtgraph as pg

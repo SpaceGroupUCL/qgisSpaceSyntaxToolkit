@@ -3,6 +3,10 @@
 #    Sergio Nery Simoes <sergionery@gmail.com>
 #    All rights reserved.
 #    BSD license.
+from builtins import zip
+from builtins import next
+from builtins import range
+from builtins import object
 from heapq import heappush, heappop
 from itertools import count
 
@@ -611,14 +615,14 @@ def _bidirectional_dijkstra(G, source, target, weight='weight',
             if(dir == 0):  # forward
                 if G.is_multigraph():
                     minweight = min((dd.get(weight, 1)
-                                     for k, dd in G[v][w].items()))
+                                     for k, dd in list(G[v][w].items())))
                 else:
                     minweight = G[v][w].get(weight, 1)
                 vwLength = dists[dir][v] + minweight  # G[v][w].get(weight,1)
             else:  # back, must remember to change v,w->w,v
                 if G.is_multigraph():
                     minweight = min((dd.get(weight, 1)
-                                     for k, dd in G[w][v].items()))
+                                     for k, dd in list(G[w][v].items())))
                 else:
                     minweight = G[w][v].get(weight, 1)
                 vwLength = dists[dir][v] + minweight  # G[w][v].get(weight,1)

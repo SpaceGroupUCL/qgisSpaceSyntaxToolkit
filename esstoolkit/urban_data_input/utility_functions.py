@@ -20,12 +20,14 @@
  *                                                                         *
  ***************************************************************************/
 """
+from __future__ import print_function
+from builtins import str
 from qgis.core import *
 import os.path
 import psycopg2
 
 import traceback
-from PyQt4.QtCore import QSettings
+from qgis.PyQt.QtCore import QSettings
 import operator
 import itertools
 
@@ -145,14 +147,15 @@ def getPostgisSchemas(connstring, commit=False):
 
     try:
         connection = psycopg2.connect(connstring)
-    except psycopg2.Error, e:
-        print e.pgerror
+    except psycopg2.Error as e:
+        # fix_print_with_import
+        print(e.pgerror)
         connection = None
 
     schemas = []
     data = []
     if connection:
-        query = unicode("""SELECT schema_name from information_schema.schemata;""")
+        query = str("""SELECT schema_name from information_schema.schemata;""")
         cursor = connection.cursor()
         try:
             cursor.execute(query)
@@ -160,7 +163,7 @@ def getPostgisSchemas(connstring, commit=False):
                 data = cursor.fetchall()
             if commit:
                 connection.commit()
-        except psycopg2.Error, e:
+        except psycopg2.Error as e:
             connection.rollback()
         cursor.close()
 
@@ -179,7 +182,7 @@ def getQGISDbs():
     settings = QSettings()
     settings.beginGroup('/PostgreSQL/connections')
     named_dbs = settings.childGroups()
-    all_info = [i.split("/") + [unicode(settings.value(i))] for i in settings.allKeys() if
+    all_info = [i.split("/") + [str(settings.value(i))] for i in settings.allKeys() if
                 settings.value(i) != NULL and settings.value(i) != '']
     all_info = [i for i in all_info if
                 i[0] in named_dbs and i[2] != NULL and i[1] in ['name', 'host', 'service', 'password', 'username',

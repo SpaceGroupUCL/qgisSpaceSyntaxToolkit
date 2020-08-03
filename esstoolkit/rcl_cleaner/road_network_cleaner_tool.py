@@ -20,18 +20,23 @@
  *                                                                         *
  ***************************************************************************/
 """
+from __future__ import print_function
+from __future__ import absolute_import
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
 import traceback
-from PyQt4.QtCore import QThread, QSettings
+from qgis.PyQt.QtCore import QThread, QSettings
 from qgis.core import *
 from qgis.gui import *
 from qgis.utils import *
 import operator
 import os
-from PyQt4.QtCore import QPyNullVariant
+from qgis.PyQt.QtCore import QPyNullVariant
 
-from road_network_cleaner_dialog import RoadNetworkCleanerDialog
-from sGraph.sGraph import * # better give these a name to make it explicit to which module the methods belong
-from sGraph.utilityFunctions import *
+from .road_network_cleaner_dialog import RoadNetworkCleanerDialog
+from .sGraph.sGraph import * # better give these a name to make it explicit to which module the methods belong
+from .sGraph.utilityFunctions import *
 
 # Import the debug library - required for the cleaning class in separate thread
 # set is_debug to False in release version
@@ -39,7 +44,7 @@ is_debug = False
 try:
     import pydevd_pycharm
     has_pydevd = True
-except ImportError, e:
+except ImportError as e:
     has_pydevd = False
     is_debug = False
 
@@ -108,7 +113,7 @@ class NetworkCleanerTool(QObject):
         settings = QSettings()
         settings.beginGroup('/PostgreSQL/connections')
         named_dbs = settings.childGroups()
-        all_info = [i.split("/") + [unicode(settings.value(i))] for i in settings.allKeys() if
+        all_info = [i.split("/") + [str(settings.value(i))] for i in settings.allKeys() if
                     settings.value(i) != NULL and settings.value(i) != '']
         all_info = [i for i in all_info if
                     i[0] in named_dbs and i[2] != NULL and i[1] in ['name', 'host', 'service', 'password', 'username', 'database',
@@ -182,14 +187,16 @@ class NetworkCleanerTool(QObject):
             self.cleaning = cleaning
 
             if is_debug:
-                print 'started'
+                # fix_print_with_import
+                print('started')
         else:
             self.giveMessage('Missing user input!', QgsMessageBar.INFO)
             return
 
     def workerFinished(self, ret):
         if is_debug:
-            print 'trying to finish'
+            # fix_print_with_import
+            print('trying to finish')
         self.dlg.lockGUI(False)
         #TODO: only if edit default has been pressed before
         self.dlg.lockSettingsGUI(False)
@@ -218,7 +225,9 @@ class NetworkCleanerTool(QObject):
 
             cleaned_features, errors_features, unlinks_features = ret
 
-            print 'path', path
+            # fix_print_with_import
+            # fix_print_with_import
+print('path', path)
             if self.settings['errors']:
                 if len(errors_features) > 0:
                     errors = to_layer(errors_features, layer.crs(), layer.dataProvider().encoding(), 'Point', output_type, errors_path)
@@ -259,7 +268,9 @@ class NetworkCleanerTool(QObject):
             self.dlg.close()
 
     def killWorker(self):
-        if is_debug: print 'trying to cancel'
+        if is_debug: # fix_print_with_import
+ # fix_print_with_import
+print('trying to cancel')
         # add emit signal to breakTool or mergeTool only to stop the loop
         if self.cleaning:
             # Disconnect signals
@@ -290,7 +301,7 @@ class NetworkCleanerTool(QObject):
 
         # Setup signals
         finished = pyqtSignal(object)
-        error = pyqtSignal(Exception, basestring)
+        error = pyqtSignal(Exception, str)
         cl_progress = pyqtSignal(float)
         warning = pyqtSignal(str)
         cl_killed = pyqtSignal(bool)
@@ -406,18 +417,20 @@ class NetworkCleanerTool(QObject):
                 else:
                     unlinks = []
 
-                cleaned_features = map(lambda e: e.feature, self.graph.sEdges.values())
+                cleaned_features = [e.feature for e in list(self.graph.sEdges.values())]
                 # add to errors multiparts and points
                 self.graph.errors += multiparts
                 self.graph.errors += points
 
-                if is_debug: print "survived!"
+                if is_debug: # fix_print_with_import
+ # fix_print_with_import
+print("survived!")
                 self.graph.progress.disconnect()
                 self.cl_progress.emit(95)
                 # return cleaned data, errors and unlinks
                 ret = cleaned_features, self.graph.errors, unlinks
 
-            except Exception, e:
+            except Exception as e:
                 # forward the exception upstream
                 self.error.emit(e, traceback.format_exc())
 

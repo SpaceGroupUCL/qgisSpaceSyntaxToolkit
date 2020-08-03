@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import print_function
 from .Qt import QtCore
 from .ptime import time
 from . import ThreadsafeTimer
@@ -108,9 +109,11 @@ if __name__ == '__main__':
     win.show()
     
     def fn(*args):
-        print("Raw signal:", args)
+        # fix_print_with_import
+        print(("Raw signal:", args))
     def fn2(*args):
-        print("Delayed signal:", args)
+        # fix_print_with_import
+        print(("Delayed signal:", args))
     
     
     spin.valueChanged.connect(fn)

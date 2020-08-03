@@ -7,6 +7,8 @@
 #
 # WARNING! All changes made in this file will be lost!
 
+from __future__ import absolute_import
+from builtins import object
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 class Ui_Form(object):
@@ -93,4 +95,4 @@ class Ui_Form(object):
 
 from ..widgets.GraphicsView import GraphicsView
 from ..widgets.TreeWidget import TreeWidget
-from CanvasManager import CanvasCombo
+from .CanvasManager import CanvasCombo

@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+from builtins import zip
+from builtins import object
 import math
 from nose import SkipTest
 from nose.tools import *

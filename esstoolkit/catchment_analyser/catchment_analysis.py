@@ -20,7 +20,10 @@
  *                                                                         *
  ***************************************************************************/
 """
+from __future__ import absolute_import
 
+from builtins import str
+from builtins import range
 from PyQt4.QtCore import *
 
 from qgis.core import *
@@ -29,11 +32,11 @@ from qgis.networkanalysis import *
 from qgis.utils import *
 
 try:
-    import analysis_tools as ct
+    from . import analysis_tools as ct
 except ImportError:
     pass
 try:
-    import utility_functions as uf
+    from . import utility_functions as uf
 except ImportError:
     pass
 
@@ -41,7 +44,7 @@ is_debug = False
 try:
     import pydevd
     has_pydevd = True
-except ImportError, e:
+except ImportError as e:
     has_pydevd = False
 
 import traceback
@@ -51,9 +54,9 @@ class CatchmentAnalysis(QObject):
 
     # Setup signals
     finished = pyqtSignal(object)
-    error = pyqtSignal(Exception, basestring)
+    error = pyqtSignal(Exception, str)
     progress = pyqtSignal(float)
-    warning = pyqtSignal(basestring)
+    warning = pyqtSignal(str)
 
     def __init__(self, iface, settings):
         QObject.__init__(self)
@@ -139,7 +142,7 @@ class CatchmentAnalysis(QObject):
                     self.progress.emit(100)
                     self.finished.emit(output)
 
-            except Exception, e:
+            except Exception as e:
                 self.error.emit(e, traceback.format_exc())
 
     def origin_preparation(self, origin_vector, origin_name_field):
@@ -272,7 +275,7 @@ class CatchmentAnalysis(QObject):
             (tree, cost) = QgsGraphAnalyzer.dijkstra(graph, originVertexId, 0)
 
             # Loop through graph arcs
-            for index in catchment_network.iterkeys():
+            for index in catchment_network.keys():
                 if self.killed == True: break
                 # Define the arc properties
                 inVertexId = catchment_network[index]['start']
@@ -339,7 +342,7 @@ class CatchmentAnalysis(QObject):
             for n in self.names:
                 self.network_fields.append(QgsField(n, QVariant.Int))
         else:
-            self.names = range(0, len(origins))
+            self.names = list(range(0, len(origins)))
 
         self.network_fields.append(QgsField('min_dist', QVariant.Int))
 
@@ -351,7 +354,7 @@ class CatchmentAnalysis(QObject):
         i = 0
         features = []
 
-        for k, v in catchment_network.iteritems():
+        for k, v in catchment_network.items():
 
             self.progress.emit(70 + int(30 * i / len(catchment_network)))
 
@@ -360,7 +363,7 @@ class CatchmentAnalysis(QObject):
 
             # Get arc properties
             arc_geom = v['geom']
-            arc_cost_dict = {str(key): value for key, value in v['cost'].items()}
+            arc_cost_dict = {str(key): value for key, value in list(v['cost'].items())}
 
 
             i += 1

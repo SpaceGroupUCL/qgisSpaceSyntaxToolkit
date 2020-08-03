@@ -98,7 +98,7 @@ def min_weighted_dominating_set(G, weight=None):
     while vertices:
         # Find the most cost-effective node to add, along with its
         # closed neighborhood.
-        dom_node, min_set = min(neighborhoods.items(), key=_cost)
+        dom_node, min_set = min(list(neighborhoods.items()), key=_cost)
         # Add the node to the dominating set and reduce the remaining
         # set of nodes to cover.
         dom_set.add(dom_node)

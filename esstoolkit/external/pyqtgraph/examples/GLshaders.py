@@ -3,11 +3,12 @@
 Demonstration of some of the shader programs included with pyqtgraph that can be 
 used to affect the appearance of a surface.
 """
+from __future__ import absolute_import
 
 
 
 ## Add path to library (just for examples; you do not need this)
-import initExample
+from . import initExample
 
 from pyqtgraph.Qt import QtCore, QtGui
 import pyqtgraph as pg

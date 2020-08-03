@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
+from builtins import next
+from builtins import str
+from builtins import map
+from builtins import range
 import numpy as np
 from ..Qt import QtGui, QtCore
-from ..python2_3 import asUnicode, basestring
+from ..python2_3 import asUnicode, str
 from .. import metaarray
 
 
@@ -64,7 +68,7 @@ class TableWidget(QtGui.QTableWidget):
         self.setSortingEnabled(kwds.pop('sortable'))
         
         if len(kwds) > 0:
-            raise TypeError("Invalid keyword arguments '%s'" % kwds.keys())
+            raise TypeError("Invalid keyword arguments '%s'" % list(kwds.keys()))
         
         self._sorting = None  # used when temporarily disabling sorting
         
@@ -168,7 +172,7 @@ class TableWidget(QtGui.QTableWidget):
         Added in version 0.9.9.
         
         """
-        if format is not None and not isinstance(format, basestring) and not callable(format):
+        if format is not None and not isinstance(format, str) and not callable(format):
             raise ValueError("Format argument must string, callable, or None. (got %s)" % format)
         
         self._formats[column] = format
@@ -201,7 +205,7 @@ class TableWidget(QtGui.QTableWidget):
         if isinstance(data, list) or isinstance(data, tuple):
             return lambda d: d.__iter__(), None
         elif isinstance(data, dict):
-            return lambda d: iter(d.values()), list(map(asUnicode, data.keys()))
+            return lambda d: iter(list(d.values())), list(map(asUnicode, list(data.keys())))
         elif (hasattr(data, 'implements') and data.implements('MetaArray')):
             if data.axisHasColumns(0):
                 header = [asUnicode(data.columnName(0, i)) for i in range(data.shape[0])]
@@ -412,7 +416,7 @@ class TableWidgetItem(QtGui.QTableWidgetItem):
         
         Added in version 0.9.9.
         """
-        if fmt is not None and not isinstance(fmt, basestring) and not callable(fmt):
+        if fmt is not None and not isinstance(fmt, str) and not callable(fmt):
             raise ValueError("Format argument must string, callable, or None. (got %s)" % fmt)
         self._format = fmt
         self._updateText()

@@ -4,7 +4,7 @@ import time
 import os
 import sys
 from pyqtgraph.pgcollections import OrderedDict
-from pyqtgraph.python2_3 import basestring
+from pyqtgraph.python2_3 import str
 
 path = os.path.abspath(os.path.dirname(__file__))
 
@@ -92,9 +92,9 @@ examples = OrderedDict([
 def buildFileList(examples, files=None):
     if files == None:
         files = []
-    for key, val in examples.items():
+    for key, val in list(examples.items()):
         #item = QtGui.QTreeWidgetItem([key])
-        if isinstance(val, basestring):
+        if isinstance(val, str):
             #item.file = val
             files.append((key,val))
         else:

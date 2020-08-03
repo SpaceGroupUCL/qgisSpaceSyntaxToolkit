@@ -1,3 +1,4 @@
+from builtins import object
 import math
 
 from functools import partial
@@ -16,7 +17,7 @@ def _test_func(G, ebunch, expected, predict_func, **kwargs):
         assert_almost_equal(exp_dict[p], res_dict[p])
 
 
-class TestResourceAllocationIndex():
+class TestResourceAllocationIndex(object):
     def setUp(self):
         self.func = nx.resource_allocation_index
         self.test = partial(_test_func, predict_func=self.func)
@@ -66,7 +67,7 @@ class TestResourceAllocationIndex():
         self.test(G, None, [(0, 3, 0.5), (1, 2, 0.5), (1, 3, 0)])
 
 
-class TestJaccardCoefficient():
+class TestJaccardCoefficient(object):
     def setUp(self):
         self.func = nx.jaccard_coefficient
         self.test = partial(_test_func, predict_func=self.func)
@@ -113,7 +114,7 @@ class TestJaccardCoefficient():
         self.test(G, None, [(0, 3, 0.5), (1, 2, 0.5), (1, 3, 0)])
 
 
-class TestAdamicAdarIndex():
+class TestAdamicAdarIndex(object):
     def setUp(self):
         self.func = nx.adamic_adar_index
         self.test = partial(_test_func, predict_func=self.func)
@@ -164,7 +165,7 @@ class TestAdamicAdarIndex():
                   (1, 3, 0)])
 
 
-class TestPreferentialAttachment():
+class TestPreferentialAttachment(object):
     def setUp(self):
         self.func = nx.preferential_attachment
         self.test = partial(_test_func, predict_func=self.func)
@@ -210,7 +211,7 @@ class TestPreferentialAttachment():
         self.test(G, None, [(0, 3, 2), (1, 2, 2), (1, 3, 1)])
 
 
-class TestCNSoundarajanHopcroft():
+class TestCNSoundarajanHopcroft(object):
     def setUp(self):
         self.func = nx.cn_soundarajan_hopcroft
         self.test = partial(_test_func, predict_func=self.func,
@@ -333,7 +334,7 @@ class TestCNSoundarajanHopcroft():
         self.test(G, None, [(0, 3, 2), (1, 2, 1), (1, 3, 0)])
 
 
-class TestRAIndexSoundarajanHopcroft():
+class TestRAIndexSoundarajanHopcroft(object):
     def setUp(self):
         self.func = nx.ra_index_soundarajan_hopcroft
         self.test = partial(_test_func, predict_func=self.func,
@@ -456,7 +457,7 @@ class TestRAIndexSoundarajanHopcroft():
         self.test(G, None, [(0, 3, 0.5), (1, 2, 0), (1, 3, 0)])
 
 
-class TestWithinInterCluster():
+class TestWithinInterCluster(object):
     def setUp(self):
         self.delta = 0.001
         self.func = nx.within_inter_cluster

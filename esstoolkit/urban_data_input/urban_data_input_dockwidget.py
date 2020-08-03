@@ -20,16 +20,18 @@
  *                                                                         *
  ***************************************************************************/
 """
+from __future__ import absolute_import
 
+from builtins import str
 import os
-from PyQt4 import QtGui, uic
+from qgis.PyQt import QtGui, uic
 from PyQt4.QtCore import *
 
 from . import utility_functions as uf
 
-from CreateNew_Entrance_dialog import CreateNew_EntranceDialog
-from CreateNew_LU_dialog import CreateNew_LUDialog
-from CreateNew_dialog import CreatenewDialog
+from .CreateNew_Entrance_dialog import CreateNew_EntranceDialog
+from .CreateNew_LU_dialog import CreateNew_LUDialog
+from .CreateNew_dialog import CreatenewDialog
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'urban_data_input_dockwidget_base.ui'))

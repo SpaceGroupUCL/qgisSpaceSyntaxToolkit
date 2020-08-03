@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import print_function
+from builtins import str
 from .Qt import QtCore, QtGui
 from .Point import Point
 import numpy as np
@@ -217,23 +219,35 @@ if __name__ == '__main__':
     tr3 = QtGui.QTransform()
     tr3.translate(20, 0)
     tr3.rotate(45)
-    print("QTransform -> Transform:", SRTTransform(tr3))
+    # fix_print_with_import
+    # fix_print_with_import
+print(("QTransform -> Transform:", SRTTransform(tr3)))
     
-    print("tr1:", tr1)
+    # fix_print_with_import
+    # fix_print_with_import
+print(("tr1:", tr1))
     
     tr2.translate(20, 0)
     tr2.rotate(45)
-    print("tr2:", tr2)
+    # fix_print_with_import
+    # fix_print_with_import
+print(("tr2:", tr2))
     
     dt = tr2/tr1
-    print("tr2 / tr1 = ", dt)
+    # fix_print_with_import
+    # fix_print_with_import
+print(("tr2 / tr1 = ", dt))
     
-    print("tr2 * tr1 = ", tr2*tr1)
+    # fix_print_with_import
+    # fix_print_with_import
+print(("tr2 * tr1 = ", tr2*tr1))
     
     tr4 = SRTTransform()
     tr4.scale(-1, 1)
     tr4.rotate(30)
-    print("tr1 * tr4 = ", tr1*tr4)
+    # fix_print_with_import
+    # fix_print_with_import
+print(("tr1 * tr4 = ", tr1*tr4))
     
     w1 = widgets.TestROI((19,19), (22, 22), invertible=True)
     #w2 = widgets.TestROI((0,0), (150, 150))

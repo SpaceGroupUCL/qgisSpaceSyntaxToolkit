@@ -1,3 +1,4 @@
+from builtins import range
 from OpenGL.GL import *
 from .. GLGraphicsItem import GLGraphicsItem
 from ...Qt import QtGui

@@ -5,6 +5,7 @@
 """Provides explicit constructions of expander graphs.
 
 """
+from builtins import range
 import itertools
 import networkx as nx
 
@@ -77,7 +78,7 @@ def margulis_gabber_galil_graph(n, create_using=None):
 
     G = create_using
     G.clear()
-    for (x, y) in itertools.product(range(n), repeat=2):
+    for (x, y) in itertools.product(list(range(n)), repeat=2):
         for (u, v) in (((x + 2 * y) % n, y), ((x + (2 * y + 1)) % n, y),
                        (x, (y + 2 * x) % n), (x, (y + (2 * x + 1)) % n)):
             G.add_edge((x, y), (u, v))

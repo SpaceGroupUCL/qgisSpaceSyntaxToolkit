@@ -1,3 +1,6 @@
+from __future__ import print_function
+from builtins import bytes
+from builtins import str
 from .Exporter import Exporter
 from ..python2_3 import asUnicode
 from ..parametertree import Parameter
@@ -76,7 +79,7 @@ def generateSvg(item):
     finally:
         ## reset export mode for all items in the tree
         if isinstance(item, QtGui.QGraphicsScene):
-            items = item.items()
+            items = list(item.items())
         else:
             items = [item]
             for i in items:
@@ -147,7 +150,7 @@ def _generateItemSvg(item, nodes=None, root=None):
     if isinstance(item, QtGui.QGraphicsScene):
         xmlStr = "<g>\n</g>\n"
         doc = xml.parseString(xmlStr)
-        childs = [i for i in item.items() if i.parentItem() is None]
+        childs = [i for i in list(item.items()) if i.parentItem() is None]
     elif item.__class__.paint == QtGui.QGraphicsItem.paint:
         xmlStr = "<g>\n</g>\n"
         doc = xml.parseString(xmlStr)

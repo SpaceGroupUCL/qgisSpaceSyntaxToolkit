@@ -1,9 +1,10 @@
 #!/usr/bin/env python
+from builtins import object
 from nose.tools import *
 import networkx as nx
 from networkx import NetworkXNotImplemented
 
-class TestStronglyConnected:
+class TestStronglyConnected(object):
 
     def setUp(self):
         self.gc = []
@@ -129,8 +130,8 @@ class TestStronglyConnected:
         cG = nx.condensation(G)
         mapping = cG.graph['mapping']
         assert_true(all(n in G for n in mapping))
-        assert_true(all(0 == cN for n, cN in mapping.items() if n in C[0]))
-        assert_true(all(1 == cN for n, cN in mapping.items() if n in C[1]))
+        assert_true(all(0 == cN for n, cN in list(mapping.items()) if n in C[0]))
+        assert_true(all(1 == cN for n, cN in list(mapping.items()) if n in C[1]))
         for n, d in cG.nodes(data=True):
             assert_equal(set(C[n]), cG.node[n]['members'])
 

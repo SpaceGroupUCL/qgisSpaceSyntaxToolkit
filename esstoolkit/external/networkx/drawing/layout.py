@@ -19,6 +19,8 @@ shell_layout) have size [-1, 1] or [-scale, scale].
 #    Pieter Swart <swart@lanl.gov>
 #    All rights reserved.
 #    BSD license.
+from builtins import zip
+from builtins import range
 import collections
 import networkx as nx
 
@@ -69,7 +71,7 @@ def random_layout(G, dim=2, scale=1., center=None):
     pos = np.random.random(shape) * scale
     if center is not None:
         pos += np.asarray(center) - 0.5 * scale
-    return dict(zip(G, pos))
+    return dict(list(zip(G, pos)))
 
 
 def circular_layout(G, dim=2, scale=1., center=None):
@@ -115,7 +117,7 @@ def circular_layout(G, dim=2, scale=1., center=None):
     if center is not None:
         pos += np.asarray(center)
 
-    return dict(zip(G, pos))
+    return dict(list(zip(G, pos)))
 
 def shell_layout(G, nlist=None, dim=2, scale=1., center=None):
     """Position nodes in concentric circles.
@@ -179,12 +181,12 @@ def shell_layout(G, nlist=None, dim=2, scale=1., center=None):
     for nodes in nlist:
         theta = np.arange(0, twopi, twopi/len(nodes))
         pos = np.column_stack([np.cos(theta), np.sin(theta)]) * radius
-        npos.update(zip(nodes, pos))
+        npos.update(list(zip(nodes, pos)))
         radius += gap
 
     if center is not None:
         center = np.asarray(center)
-        for n,p in npos.items():
+        for n,p in list(npos.items()):
             npos[n] = p + center
 
     return npos
@@ -254,7 +256,7 @@ def fruchterman_reingold_layout(G, dim=2, k=None,
         return {}
 
     if fixed is not None:
-        nfixed = dict(zip(G, range(len(G))))
+        nfixed = dict(list(zip(G, list(range(len(G))))))
         fixed = np.asarray([nfixed[v] for v in fixed])
 
         if pos is None:
@@ -292,7 +294,7 @@ def fruchterman_reingold_layout(G, dim=2, k=None,
         if center is not None:
             pos += np.asarray(center) - 0.5 * scale
 
-    return dict(zip(G,pos))
+    return dict(list(zip(G,pos)))
 
 spring_layout=fruchterman_reingold_layout
 
@@ -482,7 +484,7 @@ def spectral_layout(G, dim=2, weight='weight', scale=1., center=None):
             pos = np.array([np.zeros(dim), np.ones(dim) * scale])
             if center is not None:
                 pos += np.asarray(center) - scale * 0.5
-        return dict(zip(G,pos))
+        return dict(list(zip(G,pos)))
     try:
         # Sparse matrix
         if len(G)< 500:  # dense solver is faster for small graphs
@@ -504,7 +506,7 @@ def spectral_layout(G, dim=2, weight='weight', scale=1., center=None):
     if center is not None:
         pos += np.asarray(center) - 0.5 * scale
 
-    return dict(zip(G,pos))
+    return dict(list(zip(G,pos)))
 
 
 def _spectral(A, dim=2):

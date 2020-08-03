@@ -21,16 +21,18 @@
  ***************************************************************************/
 
 """
+from __future__ import absolute_import
 # Import the PyQt and QGIS libraries
+from builtins import str
 from qgis.core import *
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 
 # Import required modules
-from AnalysisDialog import AnalysisDialog
-from AxialVerification import *
-from UnlinksVerification import *
-from DepthmapAnalysis import *
+from .AnalysisDialog import AnalysisDialog
+from .AxialVerification import *
+from .UnlinksVerification import *
+from .DepthmapAnalysis import *
 
 from .. import utility_functions as uf
 
@@ -469,7 +471,7 @@ class AnalysisTool(QObject):
         if len(nodes) > 0:
             #nodes_list = sorted(set(nodes))
             summary = ["All problems (%s)"%len(nodes)]
-            for k, v in results.iteritems():
+            for k, v in results.items():
                 if len(v) > 0:
                     summary.append("%s (%s)"%(k.capitalize(),len(v)))
         else:
@@ -524,7 +526,7 @@ class AnalysisTool(QObject):
                     layer.setSelectedFeatures(features)
                 else:
                     ids = uf.getFeaturesListValues(layer,user_id,features)
-                    layer.setSelectedFeatures(ids.keys())
+                    layer.setSelectedFeatures(list(ids.keys()))
             else:
                 layer.setSelectedFeatures([])
             if layer.selectedFeatureCount() > 0:

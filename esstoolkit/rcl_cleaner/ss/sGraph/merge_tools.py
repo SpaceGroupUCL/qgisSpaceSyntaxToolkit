@@ -1,12 +1,15 @@
+from __future__ import print_function
+from __future__ import absolute_import
 
 # general imports
+from builtins import range
 import itertools
 from qgis.core import QgsGeometry
-from PyQt4.QtCore import QObject, pyqtSignal
+from qgis.PyQt.QtCore import QObject, pyqtSignal
 
 # plugin module imports
 try:
-    from utilityFunctions import *
+    from .utilityFunctions import *
 except ImportError:
     pass
 
@@ -14,7 +17,7 @@ except ImportError:
 class mergeTool(QObject):
 
     finished = pyqtSignal(object)
-    error = pyqtSignal(Exception, basestring)
+    error = pyqtSignal(Exception, str)
     progress = pyqtSignal(float)
     warning = pyqtSignal(str)
     killed = pyqtSignal(bool)
@@ -44,11 +47,11 @@ class mergeTool(QObject):
             last = vertex
             try:
                 self.vertices_occur[first] += [i[0]]
-            except KeyError, e:
+            except KeyError as e:
                 self.vertices_occur[first] = [i[0]]
             try:
                 self.vertices_occur[last] += [i[0]]
-            except KeyError, e:
+            except KeyError as e:
                 self.vertices_occur[last] = [i[0]]
             pair = (last, first)
             # strings are compared
@@ -56,24 +59,24 @@ class mergeTool(QObject):
                 pair = (first, last)
             try:
                 self.edges_occur[pair] += [i[0]]
-            except KeyError, e:
+            except KeyError as e:
                 self.edges_occur[pair] = [i[0]]
 
-        self.con_2 = {k: v for k, v in self.vertices_occur.items() if len(v) == 2}
+        self.con_2 = {k: v for k, v in list(self.vertices_occur.items()) if len(v) == 2}
         self.all_con = {}
-        for k, v in self.con_2.items():
+        for k, v in list(self.con_2.items()):
             try:
                 self.all_con[v[0]] += [v[1]]
-            except KeyError, e:
+            except KeyError as e:
                 self.all_con[v[0]] = [v[1]]
             try:
                 self.all_con[v[1]] += [v[0]]
-            except KeyError, e:
+            except KeyError as e:
                 self.all_con[v[1]] = [v[0]]
 
-        self.parallel = {k: v for k, v in self.edges_occur.items() if len(v) >= 2}
+        self.parallel = {k: v for k, v in list(self.edges_occur.items()) if len(v) >= 2}
         self.duplicates = []
-        for k, v in self.parallel.items():
+        for k, v in list(self.parallel.items()):
             for x in itertools.combinations(v, 2):
                 if x[0] < x[1]:
                     f_geom = QgsGeometry.fromWkt(self.f_dict[x[0]][1])
@@ -82,11 +85,11 @@ class mergeTool(QObject):
                         self.duplicates.append(x[0])
 
         self.all_fids = [i[0] for i in self.features]
-        self.fids_to_merge = list(set([fid for k, v in self.con_2.items() for fid in v]))
+        self.fids_to_merge = list(set([fid for k, v in list(self.con_2.items()) for fid in v]))
         self.copy_fids = list(set(self.all_fids) - set(self.fids_to_merge))
         self.feat_to_merge = [[i, self.f_dict[i][0], self.f_dict[i][1]] for i in self.fids_to_merge if i not in self.duplicates]
         self.feat_to_copy =[[i, [[x] for x in self.f_dict[i][0]], self.f_dict[i][1]] for i in self.copy_fids if i not in self.duplicates]
-        self.con_1 = list(set([k for k, v in self.all_con.items() if len(v) == 1]))
+        self.con_1 = list(set([k for k, v in list(self.all_con.items()) if len(v) == 1]))
 
         self.edges_to_start = [[i, self.f_dict[i][0], self.f_dict[i][1]] for i in self.con_1 ]
 
@@ -130,7 +133,9 @@ class mergeTool(QObject):
                             break
                     if x > 100:
                         x = 0
-                        print "infinite"
+                        # fix_print_with_import
+                        # fix_print_with_import
+print("infinite")
                         break
                 all_trees.append(tree)
 

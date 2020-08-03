@@ -16,26 +16,26 @@ def _avg_deg_conn(G, neighbors, source_degree, target_degree,
     # "k nearest neighbors, or neighbor_connectivity
     dsum = defaultdict(float)
     dnorm = defaultdict(float)
-    for n,k in source_degree(nodes).items():
+    for n,k in list(source_degree(nodes).items()):
         nbrdeg = target_degree(neighbors(n))
         if weight is None:
             s = float(sum(nbrdeg.values()))
         else: # weight nbr degree by weight of (n,nbr) edge
             if neighbors == G.neighbors:
                 s = float(sum((G[n][nbr].get(weight,1)*d
-                               for nbr,d in nbrdeg.items())))
+                               for nbr,d in list(nbrdeg.items()))))
             elif neighbors == G.successors:
                 s = float(sum((G[n][nbr].get(weight,1)*d
-                               for nbr,d in nbrdeg.items())))
+                               for nbr,d in list(nbrdeg.items()))))
             elif neighbors == G.predecessors:
                 s = float(sum((G[nbr][n].get(weight,1)*d
-                               for nbr,d in nbrdeg.items())))
+                               for nbr,d in list(nbrdeg.items()))))
         dnorm[k] += source_degree(n, weight=weight)
         dsum[k] += s
 
     # normalize
     dc = {}
-    for k,avg in dsum.items():
+    for k,avg in list(dsum.items()):
         dc[k]=avg
         norm = dnorm[k]
         if avg > 0 and norm > 0:

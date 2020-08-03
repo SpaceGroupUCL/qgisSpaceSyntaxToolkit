@@ -20,11 +20,13 @@
  *                                                                         *
  ***************************************************************************/
  """
+from __future__ import print_function
 
 # Import the PyQt and QGIS libraries
+from builtins import str
 import os
 from PyQt4.QtCore import *
-from PyQt4 import QtGui
+from qgis.PyQt import QtGui
 from qgis.core import *
 from qgis.gui import *
 from . import utility_functions as uf
@@ -165,7 +167,8 @@ class LanduseTool(QObject):
             idcolumn = self.ludlg.getSelectedLULayerID()
             # if create from existing building layer
             if self.ludlg.createNewLUFileCheckBox.isChecked():
-                print 'aaaa'
+                # fix_print_with_import
+                print('aaaa')
                 building_layer = self.getSelectedLULayer()
                 crs = building_layer.crs()
                 vl = QgsVectorLayer("Polygon?crs=" + crs.authid(), "memory:landuse", "memory")
@@ -234,7 +237,9 @@ class LanduseTool(QObject):
                     location = os.path.abspath(path)
 
                     QgsVectorFileWriter.writeAsVectorFormat(vl, location, "ogr", vl.crs(), "ESRI Shapefile")
-                    print 'cri', vl.crs().authid()
+                    # fix_print_with_import
+                    # fix_print_with_import
+print('cri', vl.crs().authid())
                     input2 = self.iface.addVectorLayer(location, filename[:-4], "ogr")
                 else:
                     input2 = 'invalid data source'
@@ -247,18 +252,20 @@ class LanduseTool(QObject):
                     db_con_info = self.ludlg.dbsettings_dlg.available_dbs[database]
                     uri = QgsDataSourceURI()
                     # passwords, usernames need to be empty if not provided or else connection will fail
-                    if 'service' in db_con_info.keys():
+                    if 'service' in list(db_con_info.keys()):
                         uri.setConnection(db_con_info['service'], '' , '', '')
-                    elif 'password' in db_con_info.keys():
+                    elif 'password' in list(db_con_info.keys()):
                         uri.setConnection(db_con_info['host'], db_con_info['port'], db_con_info['dbname'],
                                           db_con_info['user'], db_con_info['password'])
                     else:
-                        print db_con_info #db_con_info['host']
+                        # fix_print_with_import
+                        print(db_con_info) #db_con_info['host']
                         uri.setConnection('', db_con_info['port'], db_con_info['dbname'], '', '')
                     uri.setDataSource(schema, table_name, "geom")
                     error = QgsVectorLayerImport.importLayer(vl, uri.uri(), "postgres", vl.crs(), False, False)
                     if error[0] != 0:
-                        print "Error when creating postgis layer: ", error[1]
+                        # fix_print_with_import
+                        print("Error when creating postgis layer: ", error[1])
                         input2 = 'duplicate'
                     else:
                         input2 = QgsVectorLayer(uri.uri(), table_name, "postgres")

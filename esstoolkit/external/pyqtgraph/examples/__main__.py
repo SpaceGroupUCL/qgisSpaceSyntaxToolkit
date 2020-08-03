@@ -1,3 +1,5 @@
+from __future__ import print_function
+from builtins import str
 import sys, os
 if __name__ == "__main__" and (__package__ is None or __package__==''):
     parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -6,7 +8,7 @@ if __name__ == "__main__" and (__package__ is None or __package__==''):
     __package__ = "examples"
 import pyqtgraph as pg
 import subprocess
-from pyqtgraph.python2_3 import basestring
+from pyqtgraph.python2_3 import str
 from pyqtgraph.Qt import QtGui, USE_PYSIDE, USE_PYQT5
 
 
@@ -49,12 +51,12 @@ class ExampleLoader(QtGui.QMainWindow):
         self.codeBtn.clicked.connect(self.runEditedCode)
 
     def populateTree(self, root, examples):
-        for key, val in examples.items():
+        for key, val in list(examples.items()):
             item = QtGui.QTreeWidgetItem([key])
             self.itemCache.append(item) # PyQt 4.9.6 no longer keeps references to these wrappers,
                                         # so we need to make an explicit reference or else the .file
                                         # attribute will disappear.
-            if isinstance(val, basestring):
+            if isinstance(val, str):
                 item.file = val
             else:
                 self.populateTree(item, val)
@@ -136,7 +138,9 @@ if __name__ == '__main__':
             lib = ''
             
         exe = sys.executable
-        print("Running tests:", lib, sys.executable)
+        # fix_print_with_import
+        # fix_print_with_import
+print(("Running tests:", lib, sys.executable))
         for f in files:
             testFile(f[0], f[1], exe, lib)
     else: 

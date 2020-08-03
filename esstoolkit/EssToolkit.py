@@ -21,7 +21,9 @@
  ***************************************************************************/
 
 """
+from __future__ import absolute_import
 # Import the PyQt and QGIS libraries
+from builtins import object
 from qgis.core import *
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
@@ -31,7 +33,7 @@ is_debug = False
 try:
     import pydevd_pycharm as pydevd
     has_pydevd = True
-except ImportError, e:
+except ImportError as e:
     has_pydevd = False
 
 import os.path
@@ -40,30 +42,30 @@ import sys
 import inspect
 try:
     import networkx as nx
-except ImportError, e:
+except ImportError as e:
     cmd_subfolder = os.path.realpath(os.path.abspath(os.path.join(os.path.split(inspect.getfile(inspect.currentframe()))[0],"external")))
     if cmd_subfolder not in sys.path:
         sys.path.insert(0, cmd_subfolder)
 
 # Initialize Qt resources from file resources.py
-from resources_rc import *
+from .resources_rc import *
 
 # Import general esstoolkit modules
-from ui_About import Ui_AboutDialog
-from SettingsManager import SettingsManager
-from ProjectManager import ProjectManager
+from .ui_About import Ui_AboutDialog
+from .SettingsManager import SettingsManager
+from .ProjectManager import ProjectManager
 
 ###########
 ###########
 # Import esstoolkit tool modules
-from analysis import AnalysisTool
-from explorer import ExplorerTool
-from gate_transformer import TransformerAnalysis
-from rcl_cleaner import road_network_cleaner_tool
-from catchment_analyser import CatchmentAnalyser
-from urban_data_input import urban_data_input_tool
-from network_segmenter import network_segmenter_tool
-from drawing import DrawingTool
+from .analysis import AnalysisTool
+from .explorer import ExplorerTool
+from .gate_transformer import TransformerAnalysis
+from .rcl_cleaner import road_network_cleaner_tool
+from .catchment_analyser import CatchmentAnalyser
+from .urban_data_input import urban_data_input_tool
+from .network_segmenter import network_segmenter_tool
+from .drawing import DrawingTool
 
 # import additional modules here
 ###########
@@ -72,7 +74,7 @@ from drawing import DrawingTool
 # todo: add documentation notes to all functions
 
 
-class EssToolkit:
+class EssToolkit(object):
 
     def __init__(self, iface):
         # initialise plugin directory

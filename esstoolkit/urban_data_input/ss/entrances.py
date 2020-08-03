@@ -22,8 +22,9 @@
  """
 
 # Import the PyQt and QGIS libraries
+from builtins import str
 from PyQt4.QtCore import *
-from PyQt4 import QtGui
+from qgis.PyQt import QtGui
 
 from qgis.core import *
 from qgis.gui import *

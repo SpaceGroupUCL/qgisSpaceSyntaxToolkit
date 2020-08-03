@@ -3,6 +3,8 @@
 Utility classes and functions for network flow algorithms.
 """
 
+from builtins import next
+from builtins import object
 __author__ = """ysitu <ysitu@users.noreply.github.com>"""
 # Copyright (C) 2014 ysitu <ysitu@users.noreply.github.com>
 # All rights reserved.
@@ -37,7 +39,7 @@ class CurrentEdge(object):
             raise
 
     def _rewind(self):
-        self._it = iter(self._edges.items())
+        self._it = iter(list(self._edges.items()))
         self._curr = next(self._it)
 
 
@@ -150,7 +152,7 @@ def detect_unboundedness(R, s, t):
     inf = R.graph['inf']
     while q:
         u = q.popleft()
-        for v, attr in R[u].items():
+        for v, attr in list(R[u].items()):
             if attr['capacity'] == inf and v not in seen:
                 if v == t:
                     raise nx.NetworkXUnbounded(
@@ -165,6 +167,6 @@ def build_flow_dict(G, R):
     flow_dict = {}
     for u in G:
         flow_dict[u] = dict((v, 0) for v in G[u])
-        flow_dict[u].update((v, attr['flow']) for v, attr in R[u].items()
+        flow_dict[u].update((v, attr['flow']) for v, attr in list(R[u].items())
                             if attr['flow'] > 0)
     return flow_dict

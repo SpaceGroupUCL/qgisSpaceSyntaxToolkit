@@ -20,11 +20,13 @@
  *                                                                         *
  ***************************************************************************/
 """
+from __future__ import print_function
+from __future__ import absolute_import
 
 import os
-from utility_functions import getQGISDbs
-from PyQt4 import QtCore, QtGui, uic
-from DbSettings_dialog import DbSettingsDialog
+from .utility_functions import getQGISDbs
+from qgis.PyQt import QtCore, QtGui, uic
+from .DbSettings_dialog import DbSettingsDialog
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'CreateNew_LU_dialog_base.ui'))
@@ -85,7 +87,9 @@ class CreateNew_LUDialog(QtGui.QDialog, FORM_CLASS):
             if self.dbsettings:
                 db_layer_name = "%s:%s:%s" % (
                     self.dbsettings['dbname'], self.dbsettings['schema'], self.dbsettings['table_name'])
-                print 'db_layer_name'
+                # fix_print_with_import
+                # fix_print_with_import
+print('db_layer_name')
                 self.lineEditLU.setText(db_layer_name)
         elif self.lu_memory_radioButton.isChecked():
             self.lineEditLU.clear()
@@ -112,7 +116,9 @@ class CreateNew_LUDialog(QtGui.QDialog, FORM_CLASS):
             self.lineEditLU.clear()
             self.dbsettings = self.dbsettings_dlg.getDbSettings()
             self.pushButtonSelectLocationLU.setDisabled(False)
-            print 'dbs1', self.dbsettings
+            # fix_print_with_import
+            # fix_print_with_import
+print('dbs1', self.dbsettings)
             if self.dbsettings != {}:
                 db_layer_name = "%s:%s:%s" % (
                     self.dbsettings['dbname'], self.dbsettings['schema'], self.dbsettings['table_name'])

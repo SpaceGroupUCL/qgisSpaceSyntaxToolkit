@@ -1,3 +1,6 @@
+from builtins import next
+from builtins import range
+from builtins import object
 import networkx as nx
 import itertools
 
@@ -177,4 +180,4 @@ def greedy_coloring_with_interchange(original_graph, nodes):
             adj_mate = adj_node.mate
             graph[adj_node.node_id].assign_color(adj_mate, k1)
 
-    return {node.node_id: node.color for node in graph.values()}
+    return {node.node_id: node.color for node in list(graph.values())}

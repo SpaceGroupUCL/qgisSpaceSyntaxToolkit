@@ -4,6 +4,8 @@
 ================
 """
 
+from builtins import zip
+from builtins import object
 from nose.tools import *
 from nose import SkipTest
 from nose.plugins.attrib import attr
@@ -14,7 +16,7 @@ from networkx.algorithms.isomorphism.isomorph import graph_could_be_isomorphic
 cnlti = nx.convert_node_labels_to_integers
 
 
-class TestGeneratorThreshold():
+class TestGeneratorThreshold(object):
     def test_threshold_sequence_graph_test(self):
         G=nx.star_graph(10)
         assert_true(nxt.is_threshold_graph(G))
@@ -132,7 +134,7 @@ class TestGeneratorThreshold():
         c2=list(nx.clustering(G).values())
         assert_almost_equal(sum([abs(c-d) for c,d in zip(c1,c2)]), 0)
 
-        b1=nx.betweenness_centrality(G).values()
+        b1=list(nx.betweenness_centrality(G).values())
         b2=nxt.betweenness_sequence(cs)
         assert_true(sum([abs(c-d) for c,d in zip(b1,b2)]) < 1e-14)
 

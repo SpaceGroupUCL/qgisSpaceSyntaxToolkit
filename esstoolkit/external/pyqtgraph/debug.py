@@ -7,6 +7,9 @@ Distributed under MIT/X11 license. See license.txt for more infomation.
 
 from __future__ import print_function
 
+from builtins import str
+from builtins import map
+from builtins import object
 import sys, traceback, time, gc, re, types, weakref, inspect, os, cProfile, threading
 from . import ptime
 from numpy import ndarray
@@ -998,7 +1001,7 @@ def findObj(regex):
 def listRedundantModules():
     """List modules that have been imported more than once via different paths."""
     mods = {}
-    for name, mod in sys.modules.items():
+    for name, mod in list(sys.modules.items()):
         if not hasattr(mod, '__file__'):
             continue
         mfile = os.path.abspath(mod.__file__)
@@ -1097,7 +1100,7 @@ def pretty(data, indent=''):
     ind2 = indent + "    "
     if isinstance(data, dict):
         ret = indent+"{\n"
-        for k, v in data.iteritems():
+        for k, v in data.items():
             ret += ind2 + repr(k) + ":  " + pretty(v, ind2).strip() + "\n"
         ret += indent+"}\n"
     elif isinstance(data, list) or isinstance(data, tuple):
@@ -1148,7 +1151,7 @@ class ThreadTrace(object):
                     return
                     
             print("\n=============  THREAD FRAMES:  ================")
-            for id, frame in sys._current_frames().items():
+            for id, frame in list(sys._current_frames().items()):
                 if id == threading.current_thread().ident:
                     continue
                 print("<< thread %d >>" % id)

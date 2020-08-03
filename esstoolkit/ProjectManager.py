@@ -22,7 +22,8 @@
 
 """
 # Import the PyQt and QGIS libraries
-from PyQt4 import QtCore, QtGui
+from builtins import str
+from qgis.PyQt import QtCore, QtGui
 from qgis.core import *
 
 import os.path
@@ -30,7 +31,7 @@ import os.path
 from . import utility_functions as uf
 
 # import project settings dialog
-from ui_Project import Ui_ProjectDialog
+from .ui_Project import Ui_ProjectDialog
 
 class ProjectManager(QtCore.QObject):
     settingsUpdated = QtCore.pyqtSignal()
@@ -74,7 +75,7 @@ class ProjectManager(QtCore.QObject):
             position = str(group)+'/'
         else:
             position = ''
-        for key in settings.iterkeys():
+        for key in settings.keys():
             this_type = type(settings[key]).__name__
             if this_type in ('int','long'):
                 entry = self.proj.readNumEntry('esst',position+str(key))
@@ -165,7 +166,7 @@ class ProjectManager(QtCore.QObject):
         else:
             position = ''
         try:
-            for key in settings.iterkeys():
+            for key in settings.keys():
                 val = settings[key]
                 self.proj.writeEntry('esst', position+str(key), val)
             self.settingsUpdated.emit()
@@ -185,7 +186,7 @@ class ProjectManager(QtCore.QObject):
             return False
 
     def __saveSettings(self):
-        for key in self.proj_settings.iterkeys():
+        for key in self.proj_settings.keys():
             self.proj.writeEntry('esst', key, self.proj_settings[key])
         self.settingsUpdated.emit()
         #self.__loadSettings()
@@ -407,12 +408,12 @@ class ProjectDialog(QtGui.QDialog, Ui_ProjectDialog):
         if self.datastore_type == 0:
             path = QtGui.QFileDialog.getExistingDirectory(self, "Select shape files folder", lastDir)
             if path.strip()!="":
-                path = unicode(path)
+                path = str(path)
                 name = os.path.basename(path)
         elif self.datastore_type == 1:
             path = QtGui.QFileDialog.getOpenFileName(self, "Open Spatialite data base", lastDir, "Spatialite (*.sqlite *.db)")
             if path.strip()!="":
-                path = unicode(path)
+                path = str(path)
                 name = os.path.basename(path)
                 #check if datastore with same name exists
                 if self.datastores and name in self.datastores['name']:
@@ -438,12 +439,12 @@ class ProjectDialog(QtGui.QDialog, Ui_ProjectDialog):
         if self.datastore_type == 0:
             path = QtGui.QFileDialog.getExistingDirectory(self, "Select shape files folder ", lastDir)
             if path.strip()!="":
-                path = unicode(path)
+                path = str(path)
                 name = os.path.basename(path)
         elif self.datastore_type == 1:
             path = QtGui.QFileDialog.getSaveFileName(self, "Create Spatialite data base", lastDir, "Spatialite (*.sqlite *.db)")
             if path.strip()!="":
-                path = unicode(path)
+                path = str(path)
                 name = os.path.basename(path)
                 #check if datastore with same name exists
                 if self.datastores and name in self.datastores['name']:

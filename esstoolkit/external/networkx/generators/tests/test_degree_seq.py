@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from builtins import range
 from nose.tools import *
 import networkx
 from networkx import *
@@ -14,9 +15,9 @@ def test_configuration_model_empty():
 def test_configuration_model():
     deg_seq=[5,3,3,3,3,2,2,2,1,1,1]
     G=configuration_model(deg_seq,seed=12345678)
-    assert_equal(sorted(G.degree().values(),reverse=True),
+    assert_equal(sorted(list(G.degree().values()),reverse=True),
                  [5, 3, 3, 3, 3, 2, 2, 2, 1, 1, 1])
-    assert_equal(sorted(G.degree(range(len(deg_seq))).values(),
+    assert_equal(sorted(list(G.degree(list(range(len(deg_seq)))).values()),
                         reverse=True),
                  [5, 3, 3, 3, 3, 2, 2, 2, 1, 1, 1])
 
@@ -164,6 +165,6 @@ def test_random_degree_sequence_graph_raise():
 
 def test_random_degree_sequence_large():
     G = nx.fast_gnp_random_graph(100,0.1)
-    d = G.degree().values()
+    d = list(G.degree().values())
     G = nx.random_degree_sequence_graph(d, seed=0)
     assert_equal(sorted(d), sorted(list(G.degree().values())))

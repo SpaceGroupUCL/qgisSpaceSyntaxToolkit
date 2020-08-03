@@ -7,6 +7,7 @@
 # NetworkX is distributed under a BSD license; see LICENSE.txt for more
 # information.
 """Provides functions for computing minors of a graph."""
+from builtins import next
 from itertools import chain
 from itertools import combinations
 from itertools import permutations

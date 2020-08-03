@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from builtins import object
 from nose.tools import ok_
 from nose.tools import eq_
 import networkx as nx
@@ -6,7 +7,7 @@ from networkx.algorithms.approximation import min_weighted_dominating_set
 from networkx.algorithms.approximation import min_edge_dominating_set
 
 
-class TestMinWeightDominatingSet:
+class TestMinWeightDominatingSet(object):
 
     def test_min_weighted_dominating_set(self):
         graph = nx.Graph()

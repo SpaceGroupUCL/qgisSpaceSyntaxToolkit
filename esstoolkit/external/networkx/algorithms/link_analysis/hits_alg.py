@@ -7,6 +7,8 @@
 #    All rights reserved.
 #    BSD license.
 #    NetworkX:http://networkx.github.io/
+from builtins import zip
+from builtins import map
 import networkx as nx
 from networkx.exception import NetworkXError
 __author__ = """Aric Hagberg (hagberg@lanl.gov)"""
@@ -85,8 +87,8 @@ def hits(G,max_iter=100,tol=1.0e-8,nstart=None,normalized=True):
     i=0
     while True: # power iteration: make up to max_iter iterations
         hlast=h
-        h=dict.fromkeys(hlast.keys(),0)
-        a=dict.fromkeys(hlast.keys(),0)
+        h=dict.fromkeys(list(hlast.keys()),0)
+        a=dict.fromkeys(list(hlast.keys()),0)
         # this "matrix multiply" looks odd because it is
         # doing a left multiply a^T=hlast^T*G
         for n in h:
@@ -195,8 +197,8 @@ def hits_numpy(G,normalized=True):
     else:
         h = h/h.max()
         a = a/a.max()
-    hubs=dict(zip(G.nodes(),map(float,h)))
-    authorities=dict(zip(G.nodes(),map(float,a)))
+    hubs=dict(list(zip(G.nodes(),list(map(float,h)))))
+    authorities=dict(list(zip(G.nodes(),list(map(float,a)))))
     return hubs,authorities
 
 def hits_scipy(G,max_iter=100,tol=1.0e-6,normalized=True):
@@ -291,8 +293,8 @@ def hits_scipy(G,max_iter=100,tol=1.0e-6,normalized=True):
     if normalized:
         h = h/h.sum()
         a = a/a.sum()
-    hubs=dict(zip(G.nodes(),map(float,h)))
-    authorities=dict(zip(G.nodes(),map(float,a)))
+    hubs=dict(list(zip(G.nodes(),list(map(float,h)))))
+    authorities=dict(list(zip(G.nodes(),list(map(float,a)))))
     return hubs,authorities
 
 # fixture for nose tests

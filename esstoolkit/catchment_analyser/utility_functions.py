@@ -20,7 +20,9 @@
  *                                                                         *
  ***************************************************************************/
 """
+from __future__ import print_function
 
+from builtins import str
 from PyQt4.QtCore import *
 from qgis.core import *
 from qgis.utils import *
@@ -30,7 +32,7 @@ from psycopg2.extensions import AsIs
 
 def getLayerByName(name):
     layer = None
-    for i in QgsMapLayerRegistry.instance().mapLayers().values():
+    for i in list(QgsMapLayerRegistry.instance().mapLayers().values()):
         if i.name() == name:
             layer = i
     return layer
@@ -72,7 +74,7 @@ def getLegendLayerByName(iface, name):
 
 def getLayerByName(name):
     layer = None
-    for i in QgsMapLayerRegistry.instance().mapLayers().values():
+    for i in list(QgsMapLayerRegistry.instance().mapLayers().values()):
         if i.name() == name:
             layer = i
     return layer
@@ -163,14 +165,15 @@ def getPostgisSchemas(connstring, commit=False):
 
     try:
         connection = psycopg2.connect(connstring)
-    except psycopg2.Error, e:
-        print e.pgerror
+    except psycopg2.Error as e:
+        # fix_print_with_import
+        print(e.pgerror)
         connection = None
 
     schemas = []
     data = []
     if connection:
-        query = unicode("""SELECT schema_name from information_schema.schemata;""")
+        query = str("""SELECT schema_name from information_schema.schemata;""")
         cursor = connection.cursor()
         try:
             cursor.execute(query)
@@ -178,7 +181,7 @@ def getPostgisSchemas(connstring, commit=False):
                 data = cursor.fetchall()
             if commit:
                 connection.commit()
-        except psycopg2.Error, e:
+        except psycopg2.Error as e:
             connection.rollback()
         cursor.close()
 
@@ -206,7 +209,8 @@ def to_layer(fields, crs, encoding, geom_type, layer_type, path):
         wkbTypes = { 'Point': QGis.WKBPoint, 'Linestring': QGis.WKBLineString, 'Polygon': QGis.WKBPolygon }
         file_writer = QgsVectorFileWriter(path, encoding, fields, wkbTypes[geom_type], crs, "ESRI Shapefile")
         if file_writer.hasError() != QgsVectorFileWriter.NoError:
-            print "Error when creating shapefile: ", file_writer.errorMessage()
+            # fix_print_with_import
+            print("Error when creating shapefile: ", file_writer.errorMessage())
         del file_writer
         layer = QgsVectorLayer(path, ntpath.basename(path)[:-4], "ogr")
 
@@ -234,8 +238,9 @@ def to_layer(fields, crs, encoding, geom_type, layer_type, path):
                 cur.execute(attr_query)
                 con.commit()
             layer = QgsVectorLayer(uri, table_name, 'postgres')
-        except psycopg2.DatabaseError, e:
-            print e
+        except psycopg2.DatabaseError as e:
+            # fix_print_with_import
+            print(e)
     return layer
 
 def has_unique_values(column, layer):

@@ -1,3 +1,4 @@
+from builtins import range
 from OpenGL.GL import *
 from .GLMeshItem import GLMeshItem
 from .. MeshData import MeshData

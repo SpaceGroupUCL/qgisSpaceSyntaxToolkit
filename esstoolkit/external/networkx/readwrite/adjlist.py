@@ -22,6 +22,7 @@ adjacency list (anything following the # in a line is a comment)::
      a b c # source target target
      d e
 """
+from builtins import map
 __author__ = '\n'.join(['Aric Hagberg <hagberg@lanl.gov>',
                         'Dan Schult <dschult@colgate.edu>',
                         'Loïc Séguin-C. <loicseguin@gmail.com>'])
@@ -78,11 +79,11 @@ def generate_adjlist(G, delimiter = ' '):
     seen=set()
     for s,nbrs in G.adjacency_iter():
         line = make_str(s)+delimiter
-        for t,data in nbrs.items():
+        for t,data in list(nbrs.items()):
             if not directed and t in seen:
                 continue
             if G.is_multigraph():
-                for d in data.values():
+                for d in list(data.values()):
                     line += make_str(t) + delimiter
             else:
                 line += make_str(t) + delimiter
@@ -219,7 +220,7 @@ def parse_adjlist(lines, comments = '#', delimiter = None,
         G.add_node(u)
         if nodetype is not None:
             try:
-                vlist=map(nodetype,vlist)
+                vlist=list(map(nodetype,vlist))
             except:
                 raise TypeError("Failed to convert nodes (%s) to type %s"\
                                     %(','.join(vlist),nodetype))

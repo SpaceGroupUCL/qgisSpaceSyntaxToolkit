@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+from builtins import zip
+from builtins import range
+from builtins import object
 from nose.tools import *
 import networkx as nx
 
@@ -16,7 +19,7 @@ def validate_grid_path(r, c, s, t, p):
     for u, v in zip(p[:-1], p[1:]):
         ok_((abs(v[0] - u[0]), abs(v[1] - u[1])) in [(0, 1), (1, 0)])
 
-class TestGenericPath:
+class TestGenericPath(object):
 
     def setUp(self):
         from networkx import convert_node_labels_to_integers as cnlti
@@ -120,18 +123,18 @@ class TestGenericPath:
 
     def test_weighted_average_shortest_path(self):
         G=nx.Graph()
-        G.add_cycle(range(7),weight=2)
+        G.add_cycle(list(range(7)),weight=2)
         l=nx.average_shortest_path_length(G,weight='weight')
         assert_almost_equal(l,4)
         G=nx.Graph()
-        G.add_path(range(5),weight=2)
+        G.add_path(list(range(5)),weight=2)
         l=nx.average_shortest_path_length(G,weight='weight')
         assert_almost_equal(l,4)
 
 
     def test_average_shortest_disconnected(self):
         g = nx.Graph()
-        g.add_nodes_from(range(3))
+        g.add_nodes_from(list(range(3)))
         g.add_edge(0, 1)
         assert_raises(nx.NetworkXError,nx.average_shortest_path_length,g)
         g = g.to_directed()
@@ -139,8 +142,8 @@ class TestGenericPath:
 
     def test_has_path(self):
         G = nx.Graph()
-        G.add_path(range(3))
-        G.add_path(range(3,5))
+        G.add_path(list(range(3)))
+        G.add_path(list(range(3,5)))
         assert_true(nx.has_path(G,0,2))
         assert_false(nx.has_path(G,0,4))
 

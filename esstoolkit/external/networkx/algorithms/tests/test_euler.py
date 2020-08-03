@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 # run with nose: nosetests -v test_euler.py
 
+from builtins import object
 from nose.tools import *
 import networkx as nx
 from networkx import is_eulerian,eulerian_circuit
 
-class TestEuler:
+class TestEuler(object):
 
     def test_is_eulerian(self):
         assert_true(is_eulerian(nx.complete_graph(5)))

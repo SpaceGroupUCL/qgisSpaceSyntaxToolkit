@@ -20,7 +20,12 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import Qt, QThread, QSettings
+from __future__ import print_function
+from __future__ import absolute_import
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from qgis.PyQt.QtCore import Qt, QThread, QSettings
 
 from qgis.core import *
 from qgis.gui import *
@@ -32,12 +37,12 @@ import traceback
 # Initialize Qt resources from file resources.py
 #from .. import resources
 # the dialog modules
-from road_network_cleaner_dialog import RoadNetworkCleanerDialog
+from .road_network_cleaner_dialog import RoadNetworkCleanerDialog
 
 # additional modules
-from sGraph.break_tools import *  # better give these a name to make it explicit to which module the methods belong
-from sGraph.merge_tools import *
-from sGraph.utilityFunctions import *
+from .sGraph.break_tools import *  # better give these a name to make it explicit to which module the methods belong
+from .sGraph.merge_tools import *
+from .sGraph.utilityFunctions import *
 
 # Import the debug library - required for the cleaning class in separate thread
 # set is_debug to False in release version
@@ -45,7 +50,7 @@ is_debug = False
 try:
     import pydevd_pycharm as pydevd
     has_pydevd = True
-except ImportError, e:
+except ImportError as e:
     has_pydevd = False
     is_debug = False
 
@@ -112,12 +117,12 @@ class RoadNetworkCleaner(QObject):
         settings.beginGroup('/PostgreSQL/connections')
         for item in settings.childGroups():
             con = dict()
-            con['name'] = unicode(item)
-            con['host'] = unicode(settings.value(u'%s/host' % unicode(item)))
-            con['port'] = unicode(settings.value(u'%s/port' % unicode(item)))
-            con['database'] = unicode(settings.value(u'%s/database' % unicode(item)))
-            con['username'] = unicode(settings.value(u'%s/username' % unicode(item)))
-            con['password'] = unicode(settings.value(u'%s/password' % unicode(item)))
+            con['name'] = str(item)
+            con['host'] = str(settings.value(u'%s/host' % str(item)))
+            con['port'] = str(settings.value(u'%s/port' % str(item)))
+            con['database'] = str(settings.value(u'%s/database' % str(item)))
+            con['username'] = str(settings.value(u'%s/username' % str(item)))
+            con['password'] = str(settings.value(u'%s/password' % str(item)))
             con_settings.append(con)
         settings.endGroup()
         dbs = {}
@@ -176,13 +181,17 @@ class RoadNetworkCleaner(QObject):
 
             self.thread.start()
 
-            if is_debug: print 'started'
+            if is_debug: # fix_print_with_import
+ # fix_print_with_import
+print('started')
         else:
             self.giveMessage('Missing user input!', QgsMessageBar.INFO)
             return
 
     def cleaningFinished(self, ret):
-        if is_debug: print 'trying to finish'
+        if is_debug: # fix_print_with_import
+ # fix_print_with_import
+print('trying to finish')
         # get cleaning settings
         layer_name = self.settings['input']
         path = self.settings['output']
@@ -223,7 +232,7 @@ class RoadNetworkCleaner(QObject):
 
             self.giveMessage('Process ended successfully!', QgsMessageBar.INFO)
 
-        except Exception, e:
+        except Exception as e:
             # notify the user that sth went wrong
             self.cleaning.error.emit(e, traceback.format_exc())
             self.giveMessage('Something went wrong! See the message log for more information', QgsMessageBar.CRITICAL)
@@ -234,8 +243,12 @@ class RoadNetworkCleaner(QObject):
         self.thread.wait()
         self.thread.deleteLater()
 
-        if is_debug: print 'thread running ', self.thread.isRunning()
-        if is_debug: print 'has finished ', self.thread.isFinished()
+        if is_debug: # fix_print_with_import
+ # fix_print_with_import
+print('thread running ', self.thread.isRunning())
+        if is_debug: # fix_print_with_import
+ # fix_print_with_import
+print('has finished ', self.thread.isFinished())
 
         self.thread = None
         self.cleaning = None
@@ -245,7 +258,9 @@ class RoadNetworkCleaner(QObject):
             self.dlg.close()
 
     def killCleaning(self):
-        if is_debug: print 'trying to cancel'
+        if is_debug: # fix_print_with_import
+ # fix_print_with_import
+print('trying to cancel')
         # add emit signal to breakTool or mergeTool only to stop the loop
         if self.cleaning:
 
@@ -284,7 +299,7 @@ class RoadNetworkCleaner(QObject):
 
         # Setup signals
         finished = pyqtSignal(object)
-        error = pyqtSignal(Exception, basestring)
+        error = pyqtSignal(Exception, str)
         cl_progress = pyqtSignal(float)
         warning = pyqtSignal(str)
         cl_killed = pyqtSignal(bool)
@@ -351,19 +366,21 @@ class RoadNetworkCleaner(QObject):
                     ((errors_list, errors_fields), (unlinks_list, unlinks_fields)) = ((None, None), (None, None))
                     if self.settings['errors']:
                         self.br.updateErrors(self.mrg.errors_features)
-                        errors_list = [[k, [[k], [v[0]]], v[1]] for k, v in self.br.errors_features.items()]
+                        errors_list = [[k, [[k], [v[0]]], v[1]] for k, v in list(self.br.errors_features.items())]
                         errors_fields = [QgsField('id_input', QVariant.Int), QgsField('errors', QVariant.String)]
 
                     if self.settings['unlinks']:
                         unlinks_list = self.br.unlinked_features
                         unlinks_fields = [QgsField('id', QVariant.Int), QgsField('line_id1', QVariant.Int), QgsField('line_id2', QVariant.Int), QgsField('x', QVariant.Double), QgsField('y', QVariant.Double)]
 
-                    if is_debug: print "survived!"
+                    if is_debug: # fix_print_with_import
+ # fix_print_with_import
+print("survived!")
                     self.cl_progress.emit(100)
                     # return cleaned data, errors and unlinks
                     ret = ((merged_features, fields), (errors_list, errors_fields), (unlinks_list, unlinks_fields))
 
-                except Exception, e:
+                except Exception as e:
                     # forward the exception upstream
                     self.error.emit(e, traceback.format_exc())
 

@@ -20,6 +20,8 @@ See http://cs.anu.edu.au/~bdm/data/formats.txt for details.
 #    Tomas Gavenciak <gavento@ucw.cz>
 #    All rights reserved.
 #    BSD license.
+from builtins import next
+from builtins import range
 import networkx as nx
 from networkx.exception import NetworkXError
 from networkx.utils import open_file, not_implemented_for
@@ -97,7 +99,7 @@ def parse_sparse6(string):
     v = 0
 
     G = nx.MultiGraph()
-    G.add_nodes_from(range(n))
+    G.add_nodes_from(list(range(n)))
 
     multigraph = False
     for b,x in parseData():

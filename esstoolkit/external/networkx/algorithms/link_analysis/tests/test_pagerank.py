@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+from builtins import zip
+from builtins import range
+from builtins import object
 import random
 
 import networkx
@@ -31,15 +34,15 @@ class TestPageRank(object):
                  (6, 4)]
         G.add_edges_from(edges)
         self.G = G
-        self.G.pagerank = dict(zip(G,
+        self.G.pagerank = dict(list(zip(G,
                                    [0.03721197, 0.05395735, 0.04150565,
-                                    0.37508082, 0.20599833, 0.28624589]))
+                                    0.37508082, 0.20599833, 0.28624589])))
         self.dangling_node_index = 1
         self.dangling_edges = {1: 2, 2: 3,
                                3: 0, 4: 0, 5: 0, 6: 0}
-        self.G.dangling_pagerank = dict(zip(G,
+        self.G.dangling_pagerank = dict(list(zip(G,
                                             [0.10844518, 0.18618601, 0.0710892,
-                                             0.2683668, 0.15919783, 0.20671497]))
+                                             0.2683668, 0.15919783, 0.20671497])))
 
     def test_pagerank(self):
         G = self.G
@@ -68,7 +71,7 @@ class TestPageRank(object):
         M = networkx.google_matrix(G, alpha=0.9)
         e, ev = numpy.linalg.eig(M.T)
         p = numpy.array(ev[:, 0] / ev[:, 0].sum())[:, 0]
-        for (a, b) in zip(p, self.G.pagerank.values()):
+        for (a, b) in zip(p, list(self.G.pagerank.values())):
             assert_almost_equal(a, b)
 
         personalize = dict((n, random.random()) for n in G)

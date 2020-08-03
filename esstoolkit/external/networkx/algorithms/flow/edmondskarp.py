@@ -3,6 +3,8 @@
 Edmonds-Karp algorithm for maximum flow problems.
 """
 
+from builtins import next
+from builtins import str
 __author__ = """ysitu <ysitu@users.noreply.github.com>"""
 # Copyright (C) 2014 ysitu <ysitu@users.noreply.github.com>
 # All rights reserved.
@@ -56,7 +58,7 @@ def edmonds_karp_core(R, s, t, cutoff):
             q = []
             if len(q_s) <= len(q_t):
                 for u in q_s:
-                    for v, attr in R_succ[u].items():
+                    for v, attr in list(R_succ[u].items()):
                         if v not in pred and attr['flow'] < attr['capacity']:
                             pred[v] = u
                             if v in succ:
@@ -67,7 +69,7 @@ def edmonds_karp_core(R, s, t, cutoff):
                 q_s = q
             else:
                 for u in q_t:
-                    for v, attr in R_pred[u].items():
+                    for v, attr in list(R_pred[u].items()):
                         if v not in succ and attr['flow'] < attr['capacity']:
                             succ[v] = u
                             if v in pred:
@@ -117,7 +119,7 @@ def edmonds_karp_impl(G, s, t, capacity, residual, cutoff):
 
     # Initialize/reset the residual network.
     for u in R:
-        for e in R[u].values():
+        for e in list(R[u].values()):
             e['flow'] = 0
 
     if cutoff is None:

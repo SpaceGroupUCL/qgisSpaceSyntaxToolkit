@@ -1,8 +1,9 @@
 #!/usr/bin/env python
+from builtins import object
 from nose.tools import *
 import networkx as nx
 
-class TestGeneratorsGeometric():
+class TestGeneratorsGeometric(object):
     def test_random_geometric_graph(self):
         G=nx.random_geometric_graph(50,0.25)
         assert_equal(len(G),50)

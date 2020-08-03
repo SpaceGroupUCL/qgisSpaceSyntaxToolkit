@@ -2,6 +2,8 @@
 """
 Stoer-Wagner minimum cut algorithm.
 """
+from builtins import next
+from builtins import range
 from itertools import islice
 import networkx as nx
 from networkx.utils import *
@@ -115,13 +117,13 @@ def stoer_wagner(G, weight='weight', heap=BinaryHeap):
         # A. The tightness of connectivity of a node not in A is defined by the
         # of edges connecting it to nodes in A.
         h = heap()  # min-heap emulating a max-heap
-        for v, e in G[u].items():
+        for v, e in list(G[u].items()):
             h.insert(v, -e['weight'])
         # Repeat until all but one node has been added to A.
         for j in range(n - i - 2):
             u = h.pop()[0]
             A.add(u)
-            for v, e, in G[u].items():
+            for v, e, in list(G[u].items()):
                 if v not in A:
                     h.insert(v, h.get(v, 0) - e['weight'])
         # A and the remaining node v define a "cut of the phase". There is a
@@ -135,7 +137,7 @@ def stoer_wagner(G, weight='weight', heap=BinaryHeap):
             best_phase = i
         # Contract v and the last node added to A.
         contractions.append((u, v))
-        for w, e in G[v].items():
+        for w, e in list(G[v].items()):
             if w != u:
                 if w not in G[u]:
                     G.add_edge(u, w, weight=e['weight'])

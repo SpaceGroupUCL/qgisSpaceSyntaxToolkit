@@ -1,10 +1,11 @@
+from builtins import object
 from collections import defaultdict
 from nose.tools import *
 from nose import SkipTest
 import networkx as nx
 from networkx.algorithms.centrality.communicability_alg import *
 
-class TestCommunicability:
+class TestCommunicability(object):
     @classmethod
     def setupClass(cls):
         global numpy
@@ -22,7 +23,7 @@ class TestCommunicability:
     def test_communicability_centrality(self):
         answer={0: 1.5430806348152433, 1: 1.5430806348152433}
         result=communicability_centrality(nx.path_graph(2))
-        for k,v in result.items():
+        for k,v in list(result.items()):
             assert_almost_equal(answer[k],result[k],places=7)
 
         answer1={'1': 1.6445956054135658,
@@ -33,17 +34,17 @@ class TestCommunicability:
         G1=nx.Graph([('Franck','Aric'),('Aric','Dan'),('Dan','Albert'),
                      ('Albert','Franck'),('Dan','1'),('Franck','Albert')])
         result1=communicability_centrality(G1)
-        for k,v in result1.items():
+        for k,v in list(result1.items()):
             assert_almost_equal(answer1[k],result1[k],places=7)
         result1=communicability_centrality_exp(G1)
-        for k,v in result1.items():
+        for k,v in list(result1.items()):
             assert_almost_equal(answer1[k],result1[k],places=7)
 
     def test_communicability_betweenness_centrality(self):
         answer={0: 0.07017447951484615, 1: 0.71565598701107991,
                 2: 0.71565598701107991, 3: 0.07017447951484615}
         result=communicability_betweenness_centrality(nx.path_graph(4))
-        for k,v in result.items():
+        for k,v in list(result.items()):
             assert_almost_equal(answer[k],result[k],places=7)
 
         answer1={'1': 0.060039074193949521,
@@ -55,7 +56,7 @@ class TestCommunicability:
                      ('Aric','Dan'),('Dan','Albert'),('Albert','Franck'),
                      ('Dan','1'),('Franck','Albert')])
         result1=communicability_betweenness_centrality(G1)
-        for k,v in result1.items():
+        for k,v in list(result1.items()):
             assert_almost_equal(answer1[k],result1[k],places=7)
 
     def test_communicability_betweenness_centrality_small(self):
@@ -78,7 +79,7 @@ class TestCommunicability:
 #                (1, 1): 1.5430806348152435}
 
         result=communicability(nx.path_graph(2))
-        for k1,val in result.items():
+        for k1,val in list(result.items()):
             for k2 in val:
                 assert_almost_equal(answer[k1][k2],result[k1][k2],places=7)
 
@@ -111,19 +112,19 @@ class TestCommunicability:
                  ('Franck', 'Franck'): 2.3876142275231915}
 
         answer=defaultdict(dict)
-        for (k1,k2),v in answer_orig.items():
+        for (k1,k2),v in list(answer_orig.items()):
             answer[k1][k2]=v
 
         G1=nx.Graph([('Franck','Aric'),('Aric','Dan'),('Dan','Albert'),
                      ('Albert','Franck'),('Dan','1'),('Franck','Albert')])
 
         result=communicability(G1)
-        for k1,val in result.items():
+        for k1,val in list(result.items()):
             for k2 in val:
                 assert_almost_equal(answer[k1][k2],result[k1][k2],places=7)
 
         result=communicability_exp(G1)
-        for k1,val in result.items():
+        for k1,val in list(result.items()):
             for k2 in val:
                 assert_almost_equal(answer[k1][k2],result[k1][k2],places=7)
 

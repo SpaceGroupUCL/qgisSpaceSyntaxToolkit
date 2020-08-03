@@ -10,8 +10,9 @@ displaying and analyzing 2D and 3D data. ImageView provides:
   4. Tools for very basic analysis of image data (see ROI and Norm buttons)
 
 """
+from __future__ import absolute_import
 ## Add path to library (just for examples; you do not need this)
-import initExample
+from . import initExample
 
 import numpy as np
 from pyqtgraph.Qt import QtCore, QtGui

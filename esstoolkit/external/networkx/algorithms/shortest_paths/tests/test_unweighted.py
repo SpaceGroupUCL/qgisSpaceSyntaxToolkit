@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+from builtins import zip
+from builtins import object
 from nose.tools import *
 import networkx as nx
 
@@ -16,7 +18,7 @@ def validate_grid_path(r, c, s, t, p):
     for u, v in zip(p[:-1], p[1:]):
         ok_((abs(v[0] - u[0]), abs(v[1] - u[1])) in [(0, 1), (1, 0)])
 
-class TestUnweightedPath:
+class TestUnweightedPath(object):
 
     def setUp(self):
         from networkx import convert_node_labels_to_integers as cnlti

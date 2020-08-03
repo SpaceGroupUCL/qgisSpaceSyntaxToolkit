@@ -3,6 +3,9 @@
 Highest-label preflow-push algorithm for maximum flow problems.
 """
 
+from builtins import next
+from builtins import str
+from builtins import range
 __author__ = """ysitu <ysitu@users.noreply.github.com>"""
 # Copyright (C) 2014 ysitu <ysitu@users.noreply.github.com>
 # All rights reserved.
@@ -46,7 +49,7 @@ def preflow_push_impl(G, s, t, capacity, residual, global_relabel_freq,
     # Initialize/reset the residual network.
     for u in R:
         R_node[u]['excess'] = 0
-        for e in R_succ[u].values():
+        for e in list(R_succ[u].values()):
             e['flow'] = 0
 
     def reverse_bfs(src):
@@ -58,7 +61,7 @@ def preflow_push_impl(G, s, t, capacity, residual, global_relabel_freq,
         while q:
             u, height = q.popleft()
             height += 1
-            for v, attr in R_pred[u].items():
+            for v, attr in list(R_pred[u].items()):
                 if v not in heights and attr['flow'] < attr['capacity']:
                     heights[v] = height
                     q.append((v, height))
@@ -96,7 +99,7 @@ def preflow_push_impl(G, s, t, capacity, residual, global_relabel_freq,
 
     # The maximum flow must be nonzero now. Initialize the preflow by
     # saturating all edges emanating from s.
-    for u, attr in R_succ[s].items():
+    for u, attr in list(R_succ[s].items()):
         flow = attr['capacity']
         if flow > 0:
             push(s, u, flow)
@@ -124,7 +127,7 @@ def preflow_push_impl(G, s, t, capacity, residual, global_relabel_freq,
         """Relabel a node to create an admissible edge.
         """
         grt.add_work(len(R_succ[u]))
-        return min(R_node[v]['height'] for v, attr in R_succ[u].items()
+        return min(R_node[v]['height'] for v, attr in list(R_succ[u].items())
                    if attr['flow'] < attr['capacity']) + 1
 
     def discharge(u, is_phase1):
@@ -205,7 +208,7 @@ def preflow_push_impl(G, s, t, capacity, residual, global_relabel_freq,
                 heights[u] += n
             max_height += n
         del heights[src]
-        for u, new_height in heights.items():
+        for u, new_height in list(heights.items()):
             old_height = R_node[u]['height']
             if new_height != old_height:
                 if u in levels[old_height].active:

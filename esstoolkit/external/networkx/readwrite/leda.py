@@ -10,6 +10,9 @@ See http://www.algorithmic-solutions.info/leda_guide/graphs/leda_native_graph_fi
 """
 # Original author: D. Eppstein, UC Irvine, August 12, 2003.
 # The original code at http://www.ics.uci.edu/~eppstein/PADS/ is public domain.
+from builtins import str
+from builtins import next
+from builtins import range
 __author__ = """Aric Hagberg (hagberg@lanl.gov)"""
 #    Copyright (C) 2004-2015 by 
 #    Aric Hagberg <hagberg@lanl.gov>
@@ -91,7 +94,7 @@ def parse_leda(lines):
         if symbol=="": symbol=str(i) # use int if no label - could be trouble
         node[i]=symbol
 
-    G.add_nodes_from([s for i,s in node.items()])
+    G.add_nodes_from([s for i,s in list(node.items())])
 	
     # Edges
     m = int(next(lines)) # number of edges

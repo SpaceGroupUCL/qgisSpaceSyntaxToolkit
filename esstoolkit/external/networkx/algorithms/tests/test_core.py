@@ -1,8 +1,9 @@
 #!/usr/bin/env python
+from builtins import object
 from nose.tools import *
 import networkx as nx
 
-class TestCore:
+class TestCore(object):
 
     def setUp(self):
         # G is the example graph in Figure 1 from Batagelj and

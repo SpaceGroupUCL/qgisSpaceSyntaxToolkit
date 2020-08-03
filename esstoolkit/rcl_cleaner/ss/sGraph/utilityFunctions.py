@@ -1,4 +1,7 @@
+from __future__ import print_function
 # general imports
+from builtins import zip
+from builtins import str
 from qgis.core import QgsMapLayerRegistry, QgsVectorFileWriter, QgsVectorLayer, QgsFeature, QgsGeometry,QgsFields, QgsDataSourceURI
 import psycopg2
 from psycopg2.extensions import AsIs
@@ -8,7 +11,7 @@ from psycopg2.extensions import AsIs
 
 def getLayerByName(name):
     layer = None
-    for i in QgsMapLayerRegistry.instance().mapLayers().values():
+    for i in list(QgsMapLayerRegistry.instance().mapLayers().values()):
         if i.name() == name:
             layer = i
     return layer
@@ -58,7 +61,7 @@ def vertices_from_wkt_2(wkt):
     nums = [i for x in wkt[11:-1:].split(', ') for i in x.split(' ')]
     if wkt[0:12] == u'LineString (':
         nums = [i for x in wkt[12:-1:].split(', ') for i in x.split(' ')]
-    coords = zip(*[iter(nums)] * 2)
+    coords = list(zip(*[iter(nums)] * 2))
     for vertex in coords:
         yield vertex
 
@@ -85,7 +88,8 @@ def to_shp(path, any_features_list, layer_fields, crs, name, encoding, geom_type
             fields.append(field)
         file_writer = QgsVectorFileWriter(path, encoding, fields, geom_type, crs, "ESRI Shapefile")
         if file_writer.hasError() != QgsVectorFileWriter.NoError:
-            print "Error when creating shapefile: ", file_writer.errorMessage()
+            # fix_print_with_import
+            print("Error when creating shapefile: ", file_writer.errorMessage())
         del file_writer
         network = QgsVectorLayer(path, name, "ogr")
     pr = network.dataProvider()
@@ -148,7 +152,9 @@ def to_dblayer(dbname, user, host, port, password, schema, table_name, qgs_flds,
         con.commit()
         con.close()
 
-        print "success!"
+        # fix_print_with_import
+        # fix_print_with_import
+print("success!")
         uri = QgsDataSourceURI()
         # set host name, port, database name, username and password
         uri.setConnection(host, port, dbname, user, password)
@@ -156,7 +162,7 @@ def to_dblayer(dbname, user, host, port, password, schema, table_name, qgs_flds,
         uri.setDataSource(schema, table_name, "geom")
         return QgsVectorLayer(uri.uri(), table_name, "postgres")
 
-    except psycopg2.DatabaseError, e:
+    except psycopg2.DatabaseError as e:
         return e
 
 # SOURCE: ESS TOOLKIT
@@ -168,14 +174,15 @@ def getPostgisSchemas(connstring, commit=False):
 
     try:
         connection = psycopg2.connect(connstring)
-    except psycopg2.Error, e:
-        print e.pgerror
+    except psycopg2.Error as e:
+        # fix_print_with_import
+        print(e.pgerror)
         connection = None
 
     schemas = []
     data = []
     if connection:
-        query = unicode("""SELECT schema_name from information_schema.schemata;""")
+        query = str("""SELECT schema_name from information_schema.schemata;""")
         cursor = connection.cursor()
         try:
             cursor.execute(query)
@@ -183,7 +190,7 @@ def getPostgisSchemas(connstring, commit=False):
                 data = cursor.fetchall()
             if commit:
                 connection.commit()
-        except psycopg2.Error, e:
+        except psycopg2.Error as e:
             connection.rollback()
         cursor.close()
 

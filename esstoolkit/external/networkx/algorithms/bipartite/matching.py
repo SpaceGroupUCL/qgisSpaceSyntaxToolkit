@@ -140,8 +140,8 @@ def hopcroft_karp_matching(G):
                     num_matched_pairs += 1
 
     # Strip the entries matched to `None`.
-    leftmatches = {k: v for k, v in leftmatches.items() if v is not None}
-    rightmatches = {k: v for k, v in rightmatches.items() if v is not None}
+    leftmatches = {k: v for k, v in list(leftmatches.items()) if v is not None}
+    rightmatches = {k: v for k, v in list(rightmatches.items()) if v is not None}
 
     # At this point, the left matches and the right matches are inverses of one
     # another. In other words,
@@ -149,7 +149,7 @@ def hopcroft_karp_matching(G):
     #     leftmatches == {v, k for k, v in rightmatches.items()}
     #
     # Finally, we combine both the left matches and right matches.
-    return dict(itertools.chain(leftmatches.items(), rightmatches.items()))
+    return dict(itertools.chain(list(leftmatches.items()), list(rightmatches.items())))
 
 
 def eppstein_matching(G):
@@ -285,7 +285,7 @@ def _is_connected_by_alternating_path(G, v, matching, targets):
     # Get the set of matched edges and the set of unmatched edges. Only include
     # one version of each undirected edge (for example, include edge (1, 2) but
     # not edge (2, 1)).
-    matched_edges = {(u, v) for u, v in matching.items() if u <= v}
+    matched_edges = {(u, v) for u, v in list(matching.items()) if u <= v}
     unmatched_edges = set(G.edges()) - matched_edges
 
     def _alternating_dfs(u, depth, along_matched=True):

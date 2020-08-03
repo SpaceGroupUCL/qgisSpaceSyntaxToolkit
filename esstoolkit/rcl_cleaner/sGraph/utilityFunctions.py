@@ -1,8 +1,10 @@
+from __future__ import print_function
+from builtins import str
 import collections
 import math
 from collections import defaultdict
 from qgis.core import QgsMapLayerRegistry, QgsFields, QgsField, QgsGeometry, QgsFeature, QgsVectorLayer, QgsVectorFileWriter, QGis, NULL, QgsDataSourceURI, QgsVectorLayerImport
-from PyQt4.QtCore import  QVariant
+from qgis.PyQt.QtCore import  QVariant
 import itertools
 import psycopg2
 from psycopg2.extensions import AsIs
@@ -81,7 +83,7 @@ def clean_features_iter(feat_iter):
 
 
 def getSelfIntersections(polyline):
-    return [item for item, count in collections.Counter(polyline).items() if count > 1] # points
+    return [item for item, count in list(collections.Counter(polyline).items()) if count > 1] # points
 
 
 def find_vertex_indices(polyline, points):
@@ -142,13 +144,13 @@ def merge_geoms(geoms, simpl_threshold):
 # connected components iterator from group_dictionary e.g. { A: [B,C,D], B: [D,E,F], ...}
 def con_comp_iter(group_dictionary):
     components_passed = set([])
-    for id in group_dictionary.keys():
+    for id in list(group_dictionary.keys()):
         if {id}.isdisjoint(components_passed):
             group = [[id]]
             candidates = ['dummy', 'dummy']
             while len(candidates) > 0:
                 flat_group = group[:-1] + group[-1]
-                candidates = map(lambda last_visited_node: set(group_dictionary[last_visited_node]).difference(set(flat_group)), group[-1])
+                candidates = [set(group_dictionary[last_visited_node]).difference(set(flat_group)) for last_visited_node in group[-1]]
                 candidates = list(set(itertools.chain.from_iterable(candidates)))
                 group = flat_group + [candidates]
                 components_passed.update(set(candidates))
@@ -193,7 +195,8 @@ def to_layer(features, crs, encoding, geom_type, layer_type, path):
         wkbTypes = { 'Point': QGis.WKBPoint, 'Linestring': QGis.WKBLineString, 'Polygon': QGis.WKBPolygon }
         file_writer = QgsVectorFileWriter(path, encoding, fields, wkbTypes[geom_type], crs, "ESRI Shapefile")
         if file_writer.hasError() != QgsVectorFileWriter.NoError:
-            print "Error when creating shapefile: ", file_writer.errorMessage()
+            # fix_print_with_import
+            print("Error when creating shapefile: ", file_writer.errorMessage())
         del file_writer
         layer = QgsVectorLayer(path, ntpath.basename(path)[:-4], "ogr")
         pr = layer.dataProvider()
@@ -238,15 +241,16 @@ def to_layer(features, crs, encoding, geom_type, layer_type, path):
             con.commit()
             con.close()
             layer = QgsVectorLayer(uri, table_name, 'postgres')
-        except psycopg2.DatabaseError, e:
-            print e
+        except psycopg2.DatabaseError as e:
+            # fix_print_with_import
+            print(e)
     return layer
 
 # LAYER -----------------------------------------------------------------
 
 def getLayerByName(name):
     layer = None
-    for i in QgsMapLayerRegistry.instance().mapLayers().values():
+    for i in list(QgsMapLayerRegistry.instance().mapLayers().values()):
         if i.name() == name:
             layer = i
     return layer
@@ -262,14 +266,15 @@ def getPostgisSchemas(connstring, commit=False):
 
     try:
         connection = psycopg2.connect(connstring)
-    except psycopg2.Error, e:
-        print e.pgerror
+    except psycopg2.Error as e:
+        # fix_print_with_import
+        print(e.pgerror)
         connection = None
 
     schemas = []
     data = []
     if connection:
-        query = unicode("""SELECT schema_name from information_schema.schemata;""")
+        query = str("""SELECT schema_name from information_schema.schemata;""")
         cursor = connection.cursor()
         try:
             cursor.execute(query)
@@ -277,7 +282,7 @@ def getPostgisSchemas(connstring, commit=False):
                 data = cursor.fetchall()
             if commit:
                 connection.commit()
-        except psycopg2.Error, e:
+        except psycopg2.Error as e:
             connection.rollback()
         cursor.close()
 

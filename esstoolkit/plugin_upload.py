@@ -3,7 +3,11 @@
 #
 # Author: A. Pasotti, V. Picavet
 
-import xmlrpclib, sys, os
+from __future__ import print_function
+from future import standard_library
+standard_library.install_aliases()
+from builtins import input
+import xmlrpc.client, sys, os
 import getpass
 from optparse import OptionParser
 
@@ -17,24 +21,44 @@ VERBOSE=False
 def main(options, args):
     address = "%s://%s:%s@%s:%s%s" % (PROTOCOL, options.username, options.password,
             options.server, options.port, ENDPOINT)
-    print "Connecting to: %s" % hidepassword(address)
+    # fix_print_with_import
+    # fix_print_with_import
+print("Connecting to: %s" % hidepassword(address))
     
-    server = xmlrpclib.ServerProxy(address, verbose=VERBOSE)
+    server = xmlrpc.client.ServerProxy(address, verbose=VERBOSE)
     
     try:
-        plugin_id, version_id = server.plugin.upload(xmlrpclib.Binary(open(args[0]).read()))
-        print "Plugin ID: %s" % plugin_id
-        print "Version ID: %s" % version_id
-    except xmlrpclib.ProtocolError, err:
-        print "A protocol error occurred"
-        print "URL: %s" % hidepassword(err.url, 0)
-        print "HTTP/HTTPS headers: %s" % err.headers
-        print "Error code: %d" % err.errcode
-        print "Error message: %s" % err.errmsg
-    except xmlrpclib.Fault, err:
-        print "A fault occurred"
-        print "Fault code: %d" % err.faultCode
-        print "Fault string: %s" % err.faultString
+        plugin_id, version_id = server.plugin.upload(xmlrpc.client.Binary(open(args[0]).read()))
+        # fix_print_with_import
+        # fix_print_with_import
+print("Plugin ID: %s" % plugin_id)
+        # fix_print_with_import
+        # fix_print_with_import
+print("Version ID: %s" % version_id)
+    except xmlrpc.client.ProtocolError as err:
+        # fix_print_with_import
+        print("A protocol error occurred")
+        # fix_print_with_import
+        # fix_print_with_import
+print("URL: %s" % hidepassword(err.url, 0))
+        # fix_print_with_import
+        # fix_print_with_import
+print("HTTP/HTTPS headers: %s" % err.headers)
+        # fix_print_with_import
+        # fix_print_with_import
+print("Error code: %d" % err.errcode)
+        # fix_print_with_import
+        # fix_print_with_import
+print("Error message: %s" % err.errmsg)
+    except xmlrpc.client.Fault as err:
+        # fix_print_with_import
+        print("A fault occurred")
+        # fix_print_with_import
+        # fix_print_with_import
+print("Fault code: %d" % err.faultCode)
+        # fix_print_with_import
+        # fix_print_with_import
+print("Fault string: %s" % err.faultString)
 
 def hidepassword(url, start = 6):
     """Returns the http url with password part replaced with '*'."""
@@ -55,7 +79,8 @@ if __name__ == "__main__":
             help="Specify server name", metavar="plugins.qgis.org")
     (options, args) = parser.parse_args()
     if len(args) != 1:
-        print "Please specify zip file.\n"
+        # fix_print_with_import
+        print("Please specify zip file.\n")
         parser.print_help()
         sys.exit(1)
     if not options.server:
@@ -65,8 +90,10 @@ if __name__ == "__main__":
     if not options.username:
         # interactive mode
         username = getpass.getuser()
-        print "Please enter user name [%s] :"%username,
-        res = raw_input()
+        # fix_print_with_import
+        # fix_print_with_import
+print("Please enter user name [%s] :"%username, end=' ')
+        res = input()
         if res != "":
             options.username = res
         else:

@@ -22,6 +22,8 @@
 
 """
 # Import the PyQt and QGIS libraries
+from builtins import zip
+from builtins import str
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from qgis.core import *
@@ -398,11 +400,11 @@ class DepthmapAnalysis(QObject):
         # remove attributes and values from lists
         if len(exclusions) > 0:
             exclusions.sort(reverse=True)
-            values = zip(*values)
+            values = list(zip(*values))
             for i in exclusions:
                 attributes.pop(i)
                 values.pop(i)
-            values = zip(*values)
+            values = list(zip(*values))
         # remove spaces
         attributes = [x.replace(" ","_") for x in attributes]
         # get data type of attributes

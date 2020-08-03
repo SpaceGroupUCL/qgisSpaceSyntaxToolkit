@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+from builtins import zip
+from builtins import object
 from nose.tools import *
 from nose import SkipTest
 from nose.plugins.attrib import attr
@@ -9,7 +11,7 @@ import networkx
 # information retrieval."  http://citeseer.ist.psu.edu/713792.html
 
 
-class TestHITS:
+class TestHITS(object):
 
     def setUp(self):
         
@@ -23,10 +25,10 @@ class TestHITS:
            
         G.add_edges_from(edges,weight=1)
         self.G=G
-        self.G.a=dict(zip(G,[0.000000, 0.000000, 0.366025,
-                             0.133975, 0.500000, 0.000000]))
-        self.G.h=dict(zip(G,[ 0.366025, 0.000000, 0.211325, 
-                              0.000000, 0.211325, 0.211325]))
+        self.G.a=dict(list(zip(G,[0.000000, 0.000000, 0.366025,
+                             0.133975, 0.500000, 0.000000])))
+        self.G.h=dict(list(zip(G,[ 0.366025, 0.000000, 0.211325, 
+                              0.000000, 0.211325, 0.211325])))
 
 
     def test_hits(self):

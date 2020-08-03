@@ -6,7 +6,9 @@
 #
 # WARNING! All changes made in this file will be lost!
 
-from PyQt4 import QtCore, QtGui
+from __future__ import absolute_import
+from builtins import object
+from qgis.PyQt import QtCore, QtGui
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -244,4 +246,4 @@ class Ui_AnalysisDialog(object):
         self.axialDepthmapDownload.setToolTip(_translate("AnalysisDialog", "https://varoudis.github.io/depthmapX/", None))
         self.axialDepthmapDownload.setText(_translate("AnalysisDialog", "<qt><a href=\"http://archtech.gr/varoudis/depthmapX/?dir=depthmapXnet\"><span style=\" text-decoration: underline; color:#0000ff;\">Download depthmapXnet...</a></qt>", None))
 
-import resources_rc
+from . import resources_rc

@@ -20,7 +20,11 @@
  *                                                                         *
  ***************************************************************************/
 """
+from __future__ import print_function
 
+from builtins import str
+from builtins import range
+from builtins import object
 from PyQt4.QtCore import *
 
 from qgis.core import *
@@ -80,7 +84,7 @@ class CustomCost(QgsArcProperter):
         return [self.cost_column_index]
 
 
-class ConcaveHull():
+class ConcaveHull(object):
     def clean_list(self, list_of_points):
         """
         Deletes duplicate points in list_of_points
@@ -178,7 +182,8 @@ class ConcaveHull():
             else:
                 return 0
         except:
-            print ('fail %s, %s', angle1, angle2)
+            # fix_print_with_import
+            print(('fail %s, %s', angle1, angle2))
             return 0
 
     def intersect(self, line1, line2):

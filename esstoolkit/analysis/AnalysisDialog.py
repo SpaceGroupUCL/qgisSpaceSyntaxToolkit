@@ -20,11 +20,13 @@
  *                                                                         *
  ***************************************************************************/
 """
+from __future__ import absolute_import
 
-from PyQt4 import QtCore, QtGui
-from ui_Analysis import Ui_AnalysisDialog
-from DepthmapAdvancedDialog import DepthmapAdvancedDialog
-from VerificationSettingsDialog import VerificationSettingsDialog
+from builtins import str
+from qgis.PyQt import QtCore, QtGui
+from .ui_Analysis import Ui_AnalysisDialog
+from .DepthmapAdvancedDialog import DepthmapAdvancedDialog
+from .VerificationSettingsDialog import VerificationSettingsDialog
 
 from .. import utility_functions as uf
 
@@ -292,7 +294,7 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
             if select == "all problems":
                 for problem in nodes_list:
                     errors = []
-                    for k, v in report.iteritems():
+                    for k, v in report.items():
                         if len(v) > 0:
                             if type(v[0]) is list:
                                 for i in v:
@@ -338,7 +340,7 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
             if select == "all problems":
                 for fid in nodes_list:
                     errors = []
-                    for k, v in report.iteritems():
+                    for k, v in report.items():
                         if fid[0] in v:
                             errors.append(k)
                     problems.append((fid[0], fid[1], fid[2], ', '.join(errors)))

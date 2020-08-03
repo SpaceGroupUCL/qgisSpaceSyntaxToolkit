@@ -1,19 +1,21 @@
+from __future__ import absolute_import
 
 # general imports
+from builtins import range
 from qgis.core import QgsFeature, QgsGeometry, QgsSpatialIndex, QgsPoint, QgsVectorFileWriter, QgsField
-from PyQt4.QtCore import QObject, pyqtSignal, QVariant
+from qgis.PyQt.QtCore import QObject, pyqtSignal, QVariant
 
 
 # plugin module imports
 try:
-    from utilityFunctions import *
+    from .utilityFunctions import *
 except ImportError:
     pass
 
 class breakTool(QObject):
 
     finished = pyqtSignal(object)
-    error = pyqtSignal(Exception, basestring)
+    error = pyqtSignal(Exception, str)
     progress = pyqtSignal(float)
     warning = pyqtSignal(str)
     killed = pyqtSignal(bool)
@@ -115,7 +117,7 @@ class breakTool(QObject):
         broken_features = []
         f_count = 1
 
-        for fid in self.geometries.keys():
+        for fid in list(self.geometries.keys()):
 
             if self.killed is True:
                 break
@@ -289,7 +291,7 @@ class breakTool(QObject):
 
     def updateErrors(self, errors_dict):
 
-        for k, v in errors_dict.items():
+        for k, v in list(errors_dict.items()):
 
             try:
                 original_id = self.br_keys[k]

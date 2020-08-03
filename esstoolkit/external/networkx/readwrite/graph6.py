@@ -20,6 +20,9 @@ See http://cs.anu.edu.au/~bdm/data/formats.txt for details.
 #    Tomas Gavenciak <gavento@ucw.cz>
 #    All rights reserved.
 #    BSD license.
+from builtins import zip
+from builtins import chr
+from builtins import range
 import networkx as nx
 from networkx.exception import NetworkXError
 from networkx.utils import open_file, not_implemented_for
@@ -76,7 +79,7 @@ def parse_graph6(string):
             'Expected %d bits but got %d in graph6' % (n*(n-1)//2, len(data)*6))
 
     G=nx.Graph()
-    G.add_nodes_from(range(n))
+    G.add_nodes_from(list(range(n)))
     for (i,j),b in zip([(i,j) for j in range(1,n) for i in range(j)], bits()):
         if b:
             G.add_edge(i,j)
@@ -187,7 +190,7 @@ def generate_graph6(G, nodes = None, header=True):
     data = n_to_data(n)
     d = 0
     flush = False
-    for i, b in zip(range(n * n), bits()):
+    for i, b in zip(list(range(n * n)), bits()):
         d |= b << (5 - (i % 6))
         flush = True
         if i % 6 == 5:

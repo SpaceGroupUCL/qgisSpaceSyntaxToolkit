@@ -9,7 +9,10 @@ Includes:
   - BiDict, ReverseDict - Bi-directional dictionaries
   - ThreadsafeDict, ThreadsafeList - Self-mutexed data structures
 """
+from __future__ import absolute_import
 
+from builtins import str
+from builtins import object
 import threading, sys, copy, collections
 #from debug import *
 
@@ -17,7 +20,7 @@ try:
     from collections import OrderedDict
 except ImportError:
     # fallback: try to use the ordereddict backport when using python 2.6
-    from ordereddict import OrderedDict
+    from .ordereddict import OrderedDict
         
 
 class ReverseDict(dict):
@@ -239,7 +242,7 @@ class CaselessDict(OrderedDict):
         return key.lower() in self.keyMap
     
     def update(self, d):
-        for k, v in d.iteritems():
+        for k, v in d.items():
             self[k] = v
             
     def copy(self):
@@ -311,11 +314,11 @@ class ProtectedDict(dict):
         raise Exception("It is not safe to copy protected dicts! (instead try deepcopy, but be careful.)")
     
     def itervalues(self):
-        for v in self._data_.itervalues():
+        for v in self._data_.values():
             yield protect(v)
         
     def iteritems(self):
-        for k, v in self._data_.iteritems():
+        for k, v in self._data_.items():
             yield (k, protect(v))
         
     def deepcopy(self):

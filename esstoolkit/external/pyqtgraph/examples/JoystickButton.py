@@ -5,8 +5,9 @@ mouse dragged, the x/y values change to follow the mouse.
 When the mouse button is released, the x/y values change to 0,0 (rather like 
 letting go of the joystick).
 """
+from __future__ import absolute_import
 
-import initExample ## Add path to library (just for examples; you do not need this)
+from . import initExample ## Add path to library (just for examples; you do not need this)
 
 from pyqtgraph.Qt import QtGui, QtCore
 import pyqtgraph as pg

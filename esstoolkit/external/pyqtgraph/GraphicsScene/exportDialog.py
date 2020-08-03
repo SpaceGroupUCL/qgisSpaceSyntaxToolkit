@@ -1,3 +1,4 @@
+from builtins import str
 from ..Qt import QtCore, QtGui, USE_PYSIDE, USE_PYQT5
 from .. import exporters as exporters
 from .. import functions as fn
@@ -62,7 +63,7 @@ class ExportDialog(QtGui.QWidget):
         self.ui.itemTree.addTopLevelItem(si)
         self.ui.itemTree.setCurrentItem(si)
         si.setExpanded(True)
-        for child in self.scene.items():
+        for child in list(self.scene.items()):
             if child.parentItem() is None:
                 self.updateItemTree(child, si, select=select)
                 

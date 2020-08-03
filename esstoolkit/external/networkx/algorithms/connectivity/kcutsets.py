@@ -106,7 +106,7 @@ def all_node_cuts(G, k=None, flow_func=None):
         k = nx.node_connectivity(G, flow_func=flow_func)
     # step 2: 
     # Find k nodes with top degree, call it X:
-    degree = G.degree().items()
+    degree = list(G.degree().items())
     X = {n for n, d in sorted(degree, key=itemgetter(1), reverse=True)[:k]}
     # Check if X is a k-node-cutset
     if _is_separating_set(G, X):
@@ -139,7 +139,7 @@ def all_node_cuts(G, k=None, flow_func=None):
                     # Nodes in an antichain of the condensation graph of
                     # the residual network map to a closed set of nodes that
                     # define a node partition of the auxiliary digraph H.
-                    S = {n for n, scc in cmap.items() if scc in antichain}
+                    S = {n for n, scc in list(cmap.items()) if scc in antichain}
                     # Find the cutset that links the node partition (S,~S) in H
                     cutset = set()
                     for u in S:

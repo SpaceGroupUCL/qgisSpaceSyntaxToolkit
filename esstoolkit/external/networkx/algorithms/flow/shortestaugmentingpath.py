@@ -3,6 +3,8 @@
 Shortest augmenting path algorithm for maximum flow problems.
 """
 
+from builtins import next
+from builtins import str
 __author__ = """ysitu <ysitu@users.noreply.github.com>"""
 # Copyright (C) 2014 ysitu <ysitu@users.noreply.github.com>
 # All rights reserved.
@@ -38,7 +40,7 @@ def shortest_augmenting_path_impl(G, s, t, capacity, residual, two_phase,
 
     # Initialize/reset the residual network.
     for u in R:
-        for e in R_succ[u].values():
+        for e in list(R_succ[u].values()):
             e['flow'] = 0
 
     # Initialize heights of the nodes.
@@ -47,7 +49,7 @@ def shortest_augmenting_path_impl(G, s, t, capacity, residual, two_phase,
     while q:
         u, height = q.popleft()
         height += 1
-        for v, attr in R_pred[u].items():
+        for v, attr in list(R_pred[u].items()):
             if v not in heights and attr['flow'] < attr['capacity']:
                 heights[v] = height
                 q.append((v, height))
@@ -99,7 +101,7 @@ def shortest_augmenting_path_impl(G, s, t, capacity, residual, two_phase,
         """Relabel a node to create an admissible edge.
         """
         height = n - 1
-        for v, attr in R_succ[u].items():
+        for v, attr in list(R_succ[u].items()):
             if attr['flow'] < attr['capacity']:
                 height = min(height, R_node[v]['height'])
         return height + 1

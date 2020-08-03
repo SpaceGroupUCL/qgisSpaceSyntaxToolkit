@@ -1,9 +1,10 @@
 #!/usr/bin/env python
+from builtins import object
 from nose.tools import *
 import networkx as nx
 from networkx import convert_node_labels_to_integers as cnlti
 
-class TestBoundary:
+class TestBoundary(object):
 
     def setUp(self):
         self.null=nx.null_graph()

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """Algorithms to characterize the number of triangles in a graph."""
+from builtins import next
 from itertools import combinations
 import networkx as nx
 from networkx import NetworkXError
@@ -67,7 +68,7 @@ def _triangles_and_degree_iter(G,nodes=None):
         raise NetworkXError("Not defined for multigraphs.")
 
     if nodes is None:
-        nodes_nbrs = G.adj.items()
+        nodes_nbrs = list(G.adj.items())
     else:
         nodes_nbrs= ( (n,G[n]) for n in G.nbunch_iter(nodes) )
 
@@ -95,7 +96,7 @@ def _weighted_triangles_and_degree_iter(G, nodes=None, weight='weight'):
         max_weight=float(max(d.get(weight,1.0) 
                              for u,v,d in G.edges(data=True)))
     if nodes is None:
-        nodes_nbrs = G.adj.items()
+        nodes_nbrs = list(G.adj.items())
     else:
         nodes_nbrs= ( (n,G[n]) for n in G.nbunch_iter(nodes) )
 
@@ -167,7 +168,7 @@ def average_clustering(G, nodes=None, weight=None, count_zeros=True):
        nodes and leafs on clustering measures for small-world networks.
        http://arxiv.org/abs/0802.2512
     """
-    c=clustering(G,nodes,weight=weight).values()
+    c=list(clustering(G,nodes,weight=weight).values())
     if not count_zeros:
         c = [v for v in c if v > 0]
     return sum(c)/float(len(c))

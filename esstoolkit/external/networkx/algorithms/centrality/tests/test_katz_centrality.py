@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+from builtins import zip
+from builtins import str
+from builtins import object
 import math
 from nose import SkipTest
 from nose.tools import *

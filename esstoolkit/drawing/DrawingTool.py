@@ -20,22 +20,26 @@
  *                                                                         *
  ***************************************************************************/
 """
+from __future__ import print_function
+from __future__ import absolute_import
 
 
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, Qt, QSize
-from PyQt4.QtGui import QAction, QIcon, QPixmap
+from builtins import object
+from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, Qt, QSize
+from qgis.PyQt.QtWidgets import QAction
+from qgis.PyQt.QtGui import QIcon, QPixmap
 from qgis.utils import QgsMessageBar
 from qgis.core import *
 # Initialize Qt resources from file resources.py
-import resources
+from . import resources
 
 
 # Import the code for the DockWidget
-from DrawingTool_dockwidget import DrawingToolDockWidget
+from .DrawingTool_dockwidget import DrawingToolDockWidget
 import os.path
 
 
-class DrawingTool:
+class DrawingTool(object):
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
@@ -238,7 +242,8 @@ class DrawingTool:
 
 
         for layer in self.iface.legendInterface().layers():
-            print 'l'
+            # fix_print_with_import
+            print('l')
             if layer.isValid() and layer.type() == QgsMapLayer.VectorLayer:
                 if layer.hasGeometryType() and (layer.geometryType() == geom_type):
                     layers.append(layer.name())
@@ -252,9 +257,11 @@ class DrawingTool:
             self.lockGUI(False)
         else:
             self.lockGUI(True)
-        print 'done'
-        for lyr in QgsMapLayerRegistry.instance().mapLayers().values():
-            print lyr, 'lyr', layers_list
+        # fix_print_with_import
+        print('done')
+        for lyr in list(QgsMapLayerRegistry.instance().mapLayers().values()):
+            # fix_print_with_import
+            print(lyr, 'lyr', layers_list)
         return
 
     def pop_layer(self):
@@ -274,7 +281,8 @@ class DrawingTool:
         if active_network_idx == -1:
             active_network_idx = 0
 
-        print 'active_network_idx', self.dockwidget.activatedNetwork, networks
+        # fix_print_with_import
+        print('active_network_idx', self.dockwidget.activatedNetwork, networks)
 
         # TODO: if the network changes - do not block signals - setup snapping
         #if self.dockwidget.activatedNetwork =

@@ -3,9 +3,11 @@
 This example uses the isosurface function to convert a scalar field
 (a hydrogen orbital) into a mesh for 3D display.
 """
+from __future__ import print_function
+from __future__ import absolute_import
 
 ## Add path to library (just for examples; you do not need this)
-import initExample
+from . import initExample
 
 from pyqtgraph.Qt import QtCore, QtGui
 import pyqtgraph as pg

@@ -1,3 +1,5 @@
+from builtins import str
+from builtins import object
 from ..Point import Point
 from ..Qt import QtCore, QtGui
 import weakref

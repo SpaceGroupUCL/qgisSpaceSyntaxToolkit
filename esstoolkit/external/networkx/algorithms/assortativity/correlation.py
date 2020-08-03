@@ -1,6 +1,7 @@
 #-*- coding: utf-8 -*-
 """Node assortativity coefficients and correlation measures.
 """
+from builtins import zip
 import networkx as nx
 from networkx.algorithms.assortativity.mixing import degree_mixing_matrix, \
     attribute_mixing_matrix, numeric_mixing_matrix
@@ -135,7 +136,7 @@ def degree_pearson_correlation_coefficient(G, x='out', y='in',
         raise ImportError(
           "Assortativity requires SciPy: http://scipy.org/ ")
     xy=node_degree_xy(G, x=x, y=y, nodes=nodes, weight=weight)
-    x,y=zip(*xy)
+    x,y=list(zip(*xy))
     return stats.pearsonr(x,y)[0]
 
 

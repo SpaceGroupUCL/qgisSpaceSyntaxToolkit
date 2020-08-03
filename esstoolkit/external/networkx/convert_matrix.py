@@ -26,6 +26,9 @@ nx_agraph, nx_pydot
 #    Pieter Swart <swart@lanl.gov>
 #    All rights reserved.
 #    BSD license.
+from builtins import chr
+from builtins import zip
+from builtins import range
 import warnings
 import itertools
 import networkx as nx
@@ -313,7 +316,7 @@ def to_numpy_matrix(G, nodelist=None, dtype=None, order=None,
 
     nlen=len(nodelist)
     undirected = not G.is_directed()
-    index=dict(zip(nodelist,range(nlen)))
+    index=dict(list(zip(nodelist,list(range(nlen)))))
 
     # Initially, we start with an array of nans.  Then we populate the matrix
     # using data from the graph.  Afterwards, any leftover nans will be
@@ -368,7 +371,7 @@ def to_numpy_matrix(G, nodelist=None, dtype=None, order=None,
         # Graph or DiGraph, this is much faster than above
         M = np.zeros((nlen,nlen), dtype=dtype, order=order) + np.nan
         for u,nbrdict in G.adjacency_iter():
-            for v,d in nbrdict.items():
+            for v,d in list(nbrdict.items()):
                 try:
                     M[index[u],index[v]] = d.get(weight,1)
                 except KeyError:
@@ -479,7 +482,7 @@ def from_numpy_matrix(A, parallel_edges=False, create_using=None):
         blurb = chr(1245) # just to trigger the exception
         kind_to_python_type['U']=str
     except ValueError: # Python 2.6+
-        kind_to_python_type['U']=unicode
+        kind_to_python_type['U']=str
     G=_prep_create_using(create_using)
     n,m=A.shape
     if n!=m:
@@ -492,15 +495,15 @@ def from_numpy_matrix(A, parallel_edges=False, create_using=None):
         raise TypeError("Unknown numpy data type: %s"%dt)
 
     # Make sure we get even the isolated nodes of the graph.
-    G.add_nodes_from(range(n))
+    G.add_nodes_from(list(range(n)))
     # Get a list of all the entries in the matrix with nonzero entries. These
     # coordinates will become the edges in the graph.
-    edges = zip(*(np.asarray(A).nonzero()))
+    edges = list(zip(*(np.asarray(A).nonzero())))
     # handle numpy constructed data type
     if python_type is 'void':
         # Sort the fields by their offset, then by dtype, then by name.
         fields = sorted((offset, dtype, name) for name, (dtype, offset) in
-                        A.dtype.fields.items())
+                        list(A.dtype.fields.items()))
         triples = ((u, v, {name: kind_to_python_type[dtype.kind](val)
                            for (_, dtype, name), val in zip(fields, A[u, v])})
                    for u, v in edges)
@@ -592,7 +595,7 @@ def to_numpy_recarray(G,nodelist=None,
         raise nx.NetworkXError(msg)
     nlen=len(nodelist)
     undirected = not G.is_directed()
-    index=dict(zip(nodelist,range(nlen)))
+    index=dict(list(zip(nodelist,list(range(nlen)))))
     M = np.zeros((nlen,nlen), dtype=dtype, order=order)
 
     names=M.dtype.names
@@ -696,13 +699,13 @@ def to_scipy_sparse_matrix(G, nodelist=None, dtype=None,
         msg = "Ambiguous ordering: `nodelist` contained duplicates."
         raise nx.NetworkXError(msg)
 
-    index = dict(zip(nodelist,range(nlen)))
+    index = dict(list(zip(nodelist,list(range(nlen)))))
     if G.number_of_edges() == 0:
         row,col,data=[],[],[]
     else:
-        row,col,data = zip(*((index[u],index[v],d.get(weight,1))
+        row,col,data = list(zip(*((index[u],index[v],d.get(weight,1))
                              for u,v,d in G.edges_iter(nodelist, data=True)
-                             if u in index and v in index))
+                             if u in index and v in index)))
     if G.is_directed():
         M = sparse.coo_matrix((data,(row,col)),
                               shape=(nlen,nlen), dtype=dtype)
@@ -715,9 +718,9 @@ def to_scipy_sparse_matrix(G, nodelist=None, dtype=None,
         # so we subtract the data on the diagonal
         selfloops = G.selfloop_edges(data=True)
         if selfloops:
-            diag_index,diag_data = zip(*((index[u],-d.get(weight,1))
+            diag_index,diag_data = list(zip(*((index[u],-d.get(weight,1))
                                          for u,v,d in selfloops
-                                         if u in index and v in index))
+                                         if u in index and v in index)))
             d += diag_data
             r += diag_index
             c += diag_index
@@ -758,7 +761,7 @@ def _coo_gen_triples(A):
 
     """
     row, col, data = A.row, A.col, A.data
-    return zip(row, col, data)
+    return list(zip(row, col, data))
 
 
 def _dok_gen_triples(A):
@@ -766,7 +769,7 @@ def _dok_gen_triples(A):
     iterable of weighted edge triples.
 
     """
-    for (r, c), v in A.items():
+    for (r, c), v in list(A.items()):
         yield r, c, v
 
 
@@ -858,7 +861,7 @@ def from_scipy_sparse_matrix(A, parallel_edges=False, create_using=None,
         raise nx.NetworkXError(\
               "Adjacency matrix is not square. nx,ny=%s"%(A.shape,))
     # Make sure we get even the isolated nodes of the graph.
-    G.add_nodes_from(range(n))
+    G.add_nodes_from(list(range(n)))
     # Create an iterable over (u, v, w) triples and for each triple, add an
     # edge from u to v with weight w.
     triples = _generate_weighted_edges(A)

@@ -20,13 +20,16 @@
  *                                                                         *
  ***************************************************************************/
 """
+from __future__ import print_function
+from __future__ import absolute_import
 
-from PyQt4 import QtGui, uic
+from builtins import str
+from qgis.PyQt import QtGui, uic
 
 import os
-from PyQt4.QtCore import pyqtSignal
+from qgis.PyQt.QtCore import pyqtSignal
 
-from utility_functions import *
+from .utility_functions import *
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'DbSettings_dialog_base.ui'))
@@ -60,7 +63,7 @@ class DbSettingsDialog(QtGui.QDialog, FORM_CLASS):
 
     def getDbSettings(self):
         connection = self.dbCombo.currentText()
-        if connection in self.available_dbs.keys():
+        if connection in list(self.available_dbs.keys()):
             return {'dbname': connection,
                     'schema': self.schemaCombo.currentText(),
                     'table_name': self.nameLineEdit.text()}
@@ -77,13 +80,17 @@ class DbSettingsDialog(QtGui.QDialog, FORM_CLASS):
         if len(self.getSelectedDb()) > 1:
             self.get_connstring(selected_db)
             schemas = getPostgisSchemas(self.connstring)
-            print 'connstring', self.connstring
+            # fix_print_with_import
+            # fix_print_with_import
+print('connstring', self.connstring)
         self.schemaCombo.addItems(schemas)
 
 
     def get_connstring(self, selected_db):
         db_info = self.available_dbs[selected_db]
-        print 'tries', db_info, selected_db
+        # fix_print_with_import
+        # fix_print_with_import
+print('tries', db_info, selected_db)
         # pass connsting property so that it can be called
         self.connstring = ''
         try:
@@ -96,7 +103,7 @@ class DbSettingsDialog(QtGui.QDialog, FORM_CLASS):
             del db_info['database']
         except KeyError:
             pass
-        for k, v in db_info.items():
+        for k, v in list(db_info.items()):
             self.connstring += str(k) + '=' + str(v) + ' '
         return
 

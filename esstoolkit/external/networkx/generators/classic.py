@@ -16,6 +16,10 @@ in this module return a Graph class (i.e. a simple, undirected graph).
 #    Pieter Swart <swart@lanl.gov>
 #    All rights reserved.
 #    BSD license.
+from builtins import zip
+from builtins import next
+from builtins import str
+from builtins import range
 import itertools
 
 from networkx.algorithms.bipartite.generators import complete_bipartite_graph
@@ -54,7 +58,7 @@ from networkx.utils import is_list_of_ints, flatten
 def _tree_edges(n,r):
     # helper function for trees
     # yields edges in rooted tree at 0 with n nodes and branching ratio r
-    nodes=iter(range(n))
+    nodes=iter(list(range(n)))
     parents=[next(nodes)] # stack of max length r
     while parents:
         source=parents.pop(0)
@@ -190,9 +194,9 @@ def complete_graph(n,create_using=None):
     G.name="complete_graph(%d)"%(n)
     if n>1:
         if G.is_directed():
-            edges=itertools.permutations(range(n),2)
+            edges=itertools.permutations(list(range(n)),2)
         else:
-            edges=itertools.combinations(range(n),2)
+            edges=itertools.combinations(list(range(n)),2)
         G.add_edges_from(edges)
     return G
 
@@ -352,7 +356,7 @@ def empty_graph(n=0,create_using=None):
         G=create_using
         G.clear()
 
-    G.add_nodes_from(range(n))
+    G.add_nodes_from(list(range(n)))
     G.name="empty_graph(%d)"%n
     return G
 
@@ -364,8 +368,8 @@ def grid_2d_graph(m,n,periodic=False,create_using=None):
     """
     G=empty_graph(0,create_using)
     G.name="grid_2d_graph"
-    rows=range(m)
-    columns=range(n)
+    rows=list(range(m))
+    columns=list(range(n))
     G.add_nodes_from( (i,j) for i in rows for j in columns )
     G.add_edges_from( ((i,j),(i-1,j)) for i in rows for j in columns if i>0 )
     G.add_edges_from( ((i,j),(i,j-1)) for i in rows for j in columns if j>0 )
@@ -611,8 +615,8 @@ def complete_multipartite_graph(*block_sizes):
     G = nx.empty_graph(sum(block_sizes))
     # If block_sizes is (n1, n2, n3, ...), create pairs of the form (0, n1),
     # (n1, n1 + n2), (n1 + n2, n1 + n2 + n3), etc.
-    extents = zip([0] + list(accumulate(block_sizes)), accumulate(block_sizes))
-    blocks = [range(start, end) for start, end in extents]
+    extents = list(zip([0] + list(accumulate(block_sizes)), accumulate(block_sizes)))
+    blocks = [list(range(start, end)) for start, end in extents]
     for (i, block) in enumerate(blocks):
         G.add_nodes_from(block, block=i)
     # Across blocks, all vertices should be adjacent. We can use

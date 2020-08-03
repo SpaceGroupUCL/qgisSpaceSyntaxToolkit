@@ -20,7 +20,9 @@
  *                                                                         *
  ***************************************************************************/
 """
+from __future__ import absolute_import
 
+from builtins import range
 from PyQt4.QtCore import *
 
 from qgis.core import *
@@ -28,14 +30,14 @@ from qgis.gui import *
 from qgis.networkanalysis import *
 from qgis.utils import *
 
-import analysis_tools as ct
-import utility_functions as uf
+from . import analysis_tools as ct
+from . import utility_functions as uf
 
 is_debug = False
 try:
     import pydevd_pycharm as pydevd
     has_pydevd = True
-except ImportError, e:
+except ImportError as e:
     has_pydevd = False
 
 import traceback
@@ -45,7 +47,7 @@ class CatchmentAnalysis(QObject):
 
     # Setup signals
     finished = pyqtSignal(object)
-    error = pyqtSignal(Exception, basestring)
+    error = pyqtSignal(Exception, str)
     progress = pyqtSignal(float)
     warning = pyqtSignal(str)
 
@@ -127,7 +129,7 @@ class CatchmentAnalysis(QObject):
                     self.progress.emit(100)
                     self.finished.emit(output)
 
-            except Exception, e:
+            except Exception as e:
                 self.error.emit(e, traceback.format_exc())
 
     def origin_preparation(self, origin_vector, origin_name_field):
@@ -228,7 +230,7 @@ class CatchmentAnalysis(QObject):
             (tree, cost) = QgsGraphAnalyzer.dijkstra(graph, originVertexId, 0)
 
             # Loop through graph arcs
-            for index in catchment_network.iterkeys():
+            for index in catchment_network.keys():
                 if self.killed == True: break
                 # Define the arc properties
                 inVertexId = catchment_network[index]['start']
@@ -299,7 +301,7 @@ class CatchmentAnalysis(QObject):
 
         # Loop through arcs in catchment network and write geometry and costs
         i = 1
-        for k, v in catchment_network.iteritems():
+        for k, v in catchment_network.items():
             self.progress.emit(70 + int(30 * i / len(catchment_network)))
             if self.killed == True: break
 
@@ -315,7 +317,7 @@ class CatchmentAnalysis(QObject):
                 f.setAttribute("id", k)
                 f.setGeometry(arc_geom)
                 # Read the list of costs and write them to output network
-                for name, cost in arc_cost_dict.iteritems():
+                for name, cost in arc_cost_dict.items():
                     arc_cost_list.append(cost)
                     f.setAttribute("%s" % name, cost)
 

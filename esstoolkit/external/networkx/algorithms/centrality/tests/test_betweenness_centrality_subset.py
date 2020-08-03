@@ -1,10 +1,13 @@
 #!/usr/bin/env python
+from __future__ import print_function
+from builtins import range
+from builtins import object
 from nose.tools import *
 import networkx
 from networkx import betweenness_centrality_subset,\
      edge_betweenness_centrality_subset
 
-class TestSubsetBetweennessCentrality:
+class TestSubsetBetweennessCentrality(object):
         
     def test_K5(self):
         """Betweenness centrality: K5"""
@@ -103,7 +106,7 @@ class TestSubsetBetweennessCentrality:
             assert_almost_equal(b[n],b_answer[n])
 
 
-class TestBetweennessCentralitySources:
+class TestBetweennessCentralitySources(object):
     def test_K5(self):
         """Betweenness centrality: K5"""
         G=networkx.complete_graph(5)
@@ -127,7 +130,7 @@ class TestBetweennessCentralitySources:
     
 
 
-class TestEdgeSubsetBetweennessCentrality:
+class TestEdgeSubsetBetweennessCentrality(object):
     
     def test_K5(self):
         """Edge betweenness centrality: K5"""
@@ -140,7 +143,8 @@ class TestEdgeSubsetBetweennessCentrality:
         b_answer[(0,3)]=0.5
         b_answer[(0,1)]=0.5
         for n in sorted(G.edges()):
-            print(n,b[n])
+            # fix_print_with_import
+            print((n,b[n]))
             assert_almost_equal(b[n],b_answer[n])
 
     def test_P5_directed(self):

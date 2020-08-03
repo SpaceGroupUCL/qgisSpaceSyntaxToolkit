@@ -1,10 +1,11 @@
 """ Tests for subgraphs attributes
 """
+from builtins import object
 from copy import deepcopy
 from nose.tools import assert_equal
 import networkx as nx
 
-class TestSubgraphAttributesDicts:
+class TestSubgraphAttributesDicts(object):
 
     def setUp(self):
         self.undirected = [

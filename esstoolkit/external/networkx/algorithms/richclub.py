@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from builtins import zip
+from builtins import range
 import networkx as nx
 __author__ = """\n""".join(['Ben Edwards',
                             'Aric Hagberg <hagberg@lanl.gov>'])
@@ -90,7 +92,7 @@ def _compute_rc(G):
     ek=G.number_of_edges()
     k1,k2=edge_degrees.pop(0)
     rc={}
-    for d,nk in zip(range(len(nks)),nks):         
+    for d,nk in zip(list(range(len(nks))),nks):         
         while k1 <= d:
             if len(edge_degrees)==0:
                 break

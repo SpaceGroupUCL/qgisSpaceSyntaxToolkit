@@ -2,6 +2,7 @@
 """
 Shortest path algorithms for weighed graphs.
 """
+from builtins import next
 __author__ = """\n""".join(['Aric Hagberg <hagberg@lanl.gov>',
                             'Loïc Séguin-C. <loicseguin@gmail.com>',
                             'Dan Schult <dschult@colgate.edu>'])
@@ -221,7 +222,7 @@ def single_source_dijkstra_path_length(G, source, cutoff=None,
     """
     if G.is_multigraph():
         get_weight = lambda u, v, data: min(
-            eattr.get(weight, 1) for eattr in data.values())
+            eattr.get(weight, 1) for eattr in list(data.values()))
     else:
         get_weight = lambda u, v, data: data.get(weight, 1)
 
@@ -287,7 +288,7 @@ def single_source_dijkstra(G, source, target=None, cutoff=None, weight='weight')
 
     if G.is_multigraph():
         get_weight = lambda u, v, data: min(
-            eattr.get(weight, 1) for eattr in data.values())
+            eattr.get(weight, 1) for eattr in list(data.values()))
     else:
         get_weight = lambda u, v, data: data.get(weight, 1)
 
@@ -353,7 +354,7 @@ def _dijkstra(G, source, get_weight, pred=None, paths=None, cutoff=None,
         if v == target:
             break
 
-        for u, e in G_succ[v].items():
+        for u, e in list(G_succ[v].items()):
             cost = get_weight(v, u, e)
             if cost is None:
                 continue
@@ -416,7 +417,7 @@ def dijkstra_predecessor_and_distance(G, source, cutoff=None, weight='weight'):
     """
     if G.is_multigraph():
         get_weight = lambda u, v, data: min(
-            eattr.get(weight, 1) for eattr in data.values())
+            eattr.get(weight, 1) for eattr in list(data.values()))
     else:
         get_weight = lambda u, v, data: data.get(weight, 1)
 
@@ -615,7 +616,7 @@ def _bellman_ford_relaxation(G, pred, dist, source, weight):
     """
     if G.is_multigraph():
         def get_weight(edge_dict):
-            return min(eattr.get(weight, 1) for eattr in edge_dict.values())
+            return min(eattr.get(weight, 1) for eattr in list(edge_dict.values()))
     else:
         def get_weight(edge_dict):
             return edge_dict.get(weight, 1)
@@ -633,7 +634,7 @@ def _bellman_ford_relaxation(G, pred, dist, source, weight):
         # Skip relaxations if the predecessor of u is in the queue.
         if pred[u] not in in_q:
             dist_u = dist[u]
-            for v, e in G_succ[u].items():
+            for v, e in list(G_succ[u].items()):
                 dist_v = dist_u + get_weight(e)
                 if dist_v < dist.get(v, inf):
                     if v not in in_q:
@@ -724,7 +725,7 @@ def goldberg_radzik(G, source, weight='weight'):
 
     if G.is_multigraph():
         def get_weight(edge_dict):
-            return min(attr.get(weight, 1) for attr in edge_dict.values())
+            return min(attr.get(weight, 1) for attr in list(edge_dict.values()))
     else:
         def get_weight(edge_dict):
             return edge_dict.get(weight, 1)
@@ -759,12 +760,12 @@ def goldberg_radzik(G, source, weight='weight'):
                 continue
             d_u = d[u]
             # Skip nodes without out-edges of negative reduced costs.
-            if all(d_u + get_weight(e) >= d[v] for v, e in G_succ[u].items()):
+            if all(d_u + get_weight(e) >= d[v] for v, e in list(G_succ[u].items())):
                 continue
             # Nonrecursive DFS that inserts nodes reachable from u via edges of
             # nonpositive reduced costs into to_scan in (reverse) topological
             # order.
-            stack = [(u, iter(G_succ[u].items()))]
+            stack = [(u, iter(list(G_succ[u].items())))]
             in_stack = set([u])
             neg_count[u] = 0
             while stack:
@@ -784,7 +785,7 @@ def goldberg_radzik(G, source, weight='weight'):
                     pred[v] = u
                     if v not in neg_count:
                         neg_count[v] = neg_count[u] + int(is_neg)
-                        stack.append((v, iter(G_succ[v].items())))
+                        stack.append((v, iter(list(G_succ[v].items()))))
                         in_stack.add(v)
                     elif (v in in_stack and
                           neg_count[u] + int(is_neg) > neg_count[v]):
@@ -805,7 +806,7 @@ def goldberg_radzik(G, source, weight='weight'):
         # out-edges. Add the relabled nodes to labeled.
         for u in to_scan:
             d_u = d[u]
-            for v, e in G_succ[u].items():
+            for v, e in list(G_succ[u].items()):
                 w_e = get_weight(e)
                 if d_u + w_e < d[v]:
                     d[v] = d_u + w_e
@@ -979,14 +980,14 @@ def bidirectional_dijkstra(G, source, target, weight='weight'):
             if(dir == 0):  # forward
                 if G.is_multigraph():
                     minweight = min((dd.get(weight, 1)
-                                     for k, dd in G[v][w].items()))
+                                     for k, dd in list(G[v][w].items())))
                 else:
                     minweight = G[v][w].get(weight, 1)
                 vwLength = dists[dir][v] + minweight  # G[v][w].get(weight,1)
             else:  # back, must remember to change v,w->w,v
                 if G.is_multigraph():
                     minweight = min((dd.get(weight, 1)
-                                     for k, dd in G[w][v].items()))
+                                     for k, dd in list(G[w][v].items())))
                 else:
                     minweight = G[w][v].get(weight, 1)
                 vwLength = dists[dir][v] + minweight  # G[w][v].get(weight,1)
@@ -1074,7 +1075,7 @@ def johnson(G, weight='weight'):
 
     if G.is_multigraph():
         get_weight = lambda u, v, data: (
-            min(eattr.get(weight, 1) for eattr in data.values()) +
+            min(eattr.get(weight, 1) for eattr in list(data.values())) +
             dist_bellman[u] - dist_bellman[v])
     else:
         get_weight = lambda u, v, data: (data.get(weight, 1) +

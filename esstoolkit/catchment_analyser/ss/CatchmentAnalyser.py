@@ -20,6 +20,7 @@
  *                                                                         *
  ***************************************************************************/
 """
+from __future__ import absolute_import
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 
@@ -32,12 +33,12 @@ from qgis.utils import *
 #import resources
 
 # Import the code for the dialog
-from catchment_analyser_dialog import CatchmentAnalyserDialog
+from .catchment_analyser_dialog import CatchmentAnalyserDialog
 # import the main analysis module
-import catchment_analysis as ca
+from . import catchment_analysis as ca
 
 # Import utility tools
-import utility_functions as uf
+from . import utility_functions as uf
 
 
 class CatchmentTool(QObject):

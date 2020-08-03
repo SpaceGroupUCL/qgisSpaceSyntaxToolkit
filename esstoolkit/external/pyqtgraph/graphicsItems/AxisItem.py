@@ -1,3 +1,6 @@
+from builtins import str
+from builtins import map
+from builtins import range
 from ..Qt import QtGui, QtCore
 from ..python2_3 import asUnicode
 import numpy as np
@@ -137,7 +140,7 @@ class AxisItem(GraphicsWidget):
         
         Added in version 0.9.9
         """
-        for kwd,value in kwds.items():
+        for kwd,value in list(kwds.items()):
             if kwd not in self.style:
                 raise NameError("%s is not a valid style argument." % kwd)
             
@@ -693,7 +696,7 @@ class AxisItem(GraphicsWidget):
             ## remove any ticks that were present in higher levels
             ## we assume here that if the difference between a tick value and a previously seen tick value
             ## is less than spacing/100, then they are 'equal' and we can ignore the new tick.
-            values = list(filter(lambda x: all(np.abs(allValues-x) > spacing*0.01), values) )
+            values = list([x for x in values if all(np.abs(allValues-x) > spacing*0.01)] )
             allValues = np.concatenate([allValues, values])
             ticks.append((spacing/self.scale, values))
             
@@ -889,13 +892,13 @@ class AxisItem(GraphicsWidget):
 
         
         if self.style['stopAxisAtTick'][0] is True:
-            stop = max(span[0].y(), min(map(min, tickPositions)))
+            stop = max(span[0].y(), min(list(map(min, tickPositions))))
             if axis == 0:
                 span[0].setY(stop)
             else:
                 span[0].setX(stop)
         if self.style['stopAxisAtTick'][1] is True:
-            stop = min(span[1].y(), max(map(max, tickPositions)))
+            stop = min(span[1].y(), max(list(map(max, tickPositions))))
             if axis == 0:
                 span[1].setY(stop)
             else:

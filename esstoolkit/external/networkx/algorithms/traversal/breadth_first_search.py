@@ -5,6 +5,7 @@ Breadth-first search
 
 Basic algorithms for breadth-first searching the nodes of a graph.
 """
+from builtins import next
 import networkx as nx
 from collections import defaultdict, deque
 __author__ = """\n""".join(['Aric Hagberg <aric.hagberg@gmail.com>'])

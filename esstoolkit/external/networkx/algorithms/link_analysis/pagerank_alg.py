@@ -6,6 +6,9 @@
 #    All rights reserved.
 #    BSD license.
 #    NetworkX:http://networkx.github.io/
+from builtins import zip
+from builtins import map
+from builtins import range
 import networkx as nx
 from networkx.exception import NetworkXError
 from networkx.utils import not_implemented_for
@@ -112,7 +115,7 @@ def pagerank(G, alpha=0.85, personalization=None,
     else:
         # Normalized nstart vector
         s = float(sum(nstart.values()))
-        x = dict((k, v / s) for k, v in nstart.items())
+        x = dict((k, v / s) for k, v in list(nstart.items()))
 
     if personalization is None:
         # Assign uniform personalization vector if not given
@@ -124,7 +127,7 @@ def pagerank(G, alpha=0.85, personalization=None,
                                 'must have a value for every node. '
                                 'Missing nodes %s' % missing)
         s = float(sum(personalization.values()))
-        p = dict((k, v / s) for k, v in personalization.items())
+        p = dict((k, v / s) for k, v in list(personalization.items()))
 
     if dangling is None:
         # Use personalization vector if dangling vector not specified
@@ -136,13 +139,13 @@ def pagerank(G, alpha=0.85, personalization=None,
                                 'must have a value for every node. '
                                 'Missing nodes %s' % missing)
         s = float(sum(dangling.values()))
-        dangling_weights = dict((k, v/s) for k, v in dangling.items())
+        dangling_weights = dict((k, v/s) for k, v in list(dangling.items()))
     dangling_nodes = [n for n in W if W.out_degree(n, weight=weight) == 0.0]
 
     # power iteration: make up to max_iter iterations
     for _ in range(max_iter):
         xlast = x
-        x = dict.fromkeys(xlast.keys(), 0)
+        x = dict.fromkeys(list(xlast.keys()), 0)
         danglesum = alpha * sum(xlast[n] for n in dangling_nodes)
         for n in x:
             # this matrix multiply looks odd because it is
@@ -338,7 +341,7 @@ def pagerank_numpy(G, alpha=0.85, personalization=None, weight='weight',
     # eigenvector of largest eigenvalue at ind[-1], normalized
     largest = np.array(eigenvectors[:, ind[-1]]).flatten().real
     norm = float(largest.sum())
-    return dict(zip(G, map(float, largest / norm)))
+    return dict(list(zip(G, list(map(float, largest / norm)))))
 
 
 def pagerank_scipy(G, alpha=0.85, personalization=None,
@@ -467,7 +470,7 @@ def pagerank_scipy(G, alpha=0.85, personalization=None,
         # check convergence, l1 norm
         err = scipy.absolute(x - xlast).sum()
         if err < N * tol:
-            return dict(zip(nodelist, map(float, x)))
+            return dict(list(zip(nodelist, list(map(float, x)))))
     raise NetworkXError('pagerank_scipy: power iteration failed to converge '
                         'in %d iterations.' % max_iter)
 

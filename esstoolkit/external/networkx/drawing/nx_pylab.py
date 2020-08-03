@@ -13,6 +13,7 @@ matplotlib:     http://matplotlib.org/
 pygraphviz:     http://pygraphviz.github.io/
 
 """
+from __future__ import print_function
 # Author: Aric Hagberg (hagberg@lanl.gov)
 
 #    Copyright (C) 2004-2016 by
@@ -21,6 +22,7 @@ pygraphviz:     http://pygraphviz.github.io/
 #    Pieter Swart <swart@lanl.gov>
 #    All rights reserved.
 #    BSD license.
+from builtins import str
 import networkx as nx
 from networkx.drawing.layout import shell_layout,\
     circular_layout,spectral_layout,spring_layout,random_layout
@@ -719,7 +721,7 @@ def draw_networkx_labels(G, pos,
     verticalalignment = kwds.get('verticalalignment', 'center')
 
     text_items = {}  # there is no text collection so we'll fake one
-    for n, label in labels.items():
+    for n, label in list(labels.items()):
         (x, y) = pos[n]
         if not cb.is_string_like(label):
             label = str(label)  # this will cause "1" and 1 to be labeled the same
@@ -833,7 +835,7 @@ def draw_networkx_edge_labels(G, pos,
     else:
         labels = edge_labels
     text_items = {}
-    for (n1, n2), label in labels.items():
+    for (n1, n2), label in list(labels.items()):
         (x1, y1) = pos[n1]
         (x2, y2) = pos[n2]
         (x, y) = (x1 * label_pos + x2 * (1.0 - label_pos),

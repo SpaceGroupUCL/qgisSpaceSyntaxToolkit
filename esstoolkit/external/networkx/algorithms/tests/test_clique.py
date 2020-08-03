@@ -1,10 +1,13 @@
 #!/usr/bin/env python
+from builtins import map
+from builtins import range
+from builtins import object
 from nose.tools import *
 import networkx as nx
 from networkx import convert_node_labels_to_integers as cnlti
 
 
-class TestCliques:
+class TestCliques(object):
 
     def setUp(self):
         z = [3, 4, 3, 4, 2, 4, 2, 1, 1, 1, 1]
@@ -113,7 +116,7 @@ class TestCliques:
         cliques = nx.find_cliques(nx.DiGraph())
 
 
-class TestEnumerateAllCliques:
+class TestEnumerateAllCliques(object):
 
     def test_paper_figure_4(self):
         # Same graph as given in Fig. 4 of paper enumerate_all_cliques is

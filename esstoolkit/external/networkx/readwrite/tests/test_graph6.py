@@ -1,6 +1,10 @@
 #!/usr/bin/env python
+from future import standard_library
+standard_library.install_aliases()
+from builtins import range
+from builtins import object
 try:
-    from StringIO import StringIO
+    from io import StringIO
 except ImportError:
     from io import StringIO
 from nose.tools import *

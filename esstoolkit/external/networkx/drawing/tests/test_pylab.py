@@ -2,6 +2,7 @@
     Unit tests for matplotlib drawing functions.
 """
 
+from builtins import object
 import os
 
 from nose import SkipTest

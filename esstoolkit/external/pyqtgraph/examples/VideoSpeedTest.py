@@ -5,9 +5,11 @@ The speed will generally depend on the type of data being shown, whether
 it is being scaled and/or converted by lookup table, and whether OpenGL
 is used by the view widget
 """
+from __future__ import absolute_import
 
 
-import initExample ## Add path to library (just for examples; you do not need this)
+from builtins import str
+from . import initExample ## Add path to library (just for examples; you do not need this)
 
 
 from pyqtgraph.Qt import QtGui, QtCore, USE_PYSIDE, USE_PYQT5
@@ -16,11 +18,11 @@ import pyqtgraph as pg
 import pyqtgraph.ptime as ptime
 
 if USE_PYSIDE:
-    import VideoTemplate_pyside as VideoTemplate
+    from . import VideoTemplate_pyside as VideoTemplate
 elif USE_PYQT5:
-    import VideoTemplate_pyqt5 as VideoTemplate
+    from . import VideoTemplate_pyqt5 as VideoTemplate
 else:
-    import VideoTemplate_pyqt as VideoTemplate
+    from . import VideoTemplate_pyqt as VideoTemplate
     
 
 #QtGui.QApplication.setGraphicsSystem('raster')

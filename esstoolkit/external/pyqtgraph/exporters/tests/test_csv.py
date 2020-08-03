@@ -2,6 +2,7 @@
 SVG export test
 """
 from __future__ import division, print_function, absolute_import
+from builtins import map
 import pyqtgraph as pg
 import csv
 import os

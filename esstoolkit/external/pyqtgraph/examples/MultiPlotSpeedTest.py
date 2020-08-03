@@ -3,9 +3,11 @@
 """
 Test the speed of rapidly updating multiple plot curves
 """
+from __future__ import absolute_import
 
 ## Add path to library (just for examples; you do not need this)
-import initExample
+from builtins import range
+from . import initExample
 
 
 from pyqtgraph.Qt import QtGui, QtCore

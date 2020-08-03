@@ -21,18 +21,20 @@
  ***************************************************************************/
 """
 
-from PyQt4 import QtCore, QtGui
-from ui_Explorer import Ui_ExplorerDialog
+from builtins import str
+from builtins import range
+from qgis.PyQt import QtCore, QtGui
+from .ui_Explorer import Ui_ExplorerDialog
 
 # try to import installed pyqtgraph, if not available use the one shipped with the esstoolkit
 try:
     import pyqtgraph as pg
     has_pyqtgraph = True
-except ImportError, e:
+except ImportError as e:
     try:
         from ..external import pyqtgraph as pg
         has_pyqtgraph = True
-    except ImportError, e:
+    except ImportError as e:
         has_pyqtgraph = False
 
 from .. import utility_functions as uf
@@ -192,7 +194,7 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
         self.attribute_min = attribute['min']
         # get current display settings
         settings = self.symbology_settings[self.curr_attribute]
-        for key in settings.iterkeys():
+        for key in settings.keys():
             self.current_symbology[key] = settings[key]
         # update the interface
         self.setColourRanges(int(self.current_symbology['colour_range']))
@@ -226,7 +228,7 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
 
     def getUpdatedDisplaySettings(self):
         settings = dict()
-        for key in self.current_symbology.iterkeys():
+        for key in self.current_symbology.keys():
             settings[key] = self.current_symbology[key]
         return settings
 

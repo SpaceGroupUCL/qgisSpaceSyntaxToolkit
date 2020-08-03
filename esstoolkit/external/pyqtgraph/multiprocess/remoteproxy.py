@@ -1,9 +1,16 @@
+from __future__ import print_function
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import map
+from builtins import range
+from builtins import object
 import os, time, sys, traceback, weakref
 import numpy as np
 import threading
 try:
-    import __builtin__ as builtins
-    import cPickle as pickle
+    import builtins as builtins
+    import pickle as pickle
 except ImportError:
     import builtins
     import pickle
@@ -70,7 +77,7 @@ class RemoteEventHandler(object):
             'noProxyTypes': [ type(None), str, int, float, tuple, list, dict, LocalObjectProxy, ObjectProxy ],
         }
         if int(sys.version[0]) < 3:
-            self.proxyOptions['noProxyTypes'].append(unicode)
+            self.proxyOptions['noProxyTypes'].append(str)
         else:
             self.proxyOptions['noProxyTypes'].append(bytes)
         
@@ -90,7 +97,8 @@ class RemoteEventHandler(object):
         try:
             return cls.handlers[pid]
         except:
-            print(pid, cls.handlers)
+            # fix_print_with_import
+            print((pid, cls.handlers))
             raise
     
     def debugMsg(self, msg, *args):
@@ -229,7 +237,7 @@ class RemoteEventHandler(object):
                             ind = arg[1]
                             dtype, shape = arg[2]
                             fnargs[i] = np.fromstring(byteData[ind], dtype=dtype).reshape(shape)
-                    for k,arg in fnkwds.items():
+                    for k,arg in list(fnkwds.items()):
                         if isinstance(arg, tuple) and len(arg) > 0 and arg[0] == '__byte_message__':
                             ind = arg[1]
                             dtype, shape = arg[2]
@@ -265,7 +273,7 @@ class RemoteEventHandler(object):
                     for part in parts[1:]:
                         result = getattr(result, part)
                 else:
-                    result = map(mod.__getattr__, fromlist)
+                    result = list(map(mod.__getattr__, fromlist))
                 
             elif cmd == 'del':
                 LocalObjectProxy.releaseProxyId(opts['proxyId'])
@@ -548,7 +556,7 @@ class RemoteEventHandler(object):
         
         if autoProxy is True:
             args = [self.autoProxy(v, noProxyTypes) for v in args]
-            for k, v in kwds.iteritems():
+            for k, v in kwds.items():
                 opts[k] = self.autoProxy(v, noProxyTypes)
         
         byteMsgs = []
@@ -559,7 +567,7 @@ class RemoteEventHandler(object):
             if arg.__class__ == np.ndarray:
                 args[i] = ("__byte_message__", len(byteMsgs), (arg.dtype, arg.shape))
                 byteMsgs.append(arg)
-        for k,v in kwds.items():
+        for k,v in list(kwds.items()):
             if v.__class__ == np.ndarray:
                 kwds[k] = ("__byte_message__", len(byteMsgs), (v.dtype, v.shape))
                 byteMsgs.append(v)

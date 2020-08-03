@@ -20,16 +20,19 @@
  *                                                                         *
  ***************************************************************************/
 """
+from __future__ import print_function
+from __future__ import absolute_import
 
+from builtins import range
 import os
 
-from PyQt4.QtCore import QThread, QSettings, pyqtSignal, Qt, QSize
+from qgis.PyQt.QtCore import QThread, QSettings, pyqtSignal, Qt, QSize
 from qgis.core import *
 from qgis.gui import *
 from qgis.utils import *
 
-from PyQt4 import QtGui, uic
-from utility_functions import *
+from qgis.PyQt import QtGui, uic
+from .utility_functions import *
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'DrawingTool_dockwidget_base.ui'))
@@ -93,7 +96,9 @@ class DrawingToolDockWidget(QtGui.QDockWidget, FORM_CLASS):
             self.resetSnapping()
         self.settings[0] = self.networkCombo.currentText()
         self.activatedNetwork = self.settings[0]
-        print 'user selected network', self.settings[0]
+        # fix_print_with_import
+        # fix_print_with_import
+print('user selected network', self.settings[0])
         combo_items = [self.networkCombo.itemText(i) for i in range(self.networkCombo.count())]
         if combo_items.count(self.settings[0]) > 1 :
             self.iface.messageBar().pushMessage(
@@ -112,7 +117,9 @@ class DrawingToolDockWidget(QtGui.QDockWidget, FORM_CLASS):
             self.resetSnapping()
         self.settings[1] = self.unlinksCombo.currentText()
         self.activatedUnlinks = self.settings[1]
-        print 'user selected unlinks', self.settings[1]
+        # fix_print_with_import
+        # fix_print_with_import
+print('user selected unlinks', self.settings[1])
         combo_items = [self.unlinksCombo.itemText(i) for i in range(self.unlinksCombo.count())]
         if combo_items.count(self.settings[1]) > 1:
             self.iface.messageBar().pushMessage(
@@ -128,7 +135,9 @@ class DrawingToolDockWidget(QtGui.QDockWidget, FORM_CLASS):
         if self.settings[0]:
             self.resetSnapping()
         self.settings[2] = self.toleranceSpin.value()
-        print 'tolerance upd', self.settings
+        # fix_print_with_import
+        # fix_print_with_import
+print('tolerance upd', self.settings)
         return
 
     def setAxialSnapping(self):
@@ -148,7 +157,9 @@ class DrawingToolDockWidget(QtGui.QDockWidget, FORM_CLASS):
         # snap to nothing
         if self.settings[0] != '':
             proj = QgsProject.instance()
-            print proj, 'ax'
+            # fix_print_with_import
+            # fix_print_with_import
+print(proj, 'ax')
             proj.writeEntry('Digitizing', 'SnappingMode', 'advanced')
             layer = getLayerByName(self.settings[0])
             self.iface.setActiveLayer(layer)
@@ -175,7 +186,9 @@ class DrawingToolDockWidget(QtGui.QDockWidget, FORM_CLASS):
         # snap to vertex
         if self.settings[0] != '':
             proj = QgsProject.instance()
-            print proj, 'seg'
+            # fix_print_with_import
+            # fix_print_with_import
+print(proj, 'seg')
             proj.writeEntry('Digitizing', 'SnappingMode', 'advanced')
             layer = getLayerByName(self.settings[0])
             self.iface.setActiveLayer(layer)
@@ -203,7 +216,9 @@ class DrawingToolDockWidget(QtGui.QDockWidget, FORM_CLASS):
             self.unlinksButton.setIcon(QtGui.QIcon(unlink_icon))
             self.unlinksButton.setIconSize(QSize(40, 40))
             proj = QgsProject.instance()
-            print proj, 'un'
+            # fix_print_with_import
+            # fix_print_with_import
+print(proj, 'un')
             proj.writeEntry('Digitizing', 'SnappingMode', 'advanced')
             layer = getLayerByName(self.settings[0])
             unlinks_layer = getLayerByName(self.settings[1])

@@ -1,3 +1,6 @@
+from builtins import map
+from builtins import str
+from builtins import object
 from ..Qt import QtGui, QtCore, isQObjectAlive
 from ..GraphicsScene import GraphicsScene
 from ..Point import Point
@@ -5,6 +8,7 @@ from .. import functions as fn
 import weakref
 import operator
 from ..util.lru_cache import LRUCache
+from functools import reduce
 
 
 class GraphicsItem(object):

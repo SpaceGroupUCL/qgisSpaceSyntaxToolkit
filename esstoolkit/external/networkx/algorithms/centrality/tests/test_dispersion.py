@@ -1,3 +1,4 @@
+from builtins import object
 import networkx as nx
 from nose.tools import *
 

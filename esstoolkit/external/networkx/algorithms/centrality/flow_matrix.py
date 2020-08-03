@@ -1,5 +1,7 @@
 # Helpers for current-flow betweenness and current-flow closness
 # Lazy computations for inverse Laplacian and flow-matrix rows.
+from builtins import range
+from builtins import object
 import networkx as nx
 
 def flow_matrix_row(G, weight='weight', dtype=float, solver='lu'):
@@ -11,7 +13,7 @@ def flow_matrix_row(G, weight='weight', dtype=float, solver='lu'):
                 "lu": SuperLUInverseLaplacian,
                 "cg": CGInverseLaplacian}
     n = G.number_of_nodes()
-    L = laplacian_sparse_matrix(G, nodelist=range(n), weight=weight, 
+    L = laplacian_sparse_matrix(G, nodelist=list(range(n)), weight=weight, 
                                 dtype=dtype, format='csc')
     C = solvername[solver](L, dtype=dtype) # initialize solver
     w = C.w # w is the Laplacian matrix width

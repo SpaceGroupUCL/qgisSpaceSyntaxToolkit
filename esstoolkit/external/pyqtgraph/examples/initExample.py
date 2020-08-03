@@ -1,3 +1,4 @@
+from __future__ import print_function
 ## make this version of pyqtgraph importable before any others
 ## we do this to make sure that, when running examples, the correct library
 ## version is imported (if there are multiple versions present).
@@ -23,7 +24,7 @@ if not hasattr(sys, 'frozen'):
 if 'pyside' in sys.argv:  
     from PySide import QtGui
 elif 'pyqt' in sys.argv: 
-    from PyQt4 import QtGui
+    from qgis.PyQt import QtGui
 elif 'pyqt5' in sys.argv: 
     from PyQt5 import QtGui
 else:

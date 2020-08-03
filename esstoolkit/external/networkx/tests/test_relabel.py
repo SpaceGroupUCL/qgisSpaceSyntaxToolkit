@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+from builtins import range
+from builtins import object
 from nose.tools import *
 from networkx import *
 from networkx.convert import *
@@ -6,7 +8,7 @@ from networkx.algorithms.operators import *
 from networkx.generators.classic import barbell_graph,cycle_graph
 from networkx.testing import *
 
-class TestRelabel():
+class TestRelabel(object):
     def test_convert_node_labels_to_integers(self):
         # test that empty graph converts fine for all options
         G=empty_graph()
@@ -27,19 +29,19 @@ class TestRelabel():
         G.add_edges_from([('A','B'),('A','C'),('B','C'),('C','D')])
         G.name="paw"
         H=convert_node_labels_to_integers(G)
-        degH=H.degree().values()
-        degG=G.degree().values()
+        degH=list(H.degree().values())
+        degG=list(G.degree().values())
         assert_equal(sorted(degH), sorted(degG))
 
         H=convert_node_labels_to_integers(G,1000)
-        degH=H.degree().values()
-        degG=G.degree().values()
+        degH=list(H.degree().values())
+        degG=list(G.degree().values())
         assert_equal(sorted(degH), sorted(degG))
         assert_equal(H.nodes(), [1000, 1001, 1002, 1003])
 
         H=convert_node_labels_to_integers(G,ordering="increasing degree")
-        degH=H.degree().values()
-        degG=G.degree().values()
+        degH=list(H.degree().values())
+        degG=list(G.degree().values())
         assert_equal(sorted(degH), sorted(degG))
         assert_equal(degree(H,0), 1)
         assert_equal(degree(H,1), 2)
@@ -47,8 +49,8 @@ class TestRelabel():
         assert_equal(degree(H,3), 3)
 
         H=convert_node_labels_to_integers(G,ordering="decreasing degree")
-        degH=H.degree().values()
-        degG=G.degree().values()
+        degH=list(H.degree().values())
+        degG=list(G.degree().values())
         assert_equal(sorted(degH), sorted(degG))
         assert_equal(degree(H,0), 3)
         assert_equal(degree(H,1), 2)
@@ -57,8 +59,8 @@ class TestRelabel():
 
         H=convert_node_labels_to_integers(G,ordering="increasing degree",
                                           label_attribute='label')
-        degH=H.degree().values()
-        degG=G.degree().values()
+        degH=list(H.degree().values())
+        degG=list(G.degree().values())
         assert_equal(sorted(degH), sorted(degG))
         assert_equal(degree(H,0), 1)
         assert_equal(degree(H,1), 2)
@@ -76,8 +78,8 @@ class TestRelabel():
         G.add_edges_from([('C','D'),('A','B'),('A','C'),('B','C')])
         G.name="paw"
         H=convert_node_labels_to_integers(G,ordering="sorted")
-        degH=H.degree().values()
-        degG=G.degree().values()
+        degH=list(H.degree().values())
+        degG=list(G.degree().values())
         assert_equal(sorted(degH), sorted(degG))
 
         H=convert_node_labels_to_integers(G,ordering="sorted",
@@ -139,7 +141,7 @@ class TestRelabel():
 
     def test_relabel_isolated_nodes_to_same(self):
         G=Graph()
-        G.add_nodes_from(range(4))
+        G.add_nodes_from(list(range(4)))
         mapping={1:1}
         H=relabel_nodes(G, mapping, copy=False)
         assert_equal(sorted(H.nodes()), list(range(4)))

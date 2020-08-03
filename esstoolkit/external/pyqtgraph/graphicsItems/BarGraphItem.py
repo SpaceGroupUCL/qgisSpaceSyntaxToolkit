@@ -1,3 +1,4 @@
+from builtins import range
 from ..Qt import QtGui, QtCore
 from .GraphicsObject import GraphicsObject
 from .. import getConfigOption

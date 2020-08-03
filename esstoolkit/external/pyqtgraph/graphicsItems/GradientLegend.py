@@ -1,3 +1,5 @@
+from builtins import str
+from builtins import range
 from ..Qt import QtGui, QtCore
 from .UIGraphicsItem import *
 from .. import functions as fn
