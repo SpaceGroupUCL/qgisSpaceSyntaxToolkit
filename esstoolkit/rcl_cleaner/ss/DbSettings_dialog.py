@@ -91,13 +91,10 @@ class DbSettingsDialog(QtGui.QDialog, FORM_CLASS):
         selected_db = self.getSelectedDb()
         if len(self.getSelectedDb()) > 1:
             try:
-                # fix_print_with_import
                 print('tries')
                 uri = QgsDataSourceURI()
                 db_info = self.available_dbs[selected_db]
-                # fix_print_with_import
-                # fix_print_with_import
-print(db_info, selected_db)
+                print(db_info, selected_db)
                 conname = selected_db
                 dbname = db_info['database']
                 user = db_info['username']
@@ -108,7 +105,6 @@ print(db_info, selected_db)
                 connstring = "dbname=%s user=%s host=%s port=%s password=%s" % (dbname, user, host, port, password)
                 schemas = getPostgisSchemas(connstring)
             except:
-                # fix_print_with_import
                 print('error')
                 pass
         self.schemaCombo.addItems(schemas)

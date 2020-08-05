@@ -93,7 +93,6 @@ class UnlinksVerification(QThread):
                 axialgeom = uf.getPostgisGeometryColumn(connection, axialinfo['schema'], axialname)
                 # todo: ensure that it has a spatial index
                 #uf.createPostgisSpatialIndex(self.connection, unlinkinfo['schema'], unlinkname, unlinkgeom)
-            # fix_print_with_import
             print("Preparing the map: %s" % str(time.time()-start_time))
             self.verificationProgress.emit(5)
             # update the unlinks
@@ -102,7 +101,6 @@ class UnlinksVerification(QThread):
                 added = uf.addSpatialiteColumns(connection, unlinkname, ['line1','line2'], [QVariant.Int,QVariant.Int])
             else:
                 added = uf.addPostgisColumns(connection, unlinkinfo['schema'], unlinkname, ['line1','line2'], [QVariant.Int,QVariant.Int])
-            # fix_print_with_import
             print("Updating unlinks: %s" % str(time.time()-start_time))
             self.verificationProgress.emit(10)
             # analyse the unlinks
@@ -111,7 +109,6 @@ class UnlinksVerification(QThread):
                 self.spatialiteTestUnlinks(connection, unlinkname, unlinkgeom, axialname, axialgeom)
             else:
                 self.postgisTestUnlinks(connection, unlinkinfo['schema'], unlinkname, unlinkgeom, axialinfo['schema'], axialname, axialgeom)
-            # fix_print_with_import
             print("Analysing unlinks: %s" % str(time.time()-start_time))
             self.verificationProgress.emit(100)
             connection.close()
@@ -121,9 +118,7 @@ class UnlinksVerification(QThread):
             # analyse the unlinks
             start_time = time.time()
             self.qgisTestUnlinks()
-            # fix_print_with_import
-            # fix_print_with_import
-print("Analysing unlinks: %s" % str(time.time()-start_time))
+            print("Analysing unlinks: %s" % str(time.time()-start_time))
         self.verificationProgress.emit(100)
         # return the results
         self.problem_nodes = list(set(self.problem_nodes))
@@ -157,9 +152,7 @@ print("Analysing unlinks: %s" % str(time.time()-start_time))
             self.unlink_errors['invalid geometry'] = nodes
         progress += steps
         self.verificationProgress.emit(progress)
-        # fix_print_with_import
-        # fix_print_with_import
-print("analyse valid: %s" % str(time.time()-start_time))
+        print("analyse valid: %s" % str(time.time()-start_time))
         # duplicate geometry
         start_time = time.time()
         query = 'SELECT a."%s", a.line1, a.line2 FROM "%s" a, "%s" b WHERE a."%s" <> b."%s" AND ST_Equals(a."%s",b."%s") '\
@@ -172,9 +165,7 @@ print("analyse valid: %s" % str(time.time()-start_time))
             self.unlink_errors['duplicate geometry'] = nodes
         progress += steps
         self.verificationProgress.emit(progress)
-        # fix_print_with_import
-        # fix_print_with_import
-print("analyse duplicate: %s" % str(time.time()-start_time))
+        print("analyse duplicate: %s" % str(time.time()-start_time))
         # no line id
         start_time = time.time()
         query = """SELECT "%s", line1, line2 FROM "%s" WHERE line1 IS NULL OR line2 IS NULL""" % (unlinkid, unlinkname)
@@ -185,9 +176,7 @@ print("analyse duplicate: %s" % str(time.time()-start_time))
             self.unlink_errors['no line id'] = nodes
         progress += steps
         self.verificationProgress.emit(progress)
-        # fix_print_with_import
-        # fix_print_with_import
-print("analyse no id: %s" % str(time.time()-start_time))
+        print("analyse no id: %s" % str(time.time()-start_time))
         # same line id
         start_time = time.time()
         query = """SELECT "%s", line1, line2 FROM "%s" WHERE line1 = line2""" % (unlinkid, unlinkname)
@@ -198,9 +187,7 @@ print("analyse no id: %s" % str(time.time()-start_time))
             self.unlink_errors['same line id'] = nodes
         progress += steps
         self.verificationProgress.emit(progress)
-        # fix_print_with_import
-        # fix_print_with_import
-print("analyse no id: %s" % str(time.time()-start_time))
+        print("analyse no id: %s" % str(time.time()-start_time))
         # create temp table for intersection results
         if self.unlink_type in (QGis.Polygon, QGis.Line):
             operat_a = 'ST_Intersects'
@@ -214,9 +201,7 @@ print("analyse no id: %s" % str(time.time()-start_time))
         header, data, error = uf.executeSpatialiteQuery(connection, query, commit=True)
         progress += steps
         self.verificationProgress.emit(progress)
-        # fix_print_with_import
-        # fix_print_with_import
-print("temp unlinks result: %s" % str(time.time()-start_time))
+        print("temp unlinks result: %s" % str(time.time()-start_time))
         #'multiple lines'
         start_time = time.time()
         query = 'SELECT "%s", line1, line2 FROM "%s" WHERE "%s" IN (SELECT unlinkid FROM (SELECT unlinkid, count(unlinkid) freq ' \
@@ -228,9 +213,7 @@ print("temp unlinks result: %s" % str(time.time()-start_time))
             self.unlink_errors['multiple lines'] = nodes
         progress += steps
         self.verificationProgress.emit(progress)
-        # fix_print_with_import
-        # fix_print_with_import
-print("analyse multiple lines: %s" % str(time.time()-start_time))
+        print("analyse multiple lines: %s" % str(time.time()-start_time))
         #'single line'
         start_time = time.time()
         query = 'SELECT "%s", line1, line2 FROM "%s" WHERE "%s" IN (SELECT unlinkid FROM (SELECT unlinkid, count(unlinkid) freq ' \
@@ -242,9 +225,7 @@ print("analyse multiple lines: %s" % str(time.time()-start_time))
             self.unlink_errors['single line'] = nodes
         progress += steps
         self.verificationProgress.emit(progress)
-        # fix_print_with_import
-        # fix_print_with_import
-print("analyse single lines: %s" % str(time.time()-start_time))
+        print("analyse single lines: %s" % str(time.time()-start_time))
         #'no lines'
         start_time = time.time()
         query = """SELECT "%s", line1, line2 FROM "%s" WHERE "%s" NOT IN (SELECT unlinkid FROM temp_unlinks_result GROUP BY unlinkid)"""\
@@ -256,9 +237,7 @@ print("analyse single lines: %s" % str(time.time()-start_time))
             self.unlink_errors['no lines'] = nodes
         progress += steps
         self.verificationProgress.emit(progress)
-        # fix_print_with_import
-        # fix_print_with_import
-print("analyse no lines: %s" % str(time.time()-start_time))
+        print("analyse no lines: %s" % str(time.time()-start_time))
         #'unmatched line id'
         start_time = time.time()
         query = """SELECT b."%s", b.line1, b.line2 FROM temp_unlinks_result a, "%s" b WHERE a.unlinkid = b."%s" AND (a.lineid <> b.line1 AND a.lineid <> b.line2)"""\
@@ -270,9 +249,7 @@ print("analyse no lines: %s" % str(time.time()-start_time))
             self.unlink_errors['unmatched line id'] = nodes
         progress += steps
         self.verificationProgress.emit(progress)
-        # fix_print_with_import
-        # fix_print_with_import
-print("analyse unmatched id: %s" % str(time.time()-start_time))
+        print("analyse unmatched id: %s" % str(time.time()-start_time))
 
     def postgisTestUnlinks(self, connection, unlinkschema, unlinkname, unlinkgeom, axialschema, axialname, axialgeom):
         # this function checks the geometric validity of geometry using spatialite
@@ -296,9 +273,7 @@ print("analyse unmatched id: %s" % str(time.time()-start_time))
             self.unlink_errors['invalid geometry'] = nodes
         progress += steps
         self.verificationProgress.emit(progress)
-        # fix_print_with_import
-        # fix_print_with_import
-print("analyse valid: %s" % str(time.time()-start_time))
+        print("analyse valid: %s" % str(time.time()-start_time))
         # duplicate geometry
         start_time = time.time()
         query = """SELECT a."%s", a.line1, a.line2 FROM "%s"."%s" a, "%s".""%s" b WHERE a."%s" <> b."%s" AND ST_Equals(a."%s",b."%s")"""\
@@ -310,9 +285,7 @@ print("analyse valid: %s" % str(time.time()-start_time))
             self.unlink_errors['duplicate geometry'] = nodes
         progress += steps
         self.verificationProgress.emit(progress)
-        # fix_print_with_import
-        # fix_print_with_import
-print("analyse duplicate: %s" % str(time.time()-start_time))
+        print("analyse duplicate: %s" % str(time.time()-start_time))
         # no line id
         start_time = time.time()
         query = """SELECT "%s", line1, line2 FROM "%s"."%s" WHERE line1 IS NULL OR line2 IS NULL""" % (unlinkid, unlinkschema, unlinkname)
@@ -323,9 +296,7 @@ print("analyse duplicate: %s" % str(time.time()-start_time))
             self.unlink_errors['no line id'] = nodes
         progress += steps
         self.verificationProgress.emit(progress)
-        # fix_print_with_import
-        # fix_print_with_import
-print("analyse no id: %s" % str(time.time()-start_time))
+        print("analyse no id: %s" % str(time.time()-start_time))
         # same line id
         start_time = time.time()
         query = """SELECT "%s", line1, line2 FROM "%s"."%s" WHERE line1 = line2""" % (unlinkid, unlinkschema, unlinkname)
@@ -336,9 +307,7 @@ print("analyse no id: %s" % str(time.time()-start_time))
             self.unlink_errors['same line id'] = nodes
         progress += steps
         self.verificationProgress.emit(progress)
-        # fix_print_with_import
-        # fix_print_with_import
-print("analyse same id: %s" % str(time.time()-start_time))
+        print("analyse same id: %s" % str(time.time()-start_time))
         # create temp table for intersection results
         if self.unlink_type in (QGis.Polygon, QGis.Line):
             operat_a = 'ST_Intersects'
@@ -352,9 +321,7 @@ print("analyse same id: %s" % str(time.time()-start_time))
         header, data, error = uf.executePostgisQuery(connection, query, commit=True)
         progress += steps
         self.verificationProgress.emit(progress)
-        # fix_print_with_import
-        # fix_print_with_import
-print("temp unlinks result: %s" % str(time.time()-start_time))
+        print("temp unlinks result: %s" % str(time.time()-start_time))
         #'multiple lines'
         start_time = time.time()
         query = 'SELECT "%s", line1, line2 FROM "%s"."%s" WHERE "%s" IN (SELECT unlinkid FROM (SELECT unlinkid, count(*) freq '\
@@ -366,9 +333,7 @@ print("temp unlinks result: %s" % str(time.time()-start_time))
             self.unlink_errors['multiple lines'] = nodes
         progress += steps
         self.verificationProgress.emit(progress)
-        # fix_print_with_import
-        # fix_print_with_import
-print("analyse multiple lines: %s" % str(time.time()-start_time))
+        print("analyse multiple lines: %s" % str(time.time()-start_time))
         #'single line'
         start_time = time.time()
         query = 'SELECT "%s", line1, line2 FROM "%s"."%s" WHERE "%s" IN (SELECT unlinkid FROM (SELECT unlinkid, count(*) freq ' \
@@ -380,9 +345,7 @@ print("analyse multiple lines: %s" % str(time.time()-start_time))
             self.unlink_errors['single line'] = nodes
         progress += steps
         self.verificationProgress.emit(progress)
-        # fix_print_with_import
-        # fix_print_with_import
-print("analyse single lines: %s" % str(time.time()-start_time))
+        print("analyse single lines: %s" % str(time.time()-start_time))
         #'no lines'
         start_time = time.time()
         query = """SELECT "%s", line1, line2 FROM "%s"."%s" WHERE "%s" NOT IN (SELECT unlinkid FROM temp_unlinks_result GROUP BY unlinkid)"""\
@@ -394,9 +357,7 @@ print("analyse single lines: %s" % str(time.time()-start_time))
             self.unlink_errors['no lines'] = nodes
         progress += steps
         self.verificationProgress.emit(progress)
-        # fix_print_with_import
-        # fix_print_with_import
-print("analyse no lines: %s" % str(time.time()-start_time))
+        print("analyse no lines: %s" % str(time.time()-start_time))
         #'unmatched line id'
         start_time = time.time()
         query = """SELECT b."%s", b.line1, b.line2 FROM temp_unlinks_result a, "%s"."%s" b WHERE a.unlinkid = b."%s" AND (a.lineid <> b.line1 AND a.lineid <> b.line2)"""\
@@ -408,9 +369,7 @@ print("analyse no lines: %s" % str(time.time()-start_time))
             self.unlink_errors['unmatched line id'] = nodes
         progress += steps
         self.verificationProgress.emit(progress)
-        # fix_print_with_import
-        # fix_print_with_import
-print("analyse unmatched id: %s" % str(time.time()-start_time))
+        print("analyse unmatched id: %s" % str(time.time()-start_time))
 
     def qgisTestUnlinks(self):
         # this function checks the validity of unlinks using QGIS
@@ -420,9 +379,7 @@ print("analyse unmatched id: %s" % str(time.time()-start_time))
         line2 = uf.getFieldIndex(self.unlinks_layer, 'line2')
         #unlinksindex = createIndex(self.unlinks_layer)
         axialindex = uf.createIndex(self.axial_layer)
-        # fix_print_with_import
-        # fix_print_with_import
-print("Preparing the map: %s" % str(time.time()-start_time))
+        print("Preparing the map: %s" % str(time.time()-start_time))
         # prepare unlinks to test
         self.verificationProgress.emit(5)
         threshold = self.verification_settings['unlink_dist']

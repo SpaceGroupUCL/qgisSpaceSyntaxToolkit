@@ -185,7 +185,6 @@ class segmentor(QObject):
 
 
         except Exception as exc:
-            # fix_print_with_import
             print(exc, traceback.format_exc())
             # TODO: self.error.emit(exc, traceback.format_exc())
 

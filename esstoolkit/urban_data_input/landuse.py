@@ -236,9 +236,7 @@ class LanduseTool(QObject):
                     location = os.path.abspath(path)
 
                     QgsVectorFileWriter.writeAsVectorFormat(vl, location, "ogr", vl.crs(), "ESRI Shapefile")
-                    # fix_print_with_import
-                    # fix_print_with_import
-print('cri', vl.crs().authid())
+                    print('cri', vl.crs().authid())
                     input2 = self.iface.addVectorLayer(location, filename[:-4], "ogr")
                 else:
                     input2 = 'invalid data source'
@@ -257,13 +255,11 @@ print('cri', vl.crs().authid())
                         uri.setConnection(db_con_info['host'], db_con_info['port'], db_con_info['dbname'],
                                           db_con_info['user'], db_con_info['password'])
                     else:
-                        # fix_print_with_import
                         print(db_con_info) #db_con_info['host']
                         uri.setConnection('', db_con_info['port'], db_con_info['dbname'], '', '')
                     uri.setDataSource(schema, table_name, "geom")
                     error = QgsVectorLayerImport.importLayer(vl, uri.uri(), "postgres", vl.crs(), False, False)
                     if error[0] != 0:
-                        # fix_print_with_import
                         print("Error when creating postgis layer: ", error[1])
                         input2 = 'duplicate'
                     else:

@@ -166,7 +166,6 @@ def getPostgisSchemas(connstring, commit=False):
     try:
         connection = psycopg2.connect(connstring)
     except psycopg2.Error as e:
-        # fix_print_with_import
         print(e.pgerror)
         connection = None
 
@@ -209,7 +208,6 @@ def to_layer(fields, crs, encoding, geom_type, layer_type, path):
         wkbTypes = { 'Point': QGis.WKBPoint, 'Linestring': QGis.WKBLineString, 'Polygon': QGis.WKBPolygon }
         file_writer = QgsVectorFileWriter(path, encoding, fields, wkbTypes[geom_type], crs, "ESRI Shapefile")
         if file_writer.hasError() != QgsVectorFileWriter.NoError:
-            # fix_print_with_import
             print("Error when creating shapefile: ", file_writer.errorMessage())
         del file_writer
         layer = QgsVectorLayer(path, ntpath.basename(path)[:-4], "ogr")
@@ -239,7 +237,6 @@ def to_layer(fields, crs, encoding, geom_type, layer_type, path):
                 con.commit()
             layer = QgsVectorLayer(uri, table_name, 'postgres')
         except psycopg2.DatabaseError as e:
-            # fix_print_with_import
             print(e)
     return layer
 

@@ -181,17 +181,15 @@ class RoadNetworkCleaner(QObject):
 
             self.thread.start()
 
-            if is_debug: # fix_print_with_import
- # fix_print_with_import
-print('started')
+            if is_debug:
+                print('started')
         else:
-            self.giveMessage('Missing user input!', QgsMessageBar.INFO)
+            self.giveMessage('Missing user input!', Qgis.Info)
             return
 
     def cleaningFinished(self, ret):
-        if is_debug: # fix_print_with_import
- # fix_print_with_import
-print('trying to finish')
+        if is_debug:
+            print('trying to finish')
         # get cleaning settings
         layer_name = self.settings['input']
         path = self.settings['output']
@@ -243,12 +241,10 @@ print('trying to finish')
         self.thread.wait()
         self.thread.deleteLater()
 
-        if is_debug: # fix_print_with_import
- # fix_print_with_import
-print('thread running ', self.thread.isRunning())
-        if is_debug: # fix_print_with_import
- # fix_print_with_import
-print('has finished ', self.thread.isFinished())
+        if is_debug:
+            print('thread running ', self.thread.isRunning())
+        if is_debug:
+            print('has finished ', self.thread.isFinished())
 
         self.thread = None
         self.cleaning = None
@@ -258,9 +254,8 @@ print('has finished ', self.thread.isFinished())
             self.dlg.close()
 
     def killCleaning(self):
-        if is_debug: # fix_print_with_import
- # fix_print_with_import
-print('trying to cancel')
+        if is_debug:
+            print('trying to cancel')
         # add emit signal to breakTool or mergeTool only to stop the loop
         if self.cleaning:
 
@@ -373,9 +368,8 @@ print('trying to cancel')
                         unlinks_list = self.br.unlinked_features
                         unlinks_fields = [QgsField('id', QVariant.Int), QgsField('line_id1', QVariant.Int), QgsField('line_id2', QVariant.Int), QgsField('x', QVariant.Double), QgsField('y', QVariant.Double)]
 
-                    if is_debug: # fix_print_with_import
- # fix_print_with_import
-print("survived!")
+                    if is_debug:
+                        print("survived!")
                     self.cl_progress.emit(100)
                     # return cleaned data, errors and unlinks
                     ret = ((merged_features, fields), (errors_list, errors_fields), (unlinks_list, unlinks_fields))

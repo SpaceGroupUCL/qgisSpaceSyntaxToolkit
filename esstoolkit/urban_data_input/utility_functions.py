@@ -148,7 +148,6 @@ def getPostgisSchemas(connstring, commit=False):
     try:
         connection = psycopg2.connect(connstring)
     except psycopg2.Error as e:
-        # fix_print_with_import
         print(e.pgerror)
         connection = None
 

@@ -245,9 +245,7 @@ class CatchmentTool(QObject):
             output_network_features = output['output network features']
             # create layer
             new_fields = output_network_features[0].fields()
-            # fix_print_with_import
-            # fix_print_with_import
-print(new_fields, self.settings['network'].crs(), self.settings['network'].dataProvider().encoding(), 'Linestring',self.settings['layer_type'], self.settings['output path'][0])
+            print(new_fields, self.settings['network'].crs(), self.settings['network'].dataProvider().encoding(), 'Linestring',self.settings['layer_type'], self.settings['output path'][0])
             output_network = uf.to_layer(new_fields, self.settings['network'].crs(), self.settings['network'].dataProvider().encoding(), 'Linestring',
                                          self.settings['layer_type'], self.settings['output path'][0])
 

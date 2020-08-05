@@ -80,17 +80,13 @@ class DbSettingsDialog(QtWidgets.QDialog, FORM_CLASS):
         if len(self.getSelectedDb()) > 1:
             self.get_connstring(selected_db)
             schemas = getPostgisSchemas(self.connstring)
-            # fix_print_with_import
-            # fix_print_with_import
-print('connstring', self.connstring)
+            print('connstring', self.connstring)
         self.schemaCombo.addItems(schemas)
 
 
     def get_connstring(self, selected_db):
         db_info = self.available_dbs[selected_db]
-        # fix_print_with_import
-        # fix_print_with_import
-print('tries', db_info, selected_db)
+        print('tries', db_info, selected_db)
         # pass connsting property so that it can be called
         self.connstring = ''
         try:

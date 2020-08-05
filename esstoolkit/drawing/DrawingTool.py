@@ -254,10 +254,8 @@ class DrawingTool(object):
             self.lockGUI(False)
         else:
             self.lockGUI(True)
-        # fix_print_with_import
         print('done')
         for lyr in list(QgsMapLayerRegistry.instance().mapLayers().values()):
-            # fix_print_with_import
             print(lyr, 'lyr', layers_list)
         return
 
@@ -277,8 +275,6 @@ class DrawingTool(object):
         active_network_idx = self.dockwidget.networkCombo.findText(self.dockwidget.activatedNetwork) # TODOD test if multiple
         if active_network_idx == -1:
             active_network_idx = 0
-
-        # fix_print_with_import
         print('active_network_idx', self.dockwidget.activatedNetwork, networks)
 
         # TODO: if the network changes - do not block signals - setup snapping

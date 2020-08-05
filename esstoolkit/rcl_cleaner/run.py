@@ -55,9 +55,6 @@ cleaned_features = [e.feature for e in list(graph.sEdges.values())]
 
 #pseudo_layer = to_layer(map(lambda e: e.feature, pseudo_graph.sEdges.values()), crs, encoding, geom_type, 'memory', None, 'pseudo_layer')
 #QgsMapLayerRegistry.instance().addMapLayer(pseudo_layer)
-# fix_print_with_import
-
-# fix_print_with_import
 print(time.time() - _time)
 
 broken_layer = to_layer([e.feature for e in list(graph.sEdges.values())], crs, encoding, 'Linestring', 'memory', path, 'broken_layer')
@@ -70,7 +67,6 @@ QgsMapLayerRegistry.instance().addMapLayer(broken_layer)
 # 2. CLEAN || & CLOSED POLYLINES
 _time = time.time()
 graph.clean(True, False, snap_threshold, True)
-# fix_print_with_import
 print(time.time() - _time)
 
 # 5. SNAP
@@ -88,7 +84,6 @@ QgsMapLayerRegistry.instance().addMapLayer(snapped_layer)
 # 4. CLEAN || & CLOSED POLYLINES
 _time = time.time()
 graph.clean(True, False, snap_threshold, True)
-# fix_print_with_import
 print(time.time() - _time)
 
 #_time = time.time()
@@ -98,7 +93,6 @@ print(time.time() - _time)
 # 3. MERGE
 _time = time.time()
 graph.merge_b_intersections(angle_threshold)
-# fix_print_with_import
 print(time.time() - _time)
 
 merged_layer = to_layer([e.feature for e in list(graph.sEdges.values())], crs, encoding, 'Linestring', 'memory', None, 'merged_layer')
@@ -111,7 +105,6 @@ QgsMapLayerRegistry.instance().addMapLayer(merged_layer)
 # 6. CLEAN ALL
 _time = time.time()
 graph.clean(True, True, snap_threshold, False)
-# fix_print_with_import
 print(time.time() - _time)
 
 # simplify angle

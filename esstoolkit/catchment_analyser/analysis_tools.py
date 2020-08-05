@@ -182,7 +182,6 @@ class ConcaveHull(object):
             else:
                 return 0
         except:
-            # fix_print_with_import
             print(('fail %s, %s', angle1, angle2))
             return 0
 

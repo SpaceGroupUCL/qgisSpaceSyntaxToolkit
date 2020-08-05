@@ -133,9 +133,7 @@ class mergeTool(QObject):
                             break
                     if x > 100:
                         x = 0
-                        # fix_print_with_import
-                        # fix_print_with_import
-print("infinite")
+                        print("infinite")
                         break
                 all_trees.append(tree)
 

@@ -113,9 +113,8 @@ class AxialVerification(QThread):
                 geomname = uf.getPostgisGeometryColumn(connection, layerinfo['schema'], axialname)
                 # todo: ensure that it has a spatial index
                 #uf.createPostgisSpatialIndex(onnection, layerinfo['schema'], axialname, geomname)
-            if is_debug: # fix_print_with_import
- # fix_print_with_import
-print("Preparing the map: %s" % str(time.time() - start_time))
+            if is_debug:
+                print("Preparing the map: %s" % str(time.time() - start_time))
             self.verificationProgress.emit(5)
             # analyse the geometry
             if not self.running or not geomname:
@@ -125,9 +124,8 @@ print("Preparing the map: %s" % str(time.time() - start_time))
                 self.spatialiteTestGeometry(connection, axialname, geomname)
             else:
                 self.postgisTestGeometry(connection, layerinfo['schema'], axialname, geomname)
-            if is_debug: # fix_print_with_import
- # fix_print_with_import
-print("Analysing geometry: %s" % str(time.time() - start_time))
+            if is_debug:
+                print("Analysing geometry: %s" % str(time.time() - start_time))
             self.verificationProgress.emit(80)
             # build the topology
             if not self.running:
@@ -138,9 +136,8 @@ print("Analysing geometry: %s" % str(time.time() - start_time))
                     graph_links = self.spatialiteBuildTopology(connection, axialname, geomname, unlinkname, linkname)
                 else:
                     graph_links = self.postgisBuildTopology(connection, layerinfo['schema'], axialname, geomname, unlinkschema, unlinkname, linkschema, linkname)
-                if is_debug: # fix_print_with_import
- # fix_print_with_import
-print("Building topology: %s" % str(time.time() - start_time))
+                if is_debug:
+                    print("Building topology: %s" % str(time.time() - start_time))
             self.verificationProgress.emit(90)
             connection.close()
         else:
@@ -149,18 +146,16 @@ print("Building topology: %s" % str(time.time() - start_time))
                 return
             start_time = time.time()
             index = uf.createIndex(self.axial_layer)
-            if is_debug: # fix_print_with_import
- # fix_print_with_import
-print("Creating spatial index: %s" % str(time.time() - start_time))
+            if is_debug:
+                print("Creating spatial index: %s" % str(time.time() - start_time))
             self.verificationProgress.emit(5)
             # analyse the geometry and topology
             if not self.running:
                 return
             start_time = time.time()
             graph_links = self.qgisGeometryTopologyTest(self.axial_layer, index, self.unlinks_layer)
-            if is_debug: # fix_print_with_import
- # fix_print_with_import
-print("Analysing geometry and topology: %s" % str(time.time() - start_time))
+            if is_debug:
+                print("Analysing geometry and topology: %s" % str(time.time() - start_time))
         # analyse the topology with igraph or networkx
         if not self.running:
             return
@@ -173,9 +168,8 @@ print("Analysing geometry and topology: %s" % str(time.time() - start_time))
                 axialids, ids = uf.getFieldValues(self.axial_layer, self.user_id)
             # uses networkx to test islands. looks for orphans with the geometry test
             self.networkxTestTopology(graph_links, axialids)
-            if is_debug: # fix_print_with_import
- # fix_print_with_import
-print("Analysing topology: %s" % str(time.time() - start_time))
+            if is_debug:
+                print("Analysing topology: %s" % str(time.time() - start_time))
         self.verificationProgress.emit(100)
         # return the results
         self.problem_nodes = list(set(self.problem_nodes))
@@ -215,9 +209,8 @@ print("Analysing topology: %s" % str(time.time() - start_time))
                 # add results to the list of problems
                 if islands:
                     self.axial_errors['island'] = islands
-            if is_debug: # fix_print_with_import
- # fix_print_with_import
-print("analyse orphans/islands: %s" % str(time.time() - start_time))
+            if is_debug:
+                print("analyse orphans/islands: %s" % str(time.time() - start_time))
         return True
 
     # spatialite based functions
@@ -240,9 +233,8 @@ print("analyse orphans/islands: %s" % str(time.time() - start_time))
             self.problem_nodes.extend(nodes)
             self.axial_errors['invalid geometry'] = nodes
         self.verificationProgress.emit(10)
-        if is_debug: # fix_print_with_import
- # fix_print_with_import
-print("analyse valid: %s" % str(time.time()-start_time))
+        if is_debug:
+            print("analyse valid: %s" % str(time.time()-start_time))
         # geometry is polyline
         if not self.running: return
         start_time = time.time()
@@ -253,9 +245,8 @@ print("analyse valid: %s" % str(time.time()-start_time))
             self.problem_nodes.extend(nodes)
             self.axial_errors['polyline'] = nodes
         self.verificationProgress.emit(15)
-        if is_debug: # fix_print_with_import
- # fix_print_with_import
-print("analyse polyline: %s" % str(time.time()-start_time))
+        if is_debug:
+            print("analyse polyline: %s" % str(time.time()-start_time))
         # has two coinciding points
         if not self.running: return
         start_time = time.time()
@@ -266,9 +257,8 @@ print("analyse polyline: %s" % str(time.time()-start_time))
             self.problem_nodes.extend(nodes)
             self.axial_errors['coinciding points'] = nodes
         self.verificationProgress.emit(20)
-        if is_debug: # fix_print_with_import
- # fix_print_with_import
-print("analyse coinciding: %s" % str(time.time()-start_time))
+        if is_debug:
+            print("analyse coinciding: %s" % str(time.time()-start_time))
         # small lines, with small length
         if not self.running: return
         start_time = time.time()
@@ -279,9 +269,8 @@ print("analyse coinciding: %s" % str(time.time()-start_time))
             self.problem_nodes.extend(nodes)
             self.axial_errors['small line'] = nodes
         self.verificationProgress.emit(25)
-        if is_debug: # fix_print_with_import
- # fix_print_with_import
-print("analyse small: %s" % str(time.time()-start_time))
+        if is_debug:
+            print("analyse small: %s" % str(time.time()-start_time))
         # short lines, just about touch without intersecting
         if not self.running: return
         start_time = time.time()
@@ -296,9 +285,8 @@ print("analyse small: %s" % str(time.time()-start_time))
             self.problem_nodes.extend(nodes)
             self.axial_errors['short line'] = nodes
         self.verificationProgress.emit(40)
-        if is_debug: # fix_print_with_import
- # fix_print_with_import
-print("analyse short: %s"%str(time.time()-start_time))
+        if is_debug:
+            print("analyse short: %s"%str(time.time()-start_time))
         # duplicate geometry
         if not self.running: return
         start_time = time.time()
@@ -311,9 +299,8 @@ print("analyse short: %s"%str(time.time()-start_time))
             self.problem_nodes.extend(nodes)
             self.axial_errors['duplicate geometry'] = nodes
         self.verificationProgress.emit(60)
-        if is_debug: # fix_print_with_import
- # fix_print_with_import
-print("analyse duplicate: %s"%str(time.time()-start_time))
+        if is_debug:
+            print("analyse duplicate: %s"%str(time.time()-start_time))
         # geometry overlaps
         if not self.running: return
         start_time = time.time()
@@ -326,9 +313,8 @@ print("analyse duplicate: %s"%str(time.time()-start_time))
             self.problem_nodes.extend(nodes)
             self.axial_errors['overlap'] = nodes
         self.verificationProgress.emit(80)
-        if is_debug: # fix_print_with_import
- # fix_print_with_import
-print("analyse overlap: %s"%str(time.time()-start_time))
+        if is_debug:
+            print("analyse overlap: %s"%str(time.time()-start_time))
         # the overlap function is very accurate and rare in GIS
         # an alternative function with buffer is too slow
 
@@ -353,9 +339,8 @@ print("analyse overlap: %s"%str(time.time()-start_time))
                 % (graphname, idcol, idcol, idcol, idcol, idcol, idcol, idcol, idcol, axialname, axialname, idcol, idcol,
                   geomname, geomname, axialname, geomname)
         header, data, error = uf.executeSpatialiteQuery(connection, query, commit=True)
-        if is_debug: # fix_print_with_import
- # fix_print_with_import
-print("Building the graph: %s"%str(time.time()-start_time))
+        if is_debug:
+            print("Building the graph: %s"%str(time.time()-start_time))
         # eliminate unlinks
         if unlinkname:
             if uf.fieldExists(self.unlinks_layer,'line1') and uf.fieldExists(self.unlinks_layer,'line2'):
@@ -364,9 +349,8 @@ print("Building the graph: %s"%str(time.time()-start_time))
                         'OR cast(b_fid as text)||"_"||cast(a_fid as text) in (SELECT cast(line1 as text)||"_"||cast(line2 as text) FROM "%s")' \
                         % (graphname, unlinkname, unlinkname)
                 header, data, error = uf.executeSpatialiteQuery(connection, query, commit=True)
-                if is_debug: # fix_print_with_import
- # fix_print_with_import
-print("Unlinking the graph: %s"%str(time.time()-start_time))
+                if is_debug:
+                    print("Unlinking the graph: %s"%str(time.time()-start_time))
             else:
                 self.verificationError.emit("The unlinks layer is not ready. Please update its line ID columns.")
         # newfeature: implement inserting links
@@ -399,9 +383,8 @@ print("Unlinking the graph: %s"%str(time.time()-start_time))
             self.problem_nodes.extend(nodes)
             self.axial_errors['invalid geometry'] = nodes
         self.verificationProgress.emit(10)
-        if is_debug: # fix_print_with_import
- # fix_print_with_import
-print("analyse valid: %s" % str(time.time()-start_time))
+        if is_debug:
+            print("analyse valid: %s" % str(time.time()-start_time))
         # geometry is polyline
         if not self.running: return
         start_time = time.time()
@@ -412,9 +395,8 @@ print("analyse valid: %s" % str(time.time()-start_time))
             self.problem_nodes.extend(nodes)
             self.axial_errors['polyline'] = nodes
         self.verificationProgress.emit(15)
-        if is_debug: # fix_print_with_import
- # fix_print_with_import
-print("analyse polyline: %s" % str(time.time()-start_time))
+        if is_debug:
+            print("analyse polyline: %s" % str(time.time()-start_time))
         # has two coinciding points
         if not self.running: return
         start_time = time.time()
@@ -425,9 +407,8 @@ print("analyse polyline: %s" % str(time.time()-start_time))
             self.problem_nodes.extend(nodes)
             self.axial_errors['coinciding points'] = nodes
         self.verificationProgress.emit(20)
-        if is_debug: # fix_print_with_import
- # fix_print_with_import
-print("analyse coinciding: %s" % str(time.time()-start_time))
+        if is_debug:
+            print("analyse coinciding: %s" % str(time.time()-start_time))
         # small lines, with small length
         if not self.running: return
         start_time = time.time()
@@ -438,9 +419,8 @@ print("analyse coinciding: %s" % str(time.time()-start_time))
             self.problem_nodes.extend(nodes)
             self.axial_errors['small line'] = nodes
         self.verificationProgress.emit(25)
-        if is_debug: # fix_print_with_import
- # fix_print_with_import
-print("analyse small: %s" % str(time.time()-start_time))
+        if is_debug:
+            print("analyse small: %s" % str(time.time()-start_time))
         # short lines, just about touch without intersecting
         if not self.running: return
         start_time = time.time()
@@ -454,9 +434,8 @@ print("analyse small: %s" % str(time.time()-start_time))
             self.problem_nodes.extend(nodes)
             self.axial_errors['short line'] = nodes
         self.verificationProgress.emit(40)
-        if is_debug: # fix_print_with_import
- # fix_print_with_import
-print("analyse short: %s" % str(time.time()-start_time))
+        if is_debug:
+            print("analyse short: %s" % str(time.time()-start_time))
         # duplicate geometry
         if not self.running: return
         start_time = time.time()
@@ -468,9 +447,8 @@ print("analyse short: %s" % str(time.time()-start_time))
             self.problem_nodes.extend(nodes)
             self.axial_errors['duplicate geometry'] = nodes
         self.verificationProgress.emit(60)
-        if is_debug: # fix_print_with_import
- # fix_print_with_import
-print("analyse duplicate: %s" % str(time.time()-start_time))
+        if is_debug:
+            print("analyse duplicate: %s" % str(time.time()-start_time))
         # geometry overlaps
         if not self.running: return
         start_time = time.time()
@@ -482,9 +460,8 @@ print("analyse duplicate: %s" % str(time.time()-start_time))
             self.problem_nodes.extend(nodes)
             self.axial_errors['overlap'] = nodes
         self.verificationProgress.emit(80)
-        if is_debug: # fix_print_with_import
- # fix_print_with_import
-print("analyse overlap: %s" % str(time.time()-start_time))
+        if is_debug:
+            print("analyse overlap: %s" % str(time.time()-start_time))
         # the overlap function is very accurate and rare in GIS
         # an alternative function with buffer is too slow
 
@@ -507,9 +484,8 @@ print("analyse overlap: %s" % str(time.time()-start_time))
                 % (graphname, idcol, idcol, idcol, idcol, idcol, idcol, idcol, idcol, schema, axialname, schema, axialname,
                   idcol, idcol, geomname, geomname)
         header, data, error = uf.executePostgisQuery(connection, query, commit=True)
-        if is_debug: # fix_print_with_import
- # fix_print_with_import
-print("Building the graph: %s" % str(time.time()-start_time))
+        if is_debug:
+            print("Building the graph: %s" % str(time.time()-start_time))
         # eliminate unlinks
         if unlinkname:
             if uf.fieldExists(self.unlinks_layer,'line1') and uf.fieldExists(self.unlinks_layer,'line2'):
@@ -518,9 +494,8 @@ print("Building the graph: %s" % str(time.time()-start_time))
                         'OR b_fid::text||"_"||a_fid::text in (SELECT line1::text)||"_"||line2::text FROM "%s"."%s")' \
                         % (graphname, unlinkschema, unlinkname, unlinkschema, unlinkname)
                 header, data, error = uf.executePostgisQuery(connection, query, commit=True)
-                if is_debug: # fix_print_with_import
- # fix_print_with_import
-print("Unlinking the graph: %s" % str(time.time()-start_time))
+                if is_debug:
+                    print("Unlinking the graph: %s" % str(time.time()-start_time))
             else:
                 self.verificationError.emit("The unlinks layer is not ready. Please update its line ID columns.")
         # return all the links to build the graph

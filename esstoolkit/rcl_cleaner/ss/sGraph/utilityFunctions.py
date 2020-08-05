@@ -88,7 +88,6 @@ def to_shp(path, any_features_list, layer_fields, crs, name, encoding, geom_type
             fields.append(field)
         file_writer = QgsVectorFileWriter(path, encoding, fields, geom_type, crs, "ESRI Shapefile")
         if file_writer.hasError() != QgsVectorFileWriter.NoError:
-            # fix_print_with_import
             print("Error when creating shapefile: ", file_writer.errorMessage())
         del file_writer
         network = QgsVectorLayer(path, name, "ogr")
@@ -151,10 +150,7 @@ def to_dblayer(dbname, user, host, port, password, schema, table_name, qgs_flds,
         cur.execute(ins_str + args_str)
         con.commit()
         con.close()
-
-        # fix_print_with_import
-        # fix_print_with_import
-print("success!")
+        print("success!")
         uri = QgsDataSourceURI()
         # set host name, port, database name, username and password
         uri.setConnection(host, port, dbname, user, password)
@@ -175,7 +171,6 @@ def getPostgisSchemas(connstring, commit=False):
     try:
         connection = psycopg2.connect(connstring)
     except psycopg2.Error as e:
-        # fix_print_with_import
         print(e.pgerror)
         connection = None
 

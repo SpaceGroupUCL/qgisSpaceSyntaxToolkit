@@ -186,15 +186,13 @@ class NetworkCleanerTool(QObject):
             self.cleaning = cleaning
 
             if is_debug:
-                # fix_print_with_import
                 print('started')
         else:
-            self.giveMessage('Missing user input!', QgsMessageBar.INFO)
+            self.giveMessage('Missing user input!', Qgis.Info)
             return
 
     def workerFinished(self, ret):
         if is_debug:
-            # fix_print_with_import
             print('trying to finish')
         self.dlg.lockGUI(False)
         #TODO: only if edit default has been pressed before
@@ -267,9 +265,8 @@ print('path', path)
             self.dlg.close()
 
     def killWorker(self):
-        if is_debug: # fix_print_with_import
- # fix_print_with_import
-print('trying to cancel')
+        if is_debug:
+            print('trying to cancel')
         # add emit signal to breakTool or mergeTool only to stop the loop
         if self.cleaning:
             # Disconnect signals
@@ -421,9 +418,8 @@ print('trying to cancel')
                 self.graph.errors += multiparts
                 self.graph.errors += points
 
-                if is_debug: # fix_print_with_import
- # fix_print_with_import
-print("survived!")
+                if is_debug:
+                    print("survived!")
                 self.graph.progress.disconnect()
                 self.cl_progress.emit(95)
                 # return cleaned data, errors and unlinks

@@ -222,16 +222,13 @@ print('settings', self.settings)
             self.segmenting = segmenting
 
             #if is_debug:
-            # fix_print_with_import
-            # fix_print_with_import
-print('has started')
+            print('has started')
         else:
-            self.giveMessage('Missing user input!', QgsMessageBar.INFO)
+            self.giveMessage('Missing user input!', Qgis.Info)
             return
 
     def workerFinished(self, ret):
         #if is_debug:
-        # fix_print_with_import
         print('trying to finish')
         # get segmenting settings
         self.dlg.lockGUI(False)
@@ -298,7 +295,6 @@ print('has finished ', self.thread.isFinished())
 
     def killWorker(self):
         #if is_debug:
-        # fix_print_with_import
         print('trying to cancel')
         # add emit signal to segmenttool or mergeTool only to stop the loop
         if self.segmenting:
@@ -387,7 +383,6 @@ print('has finished ', self.thread.isFinished())
                 self.my_segmentor.progress.disconnect()
 
             except Exception as e:
-                # fix_print_with_import
                 print(e)
                 self.error.emit(e, traceback.format_exc())
 
@@ -396,7 +391,6 @@ print('has finished ', self.thread.isFinished())
             self.finished.emit(ret)
 
         def kill(self):
-            # fix_print_with_import
             print('killed')
             self.segm_killed = True
 

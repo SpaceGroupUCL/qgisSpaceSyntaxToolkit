@@ -563,9 +563,7 @@ def isNumericNew(num):
     # then make a unicode version so we can ensure we're dealing with
     # something that represents a numeric value:
     uRep = str(strRep)
-    # fix_print_with_import
-    # fix_print_with_import
-print(uRep)
+    print(uRep)
     if ('.' in uRep) and all([x.isnumeric() for x in uRep.split('.')]):
         return True # there's a decimal and everything to the right
                     # and left of it is numeric
@@ -733,7 +731,6 @@ def createTempLayer(name, srid, attributes, types, values, coords):
     vlayer.commitChanges()
     vlayer.updateExtents()
     if not vlayer.isValid():
-        # fix_print_with_import
         print("Layer failed to load!")
         return None
     return vlayer
@@ -1332,7 +1329,6 @@ def copyLayerToShapeFile(layer, path, name):
     # create an instance of vector file writer, which will create the vector file.
     writer = QgsVectorFileWriter(filename, "System", fields, geometry, srid, "ESRI Shapefile")
     if writer.hasError() != QgsVectorFileWriter.NoError:
-        # fix_print_with_import
         print("Error when creating shapefile: ", writer.hasError())
         return None
     # add features by iterating the values
@@ -1343,7 +1339,6 @@ def copyLayerToShapeFile(layer, path, name):
     # open the newly created file
     vlayer = QgsVectorLayer(filename, name, "ogr")
     if not vlayer.isValid():
-        # fix_print_with_import
         print("Layer failed to load!")
         return None
     return vlayer
@@ -1365,7 +1360,6 @@ def createShapeFileFullLayer(path, name, srid, attributes, types, values, coords
         type = 'line'
         writer = QgsVectorFileWriter(filename, "System", fields, QGis.WKBLineString, srid, "ESRI Shapefile")
     if writer.hasError() != QgsVectorFileWriter.NoError:
-        # fix_print_with_import
         print("Error when creating shapefile: ", writer.hasError())
         return None
     # add features by iterating the values
@@ -1390,7 +1384,6 @@ def createShapeFileFullLayer(path, name, srid, attributes, types, values, coords
     # open the newly created file
     vlayer = QgsVectorLayer(filename, name, "ogr")
     if not vlayer.isValid():
-        # fix_print_with_import
         print("Layer failed to load!")
         return None
     return vlayer
@@ -1414,7 +1407,6 @@ def createShapeFileLayer(path, name, srid, attributes, types, geometrytype):
     elif 'polygon' in geometrytype.lower():
         writer = QgsVectorFileWriter(filename, "System", fields, QGis.WKBPolygon, srid, "ESRI Shapefile")
     if writer.hasError() != QgsVectorFileWriter.NoError:
-        # fix_print_with_import
         print("Error when creating shapefile: ", writer.hasError())
         return None
     # delete the writer to flush features to disk (optional)
@@ -1422,7 +1414,6 @@ def createShapeFileLayer(path, name, srid, attributes, types, geometrytype):
     # open the newly created file
     vlayer = QgsVectorLayer(filename, name, "ogr")
     if not vlayer.isValid():
-        # fix_print_with_import
         print("Layer failed to open!")
         return None
     return vlayer
@@ -1601,7 +1592,6 @@ def getPostgisConnection(name):
     try:
         connection=pgsql.connect(con_str)
     except pgsql.Error as e:
-        # fix_print_with_import
         print(e.pgerror)
         connection = None
     return connection

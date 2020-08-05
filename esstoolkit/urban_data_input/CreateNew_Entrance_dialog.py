@@ -88,9 +88,7 @@ class CreateNew_EntranceDialog(QtWidgets.QDialog, FORM_CLASS):
             if self.dbsettings:
                 db_layer_name = "%s:%s:%s" % (
                     self.dbsettings['dbname'], self.dbsettings['schema'], self.dbsettings['table_name'])
-                # fix_print_with_import
-                # fix_print_with_import
-print('db_layer_name')
+                print('db_layer_name')
                 self.lineEditEntrances.setText(db_layer_name)
         elif self.e_memory_radioButton.isChecked():
             self.lineEditEntrances.clear()
@@ -120,9 +118,7 @@ print('db_layer_name')
             self.lineEditEntrances.clear()
             self.dbsettings = self.dbsettings_dlg.getDbSettings()
             self.pushButtonSelectLocationEntrance.setDisabled(False)
-            # fix_print_with_import
-            # fix_print_with_import
-print('dbs1', self.dbsettings)
+            print('dbs1', self.dbsettings)
             if self.dbsettings != {}:
                 db_layer_name = "%s:%s:%s" % (
                     self.dbsettings['dbname'], self.dbsettings['schema'], self.dbsettings['table_name'])

@@ -99,13 +99,13 @@ class DrawingToolDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.activatedNetwork = self.settings[0]
         # fix_print_with_import
         # fix_print_with_import
-print('user selected network', self.settings[0])
+        print('user selected network', self.settings[0])
         combo_items = [self.networkCombo.itemText(i) for i in range(self.networkCombo.count())]
         if combo_items.count(self.settings[0]) > 1 :
             self.iface.messageBar().pushMessage(
                     "Drawing Tool: ",
                     "Rename layers in the layers panel that have the same names!",
-                    level=QgsMessageBar.WARNING,
+                    level=Qgis.Warning,
                     duration=5)
         if self.segment_mode:
             self.setSegmentSnapping()
@@ -120,13 +120,13 @@ print('user selected network', self.settings[0])
         self.activatedUnlinks = self.settings[1]
         # fix_print_with_import
         # fix_print_with_import
-print('user selected unlinks', self.settings[1])
+        print('user selected unlinks', self.settings[1])
         combo_items = [self.unlinksCombo.itemText(i) for i in range(self.unlinksCombo.count())]
         if combo_items.count(self.settings[1]) > 1:
             self.iface.messageBar().pushMessage(
                 "Drawing Tool: ",
                 "Rename layers in the layers panel that have the same names!",
-                level=QgsMessageBar.WARNING,
+                level=Qgis.Warning,
                 duration=5)
         if self.unlink_mode:
             self.setUnlinkSnapping()
@@ -138,7 +138,7 @@ print('user selected unlinks', self.settings[1])
         self.settings[2] = self.toleranceSpin.value()
         # fix_print_with_import
         # fix_print_with_import
-print('tolerance upd', self.settings)
+        print('tolerance upd', self.settings)
         return
 
     def setAxialSnapping(self):
@@ -160,7 +160,7 @@ print('tolerance upd', self.settings)
             proj = QgsProject.instance()
             # fix_print_with_import
             # fix_print_with_import
-print(proj, 'ax')
+            print(proj, 'ax')
             proj.writeEntry('Digitizing', 'SnappingMode', 'advanced')
             layer = getLayerByName(self.settings[0])
             self.iface.setActiveLayer(layer)
@@ -189,7 +189,7 @@ print(proj, 'ax')
             proj = QgsProject.instance()
             # fix_print_with_import
             # fix_print_with_import
-print(proj, 'seg')
+            print(proj, 'seg')
             proj.writeEntry('Digitizing', 'SnappingMode', 'advanced')
             layer = getLayerByName(self.settings[0])
             self.iface.setActiveLayer(layer)
@@ -213,13 +213,13 @@ print(proj, 'seg')
         # snap to vertex
         if self.settings[1] != 'no unlinks':
             self.resetIcons()
-            unlink_icon = QtGui.QPixmap(os.path.dirname(__file__) + "/custom_icons/unlink.png")
-            self.unlinksButton.setIcon(QtGui.QIcon(unlink_icon))
+            unlink_icon = QPixmap(os.path.dirname(__file__) + "/custom_icons/unlink.png")
+            self.unlinksButton.setIcon(QIcon(unlink_icon))
             self.unlinksButton.setIconSize(QSize(40, 40))
             proj = QgsProject.instance()
             # fix_print_with_import
             # fix_print_with_import
-print(proj, 'un')
+            print(proj, 'un')
             proj.writeEntry('Digitizing', 'SnappingMode', 'advanced')
             layer = getLayerByName(self.settings[0])
             unlinks_layer = getLayerByName(self.settings[1])

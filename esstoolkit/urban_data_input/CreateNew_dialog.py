@@ -86,15 +86,11 @@ class CreatenewDialog(QtWidgets.QDialog, FORM_CLASS):
             self.setOutput()
             self.dbsettings_dlg.show()
             self.dbsettings = self.dbsettings_dlg.getDbSettings()
-            # fix_print_with_import
-            # fix_print_with_import
-print('self.dbsettings', self.dbsettings)
+            print('self.dbsettings', self.dbsettings)
             if self.dbsettings:
                 db_layer_name = "%s:%s:%s" % (
                     self.dbsettings['dbname'], self.dbsettings['schema'], self.dbsettings['table_name'])
-                # fix_print_with_import
-                # fix_print_with_import
-print('db_layer_name')
+                print('db_layer_name')
                 self.lineEditFrontages.setText(db_layer_name)
         elif self.f_memory_radioButton.isChecked():
             self.lineEditFrontages.clear()
@@ -104,7 +100,6 @@ print('db_layer_name')
         self.create_new_layer.emit()
 
     def setDbPath(self):
-        # fix_print_with_import
         print('setdbpath')
         if self.f_postgis_radioButton.isChecked():
             try:
@@ -126,9 +121,7 @@ print('db_layer_name')
             self.lineEditFrontages.clear()
             self.dbsettings = self.dbsettings_dlg.getDbSettings()
             self.pushButtonSelectLocation.setDisabled(False)
-            # fix_print_with_import
-            # fix_print_with_import
-print('dbs1', self.dbsettings)
+            print('dbs1', self.dbsettings)
             if self.dbsettings != {}:
                 db_layer_name = "%s:%s:%s" % (
                     self.dbsettings['dbname'], self.dbsettings['schema'], self.dbsettings['table_name'])
