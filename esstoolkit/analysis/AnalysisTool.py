@@ -275,7 +275,7 @@ class AnalysisTool(QObject):
         if layers:
             for layer in layers:
                 # checks if the layer is projected. Geographic coordinates are not supported
-                if layer.hasGeometryType() and uf.isLayerProjected(layer):
+                if layer.isSpatial() and uf.isLayerProjected(layer):
                     unlinks_list.append(layer.name())
                     if layer.geometryType() == 1: # line geometry
                         map_list.append(layer.name())

@@ -58,7 +58,7 @@ def getVectorLayers(geom='all', provider='all'):
     for layer in list(QgsMapLayerRegistry.instance().mapLayers().values()):
         add_layer = False
         if layer.isValid() and layer.type() == QgsMapLayer.VectorLayer:
-            if layer.hasGeometryType() and (geom is 'all' or layer.geometryType() in geom):
+            if layer.isSpatial() and (geom is 'all' or layer.geometryType() in geom):
                 if provider is 'all' or layer.dataProvider().name() in provider:
                     add_layer = True
         if add_layer:
@@ -69,10 +69,10 @@ def getVectorLayers(geom='all', provider='all'):
 def getLegendLayers(iface, geom='all', provider='all'):
     """Return list of valid QgsVectorLayer in QgsLegendInterface, with specific geometry type and/or data provider"""
     layers_list = []
-    for layer in iface.legendInterface().layers():
+    for layer in QgsProject.instance().mapLayers().values():
         add_layer = False
         if layer.isValid() and layer.type() == QgsMapLayer.VectorLayer:
-            if layer.hasGeometryType() and (geom is 'all' or layer.geometryType() in geom):
+            if layer.isSpatial() and (geom is 'all' or layer.geometryType() in geom):
                 if provider is 'all' or layer.dataProvider().name() in provider:
                     add_layer = True
         if add_layer:
@@ -86,7 +86,7 @@ def getCanvasLayers(iface, geom='all', provider='all'):
     for layer in iface.mapCanvas().layers():
         add_layer = False
         if layer.isValid() and layer.type() == QgsMapLayer.VectorLayer:
-            if layer.hasGeometryType() and (geom is 'all' or layer.geometryType() in geom):
+            if layer.isSpatial() and (geom is 'all' or layer.geometryType() in geom):
                 if provider is 'all' or layer.dataProvider().name() in provider:
                     add_layer = True
         if add_layer:
@@ -97,7 +97,7 @@ def getCanvasLayers(iface, geom='all', provider='all'):
 def isLayerProjected(layer):
     projected = False
     if layer:
-        projected = not layer.crs().geographicFlag()
+        projected = not layer.crs().isGeographic()
     return projected
 
 
@@ -1233,7 +1233,7 @@ def copyLayerToSpatialite(connection, layer, path, name):
         fieldsNames.append(fldName.upper())
     #Get the geometry type
     geometry=False
-    if layer.hasGeometryType():
+    if layer.isSpatial():
         #Get geometry type
         geom=['MULTIPOINT','MULTILINESTRING','MULTIPOLYGON','UnknownGeometry']
         geometry=geom[layer.geometryType()]
@@ -1321,7 +1321,7 @@ def copyLayerToShapeFile(layer, path, name):
     provider = layer.dataProvider()
     filename = path+"/"+name+".shp"
     fields = provider.fields()
-    if layer.hasGeometryType():
+    if layer.isSpatial():
         geometry = layer.wkbType()
     else:
         geometry = None

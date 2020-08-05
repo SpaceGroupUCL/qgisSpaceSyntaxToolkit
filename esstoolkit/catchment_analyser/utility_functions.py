@@ -40,10 +40,10 @@ def getLayerByName(name):
 def getLegendLayers(iface, geom='all', provider='all'):
     """geometry types: 0 point; 1 line; 2 polygon; 3 multipoint; 4 multiline; 5 multipolygon"""
     layers_list = []
-    for layer in iface.legendInterface().layers():
+    for layer in QgsProject.instance().mapLayers().values():
         add_layer = False
         if layer.isValid() and layer.type() == QgsMapLayer.VectorLayer:
-            if layer.hasGeometryType() and (geom is 'all' or layer.geometryType() in geom):
+            if layer.isSpatial() and (geom is 'all' or layer.geometryType() in geom):
                 if provider is 'all' or layer.dataProvider().name() in provider:
                     add_layer = True
         if add_layer:
@@ -53,10 +53,10 @@ def getLegendLayers(iface, geom='all', provider='all'):
 def getLegendLayersNames(iface, geom='all', provider='all'):
     """geometry types: 0 point; 1 line; 2 polygon; 3 multipoint; 4 multiline; 5 multipolygon"""
     layers_list = []
-    for layer in iface.legendInterface().layers():
+    for layer in QgsProject.instance().mapLayers().values():
         add_layer = False
         if layer.isValid() and layer.type() == QgsMapLayer.VectorLayer:
-            if layer.hasGeometryType() and (geom is 'all' or layer.geometryType() in geom):
+            if layer.isSpatial() and (geom is 'all' or layer.geometryType() in geom):
                 if provider is 'all' or layer.dataProvider().name() in provider:
                     add_layer = True
         if add_layer:

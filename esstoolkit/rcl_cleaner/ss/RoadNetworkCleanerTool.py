@@ -133,9 +133,9 @@ class RoadNetworkCleaner(QObject):
 
     def getActiveLayers(self):
         layers_list = []
-        for layer in self.iface.legendInterface().layers():
+        for layer in QgsProject.instance().mapLayers().values():
             if layer.isValid() and layer.type() == QgsMapLayer.VectorLayer:
-                if layer.hasGeometryType() and (layer.geometryType() == 1):
+                if layer.isSpatial() and (layer.geometryType() == 1):
                     layers_list.append(layer.name())
         return layers_list
 

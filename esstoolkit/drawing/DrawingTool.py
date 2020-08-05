@@ -238,11 +238,10 @@ class DrawingTool(object):
         layers = []
 
 
-        for layer in self.iface.legendInterface().layers():
-            # fix_print_with_import
+        for layer in QgsProject.instance().mapLayers().values():
             print('l')
             if layer.isValid() and layer.type() == QgsMapLayer.VectorLayer:
-                if layer.hasGeometryType() and (layer.geometryType() == geom_type):
+                if layer.isSpatial() and (layer.geometryType() == geom_type):
                     layers.append(layer.name())
         return layers
 

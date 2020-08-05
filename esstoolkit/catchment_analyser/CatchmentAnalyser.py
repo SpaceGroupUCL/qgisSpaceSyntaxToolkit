@@ -177,7 +177,7 @@ class CatchmentTool(QObject):
         # Raise warnings
         if not self.getNetwork():
             self.giveWarningMessage("No network selected!")
-        elif self.getNetwork().crs().geographicFlag() or self.getOrigins().crs().geographicFlag():
+        elif self.getNetwork().crs().isGeographic() or self.getOrigins().crs().isGeographic():
             self.giveWarningMessage("Input layer(s) without a projected CRS!")
         elif uf.check_for_NULL_geom(self.getNetwork()):
             self.giveWarningMessage("Input network layer has NULL geometries! Delete them to run catchment analysis.")
