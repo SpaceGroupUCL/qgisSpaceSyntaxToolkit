@@ -1,5 +1,0 @@
-<RCC>
-    <qresource prefix="/plugins/CatchmentAnalyser" >
-        <file>icon.png</file>
-    </qresource>
-</RCC>

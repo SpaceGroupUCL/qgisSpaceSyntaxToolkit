@@ -1,5 +1,0 @@
-<RCC>
-    <qresource prefix="/plugins/NetworkSegmenter" >
-        <file>icon.png</file>
-    </qresource>
-</RCC>

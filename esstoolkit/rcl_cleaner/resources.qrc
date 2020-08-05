@@ -1,5 +1,0 @@
-<RCC>
-    <qresource prefix="/plugins/RoadNetworkCleaner" >
-        <file>icon.png</file>
-    </qresource>
-</RCC>
