@@ -353,7 +353,7 @@ print('building layer3')
         self.dockwidget.pushIDlistWidget.clear()
         buildinglayer = self.dockwidget.getSelectedLayerPushID()
         if buildinglayer:
-            fields = buildinglayer.pendingFields()
+            fields = buildinglayer.fields()
             field_names = [field.name() for field in fields]
             self.dockwidget.pushIDlistWidget.addItems(field_names)
 

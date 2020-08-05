@@ -208,7 +208,7 @@ class UrbanDataInputDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 attr = feat.attributes()
                 attrs.append(attr)
 
-            fields = layer.pendingFields()
+            fields = layer.fields()
             field_names = [field.name() for field in fields]
 
             field_length = len(field_names)
@@ -288,7 +288,7 @@ class UrbanDataInputDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 attr = feat.attributes()
                 attrs.append(attr)
 
-            fields = layer.pendingFields()
+            fields = layer.fields()
             field_names = [field.name() for field in fields]
 
             field_length = len(field_names)

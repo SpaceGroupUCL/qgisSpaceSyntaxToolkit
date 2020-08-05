@@ -516,7 +516,7 @@ class AxialVerification(QThread):
         if not self.running: return
         if unlinks:
             if uf.fieldExists(unlinks,'line1') and uf.fieldExists(unlinks,'line2'):
-                features = unlinks.getFeatures(QgsFeatureRequest().setSubsetOfAttributes(['line1','line2'],unlinks.pendingFields()))
+                features = unlinks.getFeatures(QgsFeatureRequest().setSubsetOfAttributes(['line1','line2'],unlinks.fields()))
                 for feature in features:
                     unlinks_list.append((feature.attribute('line1'),feature.attribute('line2')))
         if not self.running: return

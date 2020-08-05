@@ -169,7 +169,7 @@ class CatchmentAnalysis(QObject):
         otf = False
 
         # Get index of cost field
-        network_fields = network.pendingFields()
+        network_fields = network.fields()
         network_cost_index = network_fields.indexFromName(cost_field)
 
         # Setting up graph build director

@@ -759,12 +759,12 @@ def buildTopology(self, axial, unlinks, links):
     links_list = []
     # get unlinks pairs
     if unlinks:
-        features = unlinks.getFeatures(QgsFeatureRequest().setSubsetOfAttributes(['line1','line2'],unlinks.pendingFields()))
+        features = unlinks.getFeatures(QgsFeatureRequest().setSubsetOfAttributes(['line1','line2'],unlinks.fields()))
         for feature in features:
             unlinks_list.append((feature.attribute('line1'),feature.attribute('line2')))
     # get links pairs
     if links:
-        features = links.getFeatures(QgsFeatureRequest().setSubsetOfAttributes(['line1','line2'],links.pendingFields()))
+        features = links.getFeatures(QgsFeatureRequest().setSubsetOfAttributes(['line1','line2'],links.fields()))
         for feature in features:
             links_list.append((feature.attribute('line1'),feature.attribute('line2')))
     # get axial intersections
