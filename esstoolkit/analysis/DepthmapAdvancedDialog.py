@@ -22,13 +22,13 @@
 """
 
 from builtins import str
-from qgis.PyQt import QtCore, QtGui
+from qgis.PyQt import QtCore, QtWidgets
 from .ui_DepthmapAdvanced import Ui_DepthmapAdvancedDialog
 
 
-class DepthmapAdvancedDialog(QtGui.QDialog, Ui_DepthmapAdvancedDialog):
+class DepthmapAdvancedDialog(QtWidgets.QDialog, Ui_DepthmapAdvancedDialog):
     def __init__(self):
-        QtGui.QDialog.__init__(self)
+        QtWidgets.QDialog.__init__(self)
         # Set up the user interface from Designer.
         self.setupUi(self)
 
@@ -81,8 +81,8 @@ class DepthmapAdvancedDialog(QtGui.QDialog, Ui_DepthmapAdvancedDialog):
     def checkRemoveStubs(self):
         try:
             int(self.axialStubsEdit.text())
-            self.closeButtonBox.button(QtGui.QDialogButtonBox.Ok).setDisabled(False)
-            self.closeButtonBox.button(QtGui.QDialogButtonBox.Ok).setToolTip('')
+            self.closeButtonBox.button(QtWidgets.QDialogButtonBox.Ok).setDisabled(False)
+            self.closeButtonBox.button(QtWidgets.QDialogButtonBox.Ok).setToolTip('')
         except ValueError:
-            self.closeButtonBox.button(QtGui.QDialogButtonBox.Ok).setDisabled(True)
-            self.closeButtonBox.button(QtGui.QDialogButtonBox.Ok).setToolTip('Please enter a valid stubs removal % (integer).')
+            self.closeButtonBox.button(QtWidgets.QDialogButtonBox.Ok).setDisabled(True)
+            self.closeButtonBox.button(QtWidgets.QDialogButtonBox.Ok).setToolTip('Please enter a valid stubs removal % (integer).')

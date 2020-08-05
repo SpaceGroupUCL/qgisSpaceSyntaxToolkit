@@ -25,8 +25,9 @@ from __future__ import absolute_import
 # Import the PyQt and QGIS libraries
 from builtins import object
 from qgis.core import *
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from qgis.PyQt.QtCore import *
+from qgis.PyQt.QtGui import *
+from qgis.PyQt.QtWidgets import QAction, QDialog
 
 # Import the debug library
 is_debug = False
@@ -48,7 +49,7 @@ except ImportError as e:
         sys.path.insert(0, cmd_subfolder)
 
 # Initialize Qt resources from file resources.py
-from .resources_rc import *
+from .resources import *
 
 # Import general esstoolkit modules
 from .ui_About import Ui_AboutDialog

@@ -25,9 +25,9 @@ from __future__ import absolute_import
 
 import os
 
-from qgis.PyQt import QtGui, uic
+from qgis.PyQt import QtWidgets, uic
 from qgis.PyQt.QtCore import pyqtSignal
-from qgis.core import QgsDataSourceURI
+#from qgis.core import QgsDataSourceURI
 
 from .utility_functions import *
 
@@ -35,7 +35,7 @@ FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'DbSettings_dialog_base.ui'))
 
 
-class DbSettingsDialog(QtGui.QDialog, FORM_CLASS):
+class DbSettingsDialog(QtWidgets.QDialog, FORM_CLASS):
 
     closingPlugin = pyqtSignal()
     setDbOutput = pyqtSignal()

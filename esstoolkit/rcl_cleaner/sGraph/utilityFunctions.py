@@ -3,7 +3,7 @@ from builtins import str
 import collections
 import math
 from collections import defaultdict
-from qgis.core import QgsMapLayerRegistry, QgsFields, QgsField, QgsGeometry, QgsFeature, QgsVectorLayer, QgsVectorFileWriter, QGis, NULL, QgsDataSourceURI, QgsVectorLayerImport
+from qgis.core import QgsFields, QgsField, QgsGeometry, QgsFeature, QgsVectorLayer, QgsVectorFileWriter, NULL
 from qgis.PyQt.QtCore import  QVariant
 import itertools
 import psycopg2

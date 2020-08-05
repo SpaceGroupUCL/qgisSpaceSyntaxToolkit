@@ -25,7 +25,7 @@ from __future__ import absolute_import
 
 import os
 
-from qgis.PyQt import QtCore, QtGui, uic
+from qgis.PyQt import QtCore, QtWidgets, uic
 from .utility_functions import getQGISDbs
 from .DbSettings_dialog import DbSettingsDialog
 
@@ -33,7 +33,7 @@ FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'CreateNew_Entrance_dialog_base.ui'))
 
 
-class CreateNew_EntranceDialog(QtGui.QDialog, FORM_CLASS):
+class CreateNew_EntranceDialog(QtWidgets.QDialog, FORM_CLASS):
     create_new_layer = QtCore.pyqtSignal()
 
     def __init__(self, parent=None):
@@ -77,7 +77,7 @@ class CreateNew_EntranceDialog(QtGui.QDialog, FORM_CLASS):
     # Open Save file dialogue and set location in text edit
     def selectSaveLocationEntrance(self):
         if self.e_shp_radioButton.isChecked():
-            filename = QtGui.QFileDialog.getSaveFileName(None, "Specify Output Location ", "", '*.shp')
+            filename = QtWidgets.QFileDialog.getSaveFileName(None, "Specify Output Location ", "", '*.shp')
             self.lineEditEntrances.clear()
             self.lineEditEntrances.setText(filename)
         elif self.e_postgis_radioButton.isChecked():

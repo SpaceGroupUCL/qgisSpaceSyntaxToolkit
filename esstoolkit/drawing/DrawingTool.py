@@ -30,9 +30,6 @@ from qgis.PyQt.QtWidgets import QAction
 from qgis.PyQt.QtGui import QIcon, QPixmap
 from qgis.utils import QgsMessageBar
 from qgis.core import *
-# Initialize Qt resources from file resources.py
-from . import resources
-
 
 # Import the code for the DockWidget
 from .DrawingTool_dockwidget import DrawingToolDockWidget
@@ -293,7 +290,7 @@ class DrawingTool(object):
             self.iface.messageBar().pushMessage(
                     "Drawing Tool: ",
                     "Rename network layers in the layers panel that have the same names!",
-                    level=QgsMessageBar.WARNING,
+                    level=Qgis.Warning,
                     duration=5)
 
         self.dockwidget.settings[0] = self.dockwidget.networkCombo.currentText()
@@ -309,7 +306,7 @@ class DrawingTool(object):
         #print 'active_unlinks_idx', active_unlinks_idx, unlinks
 
         if active_unlinks_idx == 0 and self.dockwidget.unlink_mode:
-            self.iface.messageBar().pushMessage("Unlinks layer not specified!", QgsMessageBar.CRITICAL, duration=5)
+            self.iface.messageBar().pushMessage("Unlinks layer not specified!", Qgis.Critical, duration=5)
             self.dockwidget.unlink_mode = False
             unlink_icon = QPixmap(os.path.dirname(__file__) + "/custom_icons/unlink_disabled.png")
             self.dockwidget.unlinksButton.setIcon(QIcon(unlink_icon))
@@ -322,7 +319,7 @@ class DrawingTool(object):
             self.iface.messageBar().pushMessage(
                 "Drawing Tool: ",
                 "Rename point layers in the layers panel that have the same names!",
-                level=QgsMessageBar.WARNING,
+                level=Qgis.Warning,
                 duration=5)
 
         self.dockwidget.settings[1] = self.dockwidget.networkCombo.currentText()

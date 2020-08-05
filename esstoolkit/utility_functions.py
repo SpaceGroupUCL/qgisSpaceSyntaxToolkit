@@ -25,11 +25,11 @@ from __future__ import print_function
 from builtins import zip
 from builtins import str
 from builtins import range
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from qgis.PyQt.QtCore import *
+from qgis.PyQt.QtGui import *
 from qgis.core import *
 
-from pyspatialite import dbapi2 as sqlite
+# from pyspatialite import dbapi2 as sqlite
 import psycopg2 as pgsql
 import numpy as np
 

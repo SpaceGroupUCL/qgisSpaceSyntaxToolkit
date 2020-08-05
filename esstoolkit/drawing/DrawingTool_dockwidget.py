@@ -30,15 +30,16 @@ from qgis.PyQt.QtCore import QThread, QSettings, pyqtSignal, Qt, QSize
 from qgis.core import *
 from qgis.gui import *
 from qgis.utils import *
+from qgis.PyQt.QtGui import QPixmap, QIcon
 
-from qgis.PyQt import QtGui, uic
+from qgis.PyQt import QtWidgets, uic
 from .utility_functions import *
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'DrawingTool_dockwidget_base.ui'))
 
 
-class DrawingToolDockWidget(QtGui.QDockWidget, FORM_CLASS):
+class DrawingToolDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
     closingPlugin = pyqtSignal()
 
@@ -51,14 +52,14 @@ class DrawingToolDockWidget(QtGui.QDockWidget, FORM_CLASS):
         # http://qt-project.org/doc/qt-4.8/designer-using-a-ui-file.html
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
-        axial_icon = QtGui.QPixmap(os.path.dirname(__file__) + "/custom_icons/axial_disabled.png")
-        segment_icon = QtGui.QPixmap(os.path.dirname(__file__) +"/custom_icons/segment_disabled.png")
-        unlink_icon = QtGui.QPixmap(os.path.dirname(__file__) +"/custom_icons/unlink_disabled.png")
-        self.axialButton.setIcon(QtGui.QIcon(axial_icon))
+        axial_icon = QPixmap(os.path.dirname(__file__) + "/custom_icons/axial_disabled.png")
+        segment_icon = QPixmap(os.path.dirname(__file__) +"/custom_icons/segment_disabled.png")
+        unlink_icon = QPixmap(os.path.dirname(__file__) +"/custom_icons/unlink_disabled.png")
+        self.axialButton.setIcon(QIcon(axial_icon))
         self.axialButton.setIconSize(QSize(40,40))
-        self.segmentButton.setIcon(QtGui.QIcon(segment_icon))
+        self.segmentButton.setIcon(QIcon(segment_icon))
         self.segmentButton.setIconSize(QSize(40, 40))
-        self.unlinksButton.setIcon(QtGui.QIcon(unlink_icon))
+        self.unlinksButton.setIcon(QIcon(unlink_icon))
         self.unlinksButton.setIconSize(QSize(40, 40))
         self.unlinksButton.setFixedHeight(60)
         self.unlinksButton.setFixedWidth(60)
@@ -150,8 +151,8 @@ print('tolerance upd', self.settings)
 
         #self.axialButton.setCheckable(True)
         self.resetIcons()
-        axial_icon = QtGui.QPixmap(os.path.dirname(__file__) + "/custom_icons/axial.png")
-        self.axialButton.setIcon(QtGui.QIcon(axial_icon))
+        axial_icon = QPixmap(os.path.dirname(__file__) + "/custom_icons/axial.png")
+        self.axialButton.setIcon(QIcon(axial_icon))
         self.axialButton.setIconSize(QSize(40, 40))
 
         # snap to nothing
@@ -171,7 +172,7 @@ print(proj, 'ax')
             proj.setTopologicalEditing(False)
             self.axial_mode = True
         else:
-            self.iface.messageBar().pushMessage("Network layer not specified!", QgsMessageBar.CRITICAL, duration=5)
+            self.iface.messageBar().pushMessage("Network layer not specified!", Qgis.Critical, duration=5)
             self.axial_mode = False
         return
 
@@ -179,8 +180,8 @@ print(proj, 'ax')
         # disable previous snapping setting
         self.resetSnapping()
         self.resetIcons()
-        segment_icon = QtGui.QPixmap(os.path.dirname(__file__) + "/custom_icons/segment.png")
-        self.segmentButton.setIcon(QtGui.QIcon(segment_icon))
+        segment_icon = QPixmap(os.path.dirname(__file__) + "/custom_icons/segment.png")
+        self.segmentButton.setIcon(QIcon(segment_icon))
         self.segmentButton.setIconSize(QSize(40, 40))
 
         # snap to vertex
@@ -232,7 +233,7 @@ print(proj, 'un')
             self.iface.mapCanvas().snappingUtils().setSnapOnIntersections(True)
             self.unlink_mode = True
         else:
-            self.iface.messageBar().pushMessage("Unlinks layer not specified!", QgsMessageBar.CRITICAL, duration=5)
+            self.iface.messageBar().pushMessage("Unlinks layer not specified!", Qgis.Critical, duration=5)
             self.unlink_mode = False
         return
 
@@ -255,14 +256,14 @@ print(proj, 'un')
         return
 
     def resetIcons(self):
-        axial_icon = QtGui.QPixmap(os.path.dirname(__file__) + "/custom_icons/axial_disabled.png")
-        self.axialButton.setIcon(QtGui.QIcon(axial_icon))
+        axial_icon = QPixmap(os.path.dirname(__file__) + "/custom_icons/axial_disabled.png")
+        self.axialButton.setIcon(QIcon(axial_icon))
         self.axialButton.setIconSize(QSize(40, 40))
-        segment_icon = QtGui.QPixmap(os.path.dirname(__file__) + "/custom_icons/segment_disabled.png")
-        self.segmentButton.setIcon(QtGui.QIcon(segment_icon))
+        segment_icon = QPixmap(os.path.dirname(__file__) + "/custom_icons/segment_disabled.png")
+        self.segmentButton.setIcon(QIcon(segment_icon))
         self.segmentButton.setIconSize(QSize(40, 40))
-        unlink_icon = QtGui.QPixmap(os.path.dirname(__file__) + "/custom_icons/unlink_disabled.png")
-        self.unlinksButton.setIcon(QtGui.QIcon(unlink_icon))
+        unlink_icon = QPixmap(os.path.dirname(__file__) + "/custom_icons/unlink_disabled.png")
+        self.unlinksButton.setIcon(QIcon(unlink_icon))
         self.unlinksButton.setIconSize(QSize(40, 40))
         return
 

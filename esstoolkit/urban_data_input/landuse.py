@@ -25,8 +25,8 @@ from __future__ import print_function
 # Import the PyQt and QGIS libraries
 from builtins import str
 import os
-from PyQt4.QtCore import *
-from qgis.PyQt import QtGui
+from qgis.PyQt.QtCore import *
+from qgis.PyQt import QtWidgets
 from qgis.core import *
 from qgis.gui import *
 from . import utility_functions as uf
@@ -161,13 +161,12 @@ class LanduseTool(QObject):
         if self.ludlg.LUincUFcheckBox.checkState() == 0 and self.ludlg.LUincLFcheckBox.checkState() == 0 and self.ludlg.LUincGFcheckBox.checkState() == 0:
             msgBar = self.iface.messageBar()
             msg = msgBar.createMessage(u'Select floors')
-            msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
+            msgBar.pushWidget(msg, Qgis.Info, 10)
 
         else:
             idcolumn = self.ludlg.getSelectedLULayerID()
             # if create from existing building layer
             if self.ludlg.createNewLUFileCheckBox.isChecked():
-                # fix_print_with_import
                 print('aaaa')
                 building_layer = self.getSelectedLULayer()
                 crs = building_layer.crs()
@@ -278,20 +277,20 @@ print('cri', vl.crs().authid())
             if input2 == 'invalid data source':
                 msgBar = self.iface.messageBar()
                 msg = msgBar.createMessage(u'Specify output path!')
-                msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
+                msgBar.pushWidget(msg, Qgis.Info, 10)
             elif input2 == 'duplicate':
                 msgBar = self.iface.messageBar()
                 msg = msgBar.createMessage(u'Land use layer already exists!')
-                msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
+                msgBar.pushWidget(msg, Qgis.Info, 10)
             elif not input2:
                 msgBar = self.iface.messageBar()
                 msg = msgBar.createMessage(u'Land use layer failed to load!')
-                msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
+                msgBar.pushWidget(msg, Qgis.Info, 10)
             else:
-                QgsMapLayerRegistry.instance().addMapLayer(input2)
+                QgsProject.instance().addMapLayer(input2)
                 msgBar = self.iface.messageBar()
                 msg = msgBar.createMessage(u'Land use layer created!')
-                msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
+                msgBar.pushWidget(msg, Qgis.Info, 10)
                 input2.startEditing()
 
         self.updateLULayer()

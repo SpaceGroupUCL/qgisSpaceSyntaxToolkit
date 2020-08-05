@@ -24,11 +24,11 @@ from __future__ import absolute_import
 
 from builtins import str
 from builtins import range
-from PyQt4.QtCore import *
+from qgis.PyQt.QtCore import *
 
 from qgis.core import *
 from qgis.gui import *
-from qgis.networkanalysis import *
+from qgis.analysis import *
 from qgis.utils import *
 
 try:

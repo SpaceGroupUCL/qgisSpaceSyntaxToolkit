@@ -22,14 +22,15 @@
 """
 
 from builtins import str
-from qgis.PyQt import QtCore, QtGui
+from qgis.PyQt import QtCore, QtWidgets
+from qgis.PyQt.QtWidgets import QDialog
 from .ui_VerificationSettings import Ui_VerificationSettingsDialog
 
 from ..utility_functions import *
 
-class VerificationSettingsDialog(QtGui.QDialog, Ui_VerificationSettingsDialog):
+class VerificationSettingsDialog(QtWidgets.QDialog, Ui_VerificationSettingsDialog):
     def __init__(self, settings):
-        QtGui.QDialog.__init__(self)
+        QtWidgets.QDialog.__init__(self)
         # Set up the user interface from Designer.
         self.setupUi(self)
 
@@ -46,7 +47,7 @@ class VerificationSettingsDialog(QtGui.QDialog, Ui_VerificationSettingsDialog):
         self.linksThresholdEdit.hide()
 
         #
-        self.ok = self.closeButtonBox.button(QtGui.QDialogButtonBox.Ok)
+        self.ok = self.closeButtonBox.button(QtWidgets.QDialogButtonBox.Ok)
         self.settings = settings
         self.restoreSettings()
 

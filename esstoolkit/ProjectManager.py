@@ -23,8 +23,9 @@
 """
 # Import the PyQt and QGIS libraries
 from builtins import str
-from qgis.PyQt import QtCore, QtGui
+from qgis.PyQt import QtCore, QtWidgets
 from qgis.core import *
+from qgis.PyQt.QtWidgets import QDialog
 
 import os.path
 
@@ -215,12 +216,12 @@ class ProjectManager(QtCore.QObject):
             self.datastore["crs"] = ''
 
 
-class ProjectDialog(QtGui.QDialog, Ui_ProjectDialog):
+class ProjectDialog(QDialog, Ui_ProjectDialog):
     saveDatastoreSettings = QtCore.pyqtSignal(dict)
 
     def __init__(self, iface, proj_settings, settings):
 
-        QtGui.QDialog.__init__(self)
+        QDialog.__init__(self)
 
         # Set up the user interface from Designer.
         self.setupUi(self)
@@ -406,12 +407,12 @@ class ProjectDialog(QtGui.QDialog, Ui_ProjectDialog):
         name = ""
         append = True
         if self.datastore_type == 0:
-            path = QtGui.QFileDialog.getExistingDirectory(self, "Select shape files folder", lastDir)
+            path = QtWidgets.QFileDialog.getExistingDirectory(self, "Select shape files folder", lastDir)
             if path.strip()!="":
                 path = str(path)
                 name = os.path.basename(path)
         elif self.datastore_type == 1:
-            path = QtGui.QFileDialog.getOpenFileName(self, "Open Spatialite data base", lastDir, "Spatialite (*.sqlite *.db)")
+            path = QtWidgets.QFileDialog.getOpenFileName(self, "Open Spatialite data base", lastDir, "Spatialite (*.sqlite *.db)")
             if path.strip()!="":
                 path = str(path)
                 name = os.path.basename(path)
@@ -437,12 +438,12 @@ class ProjectDialog(QtGui.QDialog, Ui_ProjectDialog):
         name = ""
         append = True
         if self.datastore_type == 0:
-            path = QtGui.QFileDialog.getExistingDirectory(self, "Select shape files folder ", lastDir)
+            path = QtWidgets.QFileDialog.getExistingDirectory(self, "Select shape files folder ", lastDir)
             if path.strip()!="":
                 path = str(path)
                 name = os.path.basename(path)
         elif self.datastore_type == 1:
-            path = QtGui.QFileDialog.getSaveFileName(self, "Create Spatialite data base", lastDir, "Spatialite (*.sqlite *.db)")
+            path = QtWidgets.QFileDialog.getSaveFileName(self, "Create Spatialite data base", lastDir, "Spatialite (*.sqlite *.db)")
             if path.strip()!="":
                 path = str(path)
                 name = os.path.basename(path)

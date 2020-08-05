@@ -32,7 +32,6 @@ from qgis.gui import *
 from qgis.utils import *
 import operator
 import os
-from qgis.PyQt.QtCore import QPyNullVariant
 
 from .road_network_cleaner_dialog import RoadNetworkCleanerDialog
 from .sGraph.sGraph import * # better give these a name to make it explicit to which module the methods belong
@@ -120,16 +119,16 @@ class NetworkCleanerTool(QObject):
                                                                     'port']]
         dbs = dict(
             [k, dict([i[1:] for i in list(g)])] for k, g in itertools.groupby(sorted(all_info), operator.itemgetter(0)))
-        QgsMessageLog.logMessage('dbs %s' % str(dbs), level=QgsMessageLog.CRITICAL)
+        QgsMessageLog.logMessage('dbs %s' % str(dbs), level=Qgis.Critical)
         settings.endGroup()
 
         return dbs
 
     def getActiveLayers(self):
         layers_list = []
-        for layer in self.iface.legendInterface().layers():
+        for layer in QgsProject.instance().mapLayers().values():
             if layer.isValid() and layer.type() == QgsMapLayer.VectorLayer:
-                if layer.hasGeometryType() and (layer.geometryType() == 1):
+                if layer.isSpatial() and (layer.geometryType() == 1):
                     layers_list.append(layer.name())
         return layers_list
 
@@ -153,7 +152,7 @@ class NetworkCleanerTool(QObject):
 
     def workerError(self, e, exception_string):
         # Gives error according to message
-        QgsMessageLog.logMessage('Cleaning thread raised an exception: %s' % exception_string, level=QgsMessageLog.CRITICAL)
+        QgsMessageLog.logMessage('Cleaning thread raised an exception: %s' % exception_string, level=Qgis.Critical)
         self.dlg.close()
 
     def startWorker(self):
@@ -164,7 +163,7 @@ class NetworkCleanerTool(QObject):
             self.settings.update(db_settings)
 
         if getLayerByName(self.settings['input']).crs().postgisSrid() == 4326:
-            self.giveMessage('Re-project the layer. EPSG:4326 not allowed.', QgsMessageBar.INFO)
+            self.giveMessage('Re-project the layer. EPSG:4326 not allowed.', Qgis.Info)
             return
         elif self.settings['output'] != '':
 
@@ -332,7 +331,7 @@ print('trying to cancel')
                 orphans = self.settings['orphans']
                 getUnlinks = self.settings['unlinks']
                 [load_range, cl1_range, cl2_range, cl3_range, break_range, merge_range, snap_range, unlinks_range, fix_range] = self.settings['progress_ranges']
-                QgsMessageLog.logMessage('settings %s' % self.settings, level=QgsMessageLog.CRITICAL)
+                QgsMessageLog.logMessage('settings %s' % self.settings, level=Qgis.Critical)
 
                 self.cl_progress.emit(0)
 
@@ -343,10 +342,10 @@ print('trying to cancel')
                     self.graph = sGraph({}, {})
                     self.graph.total_progress = load_range
                     self.pseudo_graph.load_edges_w_o_topology(clean_features_iter(layer.getFeatures()))
-                    QgsMessageLog.logMessage('pseudo_graph edges added %s' % load_range, level=QgsMessageLog.CRITICAL)
+                    QgsMessageLog.logMessage('pseudo_graph edges added %s' % load_range, level=Qgis.Critical)
                     self.pseudo_graph.step = break_range / float(len(self.pseudo_graph.sEdges))
                     self.graph.load_edges(self.pseudo_graph.break_features_iter(getUnlinks, angle_threshold, fix_unlinks), angle_threshold)
-                    QgsMessageLog.logMessage('pseudo_graph edges broken %s' % break_range, level=QgsMessageLog.CRITICAL)
+                    QgsMessageLog.logMessage('pseudo_graph edges broken %s' % break_range, level=Qgis.Critical)
                     self.pseudo_graph.progress.disconnect()
                     self.graph.progress.connect(self.cl_progress.emit)
                     self.graph.total_progress = self.pseudo_graph.total_progress
@@ -356,20 +355,20 @@ print('trying to cancel')
                     self.graph.progress.connect(self.cl_progress.emit)
                     self.graph.step = load_range / float(layer.featureCount())
                     self.graph.load_edges(clean_features_iter(layer.getFeatures()), angle_threshold)
-                    QgsMessageLog.logMessage('graph edges added %s' % load_range, level=QgsMessageLog.CRITICAL)
+                    QgsMessageLog.logMessage('graph edges added %s' % load_range, level=Qgis.Critical)
 
                 self.graph.step = cl1_range / (float(len(self.graph.sEdges)) * 2.0)
                 if orphans:
                     self.graph.clean(True, False, snap_threshold, True)
                 else:
                     self.graph.clean(True, False, snap_threshold, False)
-                QgsMessageLog.logMessage('graph clean parallel and closed pl %s' % cl1_range, level=QgsMessageLog.CRITICAL)
+                QgsMessageLog.logMessage('graph clean parallel and closed pl %s' % cl1_range, level=Qgis.Critical)
 
                 if fix_unlinks:
 
                     self.graph.step = fix_range / float(len(self.graph.sEdges))
                     self.graph.fix_unlinks()
-                    QgsMessageLog.logMessage('unlinks added  %s' % fix_range, level=QgsMessageLog.CRITICAL)
+                    QgsMessageLog.logMessage('unlinks added  %s' % fix_range, level=Qgis.Critical)
 
                 # TODO clean iteratively until no error
 
@@ -377,42 +376,42 @@ print('trying to cancel')
 
                     self.graph.step = snap_range / float(len(self.graph.sNodes))
                     self.graph.snap_endpoints(snap_threshold)
-                    QgsMessageLog.logMessage('snap  %s' % snap_range, level=QgsMessageLog.CRITICAL)
+                    QgsMessageLog.logMessage('snap  %s' % snap_range, level=Qgis.Critical)
                     self.graph.step = cl2_range / (float(len(self.graph.sEdges)) * 2.0)
 
                     if orphans:
                         self.graph.clean(True, False, snap_threshold, True)
                     else:
                         self.graph.clean(True, False, snap_threshold, False)
-                    QgsMessageLog.logMessage('clean   %s' % cl2_range, level=QgsMessageLog.CRITICAL)
+                    QgsMessageLog.logMessage('clean   %s' % cl2_range, level=Qgis.Critical)
 
                 if merge_type == 'intersections':
 
                     self.graph.step = merge_range / float(len(self.graph.sNodes))
                     self.graph.merge_b_intersections(angle_threshold)
-                    QgsMessageLog.logMessage('merge %s %s angle_threshold ' % (merge_range, angle_threshold), level=QgsMessageLog.CRITICAL)
+                    QgsMessageLog.logMessage('merge %s %s angle_threshold ' % (merge_range, angle_threshold), level=Qgis.Critical)
 
                 elif merge_type == 'collinear':
 
                     self.graph.step = merge_range / float(len(self.graph.sEdges))
                     self.graph.merge_collinear(collinear_threshold, angle_threshold)
-                    QgsMessageLog.logMessage('merge  %s' % merge_range, level=QgsMessageLog.CRITICAL)
+                    QgsMessageLog.logMessage('merge  %s' % merge_range, level=Qgis.Critical)
 
                 # cleaned multiparts so that unlinks are generated properly
                 if orphans:
                     self.graph.step = cl3_range / (float(len(self.graph.sEdges)) * 2.0)
                     self.graph.clean(True, orphans, snap_threshold, False, True)
-                    QgsMessageLog.logMessage('clean  %s' % cl3_range, level=QgsMessageLog.CRITICAL)
+                    QgsMessageLog.logMessage('clean  %s' % cl3_range, level=Qgis.Critical)
                 else:
                     self.graph.step = cl3_range / (float(len(self.graph.sEdges)) * 2.0)
                     self.graph.clean(True, False, snap_threshold, False, True)
-                    QgsMessageLog.logMessage('clean %s' % cl3_range, level=QgsMessageLog.CRITICAL)
+                    QgsMessageLog.logMessage('clean %s' % cl3_range, level=Qgis.Critical)
 
                 if getUnlinks:
 
                     self.graph.step = unlinks_range / float(len(self.graph.sEdges))
                     self.graph.generate_unlinks()
-                    QgsMessageLog.logMessage('unlinks generated %s' % unlinks_range, level=QgsMessageLog.CRITICAL)
+                    QgsMessageLog.logMessage('unlinks generated %s' % unlinks_range, level=Qgis.Critical)
                     unlinks = self.graph.unlinks
                 else:
                     unlinks = []

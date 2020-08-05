@@ -23,8 +23,8 @@
 """
 # Import the PyQt and QGIS libraries
 from builtins import range
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from qgis.PyQt.QtCore import *
+from qgis.PyQt.QtGui import *
 from qgis.core import *
 
 from .. import utility_functions as uf
@@ -162,31 +162,31 @@ class AttributeSymbology(QObject):
         canvas = uf.getCanvasColour(self.iface)
         if colour_type == 0:  # classic space syntax
             if invert:
-                ramp = QgsVectorGradientColorRampV2(QColor(255, 0, 0, 255), QColor(0, 0, 255, 255), False)
+                ramp = QgsGradientColorRamp(QColor(255, 0, 0, 255), QColor(0, 0, 255, 255), False)
                 ramp.setStops([QgsGradientStop(0.25, QColor(255, 255, 0, 255)), QgsGradientStop(0.5, QColor(0,255,0,255)), QgsGradientStop(0.75, QColor(0, 255, 255, 255))])
             else:
-                ramp = QgsVectorGradientColorRampV2(QColor(0, 0, 255, 255), QColor(255, 0, 0, 255), False)
+                ramp = QgsGradientColorRamp(QColor(0, 0, 255, 255), QColor(255, 0, 0, 255), False)
                 ramp.setStops([QgsGradientStop(0.25, QColor(0, 255, 255, 255)), QgsGradientStop(0.5, QColor(0, 255, 0, 255)), QgsGradientStop(0.75, QColor(255, 255, 0, 255))])
         if colour_type == 1:  # red - blue
             if invert:
-                ramp = QgsVectorGradientColorRampV2(QColor(255, 0, 0, 255), QColor(0, 0, 255, 255), False, [QgsGradientStop(0.5, QColor(255, 255, 255, 255))])
+                ramp = QgsGradientColorRamp(QColor(255, 0, 0, 255), QColor(0, 0, 255, 255), False, [QgsGradientStop(0.5, QColor(255, 255, 255, 255))])
             else:
-                ramp = QgsVectorGradientColorRampV2(QColor(0, 0, 255, 255), QColor(255, 0, 0, 255), False, [QgsGradientStop(0.5, QColor(255, 255, 255, 255))])
+                ramp = QgsGradientColorRamp(QColor(0, 0, 255, 255), QColor(255, 0, 0, 255), False, [QgsGradientStop(0.5, QColor(255, 255, 255, 255))])
         if colour_type == 2:  # grey scale
             if (invert and canvas.value() >= 80) or (not invert and canvas.value() < 80):
-                ramp = QgsVectorGradientColorRampV2(QColor(0, 0, 0, 255), QColor(248, 248, 248, 255), False)
+                ramp = QgsGradientColorRamp(QColor(0, 0, 0, 255), QColor(248, 248, 248, 255), False)
             else:
-                ramp = QgsVectorGradientColorRampV2(QColor(248, 248, 248, 255), QColor(0, 0, 0, 255), False)
+                ramp = QgsGradientColorRamp(QColor(248, 248, 248, 255), QColor(0, 0, 0, 255), False)
         if colour_type == 3:  # monochrome
             if canvas.value() < 80:
-                ramp = QgsVectorGradientColorRampV2(QColor(255, 255, 255, 255), QColor(255, 255, 255, 255), False)
+                ramp = QgsGradientColorRamp(QColor(255, 255, 255, 255), QColor(255, 255, 255, 255), False)
             else:
-                ramp = QgsVectorGradientColorRampV2(QColor(0, 0, 0, 255), QColor(0, 0, 0, 255), False)
+                ramp = QgsGradientColorRamp(QColor(0, 0, 0, 255), QColor(0, 0, 0, 255), False)
         if colour_type == 4:  # space syntax ltd
             if invert:
-                ramp = QgsVectorGradientColorRampV2(QColor(255, 0, 0, 255), QColor(0, 0, 255, 255), False)
+                ramp = QgsGradientColorRamp(QColor(255, 0, 0, 255), QColor(0, 0, 255, 255), False)
                 ramp.setStops([QgsGradientStop(0.15, QColor(255, 170, 0, 255)), QgsGradientStop(0.25, QColor(255, 255, 0, 255)), QgsGradientStop(0.5, QColor(0,255,0,255)), QgsGradientStop(0.75, QColor(85, 255, 255, 255))])
             else:
-                ramp = QgsVectorGradientColorRampV2(QColor(0, 0, 255, 255), QColor(255, 0, 0, 255), False)
+                ramp = QgsGradientColorRamp(QColor(0, 0, 255, 255), QColor(255, 0, 0, 255), False)
                 ramp.setStops([QgsGradientStop(0.25, QColor(85, 255, 255, 255)), QgsGradientStop(0.5, QColor(0, 255, 0, 255)), QgsGradientStop(0.75, QColor(255, 255, 0, 255)), QgsGradientStop(0.85, QColor(255, 170, 0, 255))])
         return ramp

@@ -23,18 +23,14 @@
 from __future__ import print_function
 from __future__ import absolute_import
 from builtins import str
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from qgis.PyQt.QtCore import *
+from qgis.PyQt.QtGui import *
 
 # Import QGIS classes
 from qgis.core import *
 from qgis.gui import *
 from qgis.utils import *
 import itertools, operator
-
-
-# Initialize Qt resources from file resources.py
-from . import resources
 
 # Import the code for the dialog
 from .catchment_analyser_dialog import CatchmentAnalyserDialog
@@ -170,7 +166,7 @@ class CatchmentTool(QObject):
         self.iface.messageBar().pushMessage(
             "Catchment Analyser: ",
             "%s" % (message),
-            level=QgsMessageBar.WARNING,
+            level=Qgis.Warning,
             duration=5)
 
     def getAnalysisSettings(self):

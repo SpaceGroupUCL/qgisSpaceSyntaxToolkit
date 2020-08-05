@@ -23,9 +23,9 @@
 from __future__ import absolute_import
 from qgis.PyQt import QtGui, uic
 from qgis.PyQt.QtCore import pyqtSignal, Qt
+from qgis.PyQt.QtWidgets import QDialog
 
 import os.path
-from . import resources
 
 from .DbSettings_dialog import DbSettingsDialog
 
@@ -33,7 +33,7 @@ FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'network_segmenter_dialog_base.ui'))
 
 
-class NetworkSegmenterDialog(QtGui.QDialog, FORM_CLASS):
+class NetworkSegmenterDialog(QDialog, FORM_CLASS):
 
     closingPlugin = pyqtSignal()
 

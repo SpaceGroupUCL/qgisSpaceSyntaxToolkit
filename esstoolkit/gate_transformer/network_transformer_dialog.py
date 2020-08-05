@@ -24,6 +24,7 @@
 # Initialize Qt resources from file resources.py
 
 from qgis.PyQt import QtGui, uic
+from qgis.PyQt.QtWidgets import QDialog
 
 import os.path
 from .. import resources
@@ -31,7 +32,7 @@ from .. import resources
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'network_transformer_dialog_base.ui'))
 
-class NetworkTransformerDialog(QtGui.QDialog, FORM_CLASS):
+class NetworkTransformerDialog(QDialog, FORM_CLASS):
 
 ############################ initialisation ############################
 

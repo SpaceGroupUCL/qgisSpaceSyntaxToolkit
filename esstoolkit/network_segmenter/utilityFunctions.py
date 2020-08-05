@@ -1,7 +1,7 @@
 from __future__ import print_function
 # general imports
 from builtins import str
-from qgis.core import  QgsMapLayerRegistry, QgsFields, QgsField, QgsGeometry, QgsFeature, QgsVectorLayer, QgsVectorFileWriter, QGis, NULL, QgsDataSourceURI, QgsVectorLayerImport
+from qgis.core import  QgsFields, QgsField, QgsGeometry, QgsFeature, QgsVectorLayer, QgsVectorFileWriter, NULL
 import psycopg2
 from psycopg2.extensions import AsIs
 import ntpath

@@ -23,7 +23,7 @@
 from __future__ import absolute_import
 
 from builtins import str
-from qgis.PyQt import QtCore, QtGui
+from qgis.PyQt import QtCore, QtWidgets
 from .ui_Analysis import Ui_AnalysisDialog
 from .DepthmapAdvancedDialog import DepthmapAdvancedDialog
 from .VerificationSettingsDialog import VerificationSettingsDialog
@@ -31,13 +31,13 @@ from .VerificationSettingsDialog import VerificationSettingsDialog
 from .. import utility_functions as uf
 
 
-class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
+class AnalysisDialog(QtWidgets.QDockWidget, Ui_AnalysisDialog):
     dialogClosed = QtCore.pyqtSignal()
     updateDatastore = QtCore.pyqtSignal(str)
 
     def __init__(self, parent):
 
-        QtGui.QDockWidget.__init__(self, parent)
+        QtWidgets.QDockWidget.__init__(self, parent)
         # Set up the user interface from Designer.
         self.setupUi(self)
 
@@ -77,7 +77,7 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
     # General functions of the analysis dialog
     def closeEvent(self, event):
         self.dialogClosed.emit()
-        return QtGui.QDockWidget.closeEvent(self, event)
+        return QtWidgets.QDockWidget.closeEvent(self, event)
 
     def setDatastore(self, txt, path):
         self.analysisDataEdit.setText(txt)
@@ -316,13 +316,13 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
             # update the interface
             self.axialReportList.setColumnCount(2)
             self.axialReportList.setHorizontalHeaderLabels(["ID", "Problem"])
-            self.axialReportList.horizontalHeader().setResizeMode(0, QtGui.QHeaderView.ResizeToContents)
-            self.axialReportList.horizontalHeader().setResizeMode(1, QtGui.QHeaderView.Stretch)
+            self.axialReportList.horizontalHeader().setResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
+            self.axialReportList.horizontalHeader().setResizeMode(1, QtWidgets.QHeaderView.Stretch)
             self.axialReportList.setRowCount(len(problems))
             for i, rec in enumerate(problems):
-                item = QtGui.QTableWidgetItem(str(rec[0]))
+                item = QtWidgets.QTableWidgetItem(str(rec[0]))
                 self.axialReportList.setItem(i, 0, item)
-                item = QtGui.QTableWidgetItem(rec[1])
+                item = QtWidgets.QTableWidgetItem(rec[1])
                 self.axialReportList.setItem(i, 1, item)
             self.axialReportList.horizontalHeader().show()
             self.axialReportList.resizeRowsToContents()
@@ -355,18 +355,18 @@ class AnalysisDialog(QtGui.QDockWidget, Ui_AnalysisDialog):
             self.axialReportList.setHorizontalHeaderLabels(["ID", "Line1", "Line2", "Problem"])
             self.axialReportList.setRowCount(len(problems))
             for i, rec in enumerate(problems):
-                item = QtGui.QTableWidgetItem(str(rec[0]))
+                item = QtWidgets.QTableWidgetItem(str(rec[0]))
                 self.axialReportList.setItem(i, 0, item)
-                item = QtGui.QTableWidgetItem(str(rec[1]))
+                item = QtWidgets.QTableWidgetItem(str(rec[1]))
                 self.axialReportList.setItem(i, 1, item)
-                item = QtGui.QTableWidgetItem(str(rec[2]))
+                item = QtWidgets.QTableWidgetItem(str(rec[2]))
                 self.axialReportList.setItem(i, 2, item)
-                item = QtGui.QTableWidgetItem(rec[3])
+                item = QtWidgets.QTableWidgetItem(rec[3])
                 self.axialReportList.setItem(i, 3, item)
-            self.axialReportList.horizontalHeader().setResizeMode(0, QtGui.QHeaderView.ResizeToContents)
-            self.axialReportList.horizontalHeader().setResizeMode(1, QtGui.QHeaderView.ResizeToContents)
-            self.axialReportList.horizontalHeader().setResizeMode(2, QtGui.QHeaderView.ResizeToContents)
-            self.axialReportList.horizontalHeader().setResizeMode(3, QtGui.QHeaderView.Stretch)
+            self.axialReportList.horizontalHeader().setResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
+            self.axialReportList.horizontalHeader().setResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
+            self.axialReportList.horizontalHeader().setResizeMode(2, QtWidgets.QHeaderView.ResizeToContents)
+            self.axialReportList.horizontalHeader().setResizeMode(3, QtWidgets.QHeaderView.Stretch)
             self.axialReportList.horizontalHeader().show()
             self.axialReportList.resizeRowsToContents()
 

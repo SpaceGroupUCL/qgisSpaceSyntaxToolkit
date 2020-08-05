@@ -26,8 +26,8 @@ from __future__ import print_function
 from builtins import str
 from builtins import zip
 import os
-from PyQt4.QtCore import *
-from qgis.PyQt import QtGui
+from qgis.PyQt.QtCore import *
+from qgis.PyQt import QtWidgets
 from qgis.core import *
 from qgis.gui import *
 import processing
@@ -254,20 +254,20 @@ print('building layer3')
         if vl == 'invalid data source':
             msgBar = self.iface.messageBar()
             msg = msgBar.createMessage(u'Specify  output path!')
-            msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
+            msgBar.pushWidget(msg, Qgis.Info, 10)
         elif vl == 'duplicate':
             msgBar = self.iface.messageBar()
             msg = msgBar.createMessage(u'Fronatges layer already exists!')
-            msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
+            msgBar.pushWidget(msg, Qgis.Info, 10)
         elif not vl:
             msgBar = self.iface.messageBar()
             msg = msgBar.createMessage(u'Frontages layer failed to load!')
-            msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
+            msgBar.pushWidget(msg, Qgis.Info, 10)
         else:
-            QgsMapLayerRegistry.instance().addMapLayer(vl)
+            QgsProject.instance().addMapLayer(vl)
             msgBar = self.iface.messageBar()
             msg = msgBar.createMessage(u'Frontages layer created!')
-            msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
+            msgBar.pushWidget(msg, Qgis.Info, 10)
             vl.startEditing()
             if uf.isRequiredLayer(self.iface, vl, type):
                 self.dockwidget.useExistingcomboBox.addItem(vl.name(), vl)

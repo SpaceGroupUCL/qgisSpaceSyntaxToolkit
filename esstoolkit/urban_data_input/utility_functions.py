@@ -190,7 +190,7 @@ def getQGISDbs():
                                                                 'port']]
     dbs = dict(
         [k, dict([i[1:] for i in list(g)])] for k, g in itertools.groupby(sorted(all_info), operator.itemgetter(0)))
-    QgsMessageLog.logMessage('dbs %s' % str(dbs), level=QgsMessageLog.CRITICAL)
+    QgsMessageLog.logMessage('dbs %s' % str(dbs), level = Qgis.Critical)
     settings.endGroup()
 
     return dbs

@@ -23,7 +23,7 @@
 from __future__ import print_function
 
 from builtins import str
-from PyQt4.QtCore import *
+from qgis.PyQt.QtCore import *
 from qgis.core import *
 from qgis.utils import *
 import ntpath

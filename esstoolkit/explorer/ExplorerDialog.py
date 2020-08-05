@@ -23,7 +23,7 @@
 
 from builtins import str
 from builtins import range
-from qgis.PyQt import QtCore, QtGui
+from qgis.PyQt import QtCore, QtWidgets
 from .ui_Explorer import Ui_ExplorerDialog
 
 # try to import installed pyqtgraph, if not available use the one shipped with the esstoolkit
@@ -40,7 +40,7 @@ except ImportError as e:
 from .. import utility_functions as uf
 
 
-class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
+class ExplorerDialog(QtWidgets.QDockWidget, Ui_ExplorerDialog):
     layerChanged = QtCore.pyqtSignal()
     refreshLayers = QtCore.pyqtSignal()
     attributesLoaded = QtCore.pyqtSignal(int)
@@ -50,7 +50,7 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
     showLinesChanged = QtCore.pyqtSignal(bool)
 
     def __init__(self, parent):
-        QtGui.QDockWidget.__init__(self, parent)
+        QtWidgets.QDockWidget.__init__(self, parent)
         # Set up the user interface from Designer.
         self.setupUi(self)
 
@@ -87,9 +87,9 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
             # Enable/disable antialiasing for prettier plots, but much slower
             pg.setConfigOptions(antialias=False)
         else:
-            self.chartPlotWidget = QtGui.QGraphicsView(self.chartsTab)
-        self.chartPlotWidget.setFrameShape(QtGui.QFrame.NoFrame)
-        self.chartPlotWidget.setFrameShadow(QtGui.QFrame.Sunken)
+            self.chartPlotWidget = QtWidgets.QGraphicsView(self.chartsTab)
+        self.chartPlotWidget.setFrameShape(QtWidgets.QFrame.NoFrame)
+        self.chartPlotWidget.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.chartPlotWidget.setObjectName("chartPlotWidget")
         self.chartsLayout.addWidget(self.chartPlotWidget)
         self.chartsLayout.setStretch(1, 1)
@@ -426,35 +426,35 @@ class ExplorerDialog(QtGui.QDockWidget, Ui_ExplorerDialog):
     def __addStatsLabels(self):
         self.statisticsTable.setHorizontalHeaderLabels(["Statistic","Value","Selection"])
         self.statisticsTable.setRowCount(12)
-        self.statisticsTable.setItem(0,0,QtGui.QTableWidgetItem("Number"))
-        self.statisticsTable.setItem(1,0,QtGui.QTableWidgetItem("Mean"))
-        self.statisticsTable.setItem(2,0,QtGui.QTableWidgetItem("Std Dev"))
-        self.statisticsTable.setItem(3,0,QtGui.QTableWidgetItem("Variance"))
-        self.statisticsTable.setItem(4,0,QtGui.QTableWidgetItem("Median"))
-        self.statisticsTable.setItem(5,0,QtGui.QTableWidgetItem("Minimum"))
-        self.statisticsTable.setItem(6,0,QtGui.QTableWidgetItem("Maximum"))
-        self.statisticsTable.setItem(7,0,QtGui.QTableWidgetItem("Range"))
-        self.statisticsTable.setItem(8,0,QtGui.QTableWidgetItem("1st Quart"))
-        self.statisticsTable.setItem(9,0,QtGui.QTableWidgetItem("3rd Quart"))
-        self.statisticsTable.setItem(10,0,QtGui.QTableWidgetItem("IQR"))
-        self.statisticsTable.setItem(11,0,QtGui.QTableWidgetItem("Gini"))
+        self.statisticsTable.setItem(0,0,QtWidgets.QTableWidgetItem("Number"))
+        self.statisticsTable.setItem(1,0,QtWidgets.QTableWidgetItem("Mean"))
+        self.statisticsTable.setItem(2,0,QtWidgets.QTableWidgetItem("Std Dev"))
+        self.statisticsTable.setItem(3,0,QtWidgets.QTableWidgetItem("Variance"))
+        self.statisticsTable.setItem(4,0,QtWidgets.QTableWidgetItem("Median"))
+        self.statisticsTable.setItem(5,0,QtWidgets.QTableWidgetItem("Minimum"))
+        self.statisticsTable.setItem(6,0,QtWidgets.QTableWidgetItem("Maximum"))
+        self.statisticsTable.setItem(7,0,QtWidgets.QTableWidgetItem("Range"))
+        self.statisticsTable.setItem(8,0,QtWidgets.QTableWidgetItem("1st Quart"))
+        self.statisticsTable.setItem(9,0,QtWidgets.QTableWidgetItem("3rd Quart"))
+        self.statisticsTable.setItem(10,0,QtWidgets.QTableWidgetItem("IQR"))
+        self.statisticsTable.setItem(11,0,QtWidgets.QTableWidgetItem("Gini"))
 
     def setStats(self, stats, selection):
         # update the interface
         for row in range(self.statisticsTable.rowCount()):
             label = self.statisticsTable.item(row,0).text()
             if label in stats:
-                item = QtGui.QTableWidgetItem(str(stats[label]))
+                item = QtWidgets.QTableWidgetItem(str(stats[label]))
                 self.statisticsTable.setItem(row, 1, item)
             if selection:
                 if label in selection:
-                    item = QtGui.QTableWidgetItem(str(selection[label]))
+                    item = QtWidgets.QTableWidgetItem(str(selection[label]))
                     self.statisticsTable.setItem(row, 2, item)
             else:
-                self.statisticsTable.setItem(row, 2, QtGui.QTableWidgetItem(""))
-        self.statisticsTable.horizontalHeader().setResizeMode(0, QtGui.QHeaderView.ResizeToContents)
-        self.statisticsTable.horizontalHeader().setResizeMode(1, QtGui.QHeaderView.Stretch)
-        self.statisticsTable.horizontalHeader().setResizeMode(2, QtGui.QHeaderView.Stretch)
+                self.statisticsTable.setItem(row, 2, QtWidgets.QTableWidgetItem(""))
+        self.statisticsTable.horizontalHeader().setResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
+        self.statisticsTable.horizontalHeader().setResizeMode(1, QtWidgets.QHeaderView.Stretch)
+        self.statisticsTable.horizontalHeader().setResizeMode(2, QtWidgets.QHeaderView.Stretch)
         self.statisticsTable.resizeRowsToContents()
 
     def __clearStats(self):

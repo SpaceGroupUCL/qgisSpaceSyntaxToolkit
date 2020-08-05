@@ -21,7 +21,7 @@
  ***************************************************************************/
 """
 from __future__ import absolute_import
-from PyQt4.QtCore import *
+from qgis.PyQt.QtCore import *
 from qgis.core import *
 import math
 

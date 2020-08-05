@@ -25,18 +25,18 @@ from __future__ import print_function
 from builtins import str
 from builtins import range
 from builtins import object
-from PyQt4.QtCore import *
+from qgis.PyQt.QtCore import *
 
 from qgis.core import *
 from qgis.gui import *
-from qgis.networkanalysis import *
+from qgis.analysis import *
 from qgis.utils import *
 
 import math
 import os.path
 
 # check: https://gis.stackexchange.com/questions/220116/properter-to-get-travel-time-as-cost-for-network-analysis
-class SpeedFieldProperter(QgsArcProperter):
+class SpeedFieldProperter(QgsNetworkSpeedStrategy):
     """
     (attributeIndex, defaultSpeed=2.71828, speedToDistanceFactor = 1000)
     SpeedProperter to factor in speed and distance to edge tavel time cost
@@ -46,7 +46,7 @@ class SpeedFieldProperter(QgsArcProperter):
     if the speed attribute is in km/h and distance in meters, this should equal 1000
     """
     def __init__(self, attributeIndex, defaultSpeed = 50, speedToDistanceFactor = 1000):
-        QgsArcProperter.__init__(self)
+        QgsNetworkSpeedStrategy.__init__(self)
         self.AttributeIndex = attributeIndex
         self.DefaultSpeed = defaultSpeed
         self.SpeedToDistanceFactor = speedToDistanceFactor
@@ -67,9 +67,9 @@ class SpeedFieldProperter(QgsArcProperter):
         """
         return [self.AttributeIndex]
 
-class CustomCost(QgsArcProperter):
+class CustomCost(QgsNetworkSpeedStrategy):
     def __init__(self, costColumIndex, defaultValue):
-        QgsArcProperter.__init__(self)
+        QgsNetworkSpeedStrategy.__init__(self)
         self.cost_column_index = costColumIndex
         self.default_value = defaultValue
 

@@ -24,8 +24,8 @@ from __future__ import absolute_import
 
 import os
 
-from qgis.PyQt import QtGui, uic
-from PyQt4.QtCore import *
+from qgis.PyQt import QtWidgets, uic
+from qgis.PyQt.QtCore import *
 
 from .DbSettings_dialog import DbSettingsDialog
 
@@ -33,7 +33,7 @@ FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'catchment_analyser_dialog_base.ui'))
 
 
-class CatchmentAnalyserDialog(QtGui.QDialog, FORM_CLASS):
+class CatchmentAnalyserDialog(QtWidgets.QDialog, FORM_CLASS):
     def __init__(self, available_dbs, parent=None):
         """Constructor."""
         super(CatchmentAnalyserDialog, self).__init__(parent)
@@ -79,7 +79,7 @@ class CatchmentAnalyserDialog(QtGui.QDialog, FORM_CLASS):
 
     def setOutput(self):
         if self.shpRadioButton.isChecked():
-            self.file_name = QtGui.QFileDialog.getSaveFileName(self, "Save output file ", self.getNetwork() + "_catchment", '*.shp')
+            self.file_name = QtWidgets.QFileDialog.getSaveFileName(self, "Save output file ", self.getNetwork() + "_catchment", '*.shp')
             if self.file_name:
                 self.networkText.setText(self.file_name)
             else:
@@ -211,7 +211,7 @@ class CatchmentAnalyserDialog(QtGui.QDialog, FORM_CLASS):
         return self.polygonTolSpin.value()
 
     def setNetworkOutput(self):
-        file_name = QtGui.QFileDialog.getSaveFileName(self, "Save output file ", "catchment_network", '*.shp')
+        file_name = QtWidgets.QFileDialog.getSaveFileName(self, "Save output file ", "catchment_network", '*.shp')
         if file_name:
             self.networkText.setText(file_name)
 

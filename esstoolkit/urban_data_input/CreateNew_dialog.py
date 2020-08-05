@@ -24,7 +24,7 @@ from __future__ import print_function
 from __future__ import absolute_import
 
 import os
-from qgis.PyQt import QtCore, QtGui, uic
+from qgis.PyQt import QtCore, QtWidgets, uic
 from .utility_functions import getQGISDbs
 from .DbSettings_dialog import DbSettingsDialog
 
@@ -32,7 +32,7 @@ FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'CreateNew_dialog_base.ui'))
 
 
-class CreatenewDialog(QtGui.QDialog, FORM_CLASS):
+class CreatenewDialog(QtWidgets.QDialog, FORM_CLASS):
     create_new_layer = QtCore.pyqtSignal()
 
     def __init__(self, parent=None):
@@ -79,7 +79,7 @@ class CreatenewDialog(QtGui.QDialog, FORM_CLASS):
     def selectSaveLocation(self):
         if self.f_shp_radioButton.isChecked():
             self.lineEditFrontages.clear()
-            filename = QtGui.QFileDialog.getSaveFileName(None, "Specify Output Location ", "", '*.shp')
+            filename = QtWidgets.QFileDialog.getSaveFileName(None, "Specify Output Location ", "", '*.shp')
             self.lineEditFrontages.setText(filename)
         elif self.f_postgis_radioButton.isChecked():
             self.lineEditFrontages.clear()

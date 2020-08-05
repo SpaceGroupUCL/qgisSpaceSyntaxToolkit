@@ -25,14 +25,14 @@ from __future__ import absolute_import
 
 import os
 from .utility_functions import getQGISDbs
-from qgis.PyQt import QtCore, QtGui, uic
+from qgis.PyQt import QtCore, QtWidgets, uic
 from .DbSettings_dialog import DbSettingsDialog
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'CreateNew_LU_dialog_base.ui'))
 
 
-class CreateNew_LUDialog(QtGui.QDialog, FORM_CLASS):
+class CreateNew_LUDialog(QtWidgets.QDialog, FORM_CLASS):
     create_new_layer = QtCore.pyqtSignal()
 
     def __init__(self, parent=None):
@@ -77,7 +77,7 @@ class CreateNew_LUDialog(QtGui.QDialog, FORM_CLASS):
     def selectSaveLocationLU(self):
         if self.lu_shp_radioButton.isChecked():
             self.lineEditLU.clear()
-            filename = QtGui.QFileDialog.getSaveFileName(None, "Specify Output Location ", "", '*.shp')
+            filename = QtWidgets.QFileDialog.getSaveFileName(None, "Specify Output Location ", "", '*.shp')
             self.lineEditLU.setText(filename)
         elif self.lu_postgis_radioButton.isChecked():
             self.lineEditLU.clear()

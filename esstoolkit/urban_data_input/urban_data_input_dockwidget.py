@@ -24,8 +24,9 @@ from __future__ import absolute_import
 
 from builtins import str
 import os
-from qgis.PyQt import QtGui, uic
-from PyQt4.QtCore import *
+from qgis.core import QgsProject
+from qgis.PyQt import QtWidgets, uic
+from qgis.PyQt.QtCore import *
 
 from . import utility_functions as uf
 
@@ -37,7 +38,7 @@ FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'urban_data_input_dockwidget_base.ui'))
 
 
-class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
+class UrbanDataInputDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
     closingPlugin = pyqtSignal()
     loadFrontageLayer = pyqtSignal()
 
@@ -222,15 +223,15 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
             self.tableWidgetFrontage.setRowCount(len(attrs))
 
             for i, item in enumerate(attrs):
-                self.tableWidgetFrontage.setItem(i, 0, QtGui.QTableWidgetItem(str(item[A1])))
-                self.tableWidgetFrontage.setItem(i, 1, QtGui.QTableWidgetItem(str(item[A2])))
-                self.tableWidgetFrontage.setItem(i, 2, QtGui.QTableWidgetItem(str(item[A3])))
-                self.tableWidgetFrontage.setItem(i, 3, QtGui.QTableWidgetItem(str(item[A4])))
+                self.tableWidgetFrontage.setItem(i, 0, QtWidgets.QTableWidgetItem(str(item[A1])))
+                self.tableWidgetFrontage.setItem(i, 1, QtWidgets.QTableWidgetItem(str(item[A2])))
+                self.tableWidgetFrontage.setItem(i, 2, QtWidgets.QTableWidgetItem(str(item[A3])))
+                self.tableWidgetFrontage.setItem(i, 3, QtWidgets.QTableWidgetItem(str(item[A4])))
 
             self.tableWidgetFrontage.resizeRowsToContents()
             self.tableWidgetFrontage.resizeColumnsToContents()
-            #self.tableWidgetFrontage.horizontalHeader().setResizeMode(1, QtGui.QHeaderView.ResizeToContents)
-            self.tableWidgetFrontage.horizontalHeader().setResizeMode(3, QtGui.QHeaderView.Stretch)
+            #self.tableWidgetFrontage.horizontalHeader().setResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
+            self.tableWidgetFrontage.horizontalHeader().setResizeMode(3, QtWidgets.QHeaderView.Stretch)
 
     def tableClear(self):
         self.tableWidgetFrontage.clear()
@@ -302,15 +303,15 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
             self.tableWidgetEntrance.setRowCount(len(attrs))
 
             for i, item in enumerate(attrs):
-                self.tableWidgetEntrance.setItem(i, 0, QtGui.QTableWidgetItem(str(item[A1])))
-                self.tableWidgetEntrance.setItem(i, 1, QtGui.QTableWidgetItem(str(item[A2])))
-                self.tableWidgetEntrance.setItem(i, 2, QtGui.QTableWidgetItem(str(item[A3])))
-                self.tableWidgetEntrance.setItem(i, 3, QtGui.QTableWidgetItem(str(item[A4])))
+                self.tableWidgetEntrance.setItem(i, 0, QtWidgets.QTableWidgetItem(str(item[A1])))
+                self.tableWidgetEntrance.setItem(i, 1, QtWidgets.QTableWidgetItem(str(item[A2])))
+                self.tableWidgetEntrance.setItem(i, 2, QtWidgets.QTableWidgetItem(str(item[A3])))
+                self.tableWidgetEntrance.setItem(i, 3, QtWidgets.QTableWidgetItem(str(item[A4])))
 
             self.tableWidgetEntrance.resizeRowsToContents()
             self.tableWidgetEntrance.resizeColumnsToContents()
-            #self.tableWidgetEntrance.horizontalHeader().setResizeMode(1, QtGui.QHeaderView.ResizeToContents)
-            self.tableWidgetEntrance.horizontalHeader().setResizeMode(3, QtGui.QHeaderView.Stretch)
+            #self.tableWidgetEntrance.horizontalHeader().setResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
+            self.tableWidgetEntrance.horizontalHeader().setResizeMode(3, QtWidgets.QHeaderView.Stretch)
 
     def entrancetableClear(self):
         self.tableWidgetEntrance.clear()
@@ -510,11 +511,11 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 self.tableWidgetlanduse.setHorizontalHeaderLabels(headers)
 
                 for i, item in enumerate(attrs):
-                    self.tableWidgetlanduse.setItem(i, 0, QtGui.QTableWidgetItem(str(item[idfieldindex])))
-                    self.tableWidgetlanduse.setItem(i, 1, QtGui.QTableWidgetItem(str(item[floorfieldindex])))
-                    self.tableWidgetlanduse.setItem(i, 2, QtGui.QTableWidgetItem(str(item[areafieldindex])))
-                    self.tableWidgetlanduse.setItem(i, 3, QtGui.QTableWidgetItem(str(item[gfcatfieldindex])))
-                    self.tableWidgetlanduse.setItem(i, 4, QtGui.QTableWidgetItem(str(item[gfsubcatfieldindex])))
+                    self.tableWidgetlanduse.setItem(i, 0, QtWidgets.QTableWidgetItem(str(item[idfieldindex])))
+                    self.tableWidgetlanduse.setItem(i, 1, QtWidgets.QTableWidgetItem(str(item[floorfieldindex])))
+                    self.tableWidgetlanduse.setItem(i, 2, QtWidgets.QTableWidgetItem(str(item[areafieldindex])))
+                    self.tableWidgetlanduse.setItem(i, 3, QtWidgets.QTableWidgetItem(str(item[gfcatfieldindex])))
+                    self.tableWidgetlanduse.setItem(i, 4, QtWidgets.QTableWidgetItem(str(item[gfsubcatfieldindex])))
 
             elif self.LULowerfloorradioButton.isChecked():
 
@@ -522,11 +523,11 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 self.tableWidgetlanduse.setHorizontalHeaderLabels(headers)
 
                 for i, item in enumerate(attrs):
-                    self.tableWidgetlanduse.setItem(i, 0, QtGui.QTableWidgetItem(str(item[idfieldindex])))
-                    self.tableWidgetlanduse.setItem(i, 1, QtGui.QTableWidgetItem(str(item[floorfieldindex])))
-                    self.tableWidgetlanduse.setItem(i, 2, QtGui.QTableWidgetItem(str(item[areafieldindex])))
-                    self.tableWidgetlanduse.setItem(i, 3, QtGui.QTableWidgetItem(str(item[lfcatfieldindex])))
-                    self.tableWidgetlanduse.setItem(i, 4, QtGui.QTableWidgetItem(str(item[lfsubcatfieldindex])))
+                    self.tableWidgetlanduse.setItem(i, 0, QtWidgets.QTableWidgetItem(str(item[idfieldindex])))
+                    self.tableWidgetlanduse.setItem(i, 1, QtWidgets.QTableWidgetItem(str(item[floorfieldindex])))
+                    self.tableWidgetlanduse.setItem(i, 2, QtWidgets.QTableWidgetItem(str(item[areafieldindex])))
+                    self.tableWidgetlanduse.setItem(i, 3, QtWidgets.QTableWidgetItem(str(item[lfcatfieldindex])))
+                    self.tableWidgetlanduse.setItem(i, 4, QtWidgets.QTableWidgetItem(str(item[lfsubcatfieldindex])))
 
             elif self.LUUpperfloorradioButton.isChecked():
 
@@ -534,16 +535,16 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 self.tableWidgetlanduse.setHorizontalHeaderLabels(headers)
 
                 for i, item in enumerate(attrs):
-                    self.tableWidgetlanduse.setItem(i, 0, QtGui.QTableWidgetItem(str(item[idfieldindex])))
-                    self.tableWidgetlanduse.setItem(i, 1, QtGui.QTableWidgetItem(str(item[floorfieldindex])))
-                    self.tableWidgetlanduse.setItem(i, 2, QtGui.QTableWidgetItem(str(item[areafieldindex])))
-                    self.tableWidgetlanduse.setItem(i, 3, QtGui.QTableWidgetItem(str(item[ufcatfieldindex])))
-                    self.tableWidgetlanduse.setItem(i, 4, QtGui.QTableWidgetItem(str(item[ufsubcatfieldindex])))
+                    self.tableWidgetlanduse.setItem(i, 0, QtWidgets.QTableWidgetItem(str(item[idfieldindex])))
+                    self.tableWidgetlanduse.setItem(i, 1, QtWidgets.QTableWidgetItem(str(item[floorfieldindex])))
+                    self.tableWidgetlanduse.setItem(i, 2, QtWidgets.QTableWidgetItem(str(item[areafieldindex])))
+                    self.tableWidgetlanduse.setItem(i, 3, QtWidgets.QTableWidgetItem(str(item[ufcatfieldindex])))
+                    self.tableWidgetlanduse.setItem(i, 4, QtWidgets.QTableWidgetItem(str(item[ufsubcatfieldindex])))
 
             self.tableWidgetlanduse.resizeRowsToContents()
             self.tableWidgetlanduse.resizeColumnsToContents()
-            # self.tableWidgetlanduse.horizontalHeader().setResizeMode(1, QtGui.QHeaderView.ResizeToContents)
-            self.tableWidgetlanduse.horizontalHeader().setResizeMode(5, QtGui.QHeaderView.Stretch)
+            # self.tableWidgetlanduse.horizontalHeader().setResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
+            self.tableWidgetlanduse.horizontalHeader().setResizeMode(5, QtWidgets.QHeaderView.Stretch)
 
     def LUtableClear(self):
         self.tableWidgetlanduse.clear()
