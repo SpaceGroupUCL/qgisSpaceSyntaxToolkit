@@ -63,7 +63,7 @@ class NetworkSegmenterTool(QObject):
         QObject.__init__(self)
 
         self.iface=iface
-        self.legend = self.iface.legendInterface()
+        self.legend = QgsProject.instance().mapLayers()
 
         # load the dialog from the run method otherwise the objects gets created multiple times
         self.dlg = None
@@ -91,16 +91,14 @@ class NetworkSegmenterTool(QObject):
         self.dlg.inputCombo.currentIndexChanged.connect(self.updateOutputName)
 
         # setup legend interface signals
-        self.legend.itemAdded.connect(self.updateLayers)
-        self.legend.itemRemoved.connect(self.updateLayers)
-        self.legend.itemAdded.connect(self.updateUnlinksLayers)
-        self.legend.itemRemoved.connect(self.updateUnlinksLayers)
+        QgsProject.instance().layersAdded.connect(self.updateLayers)
+        QgsProject.instance().layersRemoved.connect(self.updateLayers)
+        QgsProject.instance().layersAdded.connect(self.updateUnlinksLayers)
+        QgsProject.instance().layersRemoved.connect(self.updateUnlinksLayers)
 
         self.settings = None
 
-        # fix_print_with_import
-        # fix_print_with_import
-print('settings',  self.settings)
+        print('settings',  self.settings)
 
         # show the dialog
         self.dlg.show()
@@ -114,19 +112,19 @@ print('settings',  self.settings)
             self.dlg.cancelButton.clicked.disconnect(self.killWorker)
             self.settings = None
         try:
-            self.legend.itemAdded.disconnect(self.updateLayers)
+            QgsProject.instance().layersAdded.disconnect(self.updateLayers)
         except TypeError:
             pass
         try:
-            self.legend.itemRemoved.disconnect(self.updateLayers)
+            QgsProject.instance().layersRemoved.disconnect(self.updateLayers)
         except TypeError:
             pass
         try:
-            self.legend.itemAdded.disconnect(self.updateUnlinksLayers)
+            QgsProject.instance().layersAdded.disconnect(self.updateUnlinksLayers)
         except TypeError:
             pass
         try:
-            self.legend.itemRemoved.disconnect(self.updateUnlinksLayers)
+            QgsProject.instance().layersRemoved.disconnect(self.updateUnlinksLayers)
         except TypeError:
             pass
 
@@ -186,23 +184,20 @@ print('settings',  self.settings)
 
     def workerError(self, e, exception_string):
         # Gives error according to message
-        QgsMessageLog.logMessage('Segmenting thread raised an exception: %s' % exception_string, level=QgsMessageLog.CRITICAL)
+        QgsMessageLog.logMessage('Segmenting thread raised an exception: %s' % exception_string, level=Qgis.Critical)
         self.dlg.close()
 
     def startWorker(self):
-        # fix_print_with_import
         print('before started')
         self.dlg.segmentingProgress.reset()
         self.settings = self.dlg.get_settings()
-        # fix_print_with_import
-        # fix_print_with_import
-print('settings', self.settings)
+        print('settings', self.settings)
         if self.settings['output_type'] == 'postgis':
             db_settings = self.dlg.get_dbsettings()
             self.settings.update(db_settings)
 
         if getLayerByName(self.settings['input']).crs().postgisSrid() == 4326:
-            self.giveMessage('Re-project the layer. EPSG:4326 not allowed.', QgsMessageBar.INFO)
+            self.giveMessage('Re-project the layer. EPSG:4326 not allowed.', Qgis.Info)
         elif self.settings['output'] != '':
             segmenting = self.Worker(self.settings , self.iface)
             self.dlg.lockGUI(True)
@@ -254,37 +249,33 @@ print('settings', self.settings)
         if ret:
 
             break_lines, break_points = ret
-            # fix_print_with_import
-            # fix_print_with_import
-print(len(break_lines), 'ret')
+            print(len(break_lines), 'ret')
 
             segmented = to_layer(break_lines, layer.crs(), layer.dataProvider().encoding(),
                                  'Linestring', output_type, output_path)
-            QgsMapLayerRegistry.instance().addMapLayer(segmented)
+            QgsProject.instance().addMapLayer(segmented)
             segmented.updateExtents()
 
             if self.settings['errors']:
                 if len(break_points) == 0:
-                    self.giveMessage('No points detected!', QgsMessageBar.INFO)
+                    self.giveMessage('No points detected!', Qgis.Info)
                 else:
                     errors = to_layer(break_points, layer.crs(), layer.dataProvider().encoding(), 'Point', output_type,
                                       errors_path)
                     errors.loadNamedStyle(os.path.dirname(__file__) + '/errors_style.qml')
-                    QgsMapLayerRegistry.instance().addMapLayer(errors)
-                    self.iface.legendInterface().refreshLayerSymbology(errors)
+                    QgsProject.instance().addMapLayer(errors)
+                    QgsProject.instance().mapLayers().refreshLayerLegend(errors)
 
-            self.giveMessage('Process ended successfully!', QgsMessageBar.INFO)
+            self.giveMessage('Process ended successfully!', Qgis.Info)
 
         else:
             # notify the user that sth went wrong
-            self.giveMessage('Something went wrong! See the message log for more information', QgsMessageBar.CRITICAL)
+            self.giveMessage('Something went wrong! See the message log for more information', Qgis.Critical)
 
-        if is_debug: # fix_print_with_import
- # fix_print_with_import
-print('thread running ', self.thread.isRunning())
-        if is_debug: # fix_print_with_import
- # fix_print_with_import
-print('has finished ', self.thread.isFinished())
+        if is_debug:
+            print('thread running ', self.thread.isRunning())
+        if is_debug:
+            print('has finished ', self.thread.isFinished())
 
         self.thread = None
         self.segmenting = None

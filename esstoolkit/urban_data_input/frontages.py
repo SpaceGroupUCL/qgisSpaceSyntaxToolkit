@@ -40,7 +40,7 @@ class FrontageTool(QObject):
         QObject.__init__(self)
 
         self.iface = iface
-        self.legend = self.iface.legendInterface()
+        self.legend = QgsProject.instance().mapLayers()
         self.dockwidget = dockwidget
         self.frontagedlg = self.dockwidget.frontagedlg
         self.canvas = self.iface.mapCanvas()
@@ -83,7 +83,7 @@ class FrontageTool(QObject):
         self.dockwidget.useExistingcomboBox.clear()
         self.dockwidget.useExistingcomboBox.setEnabled(False)
         self.disconnectFrontageLayer()
-        layers = self.legend.layers()
+        layers = self.legend.values()
         type = 1
         for lyr in layers:
             if uf.isRequiredLayer(self.iface, lyr, type):
@@ -97,7 +97,7 @@ class FrontageTool(QObject):
     # Add building layers from the legend to combobox on main widget window
     def updateLayersPushID(self):
         self.dockwidget.pushIDcomboBox.clear()
-        layers = self.legend.layers()
+        layers = self.legend.values()
         layer_list = []
 
         for layer in layers:
@@ -109,7 +109,7 @@ class FrontageTool(QObject):
     # Add building layers from the legend to combobox in Create New file pop up dialogue
     def updateLayers(self):
         self.frontagedlg.selectLUCombo.clear()
-        layers = self.iface.legendInterface().layers()
+        layers = QgsProject.instance().mapLayers().values()
         layer_list = []
         # identify relevant layers
         for layer in layers:

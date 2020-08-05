@@ -57,7 +57,7 @@ class NetworkCleanerTool(QObject):
         QObject.__init__(self)
 
         self.iface=iface
-        self.legend = self.iface.legendInterface()
+        self.legend = QgsProject.instance().mapLayers()
 
         # load the dialog from the run method otherwise the objects gets created multiple times
         self.dlg = None
@@ -84,8 +84,8 @@ class NetworkCleanerTool(QObject):
         self.dlg.inputCombo.currentIndexChanged.connect(self.updateOutputName)
 
         # setup legend interface signals
-        self.legend.itemAdded.connect(self.updateLayers)
-        self.legend.itemRemoved.connect(self.updateLayers)
+        QgsProject.instance().layersAdded.connect(self.updateLayers)
+        QgsProject.instance().layersRemoved.connect(self.updateLayers)
 
         self.settings = None
 
@@ -100,8 +100,8 @@ class NetworkCleanerTool(QObject):
             self.dlg.cleanButton.clicked.disconnect(self.startWorker)
             self.dlg.cancelButton.clicked.disconnect(self.killWorker)
             self.settings = None
-            self.legend.itemAdded.disconnect(self.updateLayers)
-            self.legend.itemRemoved.disconnect(self.updateLayers)
+            QgsProject.instance().layersAdded.disconnect(self.updateLayers)
+            QgsProject.instance().layersRemoved.disconnect(self.updateLayers)
 
         self.dlg = None
 
@@ -222,40 +222,38 @@ class NetworkCleanerTool(QObject):
 
             cleaned_features, errors_features, unlinks_features = ret
 
-            # fix_print_with_import
-            # fix_print_with_import
-print('path', path)
+            print('path', path)
             if self.settings['errors']:
                 if len(errors_features) > 0:
                     errors = to_layer(errors_features, layer.crs(), layer.dataProvider().encoding(), 'Point', output_type, errors_path)
                     errors.loadNamedStyle(os.path.dirname(__file__) + '/qgis_styles/errors.qml')
-                    QgsMapLayerRegistry.instance().addMapLayer(errors)
-                    self.iface.legendInterface().refreshLayerSymbology(errors)
-                    QgsMessageLog.logMessage('layer name %s' % layer_name, level=QgsMessageLog.CRITICAL)
+                    QgsProject.instance().addMapLayer(errors)
+                    QgsProject.instance().mapLayers().refreshLayerLegend(errors)
+                    QgsMessageLog.logMessage('layer name %s' % layer_name, level=Qgis.Critical)
                 else:
-                    self.giveMessage('No errors detected!', QgsMessageBar.INFO)
+                    self.giveMessage('No errors detected!', Qgis.Info)
 
             if self.settings['unlinks']:
                 if len(unlinks_features) > 0:
                     unlinks = to_layer(unlinks_features, layer.crs(), layer.dataProvider().encoding(), 'Point', output_type, unlinks_path)
                     unlinks.loadNamedStyle(os.path.dirname(__file__) + '/qgis_styles/unlinks.qml')
-                    QgsMapLayerRegistry.instance().addMapLayer(unlinks)
-                    self.iface.legendInterface().refreshLayerSymbology(unlinks)
+                    QgsProject.instance().addMapLayer(unlinks)
+                    QgsProject.instance().mapLayers().refreshLayerLegend(unlinks)
                 else:
-                    self.giveMessage('No unlinks detected!', QgsMessageBar.INFO)
+                    self.giveMessage('No unlinks detected!', Qgis.Info)
 
             cleaned = to_layer(cleaned_features, layer.crs(), layer.dataProvider().encoding(), 'Linestring', output_type, path)
             cleaned.loadNamedStyle(os.path.dirname(__file__) + '/qgis_styles/cleaned.qml')
-            QgsMapLayerRegistry.instance().addMapLayer(cleaned)
-            self.iface.legendInterface().refreshLayerSymbology(cleaned)
+            QgsProject.instance().addMapLayer(cleaned)
+            QgsProject.instance().mapLayers().refreshLayerLegend(cleaned)
             cleaned.updateExtents()
 
-            self.giveMessage('Process ended successfully!', QgsMessageBar.INFO)
+            self.giveMessage('Process ended successfully!', Qgis.Info)
             self.dlg.cleaningProgress.setValue(100)
 
         else:
             # notify the user that sth went wrong
-            self.giveMessage('Something went wrong! See the message log for more information', QgsMessageBar.CRITICAL)
+            self.giveMessage('Something went wrong! See the message log for more information', Qgis.Critical)
 
         self.thread = None
         self.cleaning = None

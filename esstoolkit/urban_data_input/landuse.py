@@ -62,7 +62,7 @@ class LanduseTool(QObject):
     def __init__(self, iface, dockwidget):
         QObject.__init__(self)
         self.iface = iface
-        self.legend = self.iface.legendInterface()
+        self.legend = QgsProject.instance().mapLayers()
         self.canvas = self.iface.mapCanvas()
 
         self.dockwidget = dockwidget
@@ -89,7 +89,7 @@ class LanduseTool(QObject):
 # Add building layers from the legend to combobox in Create New file pop up dialogue
     def updatebuildingLayers(self):
         self.ludlg.selectbuildingCombo.clear()
-        layers = self.iface.legendInterface().layers()
+        layers = QgsProject.instance().mapLayers().values()
         layer_list = []
         # identify relevant layers
         for layer in layers:
@@ -144,7 +144,7 @@ class LanduseTool(QObject):
         self.disconnectLULayer()
         self.dockwidget.useExistingLUcomboBox.clear()
         self.dockwidget.useExistingLUcomboBox.setEnabled(False)
-        layers = self.legend.layers()
+        layers = self.legend.values()
         type = 2
         for lyr in layers:
             if uf.isRequiredLULayer(self.iface, lyr, type):

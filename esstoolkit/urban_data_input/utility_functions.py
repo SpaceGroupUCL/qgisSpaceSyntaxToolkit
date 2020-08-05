@@ -56,7 +56,7 @@ def getLayersListNames(layerslist):
 
 def getLegendLayerByName(iface, name):
     layer = None
-    for i in iface.legendInterface().layers():
+    for i in QgsProject.instance().mapLayers().values():
         if i.name() == name:
             layer = i
     return layer
@@ -70,7 +70,7 @@ def getfieldByName(iface, name, layer):
 
 def getLegendLayerByIndex(iface, index):
     layer = None
-    for i in iface.legendInterface().layers():
+    for i in QgsProject.instance().mapLayers().values():
         if i.index() == index:
             layer = i
     return layer
@@ -105,7 +105,7 @@ def reloadLayer(layer):
         new_layer = QgsVectorLayer(uri.split("|")[0], layer_name, layer_provider)
     QgsMapLayerRegistry.instance().removeMapLayer(layer.id())
     if new_layer:
-        QgsMapLayerRegistry.instance().addMapLayer(new_layer)
+        QgsProject.instance().addMapLayer(new_layer)
     return new_layer
 
 def isRequiredLayer(self, layer, type):

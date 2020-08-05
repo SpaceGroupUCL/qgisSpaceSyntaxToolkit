@@ -45,7 +45,7 @@ class ExplorerTool(QObject):
         self.iface = iface
         self.settings = settings
         self.project = project
-        self.legend = self.iface.legendInterface()
+        self.legend = QgsProject.instance().mapLayers()
 
     def load(self):
         # initialise UI
@@ -64,8 +64,8 @@ class ExplorerTool(QObject):
         self.dlg.visibilityChanged.connect(self.onShow)
 
         # connect signal/slots with main program
-        self.legend.itemAdded.connect(self.updateLayers)
-        self.legend.itemRemoved.connect(self.updateLayers)
+        QgsProject.instance().layersAdded.connect(self.updateLayers)
+        QgsProject.instance().layersRemoved.connect(self.updateLayers)
         self.iface.projectRead.connect(self.updateLayers)
         self.iface.newProjectCreated.connect(self.updateLayers)
 
@@ -90,8 +90,8 @@ class ExplorerTool(QObject):
     def unload(self):
         if self.dlg.isVisible():
             # Disconnect signals from main program
-            self.legend.itemAdded.disconnect(self.updateLayers)
-            self.legend.itemRemoved.disconnect(self.updateLayers)
+            QgsProject.instance().layersAdded.disconnect(self.updateLayers)
+            QgsProject.instance().layersRemoved.disconnect(self.updateLayers)
             self.iface.projectRead.disconnect(self.updateLayers)
             self.iface.newProjectCreated.disconnect(self.updateLayers)
         # clear stored values
@@ -103,15 +103,15 @@ class ExplorerTool(QObject):
     def onShow(self):
         if self.dlg.isVisible():
             # Connect signals to QGIS interface
-            self.legend.itemAdded.connect(self.updateLayers)
-            self.legend.itemRemoved.connect(self.updateLayers)
+            QgsProject.instance().layersAdded.connect(self.updateLayers)
+            QgsProject.instance().layersRemoved.connect(self.updateLayers)
             self.iface.projectRead.connect(self.updateLayers)
             self.iface.newProjectCreated.connect(self.updateLayers)
             self.updateLayers()
         else:
             # Disconnect signals to QGIS interface
-            self.legend.itemAdded.disconnect(self.updateLayers)
-            self.legend.itemRemoved.disconnect(self.updateLayers)
+            QgsProject.instance().layersAdded.disconnect(self.updateLayers)
+            QgsProject.instance().layersRemoved.disconnect(self.updateLayers)
             self.iface.projectRead.disconnect(self.updateLayers)
             self.iface.newProjectCreated.disconnect(self.updateLayers)
 

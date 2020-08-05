@@ -111,7 +111,7 @@ def getLayerByName(name):
 
 def getLegendLayerByName(iface, name):
     layer = None
-    for i in iface.legendInterface().layers():
+    for i in QgsProject.instance().mapLayers().values():
         if i.name() == name:
             layer = i
     return layer
@@ -155,7 +155,7 @@ def reloadLayer(layer):
         new_layer = QgsVectorLayer(uri.split("|")[0],layer_name,layer_provider)
     QgsMapLayerRegistry.instance().removeMapLayer(layer.id())
     if new_layer:
-        QgsMapLayerRegistry.instance().addMapLayer(new_layer)
+        QgsProject.instance().addMapLayer(new_layer)
     return new_layer
 
 
@@ -948,7 +948,7 @@ def loadSpatialiteTable(connection, path, name):
     layer=QgsVectorLayer(uri.uri(), '%s' % name, 'spatialite')
     #add layer to canvas
     if layer.isValid():
-        QgsMapLayerRegistry.instance().addMapLayer(layer)
+        QgsProject.instance().addMapLayer(layer)
     else:
         # newfeature: write error message?
         return False
@@ -1755,7 +1755,7 @@ def loadPostgisTable(connection, name, schema, table):
             layer=QgsVectorLayer(uri, "%s" % table, 'postgres')
             #add layer to canvas
             if layer.isValid():
-                QgsMapLayerRegistry.instance().addMapLayer(layer)
+                QgsProject.instance().addMapLayer(layer)
             else:
                 # newfeature: write error message?
                 return False

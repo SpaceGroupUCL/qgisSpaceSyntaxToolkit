@@ -396,7 +396,7 @@ class AboutDialog(QDialog, Ui_AboutDialog):
         # Set up the user interface from Designer.
         self.setupUi(self)
         # set up internal GUI signals
-        QtCore.QObject.connect(self.closeButton,QtCore.SIGNAL("clicked()"),self.close)
+        self.closeButton.clicked.connect(self.close)
 
         # load text
         about_msg = (

@@ -241,8 +241,8 @@ class ProjectDialog(QDialog, Ui_ProjectDialog):
         self.dataTypeCombo.addItems(['Shape files folder','Personal geodatabase','PostGIS database'])
 
         # set up internal GUI signals
-        QtCore.QObject.connect(self.closeButtonBox,QtCore.SIGNAL("rejected()"),self.close)
-        QtCore.QObject.connect(self.closeButtonBox,QtCore.SIGNAL("accepted()"),self.updateSettings)
+        self.closeButtonBox.rejected.connect(self.close)
+        self.closeButtonBox.accepted.connect(self.updateSettings)
         self.dataTypeCombo.currentIndexChanged.connect(self.selectDatastoreType)
         self.dataSelectCombo.currentIndexChanged.connect(self.selectDatastore)
         self.schemaCombo.currentIndexChanged.connect(self.selectSchema)

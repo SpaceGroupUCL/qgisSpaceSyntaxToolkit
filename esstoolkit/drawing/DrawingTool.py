@@ -194,7 +194,7 @@ class DrawingTool(object):
         except TypeError:
             pass
         try:
-            self.legend.itemAdded.disconnect(self.pop_layer)
+            QgsProject.instance().layersAdded.disconnect(self.pop_layer)
         except TypeError:
             pass
         try:
@@ -343,7 +343,7 @@ class DrawingTool(object):
 
         if not self.pluginIsActive:
             self.pluginIsActive = True
-            self.legend = self.iface.legendInterface()
+            self.legend = QgsProject.instance().mapLayers()
 
             # dockwidget may not exist if:
             #    first run of plugin
@@ -368,8 +368,8 @@ class DrawingTool(object):
             if self.networks == []:
                 self.lockGUI(True)
 
-            self.legend.itemAdded.connect(self.pop_layer)
-            self.legend.itemRemoved.connect(self.pop_layer)
+            QgsProject.instance().layersAdded.connect(self.pop_layer)
+            QgsProject.instance().layersRemoved.connect(self.pop_layer)
             #QgsProject.instance().variablesChanged.connect(self.pop_layer)
             self.dockwidget.networkCombo.currentIndexChanged.connect(self.dockwidget.update_network)
             self.dockwidget.unlinksCombo.currentIndexChanged.connect(self.dockwidget.update_unlinks)

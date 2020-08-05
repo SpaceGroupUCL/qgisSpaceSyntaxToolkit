@@ -66,7 +66,7 @@ def getLegendLayersNames(iface, geom='all', provider='all'):
 
 def getLegendLayerByName(iface, name):
     layer = None
-    for i in iface.legendInterface().layers():
+    for i in QgsProject.instance().mapLayers().values():
         if i.name() == name:
             layer = i
     return layer

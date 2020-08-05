@@ -54,7 +54,7 @@ class UrbanDataInputDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
         self.iface = iface
         self.canvas = self.iface.mapCanvas()
-        self.legend = self.iface.legendInterface()
+        self.legend = QgsProject.instance().mapLayers()
 
         # create sub dialogs for new layers
         self.frontagedlg = CreatenewDialog()

@@ -248,7 +248,7 @@ def to_layer(features, crs, encoding, geom_type, layer_type, path):
 
 def getLayerByName(name):
     layer = None
-    for i in list(QgsMapLayerRegistry.instance().mapLayers().values()):
+    for i in list(QgsProject.instance().mapLayers().values()):
         if i.name() == name:
             layer = i
     return layer

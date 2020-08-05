@@ -62,7 +62,7 @@ class RoadNetworkCleaner(QObject):
         QObject.__init__(self)
 
         self.iface=iface
-        self.legend = self.iface.legendInterface()
+        self.legend = QgsProject.instance().mapLayers()
 
         # load the dialog from the run method otherwise the objects gets created multiple times
         self.dlg = None
@@ -84,8 +84,8 @@ class RoadNetworkCleaner(QObject):
         self.updateLayers()
 
         # setup legend interface signals
-        self.legend.itemAdded.connect(self.updateLayers)
-        self.legend.itemRemoved.connect(self.updateLayers)
+        QgsProject.instance().layersAdded.connect(self.updateLayers)
+        QgsProject.instance().layersRemoved.connect(self.updateLayers)
 
         self.settings = None
 
@@ -101,8 +101,8 @@ class RoadNetworkCleaner(QObject):
             self.dlg.cancelButton.clicked.disconnect(self.killCleaning)
             self.settings = None
         try:
-            self.legend.itemAdded.disconnect(self.updateLayers)
-            self.legend.itemRemoved.disconnect(self.updateLayers)
+            QgsProject.instance().layersAdded.disconnect(self.updateLayers)
+            QgsProject.instance().layersRemoved.disconnect(self.updateLayers)
         except TypeError:
             pass
 
@@ -211,29 +211,29 @@ class RoadNetworkCleaner(QObject):
                                    self.settings['port'], self.settings['password'], self.settings['schema'],
                                    self.settings['table_name'], ret[0][1], ret[0][0], crs)
             if final:
-                QgsMapLayerRegistry.instance().addMapLayer(final)
+                QgsProject.instance().addMapLayer(final)
                 final.updateExtents()
             # create errors layer
             if self.settings['errors']:
                 errors = to_shp(None, ret[1][0], ret[1][1], crs, 'errors', encoding, geom_type)
                 if errors:
-                    QgsMapLayerRegistry.instance().addMapLayer(errors)
+                    QgsProject.instance().addMapLayer(errors)
                     errors.updateExtents()
             # create unlinks layer
             if self.settings['unlinks']:
                 unlinks = to_shp(None, ret[2][0], ret[2][1], crs, 'unlinks', encoding, 0)
                 if unlinks:
-                    QgsMapLayerRegistry.instance().addMapLayer(unlinks)
+                    QgsProject.instance().addMapLayer(unlinks)
                     unlinks.updateExtents()
 
             self.iface.mapCanvas().refresh()
 
-            self.giveMessage('Process ended successfully!', QgsMessageBar.INFO)
+            self.giveMessage('Process ended successfully!', Qgis.Info)
 
         except Exception as e:
             # notify the user that sth went wrong
             self.cleaning.error.emit(e, traceback.format_exc())
-            self.giveMessage('Something went wrong! See the message log for more information', QgsMessageBar.CRITICAL)
+            self.giveMessage('Something went wrong! See the message log for more information', Qgis.Critical)
 
         # clean up the worker and thread
         #self.cleaning.deleteLater()

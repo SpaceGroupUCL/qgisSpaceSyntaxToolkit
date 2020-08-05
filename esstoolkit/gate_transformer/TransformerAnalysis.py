@@ -58,7 +58,7 @@ class GateTransformer(QObject):
             self.dlg.close_button.clicked.disconnect(self.close_method)
 
     def get_layers(self):
-        layers = list(QgsMapLayerRegistry.instance().mapLayers().values())
+        layers = list(QgsProject.instance().mapLayers().values())
         layer_objects = []
         for layer in layers:
             if layer.type() == QgsMapLayer.VectorLayer and layer.geometryType() == QGis.Line:

@@ -51,7 +51,7 @@ class AnalysisTool(QObject):
         self.iface = iface
         self.settings = settings
         self.project = project
-        self.legend = self.iface.legendInterface()
+        self.legend = QgsProject.instance().mapLayers()
 
     def load(self):
         # initialise UI
@@ -103,8 +103,8 @@ class AnalysisTool(QObject):
     def unload(self):
         if self.isVisible:
             # Disconnect signals from main program
-            self.legend.itemAdded.disconnect(self.updateLayers)
-            self.legend.itemRemoved.disconnect(self.updateLayers)
+            QgsProject.instance().layersAdded.disconnect(self.updateLayers)
+            QgsProject.instance().layersRemoved.disconnect(self.updateLayers)
             self.iface.projectRead.disconnect(self.updateLayers)
             self.iface.projectRead.disconnect(self.getProjectSettings)
             self.iface.newProjectCreated.disconnect(self.updateLayers)
@@ -113,8 +113,8 @@ class AnalysisTool(QObject):
     def onShow(self):
         if self.dlg.isVisible():
             # Connect signals to QGIS interface
-            self.legend.itemAdded.connect(self.updateLayers)
-            self.legend.itemRemoved.connect(self.updateLayers)
+            QgsProject.instance().layersAdded.connect(self.updateLayers)
+            QgsProject.instance().layersRemoved.connect(self.updateLayers)
             self.iface.projectRead.connect(self.updateLayers)
             self.iface.projectRead.connect(self.getProjectSettings)
             self.iface.newProjectCreated.connect(self.updateLayers)
@@ -124,8 +124,8 @@ class AnalysisTool(QObject):
         else:
             if self.isVisible:
                 # Disconnect signals to QGIS interface
-                self.legend.itemAdded.disconnect(self.updateLayers)
-                self.legend.itemRemoved.disconnect(self.updateLayers)
+                QgsProject.instance().layersAdded.disconnect(self.updateLayers)
+                QgsProject.instance().layersRemoved.disconnect(self.updateLayers)
                 self.iface.projectRead.disconnect(self.updateLayers)
                 self.iface.projectRead.disconnect(self.getProjectSettings)
                 self.iface.newProjectCreated.disconnect(self.updateLayers)
@@ -775,7 +775,7 @@ class AnalysisTool(QObject):
                 old_layer = uf.getLegendLayerByName(self.iface, new_layer.name())
                 if uf.getLayerPath(new_layer) == uf.getLayerPath(old_layer):
                     QgsMapLayerRegistry.instance().removeMapLayer(old_layer.id())
-            QgsMapLayerRegistry.instance().addMapLayer(new_layer)
+            QgsProject.instance().addMapLayer(new_layer)
             new_layer.updateExtents()
 
 
