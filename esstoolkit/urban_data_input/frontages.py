@@ -314,7 +314,6 @@ class FrontageTool(QObject):
 
     # Update Feature
     def updateSelectedFrontageAttribute(self):
-        #QtGui.QApplication.beep() can be annoying... sorry
         mc = self.canvas
         layer = self.dockwidget.setFrontageLayer()
         features = layer.selectedFeatures()
