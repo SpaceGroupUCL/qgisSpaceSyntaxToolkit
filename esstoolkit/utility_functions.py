@@ -1262,7 +1262,7 @@ def copyLayerToSpatialite(connection, layer, path, name):
         values_auto=['NULL'] #PKUID value
         if geometry:
             geom = feat.geometry()
-            WKT=geom.exportToWkt()
+            WKT=geom.asWkt()
             values_auto.append('CastToMulti(GeomFromText("%s",%s))'%(WKT,srid))
         # show all attributes and their values
         values=[]

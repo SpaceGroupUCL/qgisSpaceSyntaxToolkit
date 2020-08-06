@@ -157,11 +157,11 @@ class mergeTool(QObject):
                 if new_geom.wkbType() == 5:
                     for linestring in new_geom.asGeometryCollection():
                         self.last_fid += 1
-                        new_feat = [self.last_fid, f_attrs, linestring.exportToWkt()]
+                        new_feat = [self.last_fid, f_attrs, linestring.asWkt()]
                         merged_features.append(new_feat)
                 elif new_geom.wkbType() == 2:
                     self.last_fid += 1
-                    new_feat = [self.last_fid, f_attrs, new_geom.exportToWkt()]
+                    new_feat = [self.last_fid, f_attrs, new_geom.asWkt()]
                     merged_features.append(new_feat)
 
         return self.exclude_orphans(merged_features + self.feat_to_copy)

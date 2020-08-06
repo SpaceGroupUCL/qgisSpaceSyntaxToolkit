@@ -229,10 +229,10 @@ def to_layer(features, crs, encoding, geom_type, layer_type, path):
             field_names = ",".join(['"'+f.name()+'"' for f in fields])
             for feature in features:
                 attrs = [i if i else None for i in feature.attributes()]
-                insert_query = cur.mogrify("""INSERT INTO "%s"."%s" (%s, geom) VALUES %s, ST_GeomFromText(%s,%s))""", (AsIs(schema_name), AsIs(table_name), AsIs(field_names), tuple(attrs), feature.geometry().exportToWkt(), AsIs(crs_id)))
+                insert_query = cur.mogrify("""INSERT INTO "%s"."%s" (%s, geom) VALUES %s, ST_GeomFromText(%s,%s))""", (AsIs(schema_name), AsIs(table_name), AsIs(field_names), tuple(attrs), feature.geometry().asWkt(), AsIs(crs_id)))
                 idx = insert_query.find(', ST_GeomFromText') - 1
                 insert_query = insert_query[:idx] + insert_query[(idx + 1):]
-                #QgsMessageLog.logMessage('sql query %s' % insert_query, level=QgsMessageLog.CRITICAL)
+                #QgsMessageLog.logMessage('sql query %s' % insert_query, level=Qgis.Critical)
                 cur.execute(insert_query)
                 #con.commit()
             pkey_query = cur.mogrify("""ALTER TABLE "%s"."%s" DROP COLUMN IF EXISTS rcl_id; ALTER TABLE "%s"."%s" ADD COLUMN rcl_id serial PRIMARY KEY NOT NULL;""", (AsIs(schema_name), AsIs(table_name), AsIs(schema_name), AsIs(table_name)))
