@@ -224,7 +224,7 @@ class segmentor(QObject):
     def copy_feat(self, f, geom, id):
         copy_feat = QgsFeature(f)
         copy_feat.setGeometry(geom)
-        copy_feat.setFeatureId(id)
+        copy_feat.setId(id)
         return copy_feat
 
     # only 1 time execution permitted
@@ -247,7 +247,7 @@ class segmentor(QObject):
             elif f_geom.length() == 0:
                 pass
             elif f_geom.wkbType() == 2:
-                f.setFeatureId(id)
+                f.setId(id)
                 self.feats[id] = f
                 id += 1
                 f_pl = f_geom.asPolyline()

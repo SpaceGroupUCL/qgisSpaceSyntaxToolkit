@@ -191,20 +191,15 @@ class FrontageTool(QObject):
                     feat = QgsFeature()
                     line_geom = QgsGeometry.fromPolyline([p1, p2])
                     feat.setAttributes([i, NULL, NULL, line_geom.geometry().length()])
-                    feat.setFeatureId(i)
+                    feat.setId(i)
                     feat.setGeometry(line_geom)
                     exploded_features.append(feat)
-
-            # fix_print_with_import
             print('building layer2')
             vl.updateFields()
             vl.startEditing()
             provider.addFeatures(exploded_features)
             vl.commitChanges()
-
-            # fix_print_with_import
-            # fix_print_with_import
-print('building layer3')
+            print('building layer3')
 
         if self.frontagedlg.f_shp_radioButton.isChecked(): #layer_type == 'shapefile':
 

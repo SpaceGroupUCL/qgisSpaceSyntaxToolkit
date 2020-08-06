@@ -49,7 +49,7 @@ def clean_features_iter(feat_iter):
             ml_error.setAttributes(['point'])
             points.append(ml_error)
         elif f_geom.wkbType() == 2:
-            f.setFeatureId(id)
+            f.setId(id)
             id += 1
             yield f
         # empty geometry
@@ -66,7 +66,7 @@ def clean_features_iter(feat_iter):
             for ml in ml_segms:
                 ml_geom = QgsGeometry(QgsGeometry.fromPolyline(ml))
                 ml_feat = QgsFeature(f)
-                ml_feat.setFeatureId(id)
+                ml_feat.setId(id)
                 id += 1
                 ml_feat.setGeometry(ml_geom)
                 ml_error = QgsFeature(error_feat)

@@ -97,7 +97,7 @@ def to_shp(path, any_features_list, layer_fields, crs, name, encoding, geom_type
     new_features = []
     for i in any_features_list:
         new_feat = QgsFeature()
-        new_feat.setFeatureId(i[0])
+        new_feat.setId(i[0])
         new_feat.setAttributes([attr[0] for attr in i[1]])
         new_feat.setGeometry(QgsGeometry(QgsGeometry.fromWkt(str(i[2]))))
         #QgsGeometry()

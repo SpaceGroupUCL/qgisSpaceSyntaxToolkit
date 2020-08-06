@@ -219,7 +219,7 @@ class CatchmentAnalysis(QObject):
                     new_f = QgsFeature()
                     new_f.setGeometry(ml.centroid())
                     new_f.setAttributes([f.id()])
-                    new_f.setFeatureId(i)
+                    new_f.setId(i)
                     self.spIndex.insertFeature(new_f)
                     self.centroids[i] = f.id()
                     i += 1
@@ -231,7 +231,7 @@ class CatchmentAnalysis(QObject):
                         new_f = QgsFeature()
                         new_f.setGeometry(ml.centroid())
                         new_f.setAttributes([f.id()])
-                        new_f.setFeatureId(i)
+                        new_f.setId(i)
                         self.spIndex.insertFeature(new_f)
                         self.centroids[i] = f.id()
                         i += 1

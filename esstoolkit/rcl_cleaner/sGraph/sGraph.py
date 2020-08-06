@@ -90,7 +90,7 @@ class sGraph(QObject):
             self.edge_id += 1
             self.update_topology(snodes[0], snodes[1], self.edge_id)
 
-            f.setFeatureId(self.edge_id)
+            f.setId(self.edge_id)
             f.setGeometry(geometry)
             sedge = sEdge(self.edge_id, f, snodes)
             self.sEdges[self.edge_id] = sedge
@@ -125,7 +125,7 @@ class sGraph(QObject):
             self.node_id += 1
             node_id = self.node_id
             feature = QgsFeature()
-            feature.setFeatureId(node_id)
+            feature.setId(node_id)
             feature.setAttributes([node_id])
             feature.setGeometry(QgsGeometry.fromPoint(point))
             self.sNodesCoords[(point[0], point[1])] = node_id
@@ -358,7 +358,7 @@ class sGraph(QObject):
             QgsGeometry.fromMultiPoint([self.sNodes[nd].feature.geometry().asPoint() for nd in group])).centroid()
         feat.setGeometry(centroid)
         feat.setAttributes([self.node_id])
-        feat.setFeatureId(self.node_id)
+        feat.setId(self.node_id)
         snode = sNode(self.node_id, feat, [], [])
         self.sNodes[self.node_id] = snode
         self.ndSpIndex.insertFeature(feat)
@@ -437,7 +437,7 @@ class sGraph(QObject):
             single_feature = QgsFeature(e.feature)
             single_feature.setGeometry(single_geom)
             self.edge_id += 1
-            single_feature.setFeatureId(self.edge_id)
+            single_feature.setId(self.edge_id)
             self.sEdges[self.edge_id] = sEdge(self.edge_id, single_feature, [])
             self.edgeSpIndex.insertFeature(single_feature)
 
@@ -677,7 +677,7 @@ class sGraph(QObject):
                 if crossing_points.geometry().wkbType() == 1 and crossing_points.asPoint() not in f_geom.asPolyline():
                     un_f = QgsFeature(unlink_feat)
                     un_f.setGeometry(crossing_points)
-                    un_f.setFeatureId(unlinks_id)
+                    un_f.setId(unlinks_id)
                     un_f.setAttributes([unlinks_id])
                     unlinks_id += 1
                     self.unlinks.append(un_f)
@@ -686,7 +686,7 @@ class sGraph(QObject):
                         if p not in f_geom.asPolyline():
                             un_f = QgsFeature(unlink_feat)
                             un_f.setGeometry(QgsGeometry.fromPoint(p))
-                            un_f.setFeatureId(unlinks_id)
+                            un_f.setId(unlinks_id)
                             un_f.setAttributes([unlinks_id])
                             unlinks_id += 1
                             self.unlinks.append(un_f)
@@ -730,11 +730,10 @@ class sGraph(QObject):
                     merged_points += points[1:]
             merged_geom = QgsGeometry.fromPolyline(merged_points)
             if merged_geom.wkbType() != 2:
-                # fix_print_with_import
                 print('ml', merged_geom.wkbType())
 
         feat.setGeometry(merged_geom)
-        feat.setFeatureId(self.edge_id)
+        feat.setId(self.edge_id)
 
         if p0 == self.sNodes[group_nodes[0]].feature.geometry().asPoint():
             merged_edge = sEdge(self.edge_id, feat, [group_nodes[0], group_nodes[-1]])
