@@ -168,7 +168,12 @@ class DrawingToolDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             #    layer.commitChanges()
             #else:
             #    layer.startEditing()
-            proj.setSnapSettingsForLayer(layer.id(), False, 0, 0, self.settings[2], True)
+            snapConfig = QgsSnappingConfig()
+            snapConfig.setMode(QgsSnappingConfig.AdvancedConfiguration)
+            layerSnapConfig =  QgsSnappingConfig.IndividualLayerSettings(False, QgsSnappingConfig.Vertex,  self.settings[2], QgsTolerance.LayerUnits)
+            snapConfig.setIndividualLayerSettings(layer, layerSnapConfig)
+            proj.setAvoidIntersectionsLayers([layer])
+            proj.setSnappingConfig(snapConfig)
             proj.setTopologicalEditing(False)
             self.axial_mode = True
         else:
@@ -197,9 +202,14 @@ class DrawingToolDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             #    layer.commitChanges()
             #else:
             #    layer.startEditing()
-            proj.setSnapSettingsForLayer(layer.id(), True, 0, 0, self.settings[2], True)
+            snapConfig = QgsSnappingConfig()
+            snapConfig.setMode(QgsSnappingConfig.AdvancedConfiguration)
+            layerSnapConfig =  QgsSnappingConfig.IndividualLayerSettings(True, QgsSnappingConfig.Vertex,  self.settings[2], QgsTolerance.LayerUnits)
+            snapConfig.setIndividualLayerSettings(layer, layerSnapConfig)
+            proj.setAvoidIntersectionsLayers([layer])
+            snapConfig.setIntersectionSnapping(False)
+            proj.setSnappingConfig(snapConfig)
             proj.setTopologicalEditing(True)
-            self.iface.mapCanvas().snappingUtils().setSnapOnIntersections(False)
             self.segment_mode = True
         else:
             self.iface.messageBar().pushMessage("Network layer not specified!", Qgis.Critical, duration=5)
@@ -209,7 +219,7 @@ class DrawingToolDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
     def setUnlinkSnapping(self):
         # disable previous snapping setting if segment
         self.resetSnapping()
-
+        
         # snap to vertex
         if self.settings[1] != 'no unlinks':
             self.resetIcons()
@@ -228,7 +238,12 @@ class DrawingToolDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             #else:
             #    unlinks_layer.startEditing()
             self.iface.setActiveLayer(unlinks_layer)
-            proj.setSnapSettingsForLayer(layer.id(), True, 0, 0, self.settings[2], True)
+            snapConfig = QgsSnappingConfig()
+            snapConfig.setMode(QgsSnappingConfig.AdvancedConfiguration)
+            layerSnapConfig =  QgsSnappingConfig.IndividualLayerSettings(True, QgsSnappingConfig.Vertex,  self.settings[2], QgsTolerance.LayerUnits)
+            snapConfig.setIndividualLayerSettings(layer, layerSnapConfig)
+            proj.setAvoidIntersectionsLayers([layer])
+            QgsProject.instance().setSnappingConfig(snapConfig)
             proj.setTopologicalEditing(False)
             self.iface.mapCanvas().snappingUtils().setSnapOnIntersections(True)
             self.unlink_mode = True
@@ -236,23 +251,30 @@ class DrawingToolDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             self.iface.messageBar().pushMessage("Unlinks layer not specified!", Qgis.Critical, duration=5)
             self.unlink_mode = False
         return
-
+        
     def resetSnapping(self):
         self.unlink_mode = False
         # disable previous snapping setting
+        proj = QgsProject.instance()
+        snapConfig = QgsSnappingConfig()
         if self.settings[0] != '' and self.settings[0]:
-            proj = QgsProject.instance()
             #proj.writeEntry('Digitizing', 'SnappingMode', 'advanced')
             layer = getLayerByName(self.settings[0])
             if layer: # layer might have been removed
-                proj.setSnapSettingsForLayer(layer.id(), False, 0, 0, self.settings[2], True)
+                snapConfig.setMode(QgsSnappingConfig.AdvancedConfiguration)
+                layerSnapConfig =  QgsSnappingConfig.IndividualLayerSettings(False, QgsSnappingConfig.Vertex,  self.settings[2], QgsTolerance.LayerUnits)
+                snapConfig.setIndividualLayerSettings(layer, layerSnapConfig)
+                proj.setAvoidIntersectionsLayers([layer])
         if self.settings[1] != 'no unlinks' and self.settings[1]:
-            proj = QgsProject.instance()
             #proj.writeEntry('Digitizing', 'SnappingMode', 'advanced')
             layer = getLayerByName(self.settings[1])
             if layer:
-                proj.setSnapSettingsForLayer(layer.id(), False, 0, 0, self.settings[2], False)
-        self.iface.mapCanvas().snappingUtils().setSnapOnIntersections(False)
+                snapConfig.setMode(QgsSnappingConfig.AdvancedConfiguration)
+                layerSnapConfig =  QgsSnappingConfig.IndividualLayerSettings(False, QgsSnappingConfig.Vertex,  self.settings[2], QgsTolerance.LayerUnits)
+                snapConfig.setIndividualLayerSettings(layer, layerSnapConfig)
+                proj.setAvoidIntersectionsLayers([])
+        snapConfig.setIntersectionSnapping(False)
+        proj.setSnappingConfig(snapConfig)
         return
 
     def resetIcons(self):
