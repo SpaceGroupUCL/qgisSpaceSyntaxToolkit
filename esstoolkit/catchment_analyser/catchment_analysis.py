@@ -248,7 +248,7 @@ class CatchmentAnalysis(QObject):
         catchment_points = {}
 
         # Loop through graph and get geometry and write to catchment network
-        for index in range(graph.arcCount()):
+        for index in range(graph.edgeCount()):
             inVertexId = graph.arc(index).inVertex()
             outVertexId = graph.arc(index).outVertex()
             inVertexGeom = graph.vertex(inVertexId).point()
