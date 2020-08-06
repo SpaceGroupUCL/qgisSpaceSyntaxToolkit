@@ -59,15 +59,15 @@ class AttributeSymbology(QObject):
         renderer = None
         if mode < 3:
             # set symbol type and line width
-            symbol = QgsSymbolV2.defaultSymbol(geometry)
+            symbol = QgsSymbol.defaultSymbol(geometry)
             if symbol:
                 if symbol.type() == 1:  # line
                     symbol.setWidth(line_width)
                 elif symbol.type() == 2:  # line
-                    symbol = QgsFillSymbolV2.createSimple({'style': 'solid', 'color': 'black', 'width_border': '%s' % line_width})
+                    symbol = QgsFillSymbol.createSimple({'style': 'solid', 'color': 'black', 'width_border': '%s' % line_width})
                 elif symbol.type() == 0:  # point
                     symbol.setSize(line_width)
-                renderer = QgsGraduatedSymbolRendererV2.createRenderer(layer, attribute, intervals, mode, symbol, ramp)
+                renderer = QgsGraduatedSymbolRenderer.createRenderer(layer, attribute, intervals, mode, symbol, ramp)
                 renderer.setMode(mode)
                 renderer.setSourceColorRamp(ramp)
         else:
@@ -90,16 +90,16 @@ class AttributeSymbology(QObject):
             if bottom_value != min_value:
                 range_steps.insert(0, min_value)
             for i in range(0, len(range_steps)-1):
-                symbol = QgsSymbolV2.defaultSymbol(geometry)
+                symbol = QgsSymbol.defaultSymbol(geometry)
                 if symbol:
                     new_colour = ramp.color(i/(float(len(range_steps))-2)).getRgb()
                     symbol.setColor(QColor(*new_colour))
                     symbol.setWidth(line_width)
                     label = "%s - %s" % (range_steps[i], range_steps[i+1])
-                    this_range = QgsRendererRangeV2(range_steps[i], range_steps[i+1], symbol, label)
+                    this_range = QgsRendererRange(range_steps[i], range_steps[i+1], symbol, label)
                     ranges.append(this_range)
             if ranges:
-                renderer = QgsGraduatedSymbolRendererV2(attribute, ranges)
+                renderer = QgsGraduatedSymbolRenderer(attribute, ranges)
                 #renderer.setMode(5)
                 renderer.setSourceColorRamp(ramp)
         # configure symbol levels to display in specific order
@@ -109,12 +109,12 @@ class AttributeSymbology(QObject):
             renderer.setUsingSymbolLevels(True)
             render_pass = 0
             if display_order == 0:
-                for symbol in renderer.symbols():
+                for symbol in renderer.symbols(QgsRenderContext()):
                     for i in range(0, symbol.symbolLayerCount()):
                         symbol.symbolLayer(i).setRenderingPass(render_pass)
                         render_pass += 1
             else:
-                for symbol in reversed(renderer.symbols()):
+                for symbol in reversed(renderer.symbols(QgsRenderContext())):
                     for i in range(0, symbol.symbolLayerCount()):
                         symbol.symbolLayer(i).setRenderingPass(render_pass)
                         render_pass += 1
@@ -128,7 +128,7 @@ class AttributeSymbology(QObject):
                 step = intervals / 8.0  # this is usd for fill patterns
                 #color = QColor(ramp.color(0).getRgb())  # same as above
                 for i in range(0, intervals):
-                    symbol = renderer.symbols()[i]
+                    symbol = renderer.symbols(QgsRenderContext())[i]
                     if invert:
                         if symbol.type() == 1:  # line
                             symbol.setWidth(new_width[(intervals-1)-i])
@@ -140,7 +140,7 @@ class AttributeSymbology(QObject):
                                 style = 'solid'
                             else:
                                 style = 'dense%s' % dense
-                            symbol = QgsFillSymbolV2.createSimple({'style': style, 'color': 'black', 'width_border': '%s' % new_width[(intervals-1)-i]})
+                            symbol = QgsFillSymbol.createSimple({'style': style, 'color': 'black', 'width_border': '%s' % new_width[(intervals-1)-i]})
                     else:
                         if symbol.type() == 1:  # line
                             symbol.setWidth(new_width[i])
@@ -152,7 +152,7 @@ class AttributeSymbology(QObject):
                                 style = 'solid'
                             else:
                                 style = 'dense%s' % (7 - dense)
-                            symbol = QgsFillSymbolV2.createSimple({'style': style, 'color': 'black', 'width_border': '%s' % new_width[i]})
+                            symbol = QgsFillSymbol.createSimple({'style': style, 'color': 'black', 'width_border': '%s' % new_width[i]})
                     renderer.updateRangeSymbol(i, symbol)
         return renderer
 

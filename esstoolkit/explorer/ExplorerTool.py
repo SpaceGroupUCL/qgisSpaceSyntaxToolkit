@@ -125,8 +125,8 @@ class ExplorerTool(QObject):
             if settings:
                 #newfeature: allow custom symbology in the layer to be explored
                 # feature almost in place, but all implications are not fully understood yet
-                #if self.current_layer.rendererV2().usedAttributes() == attr["name"]:
-                #    self.current_renderer = self.current_layer.rendererV2()
+                #if self.current_layer.renderer().usedAttributes(QgsRenderContext()) == attr["name"]:
+                #    self.current_renderer = self.current_layer.renderer()
                 #    self.layer_display_settings[i]["colour_range"] = 4
                 #else:
                 #    self.current_renderer = None
@@ -229,7 +229,7 @@ class ExplorerTool(QObject):
                                 attribute_display['line_width'] = 2.5
                             self.layer_display_settings.append(attribute_display)
                     # get the current display attribute
-                    attributes = self.current_layer.rendererV2().usedAttributes()
+                    attributes = self.current_layer.renderer().usedAttributes(QgsRenderContext())
                     if len(attributes) > 0:
                         display_attribute = attributes[0]
                         if display_attribute in numeric_fields:
@@ -350,10 +350,10 @@ class ExplorerTool(QObject):
             renderer = self.attributeSymbology.updateRenderer(self.current_layer, attribute, settings)
             # update the canvas
             if renderer:
-                self.current_layer.setRendererV2(renderer)
+                self.current_layer.setRenderer(renderer)
                 self.current_layer.triggerRepaint()
                 self.iface.mapCanvas().refresh()
-                self.legend.refreshLayerSymbology(self.current_layer)
+                self.legend.refreshLayerLegend(self.current_layer)
 
     ##
     ## Stats actions

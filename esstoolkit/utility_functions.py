@@ -433,7 +433,7 @@ def getAllFeatureIds(layer):
 def getAllFeatureSymbols(layer):
     symbols = {}
     if layer:
-        renderer = layer.rendererV2()
+        renderer = layer.renderer()
         features = layer.getFeatures()
         for feature in features:
             symb = renderer.symbolsForFeature(feature)
@@ -448,7 +448,7 @@ def getAllFeatureData(layer):
     data = {}
     symbols = {}
     if layer:
-        renderer = layer.rendererV2()
+        renderer = layer.renderer()
         features = layer.getFeatures()
         for feature in features:
             data = {feature.id(): feature}

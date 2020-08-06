@@ -293,35 +293,35 @@ class CatchmentTool(QObject):
 
         # for each range create a symbol with its respective color
         for lower, upper, color in color_ranges:
-            symbol = QgsSymbolV2.defaultSymbol(output_network.geometryType())
+            symbol = QgsSymbol.defaultSymbol(output_network.geometryType())
             symbol.setColor(QColor(color))
             symbol.setWidth(0.5)
-            range = QgsRendererRangeV2(lower, upper, symbol, str(lower) + ' - ' + str(upper))
+            range = QgsRendererRange(lower, upper, symbol, str(lower) + ' - ' + str(upper))
             ranges.append(range)
 
         # create renderer based on ranges and apply to network
-        renderer = QgsGraduatedSymbolRendererV2('min_dist', ranges)
-        output_network.setRendererV2(renderer)
+        renderer = QgsGraduatedSymbolRenderer('min_dist', ranges)
+        output_network.setRenderer(renderer)
 
         # add network to the canvas
-        QgsMapLayerRegistry.instance().addMapLayer(output_network)
+        QgsProject.instance().addMapLayer(output_network)
 
     def renderPolygon(self, output_polygon):
 
         # create a black dotted outline symbol layer
-        symbol = QgsFillSymbolV2().createSimple({'color': 'grey', 'outline_width': '0'})
-        symbol.setAlpha(0.2)
+        symbol = QgsFillSymbol().createSimple({'color': 'grey', 'outline_width': '0'})
+        symbol.setOpacity(0.2)
 
         # create renderer and change the symbol layer in its symbol
-        output_polygon.rendererV2().setSymbol(symbol)
+        output_polygon.renderer().setSymbol(symbol)
 
         # add catchment to the canvas
-        QgsMapLayerRegistry.instance().addMapLayer(output_polygon)
+        QgsProject.instance().addMapLayer(output_polygon)
 
     def analysisError(self, e, exception_string):
         QgsMessageLog.logMessage(
             'Catchment Analyser raised an exception: %s' % exception_string,
-            level=QgsMessageLog.CRITICAL)
+            level=Qgis.Critical)
 
         # Closing the dialog
         self.dlg.closeDialog()
