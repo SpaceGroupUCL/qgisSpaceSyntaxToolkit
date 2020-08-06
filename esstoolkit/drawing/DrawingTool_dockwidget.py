@@ -202,7 +202,7 @@ class DrawingToolDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             self.iface.mapCanvas().snappingUtils().setSnapOnIntersections(False)
             self.segment_mode = True
         else:
-            self.iface.messageBar().pushMessage("Network layer not specified!", QgsMessageBar.CRITICAL, duration=5)
+            self.iface.messageBar().pushMessage("Network layer not specified!", Qgis.Critical, duration=5)
             self.segment_mode = False
         return
 

@@ -25,20 +25,20 @@ from __future__ import print_function
 from builtins import str
 from builtins import range
 from builtins import object
-from PyQt4.QtCore import *
+from qgis.PyQt.QtCore import *
 
 from qgis.core import *
 from qgis.gui import *
-from qgis.networkanalysis import *
+from qgis.analysis import *
 from qgis.utils import *
 
 import math
 import os.path
 
 
-class CustomCost(QgsArcProperter):
+class CustomCost(QgsNetworkSpeedStrategy):
     def __init__(self, costColumIndex, defaultValue):
-        QgsArcProperter.__init__(self)
+        QgsNetworkSpeedStrategy.__init__(self)
         self.cost_column_index = costColumIndex
         self.default_value = defaultValue
 

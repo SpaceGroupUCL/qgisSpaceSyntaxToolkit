@@ -152,7 +152,7 @@ class RoadNetworkCleaner(QObject):
 
     def cleaningError(self, e, exception_string):
         # Gives error according to message
-        QgsMessageLog.logMessage('Cleaning thread raised an exception: %s' % exception_string, level=QgsMessageLog.CRITICAL)
+        QgsMessageLog.logMessage('Cleaning thread raised an exception: %s' % exception_string, level=Qgis.Critical)
         self.dlg.close()
 
     def startCleaning(self):

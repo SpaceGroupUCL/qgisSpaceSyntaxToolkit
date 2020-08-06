@@ -262,7 +262,7 @@ class sGraph(QObject):
 
     # group points based on proximity - spatial index is not updated
     def snap_endpoints(self, snap_threshold):
-        QgsMessageLog.logMessage('starting snapping', level=QgsMessageLog.CRITICAL)
+        QgsMessageLog.logMessage('starting snapping', level=Qgis.Critical)
         res = [self.ndSpIndex.insertFeature(snode.feature) for snode in list(self.sNodes.values())]
         filtered_nodes = {}
         # exclude nodes where connectivity = 2 - they will be merged
@@ -280,7 +280,7 @@ class sGraph(QObject):
             if len(nodes) > 0:
                 filtered_nodes[node.id] = nodes
 
-        QgsMessageLog.logMessage('continuing snapping', level=QgsMessageLog.CRITICAL)
+        QgsMessageLog.logMessage('continuing snapping', level=Qgis.Critical)
         self.step = (len(filtered_nodes) * self.step) / float(len(self.sNodes))
         for group in self.con_comp_iter(filtered_nodes):
 

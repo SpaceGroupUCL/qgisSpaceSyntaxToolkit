@@ -282,7 +282,7 @@ class segmentor(QObject):
                     #    self.connectivity[end_p] = 1
                     yield ml_feat
             #if f["id_0"] == 163446:
-            #    QgsMessageLog.logMessage('Start: %s %s' % self.connectivity[start_p],  self.connectivity[end_p], level=QgsMessageLog.CRITICAL)
+            #    QgsMessageLog.logMessage('Start: %s %s' % self.connectivity[start_p],  self.connectivity[end_p], level=Qgis.Critical)
 
     def kill(self):
         self.killed = True
