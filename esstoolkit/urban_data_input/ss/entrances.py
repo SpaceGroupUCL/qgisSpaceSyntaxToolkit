@@ -110,14 +110,14 @@ class EntranceTool(QObject):
                                  QgsField("E_SubCat", QVariant.String),
                                  QgsField("E_Level", QVariant.Double)])
 
-            QgsMapLayerRegistry.instance().addMapLayer(vl)
+            QgsProject.instance().addMapLayer(vl)
 
             QgsVectorFileWriter.writeAsVectorFormat(vl, location, "CP1250", None, "ESRI Shapefile")
 
-            QgsMapLayerRegistry.instance().removeMapLayers([vl.id()])
+            QgsProject.instance().removeMapLayers([vl.id()])
 
             input2 = self.iface.addVectorLayer(location, filename, "ogr")
-            QgsMapLayerRegistry.instance().addMapLayer(input2)
+            QgsProject.instance().addMapLayer(input2)
 
             if not input2:
                 msgBar = self.iface.messageBar()
@@ -133,7 +133,7 @@ class EntranceTool(QObject):
             # Save to memory, no base land use layer
             destCRS = self.canvas.mapRenderer().destinationCrs()
             vl = QgsVectorLayer("Point?crs=" + destCRS.toWkt(), "memory:Entrances", "memory")
-            QgsMapLayerRegistry.instance().addMapLayer(vl)
+            QgsProject.instance().addMapLayer(vl)
 
             if not vl:
                 msgBar = self.iface.messageBar()

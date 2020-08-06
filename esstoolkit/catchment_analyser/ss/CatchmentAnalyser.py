@@ -242,7 +242,7 @@ class CatchmentTool(QObject):
         output_network.setRendererV2(renderer)
 
         # add network to the canvas
-        QgsMapLayerRegistry.instance().addMapLayer(output_network)
+        QgsProject.instance().addMapLayer(output_network)
 
     def renderPolygon(self, output_polygon):
 
@@ -254,7 +254,7 @@ class CatchmentTool(QObject):
         output_polygon.rendererV2().setSymbol(symbol)
 
         # add catchment to the canvas
-        QgsMapLayerRegistry.instance().addMapLayer(output_polygon)
+        QgsProject.instance().addMapLayer(output_polygon)
 
     def analysisError(self, e, exception_string):
         QgsMessageLog.logMessage(

@@ -254,7 +254,7 @@ class DrawingTool(object):
         else:
             self.lockGUI(True)
         print('done')
-        for lyr in list(QgsMapLayerRegistry.instance().mapLayers().values()):
+        for lyr in list(QgsProject.instance().mapLayers().values()):
             print(lyr, 'lyr', layers_list)
         return
 

@@ -13,7 +13,7 @@ import ntpath
 
 def getLayerByName(name):
     layer = None
-    for i in list(QgsMapLayerRegistry.instance().mapLayers().values()):
+    for i in list(QgsProject.instance().mapLayers().values()):
         if i.name() == name:
             layer = i
     return layer

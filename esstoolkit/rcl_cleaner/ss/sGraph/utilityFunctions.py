@@ -2,7 +2,7 @@ from __future__ import print_function
 # general imports
 from builtins import zip
 from builtins import str
-from qgis.core import QgsMapLayerRegistry, QgsVectorFileWriter, QgsVectorLayer, QgsFeature, QgsGeometry,QgsFields, QgsDataSourceURI
+from qgis.core import QgsVectorFileWriter, QgsVectorLayer, QgsFeature, QgsGeometry,QgsFields, QgsDataSourceURI
 import psycopg2
 from psycopg2.extensions import AsIs
 
@@ -11,7 +11,7 @@ from psycopg2.extensions import AsIs
 
 def getLayerByName(name):
     layer = None
-    for i in list(QgsMapLayerRegistry.instance().mapLayers().values()):
+    for i in list(QgsProject.instance().mapLayers().values()):
         if i.name() == name:
             layer = i
     return layer

@@ -53,9 +53,9 @@ from itertools import zip_longest
 # Layer functions
 #------------------------------
 def getVectorLayers(geom='all', provider='all'):
-    """Return list of valid QgsVectorLayer in QgsMapLayerRegistry, with specific geometry type and/or data provider"""
+    """Return list of valid QgsVectorLayer in QgsProject, with specific geometry type and/or data provider"""
     layers_list = []
-    for layer in list(QgsMapLayerRegistry.instance().mapLayers().values()):
+    for layer in list(QgsProject.instance().mapLayers().values()):
         add_layer = False
         if layer.isValid() and layer.type() == QgsMapLayer.VectorLayer:
             if layer.isSpatial() and (geom is 'all' or layer.geometryType() in geom):
@@ -103,7 +103,7 @@ def isLayerProjected(layer):
 
 def getLayerByName(name):
     layer = None
-    for i in list(QgsMapLayerRegistry.instance().mapLayers().values()):
+    for i in list(QgsProject.instance().mapLayers().values()):
         if i.name() == name:
             layer = i
     return layer
@@ -153,7 +153,7 @@ def reloadLayer(layer):
     elif layer_provider == 'ogr':
         uri = layer.dataProvider().dataSourceUri()
         new_layer = QgsVectorLayer(uri.split("|")[0],layer_name,layer_provider)
-    QgsMapLayerRegistry.instance().removeMapLayer(layer.id())
+    QgsProject.instance().removeMapLayer(layer.id())
     if new_layer:
         QgsProject.instance().addMapLayer(new_layer)
     return new_layer

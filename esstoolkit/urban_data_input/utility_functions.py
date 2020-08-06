@@ -103,7 +103,7 @@ def reloadLayer(layer):
     elif layer_provider == 'ogr':
         uri = layer.dataProvider().dataSourceUri()
         new_layer = QgsVectorLayer(uri.split("|")[0], layer_name, layer_provider)
-    QgsMapLayerRegistry.instance().removeMapLayer(layer.id())
+    QgsProject.instance().removeMapLayer(layer.id())
     if new_layer:
         QgsProject.instance().addMapLayer(new_layer)
     return new_layer

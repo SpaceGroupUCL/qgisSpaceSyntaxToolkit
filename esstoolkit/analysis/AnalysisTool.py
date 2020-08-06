@@ -774,7 +774,7 @@ class AnalysisTool(QObject):
             if new_layer.name() in existing_names:
                 old_layer = uf.getLegendLayerByName(self.iface, new_layer.name())
                 if uf.getLayerPath(new_layer) == uf.getLayerPath(old_layer):
-                    QgsMapLayerRegistry.instance().removeMapLayer(old_layer.id())
+                    QgsProject.instance().removeMapLayer(old_layer.id())
             QgsProject.instance().addMapLayer(new_layer)
             new_layer.updateExtents()
 
@@ -838,7 +838,7 @@ class AnalysisTool(QObject):
                 res = uf.addSpatialiteAttributes(connection, table, id, attributes, types, values)
                 # the spatialite layer needs to be removed and re-inserted to display changes
                 if res:
-                    QgsMapLayerRegistry.instance().removeMapLayer(analysis_layer.id())
+                    QgsProject.instance().removeMapLayer(analysis_layer.id())
                     new_layer = uf.getSpatialiteLayer(connection, path, table)
                     if new_layer:
                         res = True
@@ -865,7 +865,7 @@ class AnalysisTool(QObject):
                 res = uf.addPostgisAttributes(connection, schema, table, id, attributes, types, values)
                 # the postgis layer needs to be removed and re-inserted to display changes
                 if res:
-                    QgsMapLayerRegistry.instance().removeMapLayer(analysis_layer.id())
+                    QgsProject.instance().removeMapLayer(analysis_layer.id())
                     new_layer = uf.getPostgisLayer(connection, self.datastore['name'], schema, table)
                     if new_layer:
                         res = True

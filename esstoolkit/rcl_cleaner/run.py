@@ -54,15 +54,15 @@ cleaned_features = [e.feature for e in list(graph.sEdges.values())]
 
 
 #pseudo_layer = to_layer(map(lambda e: e.feature, pseudo_graph.sEdges.values()), crs, encoding, geom_type, 'memory', None, 'pseudo_layer')
-#QgsMapLayerRegistry.instance().addMapLayer(pseudo_layer)
+#QgsProject.instance().addMapLayer(pseudo_layer)
 print(time.time() - _time)
 
 broken_layer = to_layer([e.feature for e in list(graph.sEdges.values())], crs, encoding, 'Linestring', 'memory', path, 'broken_layer')
-QgsMapLayerRegistry.instance().addMapLayer(broken_layer)
+QgsProject.instance().addMapLayer(broken_layer)
 
 # nodes
 # nodes = to_layer(map(lambda n: n.getFeature(), graph.sNodes.values()), crs, encoding, 'Point', 'memory', None, 'nodes')
-# QgsMapLayerRegistry.instance().addMapLayer(nodes)
+# QgsProject.instance().addMapLayer(nodes)
 
 # 2. CLEAN || & CLOSED POLYLINES
 _time = time.time()
@@ -79,7 +79,7 @@ graph.snap_endpoints(snap_threshold)
 
 
 snapped_layer = to_layer([e.feature for e in list(graph.sEdges.values())], crs, encoding, 'Linestring', 'memory', None, 'snapped_layer')
-QgsMapLayerRegistry.instance().addMapLayer(snapped_layer)
+QgsProject.instance().addMapLayer(snapped_layer)
 
 # 4. CLEAN || & CLOSED POLYLINES
 _time = time.time()
@@ -96,11 +96,11 @@ graph.merge_b_intersections(angle_threshold)
 print(time.time() - _time)
 
 merged_layer = to_layer([e.feature for e in list(graph.sEdges.values())], crs, encoding, 'Linestring', 'memory', None, 'merged_layer')
-QgsMapLayerRegistry.instance().addMapLayer(merged_layer)
+QgsProject.instance().addMapLayer(merged_layer)
 
 # nodes
 #nodes = to_layer(map(lambda n: n.getFeature(), graph.sNodes.values()), crs, encoding, 1, 'memory', None, 'nodes')
-#QgsMapLayerRegistry.instance().addMapLayer(nodes)
+#QgsProject.instance().addMapLayer(nodes)
 
 # 6. CLEAN ALL
 _time = time.time()

@@ -32,7 +32,7 @@ from psycopg2.extensions import AsIs
 
 def getLayerByName(name):
     layer = None
-    for i in list(QgsMapLayerRegistry.instance().mapLayers().values()):
+    for i in list(QgsProject.instance().mapLayers().values()):
         if i.name() == name:
             layer = i
     return layer
@@ -74,7 +74,7 @@ def getLegendLayerByName(iface, name):
 
 def getLayerByName(name):
     layer = None
-    for i in list(QgsMapLayerRegistry.instance().mapLayers().values()):
+    for i in list(QgsProject.instance().mapLayers().values()):
         if i.name() == name:
             layer = i
     return layer

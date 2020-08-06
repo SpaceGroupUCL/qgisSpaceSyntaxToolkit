@@ -176,12 +176,12 @@ class FrontageTool(QObject):
                 filename = os.path.basename(path)
                 location = os.path.abspath(path)
 
-                QgsMapLayerRegistry.instance().addMapLayer(vl)
+                QgsProject.instance().addMapLayer(vl)
                 QgsVectorFileWriter.writeAsVectorFormat(vl, location, "ogr", None, "ESRI Shapefile",True)
-                QgsMapLayerRegistry.instance().removeMapLayers([vl.id()])
+                QgsProject.instance().removeMapLayers([vl.id()])
                 input2 = self.iface.addVectorLayer(location, filename, "ogr")
 
-                QgsMapLayerRegistry.instance().addMapLayer(input2)
+                QgsProject.instance().addMapLayer(input2)
 
                 if not input2:
                     msgBar = self.iface.messageBar()
@@ -195,7 +195,7 @@ class FrontageTool(QObject):
                     input2.startEditing()
             else:
                 # Save to memory, no base land use layer
-                QgsMapLayerRegistry.instance().addMapLayer(vl)
+                QgsProject.instance().addMapLayer(vl)
 
                 if not vl:
                     msgBar = self.iface.messageBar()
@@ -257,7 +257,7 @@ class FrontageTool(QObject):
                         result_layer.updateFeature(feat)
                     result_layer.commitChanges()
                     # Add layer to panel
-                    QgsMapLayerRegistry.instance().addMapLayer(result_layer)
+                    QgsProject.instance().addMapLayer(result_layer)
                     result_layer.startEditing()
 
         self.updateFrontageLayer()
