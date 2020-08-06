@@ -45,7 +45,7 @@ class ExplorerTool(QObject):
         self.iface = iface
         self.settings = settings
         self.project = project
-        self.legend = QgsProject.instance().mapLayers()
+        self.legend = QgsProject.instance()
 
     def load(self):
         # initialise UI
@@ -192,8 +192,9 @@ class ExplorerTool(QObject):
                     self.current_layer = None
         # get layer attributes
         if self.current_layer and self.update_attributtes:
-            if not self.legend.isLayerVisible(self.current_layer):
-                self.legend.setLayerVisible(self.current_layer, True)
+            node = QgsProject.instance().layerTreeRoot().findLayer(self.current_layer.id())
+            if not node.isVisible():
+                node.setItemVisibilityChecked(True)
             if self.current_layer.type() == 0:  #VectorLayer
                 # fixme: throws NoneType error occasionally when adding/removing layers. trapping it for now.
                 try:
@@ -231,7 +232,7 @@ class ExplorerTool(QObject):
                     # get the current display attribute
                     attributes = self.current_layer.renderer().usedAttributes(QgsRenderContext())
                     if len(attributes) > 0:
-                        display_attribute = attributes[0]
+                        display_attribute = next(iter(attributes))
                         if display_attribute in numeric_fields:
                             current_attribute = numeric_fields.index(display_attribute)
                         else:
@@ -341,7 +342,7 @@ class ExplorerTool(QObject):
             current_attribute = self.dlg.getCurrentAttribute()
             attribute = self.layer_attributes[current_attribute]
             # make this the tooltip attribute
-            self.current_layer.setDisplayField(attribute['name'])
+            self.current_layer.setMapTipTemplate(attribute['name'])
             if not self.iface.actionMapTips().isChecked():
                 self.iface.actionMapTips().trigger()
             # get display settings
@@ -353,7 +354,8 @@ class ExplorerTool(QObject):
                 self.current_layer.setRenderer(renderer)
                 self.current_layer.triggerRepaint()
                 self.iface.mapCanvas().refresh()
-                self.legend.refreshLayerLegend(self.current_layer)
+                node = QgsProject.instance().layerTreeRoot().findLayer(self.current_layer.id())
+                self.iface.layerTreeView().layerTreeModel().refreshLayerLegend(node)
 
     ##
     ## Stats actions
