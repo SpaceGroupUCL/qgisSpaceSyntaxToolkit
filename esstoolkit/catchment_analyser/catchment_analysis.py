@@ -24,12 +24,10 @@ from __future__ import absolute_import
 
 from builtins import str
 from builtins import range
-from qgis.PyQt.QtCore import *
+from qgis.PyQt.QtCore import (QObject, pyqtSignal, QVariant)
 
-from qgis.core import *
-from qgis.gui import *
-from qgis.analysis import *
-from qgis.utils import *
+from qgis.core import (QgsSpatialIndex, QgsGeometry, QgsPoint, QgsFeature, QgsFields, QgsField, NULL)
+from qgis.analysis import (QgsVectorLayerDirector, QgsNetworkDistanceStrategy, QgsGraphBuilder, QgsGraphAnalyzer)
 
 try:
     from . import analysis_tools as ct
@@ -173,16 +171,16 @@ class CatchmentAnalysis(QObject):
         network_cost_index = network_fields.indexFromName(cost_field)
 
         # Setting up graph build director
-        director = QgsLineVectorLayerDirector(network, -1, '', '', '', 3)
+        director = QgsVectorLayerDirector(network, -1, '', '', '', QgsVectorLayerDirector.DirectionBoth)
 
         # Determining cost calculation
         if cost_field != 'length':
-            properter = ct.CustomCost(network_cost_index, 0.01)
+            strategy = ct.CustomCost(network_cost_index, 0.01)
         else:
-            properter = QgsDistanceArcProperter()
+            strategy = QgsNetworkDistanceStrategy()
 
         # Creating graph builder
-        director.addProperter(properter)
+        director.addStrategy(strategy)
         builder = QgsGraphBuilder(crs, otf, tolerance, epsg)
 
         # Reading origins and making list of coordinates
@@ -215,7 +213,7 @@ class CatchmentAnalysis(QObject):
                 self.attributes_dict [f.id()] = f.attributes()
                 polyline = f.geometry().asPolyline()
                 for idx, p in enumerate(polyline[1:]):
-                    ml = QgsGeometry.fromPolyline([polyline[idx], p])
+                    ml = QgsGeometry.fromPolylineXY([polyline[idx], p])
                     new_f = QgsFeature()
                     new_f.setGeometry(ml.centroid())
                     new_f.setAttributes([f.id()])
@@ -227,7 +225,7 @@ class CatchmentAnalysis(QObject):
                 self.attributes_dict[f.id()] = f.attributes()
                 for pl in f.geometry().asMultiPolyline():
                     for idx, p in enumerate(pl[1:]):
-                        ml = QgsGeometry.fromPolyline([pl[idx], p])
+                        ml = QgsGeometry.fromPolylineXY([pl[idx], p])
                         new_f = QgsFeature()
                         new_f.setGeometry(ml.centroid())
                         new_f.setAttributes([f.id()])
@@ -249,13 +247,13 @@ class CatchmentAnalysis(QObject):
 
         # Loop through graph and get geometry and write to catchment network
         for index in range(graph.edgeCount()):
-            inVertexId = graph.arc(index).inVertex()
-            outVertexId = graph.arc(index).outVertex()
+            inVertexId = graph.edge(index).fromVertex()
+            outVertexId = graph.edge(index).toVertex()
             inVertexGeom = graph.vertex(inVertexId).point()
             outVertexGeom = graph.vertex(outVertexId).point()
             # only include one of the two possible arcs
             if inVertexId < outVertexId:
-                arcGeom = QgsGeometry.fromPolyline([inVertexGeom, outVertexGeom])
+                arcGeom = QgsGeometry.fromPolylineXY([inVertexGeom, outVertexGeom])
                 catchment_network[index] = {'geom': arcGeom, 'start':inVertexId, 'end':outVertexId, 'cost': {}}
 
         # Loop through tied origins and write origin names
@@ -428,7 +426,7 @@ class CatchmentAnalysis(QObject):
                     if self.killed: break
                     # Check if hull is a actual polygon
                     try:
-                        polygon_geom = QgsGeometry.fromPolygon([hull,])
+                        polygon_geom = QgsGeometry.fromPolygonXY([hull,])
                     except TypeError:
                         hull_validity = False
                         continue
