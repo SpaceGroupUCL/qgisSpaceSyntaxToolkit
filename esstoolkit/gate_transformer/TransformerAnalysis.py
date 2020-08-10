@@ -61,7 +61,7 @@ class GateTransformer(QObject):
         layers = list(QgsProject.instance().mapLayers().values())
         layer_objects = []
         for layer in layers:
-            if layer.type() == QgsMapLayer.VectorLayer and layer.geometryType() == QGis.Line:
+            if layer.type() == QgsMapLayer.VectorLayer and layer.geometryType() == QgsWkbTypes.LineGeometry:
                 layer_objects.append((layer.name(), layer))
 
         return layer_objects
@@ -99,8 +99,8 @@ class GateTransformer(QObject):
 
         for i in layer.selectedFeatures():
             geom=i.geometry()
-            geom.rotate(set_angle,QgsPoint(geom.centroid().asPoint()))
-            layer.changeGeometry(i.id(),geom)
+            geom.rotate(set_angle, geom.centroid().asPoint())
+            layer.changeGeometry(i.id(), geom)
 
         layer.updateExtents()
         layer.reload()
