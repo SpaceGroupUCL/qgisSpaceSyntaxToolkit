@@ -21,8 +21,8 @@
  ***************************************************************************/
 """
 from __future__ import absolute_import
-from qgis.PyQt.QtCore import *
-from qgis.core import *
+from qgis.PyQt.QtCore import QObject
+from qgis.core import QgsProject, QgsMapLayer, QgsWkbTypes
 import math
 
 from .network_transformer_dialog import NetworkTransformerDialog
