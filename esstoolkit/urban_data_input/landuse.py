@@ -25,10 +25,8 @@ from __future__ import print_function
 # Import the PyQt and QGIS libraries
 from builtins import str
 import os
-from qgis.PyQt.QtCore import *
-from qgis.PyQt import QtWidgets
-from qgis.core import *
-from qgis.gui import *
+from qgis.PyQt.QtCore import (QObject, QVariant)
+from qgis.core import (Qgis, QgsField, QgsProject, QgsMapLayer, QgsVectorLayer, QgsFeature, QgsVectorFileWriter, QgsDataSourceUri, QgsVectorLayerExporter, QgsMessageLog, QgsFeatureRequest)
 from . import utility_functions as uf
 
 is_debug = False
@@ -247,7 +245,7 @@ class LanduseTool(QObject):
                 if db_path and db_path != '':
                     (database, schema, table_name) = (db_path).split(':')
                     db_con_info = self.ludlg.dbsettings_dlg.available_dbs[database]
-                    uri = QgsDataSourceURI()
+                    uri = QgsDataSourceUri()
                     # passwords, usernames need to be empty if not provided or else connection will fail
                     if 'service' in list(db_con_info.keys()):
                         uri.setConnection(db_con_info['service'], '' , '', '')
@@ -258,7 +256,7 @@ class LanduseTool(QObject):
                         print(db_con_info) #db_con_info['host']
                         uri.setConnection('', db_con_info['port'], db_con_info['dbname'], '', '')
                     uri.setDataSource(schema, table_name, "geom")
-                    error = QgsVectorLayerImport.importLayer(vl, uri.uri(), "postgres", vl.crs(), False, False)
+                    error = QgsVectorLayerExporter.importLayer(vl, uri.uri(), "postgres", vl.crs(), False, False)
                     if error[0] != 0:
                         print("Error when creating postgis layer: ", error[1])
                         input2 = 'duplicate'

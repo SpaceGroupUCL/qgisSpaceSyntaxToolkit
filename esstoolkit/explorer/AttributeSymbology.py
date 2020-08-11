@@ -23,9 +23,9 @@
 """
 # Import the PyQt and QGIS libraries
 from builtins import range
-from qgis.PyQt.QtCore import *
-from qgis.PyQt.QtGui import *
-from qgis.core import *
+from qgis.PyQt.QtCore import QObject
+from qgis.PyQt.QtGui import QColor
+from qgis.core import (QgsSymbol, QgsFillSymbol, QgsGraduatedSymbolRenderer, QgsRendererRange, QgsRenderContext, QgsGradientColorRamp, QgsGradientStop)
 
 from .. import utility_functions as uf
 

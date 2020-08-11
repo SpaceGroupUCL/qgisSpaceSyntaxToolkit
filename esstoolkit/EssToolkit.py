@@ -24,10 +24,9 @@
 from __future__ import absolute_import
 # Import the PyQt and QGIS libraries
 from builtins import object
-from qgis.core import *
-from qgis.PyQt.QtCore import *
-from qgis.PyQt.QtGui import *
-from qgis.PyQt.QtWidgets import QAction, QDialog
+from qgis.PyQt.QtCore import (QSettings, QTranslator, QCoreApplication, qVersion)
+from qgis.PyQt.QtGui import (QIcon, QPixmap)
+from qgis.PyQt.QtWidgets import (QAction, QDialog)
 
 # Import the debug library
 is_debug = False
@@ -82,15 +81,15 @@ class EssToolkit(object):
         self.plugin_dir = os.path.dirname(__file__)
 
         # initialize locale
-        locale = QtCore.QSettings().value("locale/userLocale")[0:2]
+        locale = QSettings().value("locale/userLocale")[0:2]
         locale_path = os.path.join(self.plugin_dir, 'i18n', 'essTools_{}.qm'.format(locale))
 
         if os.path.exists(locale_path):
-            self.translator = QtCore.QTranslator()
+            self.translator = QTranslator()
             self.translator.load(locale_path)
 
-            if QtCore.qVersion() > '4.3.3':
-                QtCore.QCoreApplication.installTranslator(self.translator)
+            if qVersion() > '4.3.3':
+                QCoreApplication.installTranslator(self.translator)
 
         # Save reference to the QGIS interface
         self.iface = iface

@@ -23,9 +23,8 @@
 """
 from __future__ import absolute_import
 # Import the PyQt and QGIS libraries
-from qgis.PyQt.QtCore import *
-from qgis.PyQt.QtGui import *
-from qgis.core import *
+from qgis.PyQt.QtCore import QObject
+from qgis.core import (QgsProject, QgsRenderContext, NULL)
 
 # Import required modules
 from .ExplorerDialog import ExplorerDialog

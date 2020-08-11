@@ -23,9 +23,8 @@
 from __future__ import print_function
 
 from builtins import str
-from qgis.PyQt.QtCore import *
-from qgis.core import *
-from qgis.utils import *
+from qgis.PyQt.QtCore import QVariant
+from qgis.core import (QgsProject, QgsMapLayer, QgsVectorLayer, QgsField, QgsFeature, QgsGeometry, QgsVectorFileWriter, NULL)
 import ntpath
 import psycopg2
 from psycopg2.extensions import AsIs

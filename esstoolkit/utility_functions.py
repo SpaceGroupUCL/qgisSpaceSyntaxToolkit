@@ -25,9 +25,10 @@ from __future__ import print_function
 from builtins import zip
 from builtins import str
 from builtins import range
-from qgis.PyQt.QtCore import *
-from qgis.PyQt.QtGui import *
-from qgis.core import *
+from qgis.PyQt.QtCore import (QVariant, QSettings)
+from qgis.PyQt.QtGui import QColor
+from qgis.PyQt.QtWidgets import QMessageBox
+from qgis.core import (QgsProject, QgsMapLayer, QgsDataSourceUri, QgsVectorLayer, QgsCredentials, QgsVectorDataProvider, QgsFields, QgsField, QgsPoint, QgsGeometry, QgsFeature, QgsVectorFileWriter, QgsFeatureRequest, QgsSpatialIndex, QgsCoordinateTransformContext, QgsWkbTypes)
 
 # from pyspatialite import dbapi2 as sqlite
 import psycopg2 as pgsql
@@ -130,7 +131,7 @@ def getLayerPath(layer):
     provider = layer.dataProvider()
     provider_type = provider.name()
     if provider_type == 'spatialite':
-        uri = QgsDataSourceURI(provider.dataSourceUri())
+        uri = QgsDataSourceUri(provider.dataSourceUri())
         path = uri.database()
     elif provider_type == 'ogr':
         uri = provider.dataSourceUri()
@@ -148,7 +149,7 @@ def reloadLayer(layer):
     layer_provider = layer.dataProvider().name()
     new_layer = None
     if layer_provider in ('spatialite','postgres'):
-        uri = QgsDataSourceURI(layer.dataProvider().dataSourceUri())
+        uri = QgsDataSourceUri(layer.dataProvider().dataSourceUri())
         new_layer = QgsVectorLayer(uri.uri(),layer_name,layer_provider)
     elif layer_provider == 'ogr':
         uri = layer.dataProvider().dataSourceUri()
@@ -798,7 +799,7 @@ def buildTopology(self, axial, unlinks, links):
 #------------------------------
 def getDBLayerConnection(layer):
     provider = layer.providerType()
-    uri = QgsDataSourceURI(layer.dataProvider().dataSourceUri())
+    uri = QgsDataSourceUri(layer.dataProvider().dataSourceUri())
     if provider == 'spatialite':
         path = uri.database()
         connection_object = getSpatialiteConnection(path)
@@ -814,7 +815,7 @@ def testSameDatabase(layers):
     if len(layers) > 1:
         database = []
         for layer in layers:
-            database.append(QgsDataSourceURI(layer.dataProvider().dataSourceUri()).database())
+            database.append(QgsDataSourceUri(layer.dataProvider().dataSourceUri()).database())
         if len(list(set(database))) > 1:
             return False
         else:
@@ -823,17 +824,17 @@ def testSameDatabase(layers):
 
 
 def getDBLayerTableName(layer):
-    uri = QgsDataSourceURI(layer.dataProvider().dataSourceUri())
+    uri = QgsDataSourceUri(layer.dataProvider().dataSourceUri())
     return uri.table()
 
 
 def getDBLayerGeometryColumn(layer):
-    uri = QgsDataSourceURI(layer.dataProvider().dataSourceUri())
+    uri = QgsDataSourceUri(layer.dataProvider().dataSourceUri())
     return uri.geometryColumn()
 
 
 def getDBLayerPrimaryKey(layer):
-    uri = QgsDataSourceURI(layer.dataProvider().dataSourceUri())
+    uri = QgsDataSourceUri(layer.dataProvider().dataSourceUri())
     return uri.key()
 
 
@@ -937,7 +938,7 @@ def listSpatialiteColumns(connection, name):
 
 def loadSpatialiteTable(connection, path, name):
     """Load table (spatial or non-spatial) in QGIS"""
-    uri = QgsDataSourceURI()
+    uri = QgsDataSourceUri()
     uri.setDatabase(path)
     geometry = ''
     query = """SELECT f_geometry_column FROM geometry_columns WHERE f_table_name = '%s'""" % name
@@ -957,7 +958,7 @@ def loadSpatialiteTable(connection, path, name):
 
 def getSpatialiteLayer(connection, path, name):
     """Load table (spatial or non-spatial)in QGIS"""
-    uri = QgsDataSourceURI()
+    uri = QgsDataSourceUri()
     uri.setDatabase(path)
     geometry = ''
     tablename = name.lower()
@@ -1002,7 +1003,7 @@ def createSpatialiteTable(connection, path, name, srid, attributes, types, geome
     #Drop table
     header, data, error = executeSpatialiteQuery(connection,"""DROP TABLE IF EXISTS '%s' """ % name)
     #Get the database uri
-    uri = QgsDataSourceURI()
+    uri = QgsDataSourceUri()
     uri.setDatabase(path)
     # Get the fields
     fields = []
@@ -1204,7 +1205,7 @@ def copyLayerToSpatialite(connection, layer, path, name):
     #Get layer provider
     provider = layer.dataProvider()
     #Get the database uri
-    uri = QgsDataSourceURI()
+    uri = QgsDataSourceUri()
     uri.setDatabase(path)
     #Get fields with corresponding types
     fields=[]
@@ -1327,7 +1328,10 @@ def copyLayerToShapeFile(layer, path, name):
         geometry = None
     srid = layer.crs()
     # create an instance of vector file writer, which will create the vector file.
-    writer = QgsVectorFileWriter(filename, "System", fields, geometry, srid, "ESRI Shapefile")
+    options = QgsVectorFileWriter.SaveVectorOptions()
+    options.driverName = "ESRI Shapefile"
+    options.fileEncoding = 'utf-8'
+    writer = QgsVectorFileWriter.create(filename, fields, geometry, srid, QgsCoordinateTransformContext(), options)
     if writer.hasError() != QgsVectorFileWriter.NoError:
         print("Error when creating shapefile: ", writer.hasError())
         return None
@@ -1353,12 +1357,15 @@ def createShapeFileFullLayer(path, name, srid, attributes, types, values, coords
         fields.append(QgsField(attr, types[i]))
     # create an instance of vector file writer, which will create the vector file.
     writer = None
+    options = QgsVectorFileWriter.SaveVectorOptions()
+    options.driverName = "ESRI Shapefile"
+    options.fileEncoding = 'utf-8'
     if len(coords) == 2:
         type = 'point'
-        writer = QgsVectorFileWriter(filename, "System", fields, QGis.WKBPoint, srid, "ESRI Shapefile")
+        writer = QgsVectorFileWriter.create(filename, fields, QgsWkbTypes.Point, srid, QgsCoordinateTransformContext(), options)
     elif len(coords) == 4:
         type = 'line'
-        writer = QgsVectorFileWriter(filename, "System", fields, QGis.WKBLineString, srid, "ESRI Shapefile")
+        writer = QgsVectorFileWriter.create(filename, fields, QgsWkbTypes.LineString , srid, QgsCoordinateTransformContext(), options)
     if writer.hasError() != QgsVectorFileWriter.NoError:
         print("Error when creating shapefile: ", writer.hasError())
         return None
@@ -1400,12 +1407,15 @@ def createShapeFileLayer(path, name, srid, attributes, types, geometrytype):
         fields.append(QgsField(attr, types[i]))
     # create an instance of vector file writer, which will create the vector file.
     writer = None
+    options = QgsVectorFileWriter.SaveVectorOptions()
+    options.driverName = "ESRI Shapefile"
+    options.fileEncoding = 'utf-8'
     if 'point' in geometrytype.lower():
-        writer = QgsVectorFileWriter(filename, "System", fields, QGis.WKBPoint, srid, "ESRI Shapefile")
+        writer = QgsVectorFileWriter.create(filename, fields, QgsWkbTypes.Point, srid, QgsCoordinateTransformContext(), options)
     elif 'line' in geometrytype.lower():
-        writer = QgsVectorFileWriter(filename, "System", fields, QGis.WKBLineString, srid, "ESRI Shapefile")
+        writer = QgsVectorFileWriter.create(filename, fields, QgsWkbTypes.LineString , srid, QgsCoordinateTransformContext(), options)
     elif 'polygon' in geometrytype.lower():
-        writer = QgsVectorFileWriter(filename, "System", fields, QGis.WKBPolygon, srid, "ESRI Shapefile")
+        writer = QgsVectorFileWriter.create(filename, fields, QgsWkbTypes.Polygon , srid, QgsCoordinateTransformContext(), options)
     if writer.hasError() != QgsVectorFileWriter.NoError:
         print("Error when creating shapefile: ", writer.hasError())
         return None
@@ -1661,7 +1671,7 @@ def getPostgisConnectionInfo(layer):
     if layer:
         provider = layer.dataProvider()
         if provider.name() == 'postgres':
-            uri = QgsDataSourceURI(provider.dataSourceUri())
+            uri = QgsDataSourceUri(provider.dataSourceUri())
             info['service'] = uri.service()
             info['host'] = uri.host()
             info['port'] = uri.port()
@@ -1686,7 +1696,7 @@ def getPostgisLayerInfo(layer):
     if layer:
         provider = layer.dataProvider()
         if provider.name() == 'postgres':
-            uri = QgsDataSourceURI(provider.dataSourceUri())
+            uri = QgsDataSourceUri(provider.dataSourceUri())
             info['service'] = uri.service()
             info['database'] = uri.database()
             info['schema'] = uri.schema()
@@ -1736,7 +1746,7 @@ def listPostgisColumns(connection, schema, name):
 def loadPostgisTable(connection, name, schema, table):
     """Load table (spatial or non-spatial) in QGIS
     """
-    uri = QgsDataSourceURI()
+    uri = QgsDataSourceUri()
     dsn = None
     for con in getPostgisConnectionSettings():
         if con['name'] == name:
@@ -1768,7 +1778,7 @@ def loadPostgisTable(connection, name, schema, table):
 
 def getPostgisLayer(connection, name, schema, table):
     """Load table in QGIS"""
-    uri = QgsDataSourceURI()
+    uri = QgsDataSourceUri()
     dsn = None
     for con in getPostgisConnectionSettings():
         if con['name'] == name:

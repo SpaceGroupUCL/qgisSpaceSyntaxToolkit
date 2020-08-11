@@ -25,12 +25,10 @@ from __future__ import print_function
 from builtins import str
 from builtins import range
 from builtins import object
-from qgis.PyQt.QtCore import *
+from qgis.PyQt.QtCore import QSettings
 
-from qgis.core import *
-from qgis.gui import *
-from qgis.analysis import *
-from qgis.utils import *
+from qgis.core import (QgsPoint, QgsGeometry)
+from qgis.analysis import QgsNetworkSpeedStrategy
 
 import math
 import os.path

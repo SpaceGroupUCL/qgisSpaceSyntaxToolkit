@@ -25,11 +25,11 @@ from __future__ import absolute_import
 
 
 from builtins import object
-from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, Qt, QSize
+from qgis.PyQt.QtCore import (QSettings, QTranslator, qVersion, QCoreApplication, Qt, QSize)
 from qgis.PyQt.QtWidgets import QAction
-from qgis.PyQt.QtGui import QIcon, QPixmap
+from qgis.PyQt.QtGui import (QIcon, QPixmap)
 from qgis.utils import QgsMessageBar
-from qgis.core import *
+from qgis.core import (Qgis, QgsProject, QgsMapLayer)
 
 # Import the code for the DockWidget
 from .DrawingTool_dockwidget import DrawingToolDockWidget

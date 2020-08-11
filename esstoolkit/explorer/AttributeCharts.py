@@ -22,9 +22,7 @@
 
 """
 # Import the PyQt and QGIS libraries, essential libraries
-from qgis.PyQt.QtCore import *
-from qgis.PyQt.QtGui import *
-from qgis.core import *
+from qgis.PyQt.QtCore import (QObject, pyqtSignal)
 
 from math import atan
 import time

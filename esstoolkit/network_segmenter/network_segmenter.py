@@ -25,9 +25,7 @@ from builtins import object
 from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, Qt, QThread
 from qgis.PyQt.QtWidgets import QAction
 from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt import QtGui, uic
-from qgis.core import *
-from qgis.gui import *
+from qgis.PyQt import (QtGui, uic)
 
 import os.path
 

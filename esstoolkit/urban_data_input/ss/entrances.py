@@ -23,11 +23,8 @@
 
 # Import the PyQt and QGIS libraries
 from builtins import str
-from PyQt4.QtCore import *
-from qgis.PyQt import QtGui
-
-from qgis.core import *
-from qgis.gui import *
+from qgis.PyQt.QtCore import (QObject, QVariant)
+from qgis.core import (QgsVectorLayer, QgsField, QgsProject, QgsVectorFileWriter, QgsMessageBar, QgsMessageLog)
 
 from . import utility_functions as uf
 

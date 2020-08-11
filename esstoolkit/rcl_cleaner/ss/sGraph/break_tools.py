@@ -2,8 +2,8 @@ from __future__ import absolute_import
 
 # general imports
 from builtins import range
-from qgis.core import QgsFeature, QgsGeometry, QgsSpatialIndex, QgsPoint, QgsVectorFileWriter, QgsField
-from qgis.PyQt.QtCore import QObject, pyqtSignal, QVariant
+from qgis.core import (QgsFeature, QgsGeometry, QgsSpatialIndex, QgsPoint, QgsVectorFileWriter, QgsField)
+from qgis.PyQt.QtCore import (QObject, pyqtSignal, QVariant)
 
 
 # plugin module imports

@@ -23,13 +23,11 @@
 from __future__ import print_function
 from __future__ import absolute_import
 from builtins import str
-from qgis.PyQt.QtCore import *
-from qgis.PyQt.QtGui import *
+from qgis.PyQt.QtCore import (QObject, QSettings, QVariant, QThread)
+from qgis.PyQt.QtGui import QColor
 
 # Import QGIS classes
-from qgis.core import *
-from qgis.gui import *
-from qgis.utils import *
+from qgis.core import (QgsSymbol, QgsRendererRange, QgsGraduatedSymbolRenderer, QgsProject, QgsFillSymbol, QgsMessageLog)
 import itertools, operator
 
 # Import the code for the dialog

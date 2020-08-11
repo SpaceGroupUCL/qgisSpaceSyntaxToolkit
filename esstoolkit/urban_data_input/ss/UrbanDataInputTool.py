@@ -21,9 +21,8 @@
  ***************************************************************************/
 """
 from __future__ import absolute_import
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-from qgis.core import *
+from qgis.PyQt.QtCore import (QObject, QSettings)
+from qgis.core import QgsProject
 
 from .urban_data_input_dockwidget import UrbanDataInputDockWidget
 from .frontages import FrontageTool

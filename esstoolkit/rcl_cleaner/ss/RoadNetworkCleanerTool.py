@@ -25,11 +25,9 @@ from __future__ import absolute_import
 from future import standard_library
 standard_library.install_aliases()
 from builtins import str
-from qgis.PyQt.QtCore import Qt, QThread, QSettings
 
-from qgis.core import *
-from qgis.gui import *
-from qgis.utils import *
+from qgis.PyQt.QtCore import (Qt, QThread, QSettings)
+from qgis.core import (QgsProject, QgsMapLayer, QgsMessageLog, QgsField)
 
 #import db_manager.db_plugins.postgis.connector as con
 import traceback

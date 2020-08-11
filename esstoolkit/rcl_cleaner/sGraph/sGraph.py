@@ -3,8 +3,8 @@ from __future__ import absolute_import
 # general imports
 from builtins import zip
 import itertools
-from qgis.PyQt.QtCore import QObject, pyqtSignal, QVariant
-from qgis.core import QgsGeometry, QgsSpatialIndex, QgsFields, QgsField, QgsFeature, QgsMessageLog
+from qgis.PyQt.QtCore import (QObject, pyqtSignal, QVariant)
+from qgis.core import (QgsGeometry, QgsSpatialIndex, QgsFields, QgsField, QgsFeature, QgsMessageLog, Qgis)
 from collections import defaultdict
 
 # plugin module imports

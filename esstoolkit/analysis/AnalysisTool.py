@@ -24,9 +24,9 @@
 from __future__ import absolute_import
 # Import the PyQt and QGIS libraries
 from builtins import str
-from qgis.core import *
-from qgis.PyQt.QtCore import *
-from qgis.PyQt.QtGui import *
+from qgis.PyQt.QtCore import QTimer
+from qgis.PyQt.QtWidgets import QMessageBox
+from qgis.core import (QgsProject, QgsWkbTypes, QgsVectorDataProvider)
 
 # Import required modules
 from .AnalysisDialog import AnalysisDialog

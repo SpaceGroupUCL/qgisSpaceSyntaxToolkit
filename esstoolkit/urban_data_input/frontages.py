@@ -26,10 +26,8 @@ from __future__ import print_function
 from builtins import str
 from builtins import zip
 import os
-from qgis.PyQt.QtCore import *
-from qgis.PyQt import QtWidgets
-from qgis.core import *
-from qgis.gui import *
+from qgis.PyQt.QtCore import (QObject, QVariant)
+from qgis.core import (QgsProject, QgsMapLayer, QgsVectorLayer, QgsField, QgsFeature, QgsGeometry, QgsVectorFileWriter, QgsDataSourceUri, QgsVectorLayerExporter, QgsMessageLog, QgsFeatureRequest, QgsVectorDataProvider)
 import processing
 from . import utility_functions as uf
 
@@ -222,7 +220,7 @@ class FrontageTool(QObject):
 
                 (database, schema, table_name) = (self.frontagedlg.lineEditFrontages.text()).split(':')
                 db_con_info = self.frontagedlg.dbsettings_dlg.available_dbs[database]
-                uri = QgsDataSourceURI()
+                uri = QgsDataSourceUri()
                 # passwords, usernames need to be empty if not provided or else connection will fail
                 if 'service' in list(db_con_info.keys()):
                     uri.setConnection(db_con_info['service'], '' , '', '') #db_con_info['dbname']
@@ -232,7 +230,7 @@ class FrontageTool(QObject):
                     print(db_con_info) #db_con_info['host']
                     uri.setConnection('', db_con_info['port'], db_con_info['dbname'], '', '' )# , db_con_info['user'], '')
                 uri.setDataSource(schema, table_name, "geom")
-                error = QgsVectorLayerImport.importLayer(vl, uri.uri(), "postgres", vl.crs(), False, False)
+                error = QgsVectorLayerExporter.importLayer(vl, uri.uri(), "postgres", vl.crs(), False, False)
                 if error[0] != 0:
                     print("Error when creating postgis layer: ", error[1])
                     vl = 'duplicate'

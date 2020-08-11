@@ -23,12 +23,10 @@
 from __future__ import absolute_import
 
 from builtins import range
-from PyQt4.QtCore import *
+from qgis.PyQt.QtCore import (QObject, QVariant)
 
-from qgis.core import *
-from qgis.gui import *
-from qgis.networkanalysis import *
-from qgis.utils import *
+from qgis.core import (QgsVectorLayer, QgsLineVectorLayerDirector, QgsDistanceArcProperter, QgsGeometry, QgsField, QgsFeature)
+from qgis.analysis import (QgsGraphAnalyzer, QgsGraphBuilder)
 
 from . import analysis_tools as ct
 from . import utility_functions as uf

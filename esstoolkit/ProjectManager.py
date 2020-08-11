@@ -24,7 +24,7 @@
 # Import the PyQt and QGIS libraries
 from builtins import str
 from qgis.PyQt import QtCore, QtWidgets
-from qgis.core import *
+from qgis.core import QgsProject
 from qgis.PyQt.QtWidgets import QDialog
 
 import os.path

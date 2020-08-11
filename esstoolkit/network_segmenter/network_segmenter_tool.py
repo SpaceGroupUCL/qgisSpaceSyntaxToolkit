@@ -31,10 +31,8 @@ import datetime
 import traceback
 
 
-from qgis.PyQt.QtCore import QThread, QSettings, QObject, pyqtSignal, QVariant
-from qgis.core import *
-from qgis.gui import *
-from qgis.utils import *
+from qgis.PyQt.QtCore import (QThread, QSettings, QObject, pyqtSignal, QVariant)
+from qgis.core import (QgsMapLayer, Qgis)
 import time
 import os
 import itertools, operator

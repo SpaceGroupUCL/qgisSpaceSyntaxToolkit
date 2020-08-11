@@ -21,13 +21,10 @@
  ***************************************************************************/
 """
 from __future__ import absolute_import
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from qgis.PyQt.QtCore import (QObject, QVariant, QColor, QThread)
 
 # Import QGIS classes
-from qgis.core import *
-from qgis.gui import *
-from qgis.utils import *
+from qgis.core import (QgsSymbol, QgsRendererRange, QgsGraduatedSymbolRenderer, QgsProject, QgsFillSymbol, QgsMessageLog)
 
 # Initialize Qt resources from file resources.py
 #import resources
@@ -129,7 +126,7 @@ class CatchmentTool(QObject):
         self.iface.messageBar().pushMessage(
             "Catchment Analyser: ",
             "%s" % (message),
-            level=QgsMessageBar.WARNING,
+            level=Qgis.Warning,
             duration=5)
 
     def getAnalysisSettings(self):
@@ -259,7 +256,7 @@ class CatchmentTool(QObject):
     def analysisError(self, e, exception_string):
         QgsMessageLog.logMessage(
             'Catchment Analyser raised an exception: %s' % exception_string,
-            level=QgsMessageLog.CRITICAL)
+            level=Qgis.Critical)
 
         # Closing the dialog
         self.dlg.closeDialog()

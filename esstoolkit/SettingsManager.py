@@ -22,10 +22,8 @@
 
 """
 # Import the PyQt and QGIS libraries
-from qgis.PyQt.QtCore import *
-from qgis.PyQt.QtGui import *
+from qgis.PyQt.QtCore import (QObject, QSettings, QFileInfo)
 from qgis.PyQt.QtWidgets import QDialog
-from qgis.core import *
 
 from . import utility_functions as uf
 

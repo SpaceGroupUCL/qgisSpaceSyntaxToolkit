@@ -26,10 +26,8 @@ from future import standard_library
 standard_library.install_aliases()
 from builtins import str
 import traceback
-from qgis.PyQt.QtCore import QThread, QSettings
-from qgis.core import *
-from qgis.gui import *
-from qgis.utils import *
+from qgis.PyQt.QtCore import (QThread, QSettings)
+from qgis.core import (QgsMapLayer, QgsProject, QgsMessageLog, QgsMapLayer)
 import operator
 import os
 

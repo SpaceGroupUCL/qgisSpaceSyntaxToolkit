@@ -22,9 +22,8 @@
 """
 from __future__ import absolute_import
 from builtins import object
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-from qgis.core import *
+from PyQt4.QtCore import (QSettings, QTranslator, QCoreApplication, QAction)
+from PyQt4.QtGui import QIcon
 
 from . import urban_data_input_tool
 

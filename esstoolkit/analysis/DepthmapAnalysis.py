@@ -24,9 +24,7 @@
 # Import the PyQt and QGIS libraries
 from builtins import zip
 from builtins import str
-from qgis.PyQt.QtCore import *
-from qgis.PyQt.QtGui import *
-from qgis.core import *
+from qgis.PyQt.QtCore import (QObject, QThread, pyqtSignal, QVariant)
 
 import math
 

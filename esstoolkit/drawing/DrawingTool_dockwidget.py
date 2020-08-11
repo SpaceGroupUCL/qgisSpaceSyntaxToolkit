@@ -26,13 +26,11 @@ from __future__ import absolute_import
 from builtins import range
 import os
 
-from qgis.PyQt.QtCore import QThread, QSettings, pyqtSignal, Qt, QSize
-from qgis.core import *
-from qgis.gui import *
-from qgis.utils import *
-from qgis.PyQt.QtGui import QPixmap, QIcon
+from qgis.PyQt.QtCore import (QThread, QSettings, pyqtSignal, Qt, QSize)
+from qgis.core import (QgsProject, QgsSnappingConfig, QgsTolerance, Qgis)
+from qgis.PyQt.QtGui import (QPixmap, QIcon)
 
-from qgis.PyQt import QtWidgets, uic
+from qgis.PyQt import (QtWidgets, uic)
 from .utility_functions import *
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(

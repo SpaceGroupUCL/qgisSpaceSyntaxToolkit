@@ -22,7 +22,7 @@
 """
 from __future__ import print_function
 from builtins import str
-from qgis.core import *
+from qgis.core import (QgsProject, QgsMapLayer, QgsDataSourceUri, QgsVectorLayer, QgsMessageLog, Qgis)
 import os.path
 import psycopg2
 
@@ -86,7 +86,7 @@ def getLayerPath(layer):
     provider = layer.dataProvider()
     provider_type = provider.name()
     if provider_type == 'spatialite':
-        uri = QgsDataSourceURI(provider.dataSourceUri())
+        uri = QgsDataSourceUri(provider.dataSourceUri())
         path = uri.database()
     elif provider_type == 'ogr':
         uri = provider.dataSourceUri()
@@ -98,7 +98,7 @@ def reloadLayer(layer):
     layer_provider = layer.dataProvider().name()
     new_layer = None
     if layer_provider in ('spatialite', 'postgres'):
-        uri = QgsDataSourceURI(layer.dataProvider().dataSourceUri())
+        uri = QgsDataSourceUri(layer.dataProvider().dataSourceUri())
         new_layer = QgsVectorLayer(uri.uri(), layer_name, layer_provider)
     elif layer_provider == 'ogr':
         uri = layer.dataProvider().dataSourceUri()

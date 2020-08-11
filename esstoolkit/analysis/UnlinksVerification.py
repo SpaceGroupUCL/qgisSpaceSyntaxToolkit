@@ -25,9 +25,8 @@ from __future__ import print_function
 # Import the PyQt and QGIS libraries
 from builtins import str
 from builtins import zip
-from qgis.PyQt.QtCore import *
-from qgis.PyQt.QtGui import *
-from qgis.core import *
+from qgis.PyQt.QtCore import (QThread, QVariant, pyqtSignal)
+from qgis.core import QgsFeatureRequest
 
 from .. import utility_functions as uf
 

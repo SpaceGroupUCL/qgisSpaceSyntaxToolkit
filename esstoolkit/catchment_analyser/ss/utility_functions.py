@@ -21,17 +21,16 @@
  ***************************************************************************/
 """
 
-from PyQt4.QtCore import *
-from qgis.core import *
-from qgis.utils import *
+from qgis.PyQt.QtCore import QVariant
+from qgis.core import (QgsProject, QgsMapLayer, QgsVectorLayer, QgsField, QgsFeature, QgsGeometry, QgsVectorFileWriter)
 
 def getLegendLayers(iface, geom='all', provider='all'):
     """geometry types: 0 point; 1 line; 2 polygon; 3 multipoint; 4 multiline; 5 multipolygon"""
     layers_list = []
-    for layer in iface.legendInterface().layers():
+    for layer in QgsProject.instance().mapLayers().values():
         add_layer = False
         if layer.isValid() and layer.type() == QgsMapLayer.VectorLayer:
-            if layer.hasGeometryType() and (geom is 'all' or layer.geometryType() in geom):
+            if layer.isSpatial() and (geom is 'all' or layer.geometryType() in geom):
                 if provider is 'all' or layer.dataProvider().name() in provider:
                     add_layer = True
         if add_layer:
@@ -41,10 +40,10 @@ def getLegendLayers(iface, geom='all', provider='all'):
 def getLegendLayersNames(iface, geom='all', provider='all'):
     """geometry types: 0 point; 1 line; 2 polygon; 3 multipoint; 4 multiline; 5 multipolygon"""
     layers_list = []
-    for layer in iface.legendInterface().layers():
+    for layer in QgsProject.instance().mapLayers().values():
         add_layer = False
         if layer.isValid() and layer.type() == QgsMapLayer.VectorLayer:
-            if layer.hasGeometryType() and (geom is 'all' or layer.geometryType() in geom):
+            if layer.isSpatial() and (geom is 'all' or layer.geometryType() in geom):
                 if provider is 'all' or layer.dataProvider().name() in provider:
                     add_layer = True
         if add_layer:
@@ -54,7 +53,7 @@ def getLegendLayersNames(iface, geom='all', provider='all'):
 
 def getLegendLayerByName(iface, name):
     layer = None
-    for i in iface.legendInterface().layers():
+    for i in QgsProject.instance().mapLayers().values():
         if i.name() == name:
             layer = i
     return layer
