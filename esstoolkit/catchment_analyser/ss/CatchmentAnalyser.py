@@ -137,7 +137,7 @@ class CatchmentTool(QObject):
         # Raise warnings
         if not self.getNetwork():
             self.giveWarningMessage("No network selected!")
-        elif self.getNetwork().crs().geographicFlag() or self.getOrigins().crs().geographicFlag():
+        elif self.getNetwork().crs().isGeographic() or self.getOrigins().crs().isGeographic():
             self.giveWarningMessage("Input layer(s) without a projected CRS!")
         elif not self.getOrigins():
             self.giveWarningMessage("Catchment Analyser: No origins selected!")

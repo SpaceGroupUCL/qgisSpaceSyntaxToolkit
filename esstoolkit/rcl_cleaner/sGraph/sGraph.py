@@ -61,7 +61,7 @@ class sGraph(QObject):
 
         self.edgeSpIndex = QgsSpatialIndex()
         self.ndSpIndex = QgsSpatialIndex()
-        res = [self.edgeSpIndex.insertFeature(sedge.feature) for sedge in list(self.sEdges.values())]
+        res = [self.edgeSpIndex.addFeature(sedge.feature) for sedge in list(self.sEdges.values())]
         del res
 
         self.errors = []
