@@ -616,10 +616,10 @@ class AnalysisTool(QObject):
                     table_exists = uf.testPostgisTableExists(connection, self.datastore['schema'], self.axial_analysis_settings['output'])
                 connection.close()
             if table_exists:
-                action = QMessageBox.question(None, "Overwrite table", "The output table already exists in:\n %s.\nOverwrite?"% self.datastore['path'],"Ok","Cancel","",1,1)
-                if action == 0: # Yes
+                action = QMessageBox.question(None, "Overwrite table", "The output table already exists in:\n %s.\nOverwrite?"% self.datastore['path'], QMessageBox.Ok | QMessageBox.Cancel)
+                if action == QMessageBox.Ok: # Yes
                     pass
-                elif action == 1: # No
+                elif action == QMessageBox.Cancel: # No
                     return
                 else:
                     return
