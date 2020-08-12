@@ -46,7 +46,7 @@ class segmentor(QObject):
     def load_graph(self):
 
         # load graph
-        res = [self.spIndex.insertFeature(feat) for feat in self.feat_iter(self.layer)]
+        res = [self.spIndex.addFeature(feat) for feat in self.feat_iter(self.layer)]
         self.step = 80/float(len(res))
 
         # feats need to be created - after iter

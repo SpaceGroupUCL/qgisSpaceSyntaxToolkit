@@ -746,7 +746,7 @@ def createIndex(layer):
         index = QgsSpatialIndex()
         fit = provider.getFeatures()
         while fit.nextFeature(feat):
-            index.insertFeature(feat)
+            index.addFeature(feat)
         return index
     else:
         return None

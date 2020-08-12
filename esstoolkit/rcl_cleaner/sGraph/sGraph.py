@@ -94,7 +94,6 @@ class sGraph(QObject):
             f.setGeometry(geometry)
             sedge = sEdge(self.edge_id, f, snodes)
             self.sEdges[self.edge_id] = sedge
-            #self.edgeSpIndex.insertFeature(f)
 
         return
 
@@ -112,7 +111,7 @@ class sGraph(QObject):
             # add edge
             sedge = sEdge(f.id(), f, [])
             self.sEdges[f.id()] = sedge
-            self.edgeSpIndex.insertFeature(f)
+            self.edgeSpIndex.addFeature(f)
 
         self.edge_id = f.id()
         return
@@ -212,7 +211,7 @@ class sGraph(QObject):
             self.total_progress += self.step
             self.progress.emit(self.total_progress)
 
-            self.edgeSpIndex.insertFeature(e.feature)
+            self.edgeSpIndex.addFeature(e.feature)
 
         for sedge in list(self.sEdges.values()):
 
@@ -263,7 +262,7 @@ class sGraph(QObject):
     # group points based on proximity - spatial index is not updated
     def snap_endpoints(self, snap_threshold):
         QgsMessageLog.logMessage('starting snapping', level=Qgis.Critical)
-        res = [self.ndSpIndex.insertFeature(snode.feature) for snode in list(self.sNodes.values())]
+        res = [self.ndSpIndex.addFeature(snode.feature) for snode in list(self.sNodes.values())]
         filtered_nodes = {}
         # exclude nodes where connectivity = 2 - they will be merged
         self.step = self.step / float(2)
@@ -355,13 +354,13 @@ class sGraph(QObject):
         self.node_id += 1
         feat = QgsFeature()
         centroid = (
-            QgsGeometry.fromMultiPoint([self.sNodes[nd].feature.geometry().asPoint() for nd in group])).centroid()
+            QgsGeometry.fromMultiPointXY([self.sNodes[nd].feature.geometry().asPoint() for nd in group])).centroid()
         feat.setGeometry(centroid)
         feat.setAttributes([self.node_id])
         feat.setId(self.node_id)
         snode = sNode(self.node_id, feat, [], [])
         self.sNodes[self.node_id] = snode
-        self.ndSpIndex.insertFeature(feat)
+        self.ndSpIndex.addFeature(feat)
 
         return self.node_id, centroid.asPoint()
 
@@ -655,7 +654,7 @@ class sGraph(QObject):
             self.total_progress += self.step
             self.progress.emit(self.total_progress)
 
-            self.edgeSpIndex.insertFeature(e.feature)
+            self.edgeSpIndex.addFeature(e.feature)
 
         unlinks_id = 0
         self.step = float(3.0) * self.step

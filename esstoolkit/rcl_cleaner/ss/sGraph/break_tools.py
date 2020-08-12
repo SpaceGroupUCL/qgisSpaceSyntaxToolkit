@@ -85,7 +85,7 @@ class breakTool(QObject):
                     self.geometries_wkt[new_key_count] = snapped_wkt
                     self.geometries_vertices[new_key_count] = [vertex for vertex in vertices_from_wkt_2(snapped_wkt)]
                     # insert features to index
-                    self.spIndex.insertFeature(new_feat)
+                    self.spIndex.addFeature(new_feat)
                     self.ml_keys[new_key_count] = f.id()
             elif geom_type == 1:
                 if self.errors:
@@ -109,7 +109,7 @@ class breakTool(QObject):
                 self.geometries_wkt[f.id()] = snapped_wkt
                 self.geometries_vertices[f.id()] = [vertex for vertex in vertices_from_wkt_2(snapped_wkt)]
                 # insert features to index
-                self.spIndex.insertFeature(f)
+                self.spIndex.addFeature(f)
                 self.ml_keys[new_key_count] = f.id()
 
     def break_features(self):
