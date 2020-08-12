@@ -36,8 +36,8 @@ def clean_features_iter(feat_iter):
         # dropZValue if geometry is 3D
         if f_geom is None:
             pass
-        elif f.geometry().geometry().is3D():
-            f.geometry().geometry().dropZValue()
+        elif f.geometry().constGet().is3D():
+            f.geometry().constGet().dropZValue()
             f_geom = f.geometry()
 
         # point

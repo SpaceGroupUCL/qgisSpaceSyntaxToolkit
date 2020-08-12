@@ -154,7 +154,7 @@ class CatchmentAnalysis(QObject):
         otf = False
 
         # Get index of cost field
-        network_fields = network.pendingFields()
+        network_fields = network.fields()
         network_cost_index = network_fields.indexFromName(cost_field)
 
         # Setting up graph build director
@@ -201,7 +201,7 @@ class CatchmentAnalysis(QObject):
         catchment_points = {}
 
         # Loop through graph and get geometry and write to catchment network
-        for index in range(graph.arcCount()):
+        for index in range(graph.edgeCount()):
             inVertexId = graph.arc(index).inVertex()
             outVertexId = graph.arc(index).outVertex()
             inVertexGeom = graph.vertex(inVertexId).point()
@@ -311,7 +311,7 @@ class CatchmentAnalysis(QObject):
             # Ignore arc if not connected or outside of catchment
             if len(arc_cost_dict) > 0:
                 # Create feature and write id and geom
-                f = QgsFeature(output_network.pendingFields())
+                f = QgsFeature(output_network.fields())
                 f.setAttribute("id", k)
                 f.setGeometry(arc_geom)
                 # Read the list of costs and write them to output network
@@ -364,7 +364,7 @@ class CatchmentAnalysis(QObject):
                         hull_validity = False
                         continue
                     if polygon_geom:
-                        p = QgsFeature(output_polygon.pendingFields())
+                        p = QgsFeature(output_polygon.fields())
                         p.setAttribute('id', index)
                         p.setAttribute('origin', name)
                         p.setAttribute('distance', distance)
