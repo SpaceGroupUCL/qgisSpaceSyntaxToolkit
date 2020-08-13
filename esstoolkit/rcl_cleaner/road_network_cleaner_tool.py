@@ -226,7 +226,8 @@ class NetworkCleanerTool(QObject):
                     errors = to_layer(errors_features, layer.crs(), layer.dataProvider().encoding(), 'Point', output_type, errors_path)
                     errors.loadNamedStyle(os.path.dirname(__file__) + '/qgis_styles/errors.qml')
                     QgsProject.instance().addMapLayer(errors)
-                    QgsProject.instance().mapLayers().refreshLayerLegend(errors)
+                    node = QgsProject.instance().layerTreeRoot().findLayer(errors.id())
+                    self.iface.layerTreeView().layerTreeModel().refreshLayerLegend(node)
                     QgsMessageLog.logMessage('layer name %s' % layer_name, level=Qgis.Critical)
                 else:
                     self.giveMessage('No errors detected!', Qgis.Info)
@@ -236,14 +237,16 @@ class NetworkCleanerTool(QObject):
                     unlinks = to_layer(unlinks_features, layer.crs(), layer.dataProvider().encoding(), 'Point', output_type, unlinks_path)
                     unlinks.loadNamedStyle(os.path.dirname(__file__) + '/qgis_styles/unlinks.qml')
                     QgsProject.instance().addMapLayer(unlinks)
-                    QgsProject.instance().mapLayers().refreshLayerLegend(unlinks)
+                    node = QgsProject.instance().layerTreeRoot().findLayer(unlinks.id())
+                    self.iface.layerTreeView().layerTreeModel().refreshLayerLegend(node)
                 else:
                     self.giveMessage('No unlinks detected!', Qgis.Info)
 
             cleaned = to_layer(cleaned_features, layer.crs(), layer.dataProvider().encoding(), 'Linestring', output_type, path)
             cleaned.loadNamedStyle(os.path.dirname(__file__) + '/qgis_styles/cleaned.qml')
             QgsProject.instance().addMapLayer(cleaned)
-            QgsProject.instance().mapLayers().refreshLayerLegend(cleaned)
+            node = QgsProject.instance().layerTreeRoot().findLayer(cleaned.id())
+            self.iface.layerTreeView().layerTreeModel().refreshLayerLegend(node)
             cleaned.updateExtents()
 
             self.giveMessage('Process ended successfully!', Qgis.Info)

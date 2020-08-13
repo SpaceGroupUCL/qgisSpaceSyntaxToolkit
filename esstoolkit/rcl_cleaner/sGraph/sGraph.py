@@ -126,7 +126,7 @@ class sGraph(QObject):
             feature = QgsFeature()
             feature.setId(node_id)
             feature.setAttributes([node_id])
-            feature.setGeometry(QgsGeometry.fromPoint(point))
+            feature.setGeometry(QgsGeometry.fromPointXY(point))
             self.sNodesCoords[(point[0], point[1])] = node_id
             snode = sNode(node_id, feature, [], [])
             self.sNodes[self.node_id] = snode
@@ -185,13 +185,13 @@ class sGraph(QObject):
                 # errors
                 for pnt in intersections:
                     err_f = QgsFeature(error_feat)
-                    err_f.setGeometry(QgsGeometry.fromPoint(pnt))
+                    err_f.setGeometry(QgsGeometry.fromPointXY(pnt))
                     err_f.setAttributes(['broken'])
                     self.errors.append(err_f)
                 vertices_indices = find_vertex_indices(pl, intersections)
                 for start, end in zip(vertices_indices[:-1], vertices_indices[1:]):
                     broken_feat = QgsFeature(f)
-                    broken_geom = QgsGeometry.fromPolyline(pl[start:end + 1]).simplify(angle_threshold)
+                    broken_geom = QgsGeometry.fromPolylineXY(pl[start:end + 1]).simplify(angle_threshold)
                     broken_feat.setGeometry(broken_geom)
                     yield broken_feat
             else:
@@ -432,18 +432,18 @@ class sGraph(QObject):
         for singlepart in e.feature.geometry().asMultiPolyline():
 
             # create new edge and update spIndex
-            single_geom = QgsGeometry.fromPolyline(singlepart)
+            single_geom = QgsGeometry.fromPolylineXY(singlepart)
             single_feature = QgsFeature(e.feature)
             single_feature.setGeometry(single_geom)
             self.edge_id += 1
             single_feature.setId(self.edge_id)
             self.sEdges[self.edge_id] = sEdge(self.edge_id, single_feature, [])
-            self.edgeSpIndex.insertFeature(single_feature)
+            self.edgeSpIndex.addFeature(single_feature)
 
             # add points as multipart errors
             for p in single_geom.asPolyline():
                 err_f = QgsFeature(error_feat)
-                err_f.setGeometry(QgsGeometry.fromPoint(p))
+                err_f.setGeometry(QgsGeometry.fromPointXY(p))
                 err_f.setAttributes(['multipart'])
                 self.errors.append(err_f)
 
@@ -673,18 +673,18 @@ class sGraph(QObject):
             for line in lines:
                 crossing_points = f_geom.intersection(self.sEdges[line].feature.geometry())
                 # in some cases the startpoint or endpoint is returned - exclude
-                if crossing_points.geometry().wkbType() == 1 and crossing_points.asPoint() not in f_geom.asPolyline():
+                if crossing_points.wkbType() == 1 and crossing_points.asPoint() not in f_geom.asPolyline():
                     un_f = QgsFeature(unlink_feat)
                     un_f.setGeometry(crossing_points)
                     un_f.setId(unlinks_id)
                     un_f.setAttributes([unlinks_id])
                     unlinks_id += 1
                     self.unlinks.append(un_f)
-                elif crossing_points.geometry().wkbType() == 4:
+                elif crossing_points.wkbType() == 4:
                     for p in crossing_points.asMultiPoint():
                         if p not in f_geom.asPolyline():
                             un_f = QgsFeature(unlink_feat)
-                            un_f.setGeometry(QgsGeometry.fromPoint(p))
+                            un_f.setGeometry(QgsGeometry.fromPointXY(p))
                             un_f.setId(unlinks_id)
                             un_f.setAttributes([unlinks_id])
                             unlinks_id += 1
@@ -727,7 +727,7 @@ class sGraph(QObject):
                     merged_points += (points[::-1])[1:]
                 else:
                     merged_points += points[1:]
-            merged_geom = QgsGeometry.fromPolyline(merged_points)
+            merged_geom = QgsGeometry.fromPolylineXY(merged_points)
             if merged_geom.wkbType() != 2:
                 print('ml', merged_geom.wkbType())
 
