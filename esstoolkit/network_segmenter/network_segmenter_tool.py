@@ -361,11 +361,11 @@ class NetworkSegmenterTool(QObject):
                     cross_p_list = set(list(itertools.chain.from_iterable(cross_p_list)))
 
                     ids1 = [i for i in range(0, len(cross_p_list))]
-                    break_point_feats = [self.my_segmentor.copy_feat(self.my_segmentor.break_f, QgsGeometry.fromPoint(p_fid[0]), p_fid[1]) for p_fid in (list(zip(cross_p_list, ids1)))]
+                    break_point_feats = [self.my_segmentor.copy_feat(self.my_segmentor.break_f, QgsGeometry.fromPointXY(p_fid[0]), p_fid[1]) for p_fid in (list(zip(cross_p_list, ids1)))]
                     ids2 = [i for i in range(max(ids1) + 1, max(ids1) + 1 + len(self.my_segmentor.invalid_unlinks))]
-                    invalid_unlink_point_feats = [self.my_segmentor.copy_feat(self.my_segmentor.invalid_unlink_f, QgsGeometry.fromPoint(p_fid1[0]), p_fid1[1]) for p_fid1 in (list(zip(self.my_segmentor.invalid_unlinks, ids2)))]
+                    invalid_unlink_point_feats = [self.my_segmentor.copy_feat(self.my_segmentor.invalid_unlink_f, QgsGeometry.fromPointXY(p_fid1[0]), p_fid1[1]) for p_fid1 in (list(zip(self.my_segmentor.invalid_unlinks, ids2)))]
                     ids = [i for i in range(max(ids1 + ids2) + 1, max(ids1 + ids2) + 1 + len(self.my_segmentor.stubs_points))]
-                    stubs_point_feats = [self.my_segmentor.copy_feat(self.my_segmentor.stub_f, QgsGeometry.fromPoint(p_fid2[0]), p_fid2[1]) for p_fid2 in (list(zip(self.my_segmentor.stubs_points, ids)))]
+                    stubs_point_feats = [self.my_segmentor.copy_feat(self.my_segmentor.stub_f, QgsGeometry.fromPointXY(p_fid2[0]), p_fid2[1]) for p_fid2 in (list(zip(self.my_segmentor.stubs_points, ids)))]
 
                 ret = segmented_feats, break_point_feats + invalid_unlink_point_feats + stubs_point_feats
 

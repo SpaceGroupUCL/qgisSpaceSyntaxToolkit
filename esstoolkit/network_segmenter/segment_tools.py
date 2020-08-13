@@ -93,7 +93,7 @@ class segmentor(QObject):
                 yield ml_geom.lineLocatePoint(inter), inter.asPoint()
             elif inter.wkbType() == 4:
                 for i in inter.asMultiPoint():
-                    yield ml_geom.lineLocatePoint(QgsGeometry.fromPoint(i)), i
+                    yield ml_geom.lineLocatePoint(QgsGeometry.fromPointXY(i)), i
             else:
                 inter_line_geom_pl = self.feats[line].geometry().asPolyline()
                 sh_line = (ml_geom.shortestLine(self.feats[line].geometry())).asPolyline()
@@ -102,13 +102,13 @@ class segmentor(QObject):
                         self.feats[line].geometry().moveVertex(sh_line[-1].x(), sh_line[-1].y(), 0)
                     if sh_line[0] == inter_line_geom_pl[-1]:
                         self.feats[line].geometry().moveVertex(sh_line[-1].x(), sh_line[-1].y(), len(inter_line_geom_pl) - 1)
-                    yield ml_geom.lineLocatePoint(QgsGeometry.fromPoint(sh_line[-1])), sh_line[-1]
+                    yield ml_geom.lineLocatePoint(QgsGeometry.fromPointXY(sh_line[-1])), sh_line[-1]
                 else:
                     if sh_line[-1] == inter_line_geom_pl[0]:
                         self.feats[line].geometry().moveVertex(sh_line[0].x(), sh_line[0].y(), 0)
                     if sh_line[-1] == inter_line_geom_pl[-1]:
                         self.feats[line].geometry().moveVertex(sh_line[0].x(), sh_line[0].y(), len(inter_line_geom_pl) - 1)
-                    yield ml_geom.lineLocatePoint(QgsGeometry.fromPoint(sh_line[0])), sh_line[0]
+                    yield ml_geom.lineLocatePoint(QgsGeometry.fromPointXY(sh_line[0])), sh_line[0]
         ml_pl = ml_geom.asPolyline()
         pl_len = 0  # executed first time
         yield pl_len, ml_pl[0]
@@ -146,7 +146,7 @@ class segmentor(QObject):
             for pair in zip(cross_p[:-1], cross_p[1:]):
                 feat = self.feats[idx]
                 self.id += 1
-                yield feat, QgsGeometry.fromPolyline(list(pair)), self.id
+                yield feat, QgsGeometry.fromPolylineXY(list(pair)), self.id
 
     def list_iter(self, any_list):
         self.total_progress = 10
@@ -177,11 +177,11 @@ class segmentor(QObject):
                 cross_p_list = set(list(itertools.chain.from_iterable(cross_p_list)))
 
                 ids1 = [i for i in range(0, len(cross_p_list))]
-                break_point_feats = [self.copy_feat(self.break_f, QgsGeometry.fromPoint(p_fid[0]), p_fid[1]) for p_fid in (list(zip(cross_p_list, ids1)))]
+                break_point_feats = [self.copy_feat(self.break_f, QgsGeometry.fromPointXY(p_fid[0]), p_fid[1]) for p_fid in (list(zip(cross_p_list, ids1)))]
                 ids2 = [i for i in range(max(ids1) + 1, max(ids1) + 1 + len(self.invalid_unlinks))]
-                invalid_unlink_point_feats = [self.copy_feat(self.invalid_unlink_f, QgsGeometry.fromPoint(p_fid1[0]), p_fid1[1]) for p_fid1 in (list(zip(self.invalid_unlinks, ids2)))]
+                invalid_unlink_point_feats = [self.copy_feat(self.invalid_unlink_f, QgsGeometry.fromPointXY(p_fid1[0]), p_fid1[1]) for p_fid1 in (list(zip(self.invalid_unlinks, ids2)))]
                 ids = [i for i in range(max(ids1 + ids2) + 1, max(ids1 + ids2) + 1 + len(self.stubs_points))]
-                stubs_point_feats = [self.copy_feat(self.stub_f, QgsGeometry.fromPoint(p_fid2[0]), p_fid2[1]) for p_fid2 in (list(zip(self.stubs_points, ids)))]
+                stubs_point_feats = [self.copy_feat(self.stub_f, QgsGeometry.fromPointXY(p_fid2[0]), p_fid2[1]) for p_fid2 in (list(zip(self.stubs_points, ids)))]
 
 
         except Exception as exc:
@@ -216,7 +216,7 @@ class segmentor(QObject):
                 yield pnt
 
     def get_no_inter_lines(self, point):
-        point_geom = QgsGeometry.fromPoint(point)
+        point_geom = QgsGeometry.fromPointXY(point)
         lines = self.spIndex.intersects(point_geom.boundingBox())
         filtered_lines = [l for l in lines if self.feats[l].geometry().intersects(point_geom)]
         return len(set(filtered_lines))
@@ -265,7 +265,7 @@ class segmentor(QObject):
             elif f_geom.wkbType() == 5:
                 ml_segms = f_geom.asMultiPolyline()
                 for ml in ml_segms:
-                    ml_geom = QgsGeometry.fromPolyline(ml)
+                    ml_geom = QgsGeometry.fromPolylineXY(ml)
                     ml_feat = self.copy_feat(f, ml_geom, id)
                     self.feats[id] = ml_feat
                     id += 1
