@@ -1,86 +1,118 @@
-#!/usr/bin/env python
-try:
-    from StringIO import StringIO
-except ImportError:
-    from io import StringIO
-from nose.tools import *
+from io import BytesIO
+import tempfile
+import pytest
+
 import networkx as nx
 import networkx.readwrite.graph6 as g6
+from networkx.testing.utils import assert_edges_equal
+from networkx.testing.utils import assert_nodes_equal
 
-class TestGraph6Utils(object):
 
+class TestGraph6Utils:
     def test_n_data_n_conversion(self):
         for i in [0, 1, 42, 62, 63, 64, 258047, 258048, 7744773, 68719476735]:
-            assert_equal(g6.data_to_n(g6.n_to_data(i))[0], i)
-            assert_equal(g6.data_to_n(g6.n_to_data(i))[1], [])
-            assert_equal(g6.data_to_n(g6.n_to_data(i) + [42, 43])[1],
-                         [42, 43])
-
-    def test_data_sparse6_data_conversion(self):
-        for data in [[], [0], [63], [63, 63], [0]*42,
-                     [0, 1, 62, 42, 3, 11, 0, 11]]:
-            assert_equal(g6.graph6_to_data(g6.data_to_graph6(data)), data)
-            assert_equal(len(g6.data_to_graph6(data)), len(data))
+            assert g6.data_to_n(g6.n_to_data(i))[0] == i
+            assert g6.data_to_n(g6.n_to_data(i))[1] == []
+            assert g6.data_to_n(g6.n_to_data(i) + [42, 43])[1] == [42, 43]
 
 
-class TestGraph6(object):
+class TestFromGraph6Bytes:
+    def test_from_graph6_bytes(self):
+        data = b"DF{"
+        G = nx.from_graph6_bytes(data)
+        assert_nodes_equal(G.nodes(), [0, 1, 2, 3, 4])
+        assert_edges_equal(
+            G.edges(), [(0, 3), (0, 4), (1, 3), (1, 4), (2, 3), (2, 4), (3, 4)]
+        )
 
-    def test_parse_graph6(self):
-        data="""DF{"""
-        G=nx.parse_graph6(data)
-        assert_equal(sorted(G.nodes()),[0, 1, 2, 3, 4])
-        assert_equal([e for e in sorted(G.edges())],
-                     [(0, 3), (0, 4), (1, 3), (1, 4), (2, 3), (2, 4), (3, 4)])
+    def test_read_equals_from_bytes(self):
+        data = b"DF{"
+        G = nx.from_graph6_bytes(data)
+        fh = BytesIO(data)
+        Gin = nx.read_graph6(fh)
+        assert_nodes_equal(G.nodes(), Gin.nodes())
+        assert_edges_equal(G.edges(), Gin.edges())
 
-    def test_read_graph6(self):
-        data="""DF{"""
-        G=nx.parse_graph6(data)
-        fh = StringIO(data)
-        Gin=nx.read_graph6(fh)
-        assert_equal(sorted(G.nodes()),sorted(Gin.nodes()))
-        assert_equal(sorted(G.edges()),sorted(Gin.edges()))
 
+class TestReadGraph6:
     def test_read_many_graph6(self):
-        # Read many graphs into list
-        data="""DF{\nD`{\nDqK\nD~{\n"""
-        fh = StringIO(data)
-        glist=nx.read_graph6(fh)
-        assert_equal(len(glist),4)
+        """Test for reading many graphs from a file into a list."""
+        data = b"DF{\nD`{\nDqK\nD~{\n"
+        fh = BytesIO(data)
+        glist = nx.read_graph6(fh)
+        assert len(glist) == 4
         for G in glist:
-            assert_equal(sorted(G.nodes()),[0, 1, 2, 3, 4])
+            assert sorted(G) == list(range(5))
 
-    def test_generate_graph6(self):
-        assert_equal(nx.generate_graph6(nx.empty_graph(0)), '>>graph6<<?')
-        assert_equal(nx.generate_graph6(nx.empty_graph(1)), '>>graph6<<@')
 
-        G1 = nx.complete_graph(4)
-        assert_equal(nx.generate_graph6(G1, header=True), '>>graph6<<C~')
-        assert_equal(nx.generate_graph6(G1, header=False), 'C~')
+class TestWriteGraph6:
+    """Unit tests for writing a graph to a file in graph6 format."""
 
-        G2 = nx.complete_bipartite_graph(6,9)
-        assert_equal(nx.generate_graph6(G2, header=False),
-                     'N??F~z{~Fw^_~?~?^_?') # verified by Sage
+    def test_null_graph(self):
+        result = BytesIO()
+        nx.write_graph6(nx.null_graph(), result)
+        assert result.getvalue() == b">>graph6<<?\n"
 
-        G3 = nx.complete_graph(67)
-        assert_equal(nx.generate_graph6(G3, header=False),
-                     '~?@B' + '~' * 368 + 'w')
+    def test_trivial_graph(self):
+        result = BytesIO()
+        nx.write_graph6(nx.trivial_graph(), result)
+        assert result.getvalue() == b">>graph6<<@\n"
 
-    def test_write_graph6(self):
-        fh = StringIO()
-        nx.write_graph6(nx.complete_bipartite_graph(6,9), fh)
-        fh.seek(0)
-        assert_equal(fh.read(), '>>graph6<<N??F~z{~Fw^_~?~?^_?\n')
+    def test_complete_graph(self):
+        result = BytesIO()
+        nx.write_graph6(nx.complete_graph(4), result)
+        assert result.getvalue() == b">>graph6<<C~\n"
 
-    def test_generate_and_parse_graph6(self):
+    def test_large_complete_graph(self):
+        result = BytesIO()
+        nx.write_graph6(nx.complete_graph(67), result, header=False)
+        assert result.getvalue() == b"~?@B" + b"~" * 368 + b"w\n"
+
+    def test_no_header(self):
+        result = BytesIO()
+        nx.write_graph6(nx.complete_graph(4), result, header=False)
+        assert result.getvalue() == b"C~\n"
+
+    def test_complete_bipartite_graph(self):
+        result = BytesIO()
+        G = nx.complete_bipartite_graph(6, 9)
+        nx.write_graph6(G, result, header=False)
+        # The expected encoding here was verified by Sage.
+        assert result.getvalue() == b"N??F~z{~Fw^_~?~?^_?\n"
+
+    def test_no_directed_graphs(self):
+        with pytest.raises(nx.NetworkXNotImplemented):
+            nx.write_graph6(nx.DiGraph(), BytesIO())
+
+    def test_length(self):
         for i in list(range(13)) + [31, 47, 62, 63, 64, 72]:
             g = nx.random_graphs.gnm_random_graph(i, i * i // 4, seed=i)
-            gstr = nx.generate_graph6(g, header=False)
-            assert_equal(len(gstr),
-                         ((i-1) * i // 2 + 5) // 6 + (1 if i < 63 else 4))
-            g2 = nx.parse_graph6(gstr)
-            assert_equal(g2.order(), g.order())
-            assert_equal(sorted(g2.edges()), sorted(g.edges()))
+            gstr = BytesIO()
+            nx.write_graph6(g, gstr, header=False)
+            # Strip the trailing newline.
+            gstr = gstr.getvalue().rstrip()
+            assert len(gstr) == ((i - 1) * i // 2 + 5) // 6 + (1 if i < 63 else 4)
 
-    @raises(nx.NetworkXError)
-    def directed_error(self):
-        nx.generate_graph6(nx.DiGraph())
+    def test_roundtrip(self):
+        for i in list(range(13)) + [31, 47, 62, 63, 64, 72]:
+            G = nx.random_graphs.gnm_random_graph(i, i * i // 4, seed=i)
+            f = BytesIO()
+            nx.write_graph6(G, f)
+            f.seek(0)
+            H = nx.read_graph6(f)
+            assert_nodes_equal(G.nodes(), H.nodes())
+            assert_edges_equal(G.edges(), H.edges())
+
+    def test_write_path(self):
+        with tempfile.NamedTemporaryFile() as f:
+            g6.write_graph6_file(nx.null_graph(), f)
+            f.seek(0)
+            assert f.read() == b">>graph6<<?\n"
+
+    def test_relabeling(self):
+        G = nx.Graph([(0, 1)])
+        assert g6.to_graph6_bytes(G) == b">>graph6<<A_\n"
+        G = nx.Graph([(1, 2)])
+        assert g6.to_graph6_bytes(G) == b">>graph6<<A_\n"
+        G = nx.Graph([(1, 42)])
+        assert g6.to_graph6_bytes(G) == b">>graph6<<A_\n"

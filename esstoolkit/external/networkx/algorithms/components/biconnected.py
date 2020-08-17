@@ -1,36 +1,21 @@
-# -*- coding: utf-8 -*-
-"""
-Biconnected components and articulation points.
-"""
-#    Copyright (C) 2011-2013 by
-#    Aric Hagberg <hagberg@lanl.gov>
-#    Dan Schult <dschult@colgate.edu>
-#    Pieter Swart <swart@lanl.gov>
-#    All rights reserved.
-#    BSD license.
+"""Biconnected components and articulation points."""
 from itertools import chain
-import networkx as nx
 from networkx.utils.decorators import not_implemented_for
 
-__author__ = '\n'.join(['Jordi Torrents <jtorrents@milnou.net>',
-                        'Dan Schult <dschult@colgate.edu>',
-                        'Aric Hagberg <aric.hagberg@gmail.com>'])
-
 __all__ = [
-    'biconnected_components',
-    'biconnected_component_edges',
-    'biconnected_component_subgraphs',
-    'is_biconnected',
-    'articulation_points',
+    "biconnected_components",
+    "biconnected_component_edges",
+    "is_biconnected",
+    "articulation_points",
 ]
 
 
-@not_implemented_for('directed')
+@not_implemented_for("directed")
 def is_biconnected(G):
-    """Return True if the graph is biconnected, False otherwise.
+    """Returns True if the graph is biconnected, False otherwise.
 
     A graph is biconnected if, and only if, it cannot be disconnected by
-    removing only one node (and all edges incident on that node). If
+    removing only one node (and all edges incident on that node).  If
     removing a node increases the number of disconnected components
     in the graph, that node is called an articulation point, or cut
     vertex.  A biconnected graph has no articulation points.
@@ -47,7 +32,7 @@ def is_biconnected(G):
 
     Raises
     ------
-    NetworkXNotImplemented :
+    NetworkXNotImplemented
         If the input graph is not undirected.
 
     Examples
@@ -64,17 +49,20 @@ def is_biconnected(G):
     biconnected_components
     articulation_points
     biconnected_component_edges
-    biconnected_component_subgraphs
+    is_strongly_connected
+    is_weakly_connected
+    is_connected
+    is_semiconnected
 
     Notes
     -----
     The algorithm to find articulation points and biconnected
     components is implemented using a non-recursive depth-first-search
     (DFS) that keeps track of the highest level that back edges reach
-    in the DFS tree. A node `n` is an articulation point if, and only
+    in the DFS tree.  A node `n` is an articulation point if, and only
     if, there exists a subtree rooted at `n` such that there is no
     back edge from any successor of `n` that links to a predecessor of
-    `n` in the DFS tree. By keeping track of all the edges traversed
+    `n` in the DFS tree.  By keeping track of all the edges traversed
     by the DFS we can obtain the biconnected components because all
     edges of a bicomponent will be traversed consecutively between
     articulation points.
@@ -87,21 +75,26 @@ def is_biconnected(G):
 
     """
     bcc = list(biconnected_components(G))
-    if not bcc: # No bicomponents (it could be an empty graph)
-        return False
-    return len(bcc[0]) == len(G)
+    if len(bcc) == 1:
+        return len(bcc[0]) == len(G)
+    return False  # Multiple bicomponents or No bicomponents (empty graph?)
 
 
-@not_implemented_for('directed')
+#    if len(bcc) == 0:  # No bicomponents (it could be an empty graph)
+#        return False
+#    return len(bcc[0]) == len(G)
+
+
+@not_implemented_for("directed")
 def biconnected_component_edges(G):
-    """Return a generator of lists of edges, one list for each biconnected
+    """Returns a generator of lists of edges, one list for each biconnected
     component of the input graph.
 
     Biconnected components are maximal subgraphs such that the removal of a
     node (and all edges incident on that node) will not disconnect the
-    subgraph. Note that nodes may be part of more than one biconnected
-    component. Those nodes are articulation points, or cut vertices. However,
-    each edge belongs to one, and only one, biconnected component.
+    subgraph.  Note that nodes may be part of more than one biconnected
+    component.  Those nodes are articulation points, or cut vertices.
+    However, each edge belongs to one, and only one, biconnected component.
 
     Notice that by convention a dyad is considered a biconnected component.
 
@@ -117,7 +110,7 @@ def biconnected_component_edges(G):
 
     Raises
     ------
-    NetworkXNotImplemented :
+    NetworkXNotImplemented
         If the input graph is not undirected.
 
     Examples
@@ -140,17 +133,16 @@ def biconnected_component_edges(G):
     is_biconnected,
     biconnected_components,
     articulation_points,
-    biconnected_component_subgraphs
 
     Notes
     -----
     The algorithm to find articulation points and biconnected
     components is implemented using a non-recursive depth-first-search
     (DFS) that keeps track of the highest level that back edges reach
-    in the DFS tree. A node `n` is an articulation point if, and only
+    in the DFS tree.  A node `n` is an articulation point if, and only
     if, there exists a subtree rooted at `n` such that there is no
     back edge from any successor of `n` that links to a predecessor of
-    `n` in the DFS tree. By keeping track of all the edges traversed
+    `n` in the DFS tree.  By keeping track of all the edges traversed
     by the DFS we can obtain the biconnected components because all
     edges of a bicomponent will be traversed consecutively between
     articulation points.
@@ -162,19 +154,18 @@ def biconnected_component_edges(G):
            Communications of the ACM 16: 372–378. doi:10.1145/362248.362272
 
     """
-    for comp in _biconnected_dfs(G, components=True):
-        yield comp
+    yield from _biconnected_dfs(G, components=True)
 
 
-@not_implemented_for('directed')
+@not_implemented_for("directed")
 def biconnected_components(G):
-    """Return a generator of sets of nodes, one set for each biconnected
+    """Returns a generator of sets of nodes, one set for each biconnected
     component of the graph
 
     Biconnected components are maximal subgraphs such that the removal of a
     node (and all edges incident on that node) will not disconnect the
     subgraph. Note that nodes may be part of more than one biconnected
-    component. Those nodes are articulation points, or cut vertices. The
+    component.  Those nodes are articulation points, or cut vertices.  The
     removal of articulation points will increase the number of connected
     components of the graph.
 
@@ -192,8 +183,15 @@ def biconnected_components(G):
 
     Raises
     ------
-    NetworkXNotImplemented :
+    NetworkXNotImplemented
         If the input graph is not undirected.
+
+    See Also
+    --------
+    k_components : this function is a special case where k=2
+    bridge_components : similar to this function, but is defined using
+        2-edge-connectivity instead of 2-node-connectivity.
+
 
     Examples
     --------
@@ -222,22 +220,24 @@ def biconnected_components(G):
 
     >>> Gc = max(nx.biconnected_components(G), key=len)
 
+    To create the components as subgraphs use:
+    ``(G.subgraph(c).copy() for c in biconnected_components(G))``
+
     See Also
     --------
-    is_biconnected,
-    articulation_points,
-    biconnected_component_edges,
-    biconnected_component_subgraphs
+    is_biconnected
+    articulation_points
+    biconnected_component_edges
 
     Notes
     -----
     The algorithm to find articulation points and biconnected
     components is implemented using a non-recursive depth-first-search
     (DFS) that keeps track of the highest level that back edges reach
-    in the DFS tree. A node `n` is an articulation point if, and only
+    in the DFS tree.  A node `n` is an articulation point if, and only
     if, there exists a subtree rooted at `n` such that there is no
     back edge from any successor of `n` that links to a predecessor of
-    `n` in the DFS tree. By keeping track of all the edges traversed
+    `n` in the DFS tree.  By keeping track of all the edges traversed
     by the DFS we can obtain the biconnected components because all
     edges of a bicomponent will be traversed consecutively between
     articulation points.
@@ -252,107 +252,14 @@ def biconnected_components(G):
     for comp in _biconnected_dfs(G, components=True):
         yield set(chain.from_iterable(comp))
 
-@not_implemented_for('directed')
-def biconnected_component_subgraphs(G, copy=True):
-    """Return a generator of graphs, one graph for each biconnected component
-    of the input graph.
 
-    Biconnected components are maximal subgraphs such that the removal of a
-    node (and all edges incident on that node) will not disconnect the
-    subgraph. Note that nodes may be part of more than one biconnected
-    component. Those nodes are articulation points, or cut vertices. The
-    removal of articulation points will increase the number of connected
-    components of the graph.
-
-    Notice that by convention a dyad is considered a biconnected component.
-
-    Parameters
-    ----------
-    G : NetworkX Graph
-        An undirected graph.
-
-    Returns
-    -------
-    graphs : generator
-        Generator of graphs, one graph for each biconnected component.
-
-    Raises
-    ------
-    NetworkXNotImplemented :
-        If the input graph is not undirected.
-
-    Examples
-    --------
-
-    >>> G = nx.lollipop_graph(5, 1)
-    >>> print(nx.is_biconnected(G))
-    False
-    >>> bicomponents = list(nx.biconnected_component_subgraphs(G))
-    >>> len(bicomponents)
-    2
-    >>> G.add_edge(0, 5)
-    >>> print(nx.is_biconnected(G))
-    True
-    >>> bicomponents = list(nx.biconnected_component_subgraphs(G))
-    >>> len(bicomponents)
-    1
-
-    You can generate a sorted list of biconnected components, largest
-    first, using sort.
-
-    >>> G.remove_edge(0, 5)
-    >>> [len(c) for c in sorted(nx.biconnected_component_subgraphs(G),
-    ...                         key=len, reverse=True)]
-    [5, 2]
-
-    If you only want the largest connected component, it's more
-    efficient to use max instead of sort.
-
-    >>> Gc = max(nx.biconnected_component_subgraphs(G), key=len)
-
-    See Also
-    --------
-    is_biconnected,
-    articulation_points,
-    biconnected_component_edges,
-    biconnected_components
-
-    Notes
-    -----
-    The algorithm to find articulation points and biconnected
-    components is implemented using a non-recursive depth-first-search
-    (DFS) that keeps track of the highest level that back edges reach
-    in the DFS tree. A node `n` is an articulation point if, and only
-    if, there exists a subtree rooted at `n` such that there is no
-    back edge from any successor of `n` that links to a predecessor of
-    `n` in the DFS tree. By keeping track of all the edges traversed
-    by the DFS we can obtain the biconnected components because all
-    edges of a bicomponent will be traversed consecutively between
-    articulation points.
-
-    Graph, node, and edge attributes are copied to the subgraphs.
-
-    References
-    ----------
-    .. [1] Hopcroft, J.; Tarjan, R. (1973).
-           "Efficient algorithms for graph manipulation".
-           Communications of the ACM 16: 372–378. doi:10.1145/362248.362272
-
-    """
-    for comp_nodes in biconnected_components(G):
-        if copy:
-            yield G.subgraph(comp_nodes).copy()
-        else:
-            yield G.subgraph(comp_nodes)
-
-
-@not_implemented_for('directed')
+@not_implemented_for("directed")
 def articulation_points(G):
-    """Return a generator of articulation points, or cut vertices, of a graph.
+    """Yield the articulation points, or cut vertices, of a graph.
 
     An articulation point or cut vertex is any node whose removal (along with
     all its incident edges) increases the number of connected components of
-    a graph. An undirected connected graph without articulation points is
+    a graph.  An undirected connected graph without articulation points is
     biconnected. Articulation points belong to more than one biconnected
     component of a graph.
 
@@ -363,14 +270,14 @@ def articulation_points(G):
     G : NetworkX Graph
         An undirected graph.
 
-    Returns
-    -------
-    articulation points : generator
-        generator of nodes
+    Yields
+    ------
+    node
+        An articulation point in the graph.
 
     Raises
     ------
-    NetworkXNotImplemented :
+    NetworkXNotImplemented
         If the input graph is not undirected.
 
     Examples
@@ -389,20 +296,19 @@ def articulation_points(G):
 
     See Also
     --------
-    is_biconnected,
-    biconnected_components,
-    biconnected_component_edges,
-    biconnected_component_subgraphs
+    is_biconnected
+    biconnected_components
+    biconnected_component_edges
 
     Notes
     -----
     The algorithm to find articulation points and biconnected
     components is implemented using a non-recursive depth-first-search
     (DFS) that keeps track of the highest level that back edges reach
-    in the DFS tree. A node `n` is an articulation point if, and only
+    in the DFS tree.  A node `n` is an articulation point if, and only
     if, there exists a subtree rooted at `n` such that there is no
     back edge from any successor of `n` that links to a predecessor of
-    `n` in the DFS tree. By keeping track of all the edges traversed
+    `n` in the DFS tree.  By keeping track of all the edges traversed
     by the DFS we can obtain the biconnected components because all
     edges of a bicomponent will be traversed consecutively between
     articulation points.
@@ -414,10 +320,14 @@ def articulation_points(G):
            Communications of the ACM 16: 372–378. doi:10.1145/362248.362272
 
     """
-    return _biconnected_dfs(G, components=False)
+    seen = set()
+    for articulation in _biconnected_dfs(G, components=False):
+        if articulation not in seen:
+            seen.add(articulation)
+            yield articulation
 
 
-@not_implemented_for('directed')
+@not_implemented_for("directed")
 def _biconnected_dfs(G, components=True):
     # depth-first search algorithm to generate articulation points
     # and biconnected components
@@ -425,8 +335,8 @@ def _biconnected_dfs(G, components=True):
     for start in G:
         if start in visited:
             continue
-        discovery = {start:0} # "time" of first discovery of node during search
-        low = {start:0}
+        discovery = {start: 0}  # time of first discovery of node during search
+        low = {start: 0}
         root_children = 0
         visited.add(start)
         edge_stack = []
@@ -438,31 +348,31 @@ def _biconnected_dfs(G, components=True):
                 if grandparent == child:
                     continue
                 if child in visited:
-                    if discovery[child] <= discovery[parent]: # back edge
-                        low[parent] = min(low[parent],discovery[child])
+                    if discovery[child] <= discovery[parent]:  # back edge
+                        low[parent] = min(low[parent], discovery[child])
                         if components:
-                            edge_stack.append((parent,child))
+                            edge_stack.append((parent, child))
                 else:
                     low[child] = discovery[child] = len(discovery)
                     visited.add(child)
                     stack.append((parent, child, iter(G[child])))
                     if components:
-                        edge_stack.append((parent,child))
+                        edge_stack.append((parent, child))
             except StopIteration:
                 stack.pop()
                 if len(stack) > 1:
                     if low[parent] >= discovery[grandparent]:
                         if components:
-                            ind = edge_stack.index((grandparent,parent))
+                            ind = edge_stack.index((grandparent, parent))
                             yield edge_stack[ind:]
-                            edge_stack=edge_stack[:ind]
+                            edge_stack = edge_stack[:ind]
                         else:
                             yield grandparent
                     low[grandparent] = min(low[parent], low[grandparent])
-                elif stack: # length 1 so grandparent is root
+                elif stack:  # length 1 so grandparent is root
                     root_children += 1
                     if components:
-                        ind = edge_stack.index((grandparent,parent))
+                        ind = edge_stack.index((grandparent, parent))
                         yield edge_stack[ind:]
         if not components:
             # root node is articulation point if it has more than 1 child

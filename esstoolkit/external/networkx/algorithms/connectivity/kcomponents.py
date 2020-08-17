@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Moody and White algorithm for k-components
 """
@@ -8,19 +7,19 @@ from operator import itemgetter
 
 import networkx as nx
 from networkx.utils import not_implemented_for
+
 # Define the default maximum flow function.
 from networkx.algorithms.flow import edmonds_karp
+
 default_flow_func = edmonds_karp
 
-__author__ = '\n'.join(['Jordi Torrents <jtorrents@milnou.net>'])
-
-__all__ = ['k_components']
+__all__ = ["k_components"]
 
 
-@not_implemented_for('directed')
+@not_implemented_for("directed")
 def k_components(G, flow_func=None):
     r"""Returns the k-component structure of a graph G.
-    
+
     A `k`-component is a maximal subgraph of a graph G that has, at least,
     node connectivity `k`: we need to remove at least `k` nodes to break it
     into more components. `k`-components have an inherent hierarchical
@@ -47,7 +46,7 @@ def k_components(G, flow_func=None):
 
     Raises
     ------
-    NetworkXNotImplemented:
+    NetworkXNotImplemented
         If the input graph is directed.
 
     Examples
@@ -56,7 +55,7 @@ def k_components(G, flow_func=None):
     >>> # nodes are in a single component on all three connectivity levels
     >>> G = nx.petersen_graph()
     >>> k_components = nx.k_components(G)
-   
+
     Notes
     -----
     Moody and White [1]_ (appendix A) provide an algorithm for identifying
@@ -76,13 +75,16 @@ def k_components(G, flow_func=None):
         4. If the graph is neither complete nor trivial, return to 1;
            else end.
 
-    This implementation also uses some heuristics (see [3]_ for details) 
+    This implementation also uses some heuristics (see [3]_ for details)
     to speed up the computation.
 
     See also
     --------
     node_connectivity
     all_node_cuts
+    biconnected_components : special case of this function when k=2
+    k_edge_components : similar to this function, but uses edge-connectivity
+        instead of node-connectivity
 
     References
     ----------
@@ -97,23 +99,23 @@ def k_components(G, flow_func=None):
 
     .. [3]  Torrents, J. and F. Ferraro (2015). Structural Cohesion:
             Visualization and Heuristics for Fast Computation.
-            http://arxiv.org/pdf/1503.04476v1
+            https://arxiv.org/pdf/1503.04476v1
 
     """
     # Dictionary with connectivity level (k) as keys and a list of
-    # sets of nodes that form a k-component as values. Note that 
+    # sets of nodes that form a k-component as values. Note that
     # k-compoents can overlap (but only k - 1 nodes).
     k_components = defaultdict(list)
     # Define default flow function
     if flow_func is None:
         flow_func = default_flow_func
     # Bicomponents as a base to check for higher order k-components
-    for component in  nx.connected_components(G):
+    for component in nx.connected_components(G):
         # isolated nodes have connectivity 0
         comp = set(component)
         if len(comp) > 1:
             k_components[1].append(comp)
-    bicomponents = list(nx.biconnected_component_subgraphs(G))
+    bicomponents = [G.subgraph(c) for c in nx.biconnected_components(G)]
     for bicomponent in bicomponents:
         bicomp = set(bicomponent)
         # avoid considering dyads as bicomponents
@@ -124,7 +126,7 @@ def k_components(G, flow_func=None):
             continue
         k = nx.node_connectivity(B, flow_func=flow_func)
         if k > 2:
-            k_components[k].append(set(B.nodes_iter()))
+            k_components[k].append(set(B))
         # Perform cuts in a DFS like order.
         cuts = list(nx.all_node_cuts(B, k=k, flow_func=flow_func))
         stack = [(k, _generate_partition(B, cuts, k))]
@@ -135,7 +137,7 @@ def k_components(G, flow_func=None):
                 C = B.subgraph(nodes)
                 this_k = nx.node_connectivity(C, flow_func=flow_func)
                 if this_k > parent_k and this_k > 2:
-                    k_components[this_k].append(set(C.nodes_iter()))
+                    k_components[this_k].append(set(C))
                 cuts = list(nx.all_node_cuts(C, k=this_k, flow_func=flow_func))
                 if cuts:
                     stack.append((this_k, _generate_partition(C, cuts, this_k)))
@@ -167,8 +169,9 @@ def _consolidate(sets, k):
     G = nx.Graph()
     nodes = {i: s for i, s in enumerate(sets)}
     G.add_nodes_from(nodes)
-    G.add_edges_from((u, v) for u, v in combinations(nodes, 2)
-                     if len(nodes[u] & nodes[v]) >= k)
+    G.add_edges_from(
+        (u, v) for u, v in combinations(nodes, 2) if len(nodes[u] & nodes[v]) >= k
+    )
     for component in nx.connected_components(G):
         yield set.union(*[nodes[n] for n in component])
 
@@ -179,9 +182,9 @@ def _generate_partition(G, cuts, k):
             if n in partition:
                 return True
         return False
+
     components = []
-    nodes = ({n for n, d in G.degree().items() if d > k} - 
-             {n for cut in cuts for n in cut})
+    nodes = {n for n, d in G.degree() if d > k} - {n for cut in cuts for n in cut}
     H = G.subgraph(nodes)
     for cc in nx.connected_components(H):
         component = set(cc)
@@ -191,21 +194,20 @@ def _generate_partition(G, cuts, k):
                     component.add(node)
         if len(component) < G.order():
             components.append(component)
-    for component in _consolidate(components, k+1):
-        yield component
+    yield from _consolidate(components, k + 1)
 
 
 def _reconstruct_k_components(k_comps):
     result = dict()
     max_k = max(k_comps)
-    for k in reversed(range(1, max_k+1)):
+    for k in reversed(range(1, max_k + 1)):
         if k == max_k:
             result[k] = list(_consolidate(k_comps[k], k))
         elif k not in k_comps:
-            result[k] = list(_consolidate(result[k+1], k))
+            result[k] = list(_consolidate(result[k + 1], k))
         else:
             nodes_at_k = set.union(*k_comps[k])
-            to_add = [c for c in result[k+1] if any(n not in nodes_at_k for n in c)]
+            to_add = [c for c in result[k + 1] if any(n not in nodes_at_k for n in c)]
             if to_add:
                 result[k] = list(_consolidate(k_comps[k] + to_add, k))
             else:

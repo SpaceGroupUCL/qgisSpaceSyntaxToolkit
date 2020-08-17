@@ -1,12 +1,8 @@
 """
 Union-find data structure.
 """
-#    Copyright (C) 2004-2015 by
-#    Aric Hagberg <hagberg@lanl.gov>
-#    Dan Schult <dschult@colgate.edu>
-#    Pieter Swart <swart@lanl.gov>
-#    All rights reserved.
-#    BSD license.
+
+from networkx.utils import groups
 
 
 class UnionFind:
@@ -32,10 +28,20 @@ class UnionFind:
 
     """
 
-    def __init__(self):
-        """Create a new empty union-find structure."""
-        self.weights = {}
+    def __init__(self, elements=None):
+        """Create a new empty union-find structure.
+
+        If *elements* is an iterable, this structure will be initialized
+        with the discrete partition on the given set of elements.
+
+        """
+        if elements is None:
+            elements = ()
         self.parents = {}
+        self.weights = {}
+        for x in elements:
+            self.weights[x] = 1
+            self.parents[x] = x
 
     def __getitem__(self, object):
         """Find and return the name of the set containing the object."""
@@ -64,12 +70,34 @@ class UnionFind:
         """
         return iter(self.parents)
 
+    def to_sets(self):
+        """Iterates over the sets stored in this structure.
+
+        For example::
+
+            >>> partition = UnionFind('xyz')
+            >>> sorted(map(sorted, partition.to_sets()))
+            [['x'], ['y'], ['z']]
+            >>> partition.union('x', 'y')
+            >>> sorted(map(sorted, partition.to_sets()))
+            [['x', 'y'], ['z']]
+
+        """
+        # Ensure fully pruned paths
+        for x in self.parents.keys():
+            _ = self[x]  # Evaluated for side-effect only
+
+        yield from groups(self.parents).values()
+
     def union(self, *objects):
         """Find the sets containing the objects and merge them all."""
-        roots = [self[x] for x in objects]
         # Find the heaviest root according to its weight.
-        heaviest = max(roots, key=lambda r: self.weights[r])
+        roots = iter(sorted({self[x] for x in objects}, key=lambda r: self.weights[r]))
+        try:
+            root = next(roots)
+        except StopIteration:
+            return
+
         for r in roots:
-            if r != heaviest:
-                self.weights[heaviest] += self.weights[r]
-                self.parents[r] = heaviest
+            self.weights[root] += self.weights[r]
+            self.parents[r] = root

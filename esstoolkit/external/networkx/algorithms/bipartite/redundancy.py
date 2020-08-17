@@ -1,24 +1,14 @@
-# -*- coding: utf-8 -*-
 """Node redundancy for bipartite graphs."""
-#    Copyright (C) 2011 by
-#    Jordi Torrents <jtorrents@milnou.net>
-#    Aric Hagberg <hagberg@lanl.gov>
-#    All rights reserved.
-#    BSD license.
-from __future__ import division
-
 from itertools import combinations
 
 from networkx import NetworkXError
 
-__author__ = """\n""".join(['Jordi Torrents <jtorrents@milnou.net>',
-                            'Aric Hagberg (hagberg@lanl.gov)'])
-__all__ = ['node_redundancy']
+__all__ = ["node_redundancy"]
 
 
 def node_redundancy(G, nodes=None):
     r"""Computes the node redundancy coefficients for the nodes in the bipartite
-    graph ``G``.
+    graph `G`.
 
     The redundancy coefficient of a node `v` is the fraction of pairs of
     neighbors of `v` that are both linked to other nodes. In a one-mode
@@ -34,7 +24,7 @@ def node_redundancy(G, nodes=None):
         \: \exists v' \neq  v,\: (v',u) \in E\:
         \mathrm{and}\: (v',w) \in E\}|}{ \frac{|N(v)|(|N(v)|-1)}{2}},
 
-    where `N(v)` is the set of neighbors of `v` in ``G``.
+    where `N(v)` is the set of neighbors of `v` in `G`.
 
     Parameters
     ----------
@@ -53,7 +43,6 @@ def node_redundancy(G, nodes=None):
     --------
     Compute the redundancy coefficient of each node in a graph::
 
-        >>> import networkx as nx
         >>> from networkx.algorithms import bipartite
         >>> G = nx.cycle_graph(4)
         >>> rc = bipartite.node_redundancy(G)
@@ -62,7 +51,6 @@ def node_redundancy(G, nodes=None):
 
     Compute the average redundancy for the graph::
 
-        >>> import networkx as nx
         >>> from networkx.algorithms import bipartite
         >>> G = nx.cycle_graph(4)
         >>> rc = bipartite.node_redundancy(G)
@@ -71,7 +59,6 @@ def node_redundancy(G, nodes=None):
 
     Compute the average redundancy for a set of nodes::
 
-        >>> import networkx as nx
         >>> from networkx.algorithms import bipartite
         >>> G = nx.cycle_graph(4)
         >>> rc = bipartite.node_redundancy(G)
@@ -82,7 +69,7 @@ def node_redundancy(G, nodes=None):
     Raises
     ------
     NetworkXError
-        If any of the nodes in the graph (or in ``nodes``, if specified) has
+        If any of the nodes in the graph (or in `nodes`, if specified) has
         (out-)degree less than two (which would result in division by zero,
         according to the definition of the redundancy coefficient).
 
@@ -96,26 +83,29 @@ def node_redundancy(G, nodes=None):
     if nodes is None:
         nodes = G
     if any(len(G[v]) < 2 for v in nodes):
-        raise NetworkXError('Cannot compute redundancy coefficient for a node'
-                            ' that has fewer than two neighbors.')
+        raise NetworkXError(
+            "Cannot compute redundancy coefficient for a node"
+            " that has fewer than two neighbors."
+        )
     # TODO This can be trivially parallelized.
     return {v: _node_redundancy(G, v) for v in nodes}
 
 
 def _node_redundancy(G, v):
-    """Returns the redundancy of the node ``v`` in the bipartite graph ``G``.
+    """Returns the redundancy of the node `v` in the bipartite graph `G`.
 
-    If ``G`` is a graph with ``n`` nodes, the redundancy of a node is the ratio
-    of the "overlap" of ``v`` to the maximum possible overlap of ``v``
-    according to its degree. The overlap of ``v`` is the number of pairs of
-    neighbors that have mutual neighbors themselves, other than ``v``.
+    If `G` is a graph with `n` nodes, the redundancy of a node is the ratio
+    of the "overlap" of `v` to the maximum possible overlap of `v`
+    according to its degree. The overlap of `v` is the number of pairs of
+    neighbors that have mutual neighbors themselves, other than `v`.
 
-    ``v`` must have at least two neighbors in ``G``.
+    `v` must have at least two neighbors in `G`.
 
     """
     n = len(G[v])
     # TODO On Python 3, we could just use `G[u].keys() & G[w].keys()` instead
     # of instantiating the entire sets.
-    overlap = sum(1 for (u, w) in combinations(G[v], 2)
-                  if (set(G[u]) & set(G[w])) - {v})
+    overlap = sum(
+        1 for (u, w) in combinations(G[v], 2) if (set(G[u]) & set(G[w])) - {v}
+    )
     return (2 * overlap) / (n * (n - 1))

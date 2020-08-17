@@ -1,16 +1,10 @@
-# -*- coding: utf-8 -*-
 """
 Flow Hierarchy.
 """
-#    Copyright (C) 2004-2015 by
-#    Aric Hagberg <hagberg@lanl.gov>
-#    Dan Schult <dschult@colgate.edu>
-#    Pieter Swart <swart@lanl.gov>
-#    All rights reserved.
-#    BSD license.
 import networkx as nx
-__authors__ = "\n".join(['Ben Edwards (bedwards@cs.unm.edu)'])
-__all__ = ['flow_hierarchy']
+
+__all__ = ["flow_hierarchy"]
+
 
 def flow_hierarchy(G, weight=None):
     """Returns the flow hierarchy of a directed network.
@@ -29,7 +23,7 @@ def flow_hierarchy(G, weight=None):
     Returns
     -------
     h : float
-       Flow heirarchy value
+       Flow hierarchy value
 
     Notes
     -----
@@ -37,7 +31,7 @@ def flow_hierarchy(G, weight=None):
     exponentiation of the adjacency matrix.  This function implements an
     alternative approach that finds strongly connected components.
     An edge is in a cycle if and only if it is in a strongly connected
-    component, which can be found in `O(m)` time using Tarjan's algorithm.
+    component, which can be found in $O(m)$ time using Tarjan's algorithm.
 
     References
     ----------
@@ -48,6 +42,6 @@ def flow_hierarchy(G, weight=None):
        http://web.mit.edu/~cmagee/www/documents/28-DetectingEvolvingPatterns_FlowHierarchy.pdf
     """
     if not G.is_directed():
-        raise nx.NetworkXError("G must be a digraph in flow_heirarchy")
+        raise nx.NetworkXError("G must be a digraph in flow_hierarchy")
     scc = nx.strongly_connected_components(G)
-    return 1.-sum(G.subgraph(c).size(weight) for c in scc)/float(G.size(weight))
+    return 1.0 - sum(G.subgraph(c).size(weight) for c in scc) / float(G.size(weight))

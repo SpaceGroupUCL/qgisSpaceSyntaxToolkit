@@ -1,17 +1,22 @@
-import sys
-
 from collections import defaultdict
 from os.path import splitext
+from contextlib import contextmanager
+from pathlib import Path
 
 import networkx as nx
 from decorator import decorator
-#import decorator as decorator
-from networkx.utils import is_string_like
+from networkx.utils import create_random_state, create_py_random_state
 
 __all__ = [
-    'not_implemented_for',
-    'open_file',
+    "not_implemented_for",
+    "open_file",
+    "nodes_or_number",
+    "preserve_random_state",
+    "random_state",
+    "np_random_state",
+    "py_random_state",
 ]
+
 
 def not_implemented_for(*graph_types):
     """Decorator to mark algorithms as not implemented
@@ -28,7 +33,7 @@ def not_implemented_for(*graph_types):
 
     Raises
     ------
-    NetworkXNotImplemnted
+    NetworkXNotImplemented
     If any of the packages cannot be imported
 
     Notes
@@ -41,52 +46,61 @@ def not_implemented_for(*graph_types):
     Decorate functions like this::
 
        @not_implemnted_for('directed')
-       def sp_function():
+       def sp_function(G):
            pass
 
        @not_implemnted_for('directed','multigraph')
-       def sp_np_function():
+       def sp_np_function(G):
            pass
     """
+
     @decorator
-    def _not_implemented_for(f,*args,**kwargs):
+    def _not_implemented_for(not_implement_for_func, *args, **kwargs):
         graph = args[0]
-        terms= {'directed':graph.is_directed(),
-                'undirected':not graph.is_directed(),
-                'multigraph':graph.is_multigraph(),
-                'graph':not graph.is_multigraph()}
+        terms = {
+            "directed": graph.is_directed(),
+            "undirected": not graph.is_directed(),
+            "multigraph": graph.is_multigraph(),
+            "graph": not graph.is_multigraph(),
+        }
         match = True
         try:
             for t in graph_types:
                 match = match and terms[t]
-        except KeyError:
-            raise KeyError('use one or more of ',
-                           'directed, undirected, multigraph, graph')
+        except KeyError as e:
+            raise KeyError(
+                "use one or more of " "directed, undirected, multigraph, graph"
+            ) from e
         if match:
-            raise nx.NetworkXNotImplemented('not implemented for %s type'%
-                                            ' '.join(graph_types))
+            msg = f"not implemented for {' '.join(graph_types)} type"
+            raise nx.NetworkXNotImplemented(msg)
         else:
-            return f(*args,**kwargs)
+            return not_implement_for_func(*args, **kwargs)
+
     return _not_implemented_for
 
 
 def _open_gz(path, mode):
     import gzip
-    return gzip.open(path,mode=mode)
+
+    return gzip.open(path, mode=mode)
+
 
 def _open_bz2(path, mode):
     import bz2
-    return bz2.BZ2File(path,mode=mode)
+
+    return bz2.BZ2File(path, mode=mode)
+
 
 # To handle new extensions, define a function accepting a `path` and `mode`.
 # Then add the extension to _dispatch_dict.
-_dispatch_dict = defaultdict(lambda : open)
-_dispatch_dict['.gz'] = _open_gz
-_dispatch_dict['.bz2'] = _open_bz2
-_dispatch_dict['.gzip'] = _open_gz
+_dispatch_dict = defaultdict(lambda: open)
+_dispatch_dict[".gz"] = _open_gz
+_dispatch_dict[".bz2"] = _open_bz2
+_dispatch_dict[".gzip"] = _open_gz
 
 
-def open_file(path_arg, mode='r'):
+def open_file(path_arg, mode="r"):
     """Decorator to ensure clean opening and closing of files.
 
     Parameters
@@ -154,7 +168,7 @@ def open_file(path_arg, mode='r'):
     # be closed, if it should be, by the decorator.
 
     @decorator
-    def _open_file(func, *args, **kwargs):
+    def _open_file(func_to_be_decorated, *args, **kwargs):
 
         # Note that since we have used @decorator, *args, and **kwargs have
         # already been resolved to match the function signature of func. This
@@ -175,33 +189,37 @@ def open_file(path_arg, mode='r'):
             # or it could have been explicitly set by the user.
             try:
                 path = kwargs[path_arg]
-            except KeyError:
+            except KeyError as e:
                 # Could not find the keyword. Thus, no default was specified
                 # in the function signature and the user did not provide it.
-                msg = 'Missing required keyword argument: {0}'
-                raise nx.NetworkXError(msg.format(path_arg))
+                msg = f"Missing required keyword argument: {path_arg}"
+                raise nx.NetworkXError(msg) from e
             else:
                 is_kwarg = True
-        except IndexError:
+        except IndexError as e:
             # A "required" argument was missing. This can only happen if
             # the decorator of the function was incorrectly specified.
             # So this probably is not a user error, but a developer error.
             msg = "path_arg of open_file decorator is incorrect"
-            raise nx.NetworkXError(msg)
+            raise nx.NetworkXError(msg) from e
         else:
             is_kwarg = False
 
         # Now we have the path_arg. There are two types of input to consider:
         #   1) string representing a path that should be opened
         #   2) an already opened file object
-        if is_string_like(path):
+        if isinstance(path, str):
             ext = splitext(path)[1]
             fobj = _dispatch_dict[ext](path, mode=mode)
             close_fobj = True
-        elif hasattr(path, 'read'):
+        elif hasattr(path, "read"):
             # path is already a file-like object
             fobj = path
             close_fobj = False
+        elif isinstance(path, Path):
+            # path is a pathlib reference to a filename
+            fobj = _dispatch_dict[path.suffix](str(path), mode=mode)
+            close_fobj = True
         else:
             # could be None, in which case the algorithm will deal with it
             fobj = path
@@ -216,9 +234,9 @@ def open_file(path_arg, mode='r'):
             new_args = list(args)
             new_args[path_arg] = fobj
 
-        # Finally, we call the original function, making sure to close the fobj.
+        # Finally, we call the original function, making sure to close the fobj
         try:
-            result = func(*new_args, **kwargs)
+            result = func_to_be_decorated(*new_args, **kwargs)
         finally:
             if close_fobj:
                 fobj.close()
@@ -226,3 +244,228 @@ def open_file(path_arg, mode='r'):
         return result
 
     return _open_file
+
+
+def nodes_or_number(which_args):
+    """Decorator to allow number of nodes or container of nodes.
+
+    Parameters
+    ----------
+    which_args : int or sequence of ints
+        Location of the node arguments in args. Even if the argument is a
+        named positional argument (with a default value), you must specify its
+        index as a positional argument.
+        If more than one node argument is allowed, can be a list of locations.
+
+    Returns
+    -------
+    _nodes_or_numbers : function
+        Function which replaces int args with ranges.
+
+    Examples
+    --------
+    Decorate functions like this::
+
+       @nodes_or_number(0)
+       def empty_graph(nodes):
+           pass
+
+       @nodes_or_number([0,1])
+       def grid_2d_graph(m1, m2, periodic=False):
+           pass
+
+       @nodes_or_number(1)
+       def full_rary_tree(r, n)
+           # r is a number. n can be a number of a list of nodes
+           pass
+    """
+
+    @decorator
+    def _nodes_or_number(func_to_be_decorated, *args, **kw):
+        # form tuple of arg positions to be converted.
+        try:
+            iter_wa = iter(which_args)
+        except TypeError:
+            iter_wa = (which_args,)
+        # change each argument in turn
+        new_args = list(args)
+        for i in iter_wa:
+            n = args[i]
+            try:
+                nodes = list(range(n))
+            except TypeError:
+                nodes = tuple(n)
+            else:
+                if n < 0:
+                    msg = "Negative number of nodes not valid: {n}"
+                    raise nx.NetworkXError(msg)
+            new_args[i] = (n, nodes)
+        return func_to_be_decorated(*new_args, **kw)
+
+    return _nodes_or_number
+
+
+def preserve_random_state(func):
+    """ Decorator to preserve the numpy.random state during a function.
+
+    Parameters
+    ----------
+    func : function
+        function around which to preserve the random state.
+
+    Returns
+    -------
+    wrapper : function
+        Function which wraps the input function by saving the state before
+        calling the function and restoring the function afterward.
+
+    Examples
+    --------
+    Decorate functions like this::
+
+        @preserve_random_state
+        def do_random_stuff(x, y):
+            return x + y * numpy.random.random()
+
+    Notes
+    -----
+    If numpy.random is not importable, the state is not saved or restored.
+    """
+    try:
+        from numpy.random import get_state, seed, set_state
+
+        @contextmanager
+        def save_random_state():
+            state = get_state()
+            try:
+                yield
+            finally:
+                set_state(state)
+
+        def wrapper(*args, **kwargs):
+            with save_random_state():
+                seed(1234567890)
+                return func(*args, **kwargs)
+
+        wrapper.__name__ = func.__name__
+        return wrapper
+    except ImportError:
+        return func
+
+
+def random_state(random_state_index):
+    """Decorator to generate a numpy.random.RandomState instance.
+
+    Argument position `random_state_index` is processed by create_random_state.
+    The result is a numpy.random.RandomState instance.
+
+    Parameters
+    ----------
+    random_state_index : int
+        Location of the random_state argument in args that is to be used to
+        generate the numpy.random.RandomState instance. Even if the argument is
+        a named positional argument (with a default value), you must specify
+        its index as a positional argument.
+
+    Returns
+    -------
+    _random_state : function
+        Function whose random_state keyword argument is a RandomState instance.
+
+    Examples
+    --------
+    Decorate functions like this::
+
+       @np_random_state(0)
+       def random_float(random_state=None):
+           return random_state.rand()
+
+       @np_random_state(1)
+       def random_array(dims, random_state=1):
+           return random_state.rand(*dims)
+
+    See Also
+    --------
+    py_random_state
+    """
+
+    @decorator
+    def _random_state(func, *args, **kwargs):
+        # Parse the decorator arguments.
+        try:
+            random_state_arg = args[random_state_index]
+        except TypeError as e:
+            raise nx.NetworkXError("random_state_index must be an integer") from e
+        except IndexError as e:
+            raise nx.NetworkXError("random_state_index is incorrect") from e
+
+        # Create a numpy.random.RandomState instance
+        random_state = create_random_state(random_state_arg)
+
+        # args is a tuple, so we must convert to list before modifying it.
+        new_args = list(args)
+        new_args[random_state_index] = random_state
+        return func(*new_args, **kwargs)
+
+    return _random_state
+
+
+np_random_state = random_state
+
+
+def py_random_state(random_state_index):
+    """Decorator to generate a random.Random instance (or equiv).
+
+    Argument position `random_state_index` processed by create_py_random_state.
+    The result is either a random.Random instance, or numpy.random.RandomState
+    instance with additional attributes to mimic basic methods of Random.
+
+    Parameters
+    ----------
+    random_state_index : int
+        Location of the random_state argument in args that is to be used to
+        generate the numpy.random.RandomState instance. Even if the argument is
+        a named positional argument (with a default value), you must specify
+        its index as a positional argument.
+
+    Returns
+    -------
+    _random_state : function
+        Function whose random_state keyword argument is a RandomState instance.
+
+    Examples
+    --------
+    Decorate functions like this::
+
+       @py_random_state(0)
+       def random_float(random_state=None):
+           return random_state.rand()
+
+       @py_random_state(1)
+       def random_array(dims, random_state=1):
+           return random_state.rand(*dims)
+
+    See Also
+    --------
+    np_random_state
+    """
+
+    @decorator
+    def _random_state(func, *args, **kwargs):
+        # Parse the decorator arguments.
+        try:
+            random_state_arg = args[random_state_index]
+        except TypeError as e:
+            raise nx.NetworkXError("random_state_index must be an integer") from e
+        except IndexError as e:
+            raise nx.NetworkXError("random_state_index is incorrect") from e
+
+        # Create a numpy.random.RandomState instance
+        random_state = create_py_random_state(random_state_arg)
+
+        # args is a tuple, so we must convert to list before modifying it.
+        new_args = list(args)
+        new_args[random_state_index] = random_state
+        return func(*new_args, **kwargs)
+
+    return _random_state
