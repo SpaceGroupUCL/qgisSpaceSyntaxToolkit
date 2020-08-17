@@ -68,8 +68,8 @@ class UrbanDataInputTool(QObject):
         # legend change connections
         self.iface.projectRead.connect(self.updateLayers)
         self.iface.newProjectCreated.connect(self.updateLayers)
-        self.iface.legendInterface().itemRemoved.connect(self.updateLayers)
-        self.iface.legendInterface().itemAdded.connect(self.updateLayers)
+        QgsProject.instance().mapLayers().itemRemoved.connect(self.updateLayers)
+        QgsProject.instance().mapLayers().itemAdded.connect(self.updateLayers)
         # Frontages
         self.iface.mapCanvas().selectionChanged.connect(self.dockwidget.addDataFields)
         # Entrances
@@ -90,8 +90,8 @@ class UrbanDataInputTool(QObject):
             # legend change connections
             self.iface.projectRead.disconnect(self.updateLayers)
             self.iface.newProjectCreated.disconnect(self.updateLayers)
-            self.iface.legendInterface().itemRemoved.disconnect(self.updateLayers)
-            self.iface.legendInterface().itemAdded.disconnect(self.updateLayers)
+            QgsProject.instance().mapLayers().itemRemoved.disconnect(self.updateLayers)
+            QgsProject.instance().mapLayers().itemAdded.disconnect(self.updateLayers)
             # Frontages
             self.iface.mapCanvas().selectionChanged.disconnect(self.dockwidget.addDataFields)
             self.dockwidget.disconnectFrontageLayer()
