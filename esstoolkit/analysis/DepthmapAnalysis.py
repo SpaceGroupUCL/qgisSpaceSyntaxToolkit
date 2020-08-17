@@ -229,12 +229,11 @@ class DepthmapAnalysis(QObject):
             elif self.settings['type'] == 2:
                 defaults.extend(self.rcl_default)
             # I leave all the if clauses outside the for loop to gain some speed
-            vid = QgsVertexId()
             if ref != '':
                 if weight not in defaults:
                     for f in features:
                         nr = 0
-                        while f.geometry().vertexIdFromVertexNr(nr+1,vid):
+                        while f.geometry().vertexIdFromVertexNr(nr+1)[0]:
                             segment_data += str(f.attribute(ref)) + "\t"
                             segment_data += str(f.geometry().vertexAt(nr).x()) + "\t" +\
                                           str(f.geometry().vertexAt(nr).y()) + "\t"
@@ -245,7 +244,7 @@ class DepthmapAnalysis(QObject):
                 else:
                     for f in features:
                         nr = 0
-                        while f.geometry().vertexIdFromVertexNr(nr+1,vid):
+                        while f.geometry().vertexIdFromVertexNr(nr+1)[0]:
                             segment_data += str(f.attribute(ref)) + "\t"
                             segment_data += str(f.geometry().vertexAt(nr).x()) + "\t" +\
                                           str(f.geometry().vertexAt(nr).y()) + "\t"
@@ -256,7 +255,7 @@ class DepthmapAnalysis(QObject):
                 if weight not in defaults:
                     for f in features:
                         nr = 0
-                        while f.geometry().vertexIdFromVertexNr(nr+1,vid):
+                        while f.geometry().vertexIdFromVertexNr(nr+1)[0]:
                             segment_data += str(f.id()) + "\t"
                             segment_data += str(f.geometry().vertexAt(nr).x()) + "\t" +\
                                           str(f.geometry().vertexAt(nr).y()) + "\t"
@@ -267,7 +266,7 @@ class DepthmapAnalysis(QObject):
                 else:
                     for f in features:
                         nr = 0
-                        while f.geometry().vertexIdFromVertexNr(nr+1,vid):
+                        while f.geometry().vertexIdFromVertexNr(nr+1)[0]:
                             segment_data += str(f.id()) + "\t"
                             segment_data += str(f.geometry().vertexAt(nr).x()) + "\t" +\
                                           str(f.geometry().vertexAt(nr).y()) + "\t"
@@ -275,8 +274,8 @@ class DepthmapAnalysis(QObject):
                                           str(f.geometry().vertexAt(nr+1).y()) + "\n"
                             nr += 1
             return segment_data
-        except:
-            self.showMessage("Exporting segment map failed.", 'Error', lev=3, dur=5)
+        except Exception as e:
+            self.showMessage("Exporting segment map failed.", 'Error: ' + str(e), lev=3, dur=5)
             return ''
 
     def prepareUnlinks(self):

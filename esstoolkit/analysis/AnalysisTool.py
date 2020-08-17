@@ -318,7 +318,7 @@ class AnalysisTool(QObject):
         if self.edit_mode == 0:
             # get ids (to match the object ids in the map)
             self.user_ids['map'] = "%s" % self.axial_id
-            if axial.geometryType() == QGis.Line:
+            if axial.geometryType() == QgsWkbTypes.LineString:
                 caps = axial.dataProvider().capabilities()
                 self.verificationThread = AxialVerification(self.iface.mainWindow(), self, settings, axial, self.user_ids['map'], unlinks)
             else:
@@ -534,7 +534,7 @@ class AnalysisTool(QObject):
                 if not self.legend.isLayerVisible(layer):
                     self.legend.setLayerVisible(layer,True)
                 self.iface.mapCanvas().zoomToSelected()
-                if layer.geometryType() in (QGis.Polygon, QGis.Line):
+                if layer.geometryType() in (QgsWkbTypes.Polygon, QgsWkbTypes.Point):
                     self.iface.mapCanvas().zoomOut()
 
 
@@ -733,7 +733,7 @@ class AnalysisTool(QObject):
         if "--comm: 2," in msg:
             pos1 = msg.find(": 2,")
             pos2 = msg.find(",0 --", pos1)
-            self.analysis_nodes = msg[(pos1 + 4):pos2]
+            self.analysis_nodes = int(msg[(pos1 + 4):pos2])
             step = int(self.analysis_nodes) * 0.2
             self.timer.start(step)
         # extract progress info from string
@@ -896,7 +896,6 @@ class MySocket(QObject):
             self.sock.connect((host, port))
         except socket.error as errormsg:
             msg = errormsg.strerror
-            #msg = errormsg.errno
         return msg
 
     def sendData(self, data):
@@ -905,7 +904,7 @@ class MySocket(QObject):
         totalsent = 0
         try:
             while totalsent < size:
-                sent = self.sock.send(data[totalsent:])
+                sent = self.sock.send(data[totalsent:].encode('ascii'))
                 if sent == False:
                     raise IOError("Socket connection broken")
                 totalsent = totalsent + sent
@@ -932,7 +931,7 @@ class MySocket(QObject):
         check = False
         msg = ''
         try:
-            msg = self.sock.recv(buff)
+            msg = self.sock.recv(buff).decode('ascii')
             if msg == '':
                 check = False
             else:
@@ -947,7 +946,7 @@ class MySocket(QObject):
         msg = ''
         try:
             while True:
-                chunk = self.sock.recv(buff)
+                chunk = self.sock.recv(buff).decode('ascii')
                 if not chunk:
                     break
                 msg += chunk
@@ -962,7 +961,7 @@ class MySocket(QObject):
         msg = ''
         try:
             while True:
-                chunk = self.sock.recv(buff)
+                chunk = self.sock.recv(buff).decode('ascii')
                 if not chunk:
                     break
                 msg += chunk
