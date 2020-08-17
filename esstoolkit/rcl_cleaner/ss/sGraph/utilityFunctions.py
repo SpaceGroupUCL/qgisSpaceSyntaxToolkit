@@ -86,7 +86,10 @@ def to_shp(path, any_features_list, layer_fields, crs, name, encoding, geom_type
         fields = QgsFields()
         for field in layer_fields:
             fields.append(field)
-        file_writer = QgsVectorFileWriter(path, encoding, fields, geom_type, crs, "ESRI Shapefile")
+        options = QgsVectorFileWriter.SaveVectorOptions()
+        options.driverName = "ESRI Shapefile"
+        options.fileEncoding = encoding
+        file_writer = QgsVectorFileWriter.create(path, fields, geom_type, crs, QgsCoordinateTransformContext(), options)
         if file_writer.hasError() != QgsVectorFileWriter.NoError:
             print("Error when creating shapefile: ", file_writer.errorMessage())
         del file_writer

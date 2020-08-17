@@ -204,8 +204,11 @@ def to_layer(fields, crs, encoding, geom_type, layer_type, path):
 
     elif layer_type == 'shapefile':
 
-        wkbTypes = { 'Point': QGis.WKBPoint, 'Linestring': QGis.WKBLineString, 'Polygon': QGis.WKBPolygon }
-        file_writer = QgsVectorFileWriter(path, encoding, fields, wkbTypes[geom_type], crs, "ESRI Shapefile")
+        wkbTypes = { 'Point': QgsWkbTypes.Point, 'Linestring': QgsWkbTypes.LineString, 'Polygon': QgsWkbTypes.Polygon }
+        options = QgsVectorFileWriter.SaveVectorOptions()
+        options.driverName = "ESRI Shapefile"
+        options.fileEncoding = encoding
+        file_writer = QgsVectorFileWriter.create(path, fields, wkbTypes[geom_type], crs, QgsCoordinateTransformContext(), options)
         if file_writer.hasError() != QgsVectorFileWriter.NoError:
             print("Error when creating shapefile: ", file_writer.errorMessage())
         del file_writer

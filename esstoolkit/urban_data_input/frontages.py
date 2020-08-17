@@ -100,7 +100,7 @@ class FrontageTool(QObject):
 
         for layer in layers:
             if layer.type() == QgsMapLayer.VectorLayer:
-                if layer.geometryType() == QGis.Polygon:
+                if layer.geometryType() == QgsWkbTypes.Polygon:
                     self.dockwidget.pushIDcomboBox.setEnabled(False)
                     self.dockwidget.pushIDcomboBox.addItem(layer.name(), layer)
 

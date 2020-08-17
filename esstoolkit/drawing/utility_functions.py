@@ -1,4 +1,4 @@
-from qgis.core import QgsFields, QgsField, QgsGeometry, QgsFeature, QgsVectorLayer, QgsVectorFileWriter, NULL, QgsProject
+from qgis.core import QgsProject
 
 
 def getLayerByName(name):
