@@ -28,6 +28,7 @@ from qgis.PyQt.QtGui import QColor
 from qgis.core import (QgsSymbol, QgsFillSymbol, QgsGraduatedSymbolRenderer, QgsRendererRange, QgsRenderContext, QgsGradientColorRamp, QgsGradientStop)
 
 from .. import utility_functions as uf
+from .. import gui_helpers as guih
 
 import numpy as np
 
@@ -159,7 +160,7 @@ class AttributeSymbology(QObject):
     def getColourRamp(self, colour_type, invert):
         ramp = None
         # grey and monochrome depend on canvas colour: if canvas is black or dark, symbols are white, and vice versa
-        canvas = uf.getCanvasColour(self.iface)
+        canvas = guih.getCanvasColour(self.iface)
         if colour_type == 0:  # classic space syntax
             if invert:
                 ramp = QgsGradientColorRamp(QColor(255, 0, 0, 255), QColor(0, 0, 255, 255), False)

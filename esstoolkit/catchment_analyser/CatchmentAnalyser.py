@@ -27,7 +27,7 @@ from qgis.PyQt.QtCore import (QObject, QSettings, QVariant, QThread)
 from qgis.PyQt.QtGui import QColor
 
 # Import QGIS classes
-from qgis.core import (QgsSymbol, QgsRendererRange, QgsGraduatedSymbolRenderer, QgsProject, QgsFillSymbol, QgsMessageLog)
+from qgis.core import (QgsSymbol, QgsRendererRange, QgsGraduatedSymbolRenderer, QgsProject, QgsFillSymbol, QgsMessageLog, Qgis)
 import itertools, operator
 
 # Import the code for the dialog
@@ -37,6 +37,7 @@ from . import catchment_analysis as ca
 
 # Import utility tools
 from . import utility_functions as uf
+from .. import layer_field_helpers as lfh
 
 
 class CatchmentTool(QObject):
@@ -117,7 +118,7 @@ class CatchmentTool(QObject):
 
     def updateName(self):
         origins = self.getOrigins()
-        self.dlg.setNameFields(uf.getFieldNames(origins))
+        self.dlg.setNameFields(lfh.getFieldNames(origins))
         if self.dlg.nameCheck.isChecked():
             self.dlg.nameCombo.setDisabled(False)
         else:
@@ -131,10 +132,10 @@ class CatchmentTool(QObject):
         self.dlg.dbsettings_dlg.nameLineEdit.setText(self.dlg.networkCombo.currentText() + "_catchment")
 
     def getNetwork(self):
-        return uf.getLegendLayerByName(self.iface, self.dlg.getNetwork())
+        return lfh.getLegendLayerByName(self.iface, self.dlg.getNetwork())
 
     def getOrigins(self):
-        return uf.getLegendLayerByName(self.iface, self.dlg.getOrigins())
+        return lfh.getLegendLayerByName(self.iface, self.dlg.getOrigins())
 
     def tempNetwork(self, epsg):
 

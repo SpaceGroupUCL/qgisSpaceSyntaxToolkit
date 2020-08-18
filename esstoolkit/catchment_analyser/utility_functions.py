@@ -36,18 +36,6 @@ def getLayerByName(name):
             layer = i
     return layer
 
-def getLegendLayers(iface, geom='all', provider='all'):
-    """geometry types: 0 point; 1 line; 2 polygon; 3 multipoint; 4 multiline; 5 multipolygon"""
-    layers_list = []
-    for layer in QgsProject.instance().mapLayers().values():
-        add_layer = False
-        if layer.isValid() and layer.type() == QgsMapLayer.VectorLayer:
-            if layer.isSpatial() and (geom is 'all' or layer.geometryType() in geom):
-                if provider is 'all' or layer.dataProvider().name() in provider:
-                    add_layer = True
-        if add_layer:
-            layers_list.append(layer)
-    return layers_list
 
 def getLegendLayersNames(iface, geom='all', provider='all'):
     """geometry types: 0 point; 1 line; 2 polygon; 3 multipoint; 4 multiline; 5 multipolygon"""
@@ -63,21 +51,6 @@ def getLegendLayersNames(iface, geom='all', provider='all'):
     return layers_list
 
 
-def getLegendLayerByName(iface, name):
-    layer = None
-    for i in QgsProject.instance().mapLayers().values():
-        if i.name() == name:
-            layer = i
-    return layer
-
-
-def getLayerByName(name):
-    layer = None
-    for i in list(QgsProject.instance().mapLayers().values()):
-        if i.name() == name:
-            layer = i
-    return layer
-
 def getNumericFieldNames(layer, type='all'):
     field_names = []
     if type == 'all':
@@ -88,13 +61,6 @@ def getNumericFieldNames(layer, type='all'):
         for field in layer.dataProvider().fields():
             if field.type() in types:
                 field_names.append(field.name())
-    return field_names
-
-def getFieldNames(layer):
-    field_names = []
-    if layer and layer.dataProvider():
-        for field in layer.dataProvider().fields():
-            field_names.append(field.name())
     return field_names
 
 def check_for_NULL_geom(layer):

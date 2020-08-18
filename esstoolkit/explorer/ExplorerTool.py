@@ -32,6 +32,7 @@ from .AttributeSymbology import *
 from .AttributeStats import *
 from .AttributeCharts import *
 from .. import utility_functions as uf
+from .. import layer_field_helpers as lfh
 
 import numpy as np
 import time
@@ -143,7 +144,7 @@ class ExplorerTool(QObject):
     ##
     def updateLayers(self):
         try:
-            layers = uf.getLegendLayers(self.iface)
+            layers = lfh.getLegendLayers(self.iface)
         except:
             layers = []
         has_numeric = []
@@ -151,7 +152,7 @@ class ExplorerTool(QObject):
         if len(layers) > 0:
             for layer in layers:
                 if layer.type() == 0:  # VectorLayer
-                    fields = uf.getNumericFields(layer)
+                    fields = lfh.getNumericFields(layer)
                     if len(fields) > 0:
                         has_numeric.append(layer.name())
                         if self.current_layer and layer.name() == self.current_layer.name():
@@ -182,7 +183,7 @@ class ExplorerTool(QObject):
                     except: pass
                 # fixme: throws NoneType error occasionally when adding/removing layers. trapping it for now.
                 try:
-                    self.current_layer = uf.getLegendLayerByName(self.iface, layer)
+                    self.current_layer = lfh.getLegendLayerByName(self.iface, layer)
                     if self.dlg.getCurrentTab() == 1:
                         self.current_layer.selectionChanged.connect(self.updateStats)
                     elif self.dlg.getCurrentTab() == 2:
@@ -197,7 +198,7 @@ class ExplorerTool(QObject):
             if self.current_layer.type() == 0:  #VectorLayer
                 # fixme: throws NoneType error occasionally when adding/removing layers. trapping it for now.
                 try:
-                    numeric_fields, numeric_field_indices = uf.getNumericFieldNames(self.current_layer)
+                    numeric_fields, numeric_field_indices = lfh.getNumericFieldNames(self.current_layer)
                 except:
                     numeric_fields = []
                     numeric_field_indices = []
@@ -373,7 +374,7 @@ class ExplorerTool(QObject):
                 # calculate stats of selected objects only
                 select_stats = dict()
                 if self.current_layer.selectedFeatureCount() > 0:
-                    self.selection_values, self.selection_ids = uf.getFieldValues(self.current_layer, attribute['name'], null=False, selection=True)
+                    self.selection_values, self.selection_ids = lfh.getFieldValues(self.current_layer, attribute['name'], null=False, selection=True)
                     sel_values = [val for val in self.selection_values if val != NULL]
                     select_stats['Number'] = len(sel_values)
                     select_stats['Mean'] = uf.truncateNumber(np.mean(sel_values))
@@ -419,7 +420,7 @@ class ExplorerTool(QObject):
                     self.attributeCharts.drawHistogram(values, attribute['min'], attribute['max'], bins)
                     # retrieve selection values
                     if self.current_layer.selectedFeatureCount() > 0:
-                        self.selection_values, self.selection_ids = uf.getFieldValues(self.current_layer, attribute['name'], null=False, selection=True)
+                        self.selection_values, self.selection_ids = lfh.getFieldValues(self.current_layer, attribute['name'], null=False, selection=True)
                         #self.selection_values = field_values.values()
                         #self.selection_ids = field_values.keys()
                 # create a scatter plot
@@ -492,7 +493,7 @@ class ExplorerTool(QObject):
                     self.attributeCharts.drawScatterplot(xvalues, attribute['min'], attribute['max'], yvalues, dependent['min'], dependent['max'], bistats['slope'], bistats['intercept'], xids, symbols)
                     # retrieve selection values
                     if self.current_layer.selectedFeatureCount() > 0:
-                        field_values = uf.getFieldsListValues(self.current_layer, [attribute['name'], dependent['name']], null=False, selection=True)
+                        field_values = lfh.getFieldsListValues(self.current_layer, [attribute['name'], dependent['name']], null=False, selection=True)
                         self.selection_values = field_values[attribute['name']]
                         self.dependent_values = field_values[dependent['name']]
                         self.selection_ids = field_values['id']
@@ -510,13 +511,13 @@ class ExplorerTool(QObject):
                 attribute = self.layer_attributes[current_attribute]
                 chart_type = self.dlg.getChartType()
                 if chart_type == 0:
-                    self.selection_values, self.selection_ids = uf.getFieldValues(self.current_layer, attribute['name'], null=False, selection=True)
+                    self.selection_values, self.selection_ids = lfh.getFieldValues(self.current_layer, attribute['name'], null=False, selection=True)
                     #self.selection_values = field_values.values()
                     #self.selection_ids = field_values.keys()
                 elif chart_type == 1:
                     current_dependent = self.dlg.getYAxisAttribute()
                     dependent = self.layer_attributes[current_dependent]
-                    field_values = uf.getFieldsListValues(self.current_layer, [attribute['name'], dependent['name']], null=False, selection=True)
+                    field_values = lfh.getFieldsListValues(self.current_layer, [attribute['name'], dependent['name']], null=False, selection=True)
                     self.selection_values = field_values[attribute['name']]
                     self.dependent_values = field_values[dependent['name']]
                     self.selection_ids = field_values['id']
@@ -552,7 +553,7 @@ class ExplorerTool(QObject):
             if current_attribute >= 0:
                 chart_type = self.dlg.getChartType()
                 if chart_type == 0:
-                    features = uf.getFeaturesRangeValues(self.current_layer, self.layer_attributes[current_attribute]['name'], selection[0], selection[1])
+                    features = lfh.getFeaturesRangeValues(self.current_layer, self.layer_attributes[current_attribute]['name'], selection[0], selection[1])
                     self.current_layer.setSelectedFeatures(list(features.keys()))
                     self.selection_values = list(features.values())
                     self.selection_ids = list(features.keys())
@@ -581,14 +582,14 @@ class ExplorerTool(QObject):
         storage = self.current_layer.storageType()
         if 'spatialite' in storage.lower():
             #todo: retrieve values and ids using SQL query
-            values, ids = uf.getFieldValues(self.current_layer, attribute["name"], null=True)
+            values, ids = lfh.getFieldValues(self.current_layer, attribute["name"], null=True)
             clean_values = [val for val in values if val != NULL]
         elif 'postgresql' in storage.lower():
             #todo: retrieve values and ids using SQL query
-            values, ids = uf.getFieldValues(self.current_layer, attribute["name"], null=True)
+            values, ids = lfh.getFieldValues(self.current_layer, attribute["name"], null=True)
             clean_values = [val for val in values if val != NULL]
         else:
-            values, ids = uf.getFieldValues(self.current_layer, attribute["name"], null=True)
+            values, ids = lfh.getFieldValues(self.current_layer, attribute["name"], null=True)
             # we need to keep the complete values set for the scatterplot, must get rid of NULL values for other stats
             clean_values = [val for val in values if val != NULL]
         if values and ids:

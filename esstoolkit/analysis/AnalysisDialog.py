@@ -29,7 +29,7 @@ from .DepthmapAdvancedDialog import DepthmapAdvancedDialog
 from .VerificationSettingsDialog import VerificationSettingsDialog
 
 from .. import utility_functions as uf
-
+from .. import layer_field_helpers as lfh
 
 class AnalysisDialog(QtWidgets.QDockWidget, Ui_AnalysisDialog):
     dialogClosed = QtCore.pyqtSignal()
@@ -452,8 +452,8 @@ class AnalysisDialog(QtWidgets.QDockWidget, Ui_AnalysisDialog):
         if self.layers[0]['idx'] > 0:
             self.lockAxialDepthmapTab(False)
             # update weights combo box and output name
-            layer = uf.getLayerByName(self.layers[0]['name'])
-            txt, idxs = uf.getNumericFieldNames(layer)
+            layer = lfh.getLayerByName(self.layers[0]['name'])
+            txt, idxs = lfh.getNumericFieldNames(layer)
             if self.axial_analysis_type == 0:
                 self.setAxialDepthmapOutputTable(self.layers[0]['name'])
                 #self.axialDepthmapAxialRadio.setDisabled(False)

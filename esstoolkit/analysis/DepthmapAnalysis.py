@@ -29,6 +29,7 @@ from qgis.PyQt.QtCore import (QObject, QThread, pyqtSignal, QVariant)
 import math
 
 from .. import utility_functions as uf
+from .. import layer_field_helpers as lfh
 
 class DepthmapAnalysis(QObject):
 
@@ -55,11 +56,11 @@ class DepthmapAnalysis(QObject):
         # get relevant QGIS layer objects
         axial = layers['map']
         if axial != '':
-            self.axial_layer = uf.getLegendLayerByName(self.iface, axial)
+            self.axial_layer = lfh.getLegendLayerByName(self.iface, axial)
         else:
             return None
         if layers['unlinks'] != '':
-            self.unlinks_layer = uf.getLegendLayerByName(self.iface, layers['unlinks'])
+            self.unlinks_layer = lfh.getLegendLayerByName(self.iface, layers['unlinks'])
         else:
             self.unlinks_layer = ''
         #
@@ -72,7 +73,7 @@ class DepthmapAnalysis(QObject):
         if self.settings['id']:
             self.axial_id = self.settings['id']
         else:
-            self.axial_id = uf.getIdField(self.axial_layer)
+            self.axial_id = lfh.getIdField(self.axial_layer)
         # prepare map and unlinks layers
         if self.settings['type'] in (0,1):
             axial_data = self.prepareAxialMap(self.axial_id, weight_by)
