@@ -108,25 +108,6 @@ def truncateNumber(num,digits=9):
         truncated = math.floor(num * 10 ** digits) / 10 ** digits
         return truncated
 
-
-# function found here http://www.power-quant.com/?q=node/85
-def isNumericNew(num):
-    """Checks to see if x represents a numeric value by converting
-    into unicode and utilizing the isnumeric() method."""
-    # first convert the number into a string
-    strRep = str(num)
-    # fixme: breaks if value comes out in scientific notation, considers it non numeric!
-    # then make a unicode version so we can ensure we're dealing with
-    # something that represents a numeric value:
-    uRep = str(strRep)
-    print(uRep)
-    if ('.' in uRep) and all([x.isnumeric() for x in uRep.split('.')]):
-        return True # there's a decimal and everything to the right
-                    # and left of it is numeric
-    else:
-        return uRep.isnumeric()
-
-
 def numSigDigits(num):
     """Returns the number of significant digits in a number.
     based on code by unclej
@@ -160,23 +141,6 @@ def roundSigDigits(num, sig_figs):
     """ Round to specified number of significant digits.
     by Ben Hoyt
     see: http://code.activestate.com/recipes/578114-round-number-to-specified-number-of-significant-di/
-
-    roundSigDigits(0, sig_figs=4)
-    >> 0
-    int(roundSigDigits(12345, sig_figs=2))
-    >> 12000
-    int(roundSigDigits(-12345, sig_figs=2))
-    >> -12000
-    int(roundSigDigits(1, sig_figs=2))
-    >> 1
-    '{0:.3}'.format(roundSigDigits(3.1415, sig_figs=2))
-    >> '3.1'
-    '{0:.3}'.format(roundSigDigits(-3.1415, sig_figs=2))
-    >> '-3.1'
-    '{0:.5}'.format(roundSigDigits(0.00098765, sig_figs=2))
-    >> '0.00099'
-    '{0:.6}'.format(roundSigDigits(0.00098765, sig_figs=3))
-    >> '0.000988'
     """
     if num != 0:
         return round(num, -int(math.floor(math.log10(abs(num))) - (sig_figs - 1)))
