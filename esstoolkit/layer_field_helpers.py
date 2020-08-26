@@ -28,7 +28,7 @@ from builtins import range
 from qgis.PyQt.QtCore import (QVariant, QSettings)
 from qgis.PyQt.QtGui import QColor
 from qgis.PyQt.QtWidgets import QMessageBox
-from qgis.core import (QgsProject, QgsMapLayer, QgsDataSourceUri, QgsVectorLayer, QgsCredentials, QgsVectorDataProvider, QgsFields, QgsField, QgsPoint, QgsGeometry, QgsFeature, QgsVectorFileWriter, QgsFeatureRequest, QgsSpatialIndex, QgsCoordinateTransformContext, QgsWkbTypes)
+from qgis.core import (QgsProject, QgsMapLayer, QgsDataSourceUri, QgsVectorLayer, QgsCredentials, QgsVectorDataProvider, QgsFields, QgsField, QgsPoint, QgsGeometry, QgsFeature, QgsVectorFileWriter, QgsFeatureRequest, QgsSpatialIndex, QgsCoordinateTransformContext, QgsWkbTypes, NULL)
 
 # from pyspatialite import dbapi2 as sqlite
 import psycopg2 as pgsql
@@ -260,7 +260,7 @@ def fieldHasNullValues(layer, name):
         idx = getFieldIndex(layer, name)
         vals = layer.uniqueValues(idx,1)
         # depending on the provider list is empty or has NULL value in first position
-        if len(vals) == 0 or (len(vals) == 1 and vals[0] == NULL):
+        if len(vals) == 0 or (len(vals) == 1 and next(iter(vals)) == NULL):
             return True
         else:
             return False

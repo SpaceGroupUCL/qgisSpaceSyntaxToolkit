@@ -401,7 +401,7 @@ class UnlinksVerification(QThread):
             else:
                 id = feature.attribute(self.user_id)
             # geometry is valid (generally)
-            if not geom.isGeosValid() or geom.isGeosEmpty():
+            if not geom.isGeosValid() or geom.isEmpty():
                 has_problem = True
                 self.axial_errors['invalid geometry'].append(id)
             progress += steps
