@@ -320,7 +320,7 @@ class AnalysisTool(QObject):
         if self.edit_mode == 0:
             # get ids (to match the object ids in the map)
             self.user_ids['map'] = "%s" % self.axial_id
-            if axial.geometryType() == QgsWkbTypes.LineString:
+            if axial.geometryType() == QgsWkbTypes.LineGeometry:
                 caps = axial.dataProvider().capabilities()
                 self.verificationThread = AxialVerification(self.iface.mainWindow(), self, settings, axial, self.user_ids['map'], unlinks)
             else:
