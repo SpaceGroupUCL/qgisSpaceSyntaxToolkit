@@ -538,7 +538,7 @@ class AxialVerification(QThread):
             else:
                 fid = feature.attribute(self.user_id)
             # has no geometry, skip rest of the checks
-            if not geom:
+            if not feature.hasGeometry():
                 self.axial_errors['invalid geometry'].append(fid)
                 self.problem_nodes.append(fid)
                 progress += steps

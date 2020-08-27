@@ -525,16 +525,17 @@ class AnalysisTool(QObject):
             # select features and zoom
             if features:
                 if user_id == '':
-                    layer.setSelectedFeatures(features)
+                    layer.selectByIds(features)
                 else:
-                    ids = uf.getFeaturesListValues(layer,user_id,features)
-                    layer.setSelectedFeatures(list(ids.keys()))
+                    ids = lfh.getFeaturesListValues(layer,user_id,features)
+                    layer.selectByIds(list(ids.keys()))
             else:
-                layer.setSelectedFeatures([])
+                layer.selectByIds([])
             if layer.selectedFeatureCount() > 0:
                 self.iface.mapCanvas().setCurrentLayer(layer)
-                if not self.legend.isLayerVisible(layer):
-                    self.legend.setLayerVisible(layer,True)
+                layerNode = QgsProject.instance().layerTreeRoot().findLayer(layer.id())
+                if not layerNode.isVisible():
+                    layerNode.setItemVisibilityChecked(True)
                 self.iface.mapCanvas().zoomToSelected()
                 if layer.geometryType() in (QgsWkbTypes.Polygon, QgsWkbTypes.Point):
                     self.iface.mapCanvas().zoomOut()

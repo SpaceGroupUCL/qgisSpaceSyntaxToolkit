@@ -554,11 +554,11 @@ class ExplorerTool(QObject):
                 chart_type = self.dlg.getChartType()
                 if chart_type == 0:
                     features = lfh.getFeaturesRangeValues(self.current_layer, self.layer_attributes[current_attribute]['name'], selection[0], selection[1])
-                    self.current_layer.setSelectedFeatures(list(features.keys()))
+                    self.current_layer.selectByIds(list(features.keys()))
                     self.selection_values = list(features.values())
                     self.selection_ids = list(features.keys())
                 elif chart_type == 1:
-                    self.current_layer.setSelectedFeatures(selection)
+                    self.current_layer.selectByIds(selection)
 
     def showhideChartLines(self, onoff):
         chart_type = self.dlg.getChartType()
