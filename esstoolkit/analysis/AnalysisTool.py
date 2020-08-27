@@ -166,12 +166,12 @@ class AnalysisTool(QObject):
                 new_datastore['path'] = path
                 new_datastore['name'] = dbname
                 # create a new connection if not exists
-                conn = uf.listSpatialiteConnections()
+                conn = dbh.listSpatialiteConnections()
                 if path not in conn['path']:
-                    uf.createSpatialiteConnection(dbname, path)
+                    dbh.createSpatialiteConnection(dbname, path)
             elif 'PostGIS' in layer.storageType():
                 new_datastore['type'] = 2
-                layerinfo = uf.getPostgisLayerInfo(layer)
+                layerinfo = dbh.getPostgisLayerInfo(layer)
                 if layerinfo['service']:
                     path = layerinfo['service']
                 else:
@@ -182,7 +182,7 @@ class AnalysisTool(QObject):
                     new_datastore['name'] = layerinfo['connection']
                 else:
                     # create a new connection if not exists
-                    uf.createPostgisConnectionSetting(path, uf.getPostgisConnectionInfo(layer))
+                    dbh.createPostgisConnectionSetting(path, dbh.getPostgisConnectionInfo(layer))
                     new_datastore['name'] = path
             elif 'memory?' not in layer.storageType():  # 'Shapefile'
                 new_datastore['type'] = 0
@@ -218,18 +218,18 @@ class AnalysisTool(QObject):
                 path = self.datastore['path']
             # spatialite data store
             elif self.datastore['type'] == 1 and os.path.exists(self.datastore['path']):
-                sl_connections = uf.listSpatialiteConnections()
+                sl_connections = dbh.listSpatialiteConnections()
                 if len(sl_connections) > 0:
                     if self.datastore['name'] in sl_connections['name'] and self.datastore['path'] == sl_connections['path'][sl_connections['name'].index(self.datastore['name'])]:
                         txt = 'SL: %s' % self.datastore['name']
                         path = self.datastore['path']
                 else:
-                    uf.createSpatialiteConnection(self.datastore['name'],self.datastore['path'])
+                    dbh.createSpatialiteConnection(self.datastore['name'],self.datastore['path'])
                     txt = 'SL: %s' % self.datastore['name']
                     path = self.datastore['path']
             # postgis data store
-            elif self.datastore['type'] == 2 and len(uf.listPostgisConnectionNames()) > 0:
-                if self.datastore['name'] in uf.listPostgisConnectionNames():
+            elif self.datastore['type'] == 2 and len(dbh.listPostgisConnectionNames()) > 0:
+                if self.datastore['name'] in dbh.listPostgisConnectionNames():
                     txt = 'PG: %s (%s)' % (self.datastore['name'], self.datastore['schema'])
                     path = """dbname='%s' schema='%s'""" % (self.datastore['path'], self.datastore['schema'])
         self.dlg.setDatastore(txt, path)
@@ -245,9 +245,9 @@ class AnalysisTool(QObject):
                 self.iface.messageBar().pushMessage("Info", "Select a 'Data store' to save analysis results.", level=0, duration=5)
             elif self.datastore['type'] == 0 and not os.path.exists(path):
                 is_set = False
-            elif self.datastore['type'] == 1 and (name not in uf.listSpatialiteConnections()['name'] or not os.path.exists(path)):
+            elif self.datastore['type'] == 1 and (name not in dbh.listSpatialiteConnections()['name'] or not os.path.exists(path)):
                 is_set = False
-            elif self.datastore['type'] == 2 and (name not in uf.listPostgisConnectionNames() or schema not in uf.listPostgisSchemas(uf.getPostgisConnection(name))):
+            elif self.datastore['type'] == 2 and (name not in dbh.listPostgisConnectionNames() or schema not in dbh.listPostgisSchemas(dbh.getPostgisConnection(name))):
                 is_set = False
             else:
                 is_set = True
@@ -424,20 +424,20 @@ class AnalysisTool(QObject):
                 layer = lfh.getLegendLayerByName(self.iface, self.analysis_layers['map'])
             elif self.edit_mode == 1:
                 layer = lfh.getLegendLayerByName(self.iface, self.analysis_layers['unlinks'])
-            connection = uf.getDBLayerConnection(layer)
+            connection = dbh.getDBLayerConnection(layer)
             if self.datastore['type'] == 1:
-                cols = uf.listSpatialiteColumns(connection, layer.name())
+                cols = dbh.listSpatialiteColumns(connection, layer.name())
             else:
-                info = uf.getPostgisLayerInfo(layer)
+                info = dbh.getPostgisLayerInfo(layer)
                 schema = info['schema']
                 name = info['table']
-                cols = uf.listPostgisColumns(connection, schema, name)
+                cols = dbh.listPostgisColumns(connection, schema, name)
             connection.close()
             # columns-1 to account for the geometry column that is not a field in QGIS
             if len(layer.dataProvider().fields()) == len(cols)-1:
                 layer.dataProvider().reloadData()
             else:
-                uf.reloadLayer(layer)
+                lfh.reloadLayer(layer)
         self.dlg.setAxialProblemsFilter(["Layer IDs updated"])
         self.dlg.lockLayerTab(False)
         self.dlg.lockAxialEditTab(False)
@@ -502,13 +502,13 @@ class AnalysisTool(QObject):
             if user_id == '':
                 self.all_ids = layer.allFeatureIds()
             else:
-                self.all_ids, ids = uf.getFieldValues(layer, user_id)
-                layer.setDisplayField(user_id)
+                self.all_ids, ids = lfh.getFieldValues(layer, user_id)
+                layer.setDisplayExpression('"field_name" = {0}'.format(user_id))
             # set display field for axial map (always)
             if idx != 0:
                 axial_layer = lfh.getLegendLayerByName(self.iface, layers['map'])
                 if self.axial_id != '':
-                    axial_layer.setDisplayField(self.axial_id)
+                    axial_layer.setDisplayExpression('"field_name" = {0}'.format(self.axial_id))
             if not self.iface.actionMapTips().isChecked():
                 self.iface.actionMapTips().trigger()
             # prepare features to check
@@ -608,14 +608,14 @@ class AnalysisTool(QObject):
             if self.datastore['type'] == 0:
                 table_exists = shph.testShapeFileExists(self.datastore['path'], self.axial_analysis_settings['output'])
             elif self.datastore['type'] == 1:
-                connection = uf.getSpatialiteConnection(self.datastore['path'])
+                connection = dbh.getSpatialiteConnection(self.datastore['path'])
                 if connection:
-                    table_exists = uf.testSpatialiteTableExists(connection, self.axial_analysis_settings['output'])
+                    table_exists = dbh.testSpatialiteTableExists(connection, self.axial_analysis_settings['output'])
                 connection.close()
             elif self.datastore['type'] == 2:
-                connection = uf.getPostgisConnection(self.datastore['name'])
+                connection = dbh.getPostgisConnection(self.datastore['name'])
                 if connection:
-                    table_exists = uf.testPostgisTableExists(connection, self.datastore['schema'], self.axial_analysis_settings['output'])
+                    table_exists = dbh.testPostgisTableExists(connection, self.datastore['schema'], self.axial_analysis_settings['output'])
                 connection.close()
             if table_exists:
                 action = QMessageBox.question(None, "Overwrite table", "The output table already exists in:\n %s.\nOverwrite?"% self.datastore['path'], QMessageBox.Ok | QMessageBox.Cancel)
@@ -820,28 +820,28 @@ class AnalysisTool(QObject):
                     res = False
             # or append to an existing file
             else:
-                res = uf.addShapeFileAttributes(analysis_layer, attributes, types, values)
+                res = shph.addShapeFileAttributes(analysis_layer, attributes, types, values)
         # spatialite data store
         elif self.datastore['type'] == 1:
-            connection = uf.getSpatialiteConnection(path)
-            if not uf.testSpatialiteTableExists(connection, self.axial_analysis_settings['output']):
+            connection = dbh.getSpatialiteConnection(path)
+            if not dbh.testSpatialiteTableExists(connection, self.axial_analysis_settings['output']):
                 create_table = True
             if 'spatialite' not in provider.lower() or create_table:
-                res = uf.createSpatialiteTable(connection, path, table, srid.postgisSrid(), attributes, types, 'MULTILINESTRING')
+                res = dbh.createSpatialiteTable(connection, path, table, srid.postgisSrid(), attributes, types, 'MULTILINESTRING')
                 if res:
-                    res = uf.insertSpatialiteValues(connection, table, attributes, values, coords)
+                    res = dbh.insertSpatialiteValues(connection, table, attributes, values, coords)
                     if res:
-                        new_layer = uf.getSpatialiteLayer(connection, path, table)
+                        new_layer = dbh.getSpatialiteLayer(connection, path, table)
                         if new_layer:
                             res = True
                         else:
                             res = False
             else:
-                res = uf.addSpatialiteAttributes(connection, table, id, attributes, types, values)
+                res = dbh.addSpatialiteAttributes(connection, table, id, attributes, types, values)
                 # the spatialite layer needs to be removed and re-inserted to display changes
                 if res:
                     QgsProject.instance().removeMapLayer(analysis_layer.id())
-                    new_layer = uf.getSpatialiteLayer(connection, path, table)
+                    new_layer = dbh.getSpatialiteLayer(connection, path, table)
                     if new_layer:
                         res = True
                     else:
@@ -850,25 +850,25 @@ class AnalysisTool(QObject):
         # postgis data store
         elif self.datastore['type'] == 2:
             schema = self.datastore['schema']
-            connection = uf.getPostgisConnection(self.datastore['name'])
-            if not uf.testPostgisTableExists(connection, self.datastore['schema'], self.axial_analysis_settings['output']):
+            connection = dbh.getPostgisConnection(self.datastore['name'])
+            if not dbh.testPostgisTableExists(connection, self.datastore['schema'], self.axial_analysis_settings['output']):
                 create_table = True
             if 'postgresql' not in provider.lower() or create_table:
-                res = uf.createPostgisTable(connection, schema, table, srid.postgisSrid(), attributes, types, 'MULTILINESTRING')
+                res = dbh.createPostgisTable(connection, schema, table, srid.postgisSrid(), attributes, types, 'MULTILINESTRING')
                 if res:
-                    res = uf.insertPostgisValues(connection, schema, table, attributes, values, coords)
+                    res = dbh.insertPostgisValues(connection, schema, table, attributes, values, coords)
                     if res:
-                        new_layer = uf.getPostgisLayer(connection, self.datastore['name'], schema, table)
+                        new_layer = dbh.getPostgisLayer(connection, self.datastore['name'], schema, table)
                         if new_layer:
                             res = True
                         else:
                             res = False
             else:
-                res = uf.addPostgisAttributes(connection, schema, table, id, attributes, types, values)
+                res = dbh.addPostgisAttributes(connection, schema, table, id, attributes, types, values)
                 # the postgis layer needs to be removed and re-inserted to display changes
                 if res:
                     QgsProject.instance().removeMapLayer(analysis_layer.id())
-                    new_layer = uf.getPostgisLayer(connection, self.datastore['name'], schema, table)
+                    new_layer = dbh.getPostgisLayer(connection, self.datastore['name'], schema, table)
                     if new_layer:
                         res = True
                     else:
@@ -878,7 +878,7 @@ class AnalysisTool(QObject):
         if self.datastore['type'] == -1 or not res:
             # create a memory layer with the results
             # the coords indicates the results columns with x1, y1, x2, y2
-            new_layer = uf.createTempLayer(table, srid.postgisSrid(), attributes, types, values, coords)
+            new_layer = lfh.createTempLayer(table, srid.postgisSrid(), attributes, types, values, coords)
 
         return new_layer
 
