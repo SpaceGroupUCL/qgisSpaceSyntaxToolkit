@@ -140,8 +140,7 @@ class LanduseTool(QObject):
     def isRequiredLULayer(self, layer, type):
         if layer.type() == QgsMapLayer.VectorLayer \
                 and layer.geometryType() == type:
-            fieldlist = lfh.getFieldNames(layer)
-            if 'gf_cat' in fieldlist and 'gf_subcat' in fieldlist:
+            if lfh.layerHasFields(layer, ['gf_cat', 'gf_subcat']):
                 return True
 
         return False

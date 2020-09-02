@@ -76,8 +76,7 @@ class EntranceTool(QObject):
     def isRequiredEntranceLayer(self, layer, type):
         if layer.type() == QgsMapLayer.VectorLayer \
                 and layer.geometryType() == type:
-            fieldlist = lfh.getFieldNames(layer)
-            if 'e_category' in fieldlist and 'e_subcat' in fieldlist:
+            if lfh.layerHasFields(layer, ['e_category', 'e_subcat']):
                 return True
 
         return False

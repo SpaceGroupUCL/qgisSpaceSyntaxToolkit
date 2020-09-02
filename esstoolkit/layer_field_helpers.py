@@ -160,6 +160,8 @@ def reloadLayer(layer):
         QgsProject.instance().addMapLayer(new_layer)
     return new_layer
 
+def layerHasFields(layer, fields):
+    return set(fields).issubset(getFieldNames(layer))
 
 #------------------------------
 # Field functions

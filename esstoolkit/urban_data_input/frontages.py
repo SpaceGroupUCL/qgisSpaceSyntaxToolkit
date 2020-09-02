@@ -79,8 +79,7 @@ class FrontageTool(QObject):
     def isRequiredLayer(self, layer, type):
         if layer.type() == QgsMapLayer.VectorLayer \
                 and layer.geometryType() == type:
-            fieldlist = lfh.getFieldNames(layer)
-            if 'f_group' in fieldlist and 'f_type' in fieldlist:
+            if lfh.layerHasFields(layer, ['f_group', 'f_type']):
                 return True
 
         return False
