@@ -29,7 +29,6 @@ from qgis.PyQt.QtCore import pyqtSignal
 from qgis.PyQt.QtWidgets import (QDockWidget, QTableWidgetItem, QHeaderView)
 from qgis.PyQt.uic import loadUiType
 
-from . import utility_functions as uf
 from .. import layer_field_helpers as lfh
 
 from .CreateNew_Entrance_dialog import CreateNew_EntranceDialog

@@ -27,7 +27,6 @@ from builtins import str
 import os
 from qgis.PyQt.QtCore import (QObject, QVariant)
 from qgis.core import (Qgis, QgsField, QgsProject, QgsMapLayer, QgsVectorLayer, QgsFeature, QgsVectorFileWriter, QgsDataSourceUri, QgsVectorLayerExporter, QgsMessageLog, QgsFeatureRequest, NULL)
-from . import utility_functions as uf
 from .. import layer_field_helpers as lfh
 
 is_debug = False
@@ -138,6 +137,15 @@ class LanduseTool(QObject):
         layer.commitChanges()
         layer.startEditing()
 
+    def isRequiredLULayer(self, layer, type):
+        if layer.type() == QgsMapLayer.VectorLayer \
+                and layer.geometryType() == type:
+            fieldlist = lfh.getFieldNames(layer)
+            if 'gf_cat' in fieldlist and 'gf_subcat' in fieldlist:
+                return True
+
+        return False
+
 # Add Frontage layer to combobox if conditions are satisfied
     def updateLULayer(self):
         self.disconnectLULayer()
@@ -146,7 +154,7 @@ class LanduseTool(QObject):
         layers = self.legend.values()
         type = 2
         for lyr in layers:
-            if uf.isRequiredLULayer(self.iface, lyr, type):
+            if self.isRequiredLULayer(lyr, type):
                 self.dockwidget.useExistingLUcomboBox.addItem(lyr.name(), lyr)
 
         if self.dockwidget.useExistingLUcomboBox.count() > 0:

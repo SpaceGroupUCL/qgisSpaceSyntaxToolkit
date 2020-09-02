@@ -25,9 +25,9 @@ from __future__ import print_function
 # Import the PyQt and QGIS libraries
 from builtins import str
 from qgis.PyQt.QtCore import (QObject, QVariant)
-from qgis.core import (QgsProject, QgsVectorLayer, QgsField, QgsCoordinateReferenceSystem, QgsVectorFileWriter, QgsDataSourceUri, QgsVectorLayerExporter, QgsMessageLog)
+from qgis.core import (QgsProject, QgsVectorLayer, QgsField, QgsCoordinateReferenceSystem, QgsVectorFileWriter, QgsDataSourceUri, QgsVectorLayerExporter, QgsMessageLog, QgsMapLayer)
 
-from . import utility_functions as uf
+from .. import layer_field_helpers as lfh
 
 import os
 
@@ -73,6 +73,15 @@ class EntranceTool(QObject):
         layer.commitChanges()
         layer.startEditing()
 
+    def isRequiredEntranceLayer(self, layer, type):
+        if layer.type() == QgsMapLayer.VectorLayer \
+                and layer.geometryType() == type:
+            fieldlist = lfh.getFieldNames(layer)
+            if 'e_category' in fieldlist and 'e_subcat' in fieldlist:
+                return True
+
+        return False
+
     # Add Frontage layer to combobox if conditions are satisfied
     def updateEntranceLayer(self):
         # disconnect any current entrance layer
@@ -82,7 +91,7 @@ class EntranceTool(QObject):
         layers = self.legend.values()
         type = 0
         for lyr in layers:
-            if uf.isRequiredEntranceLayer(self.iface, lyr, type):
+            if self.isRequiredEntranceLayer(lyr, type):
                 self.dockwidget.useExistingEntrancescomboBox.addItem(lyr.name(), lyr)
 
         if self.dockwidget.useExistingEntrancescomboBox.count() > 0:

@@ -29,7 +29,6 @@ import os
 from qgis.PyQt.QtCore import (QObject, QVariant)
 from qgis.core import (QgsProject, QgsMapLayer, QgsVectorLayer, QgsField, QgsFeature, QgsGeometry, QgsVectorFileWriter, QgsDataSourceUri, QgsVectorLayerExporter, QgsMessageLog, QgsFeatureRequest, QgsVectorDataProvider)
 import processing
-from . import utility_functions as uf
 from .. import layer_field_helpers as lfh
 
 
@@ -77,6 +76,15 @@ class FrontageTool(QObject):
         layer.commitChanges()
         layer.startEditing()
 
+    def isRequiredLayer(self, layer, type):
+        if layer.type() == QgsMapLayer.VectorLayer \
+                and layer.geometryType() == type:
+            fieldlist = lfh.getFieldNames(layer)
+            if 'f_group' in fieldlist and 'f_type' in fieldlist:
+                return True
+
+        return False
+
     # Add Frontage layer to combobox if conditions are satisfied
     def updateFrontageLayer(self):
         self.dockwidget.useExistingcomboBox.clear()
@@ -85,7 +93,7 @@ class FrontageTool(QObject):
         layers = self.legend.values()
         type = 1
         for lyr in layers:
-            if uf.isRequiredLayer(self.iface, lyr, type):
+            if self.isRequiredLayer(lyr, type):
                 self.dockwidget.useExistingcomboBox.addItem(lyr.name(), lyr)
 
         if self.dockwidget.useExistingcomboBox.count() > 0:
@@ -259,7 +267,7 @@ class FrontageTool(QObject):
             msg = msgBar.createMessage(u'Frontages layer created!')
             msgBar.pushWidget(msg, Qgis.Info, 10)
             vl.startEditing()
-            if uf.isRequiredLayer(self.iface, vl, type):
+            if self.isRequiredLayer(self.iface, vl, type):
                 self.dockwidget.useExistingcomboBox.addItem(vl.name(), vl)
 
         #self.updateFrontageLayer() This is creating problems with signals - REMOVE
