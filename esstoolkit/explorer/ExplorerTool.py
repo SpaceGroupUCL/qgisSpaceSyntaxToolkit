@@ -22,20 +22,18 @@
 
 """
 from __future__ import absolute_import
-# Import the PyQt and QGIS libraries
-from qgis.PyQt.QtCore import QObject
-from qgis.core import (QgsProject, QgsRenderContext, NULL)
-
-# Import required modules
-from .ExplorerDialog import ExplorerDialog
-from .AttributeSymbology import *
-from .AttributeStats import *
-from .AttributeCharts import *
-from .. import utility_functions as uf
-from .. import layer_field_helpers as lfh
 
 import numpy as np
-import time
+# Import the PyQt and QGIS libraries
+from qgis.core import (QgsProject, NULL)
+
+from .AttributeCharts import *
+from .AttributeSymbology import *
+# Import required modules
+from .ExplorerDialog import ExplorerDialog
+from .. import layer_field_helpers as lfh
+from .. import utility_functions as uf
+
 
 class ExplorerTool(QObject):
 
@@ -123,21 +121,21 @@ class ExplorerTool(QObject):
         for i, attr in enumerate(self.layer_attributes):
             settings = self.project.getGroupSettings("symbology/%s/%s" % (self.current_layer.name(), attr["name"]))
             if settings:
-                #newfeature: allow custom symbology in the layer to be explored
+                # newfeature: allow custom symbology in the layer to be explored
                 # feature almost in place, but all implications are not fully understood yet
-                #if self.current_layer.renderer().usedAttributes(QgsRenderContext()) == attr["name"]:
+                # if self.current_layer.renderer().usedAttributes(QgsRenderContext()) == attr["name"]:
                 #    self.current_renderer = self.current_layer.renderer()
                 #    self.layer_display_settings[i]["colour_range"] = 4
-                #else:
+                # else:
                 #    self.current_renderer = None
                 self.layer_display_settings[i] = settings
-        #self.project.readSettings(self.axial_analysis_settings,"stats")
+        # self.project.readSettings(self.axial_analysis_settings,"stats")
 
     def updateProjectSettings(self, attr):
         # store last used setting with project
         symbology = self.layer_display_settings[attr]
-        self.project.writeSettings(symbology,"symbology/%s/%s" % (self.current_layer.name(), symbology["attribute"]))
-        #self.project.writeSettings(self.axial_analysis_settings,"stats")
+        self.project.writeSettings(symbology, "symbology/%s/%s" % (self.current_layer.name(), symbology["attribute"]))
+        # self.project.writeSettings(self.axial_analysis_settings,"stats")
 
     ##
     ## Manage layers and attributes
@@ -161,26 +159,28 @@ class ExplorerTool(QObject):
             has_numeric.append("Open a vector layer with numeric fields")
             self.dlg.lockLayerRefresh(True)
         else:
-            has_numeric.insert(0,"Select layer to explore...")
+            has_numeric.insert(0, "Select layer to explore...")
             self.dlg.lockLayerRefresh(False)
-        self.dlg.setCurrentLayer(has_numeric,idx)
+        self.dlg.setCurrentLayer(has_numeric, idx)
 
     def updateLayerAttributes(self):
         no_layer = False
         self.update_attributtes = False
         # get selected layer
         layer = self.dlg.getCurrentLayer()
-        if layer not in ("","Open a vector layer with numeric fields","Select layer to explore..."):
+        if layer not in ("", "Open a vector layer with numeric fields", "Select layer to explore..."):
             if self.current_layer is None or self.current_layer.name() != layer:
                 self.update_attributtes = True
                 # disconnect eventual slots with the previous layer
                 if self.current_layer:
                     try:
                         self.current_layer.selectionChanged.disconnect(self.updateStats)
-                    except: pass
+                    except:
+                        pass
                     try:
                         self.current_layer.selectionChanged.disconnect(self.changedMapSelection)
-                    except: pass
+                    except:
+                        pass
                 # fixme: throws NoneType error occasionally when adding/removing layers. trapping it for now.
                 try:
                     self.current_layer = lfh.getLegendLayerByName(self.iface, layer)
@@ -195,7 +195,7 @@ class ExplorerTool(QObject):
             node = QgsProject.instance().layerTreeRoot().findLayer(self.current_layer.id())
             if not node.isVisible():
                 node.setItemVisibilityChecked(True)
-            if self.current_layer.type() == 0:  #VectorLayer
+            if self.current_layer.type() == 0:  # VectorLayer
                 # fixme: throws NoneType error occasionally when adding/removing layers. trapping it for now.
                 try:
                     numeric_fields, numeric_field_indices = lfh.getNumericFieldNames(self.current_layer)
@@ -220,9 +220,11 @@ class ExplorerTool(QObject):
                             attribute_info['min'] = min_value
                             self.layer_attributes.append(attribute_info)
                             # set default display settings
-                            attribute_display = dict(attribute="", colour_range=0, line_width=0.25, invert_colour=0, display_order=0,
-                            intervals=10, interval_type=0, top_percent=100, top_value=0.0, bottom_percent=0, bottom_value=0.0)
-                             # update the top and bottom value of the defaults
+                            attribute_display = dict(attribute="", colour_range=0, line_width=0.25, invert_colour=0,
+                                                     display_order=0,
+                                                     intervals=10, interval_type=0, top_percent=100, top_value=0.0,
+                                                     bottom_percent=0, bottom_value=0.0)
+                            # update the top and bottom value of the defaults
                             attribute_display['attribute'] = numeric_fields[i]
                             attribute_display['top_value'] = max_value
                             attribute_display['bottom_value'] = min_value
@@ -246,7 +248,7 @@ class ExplorerTool(QObject):
                     self.dlg.setAttributesList(self.layer_attributes)
                     self.dlg.setAttributesSymbology(self.layer_display_settings)
                     self.dlg.setCurrentAttribute(current_attribute)
-                    #self.updateSymbology()
+                    # self.updateSymbology()
                 else:
                     no_layer = True
             else:
@@ -258,11 +260,13 @@ class ExplorerTool(QObject):
             if self.current_layer:
                 try:
                     self.current_layer.selectionChanged.disconnect(self.updateStats)
-                except: pass
+                except:
+                    pass
                 try:
                     self.current_layer.selectionChanged.disconnect(self.changedMapSelection)
-                except: pass
-            self.current_layer = None #QgsVectorLayer()
+                except:
+                    pass
+            self.current_layer = None  # QgsVectorLayer()
             self.dlg.setAttributesList([])
             self.dlg.setAttributesSymbology([])
             self.dlg.setCurrentAttribute(-1)
@@ -276,7 +280,8 @@ class ExplorerTool(QObject):
                 self.dlg.attributesList.currentRowChanged.disconnect(self.updateStats)
                 if self.current_layer is not None:
                     self.current_layer.selectionChanged.disconnect(self.updateStats)
-            except: pass
+            except:
+                pass
             try:
                 if self.current_layer is not None:
                     self.current_layer.selectionChanged.disconnect(self.changedMapSelection)
@@ -285,7 +290,8 @@ class ExplorerTool(QObject):
                 self.dlg.showLinesChanged.disconnect(self.showhideChartLines)
                 self.attributeCharts.histogramSelected.disconnect(self.setMapSelection)
                 self.attributeCharts.scatterplotSelected.disconnect(self.setMapSelection)
-            except: pass
+            except:
+                pass
         # do not disconnect symbology as it just retrieves info and updates the display: required
         # connect calculate stats
         elif tab == 1:
@@ -293,7 +299,8 @@ class ExplorerTool(QObject):
                 if self.current_layer is not None:
                     self.current_layer.selectionChanged.connect(self.updateStats)
                 self.dlg.attributesList.currentRowChanged.connect(self.updateStats)
-            except: pass
+            except:
+                pass
             try:
                 if self.current_layer is not None:
                     self.current_layer.selectionChanged.disconnect(self.changedMapSelection)
@@ -302,7 +309,8 @@ class ExplorerTool(QObject):
                 self.dlg.showLinesChanged.disconnect(self.showhideChartLines)
                 self.attributeCharts.histogramSelected.disconnect(self.setMapSelection)
                 self.attributeCharts.scatterplotSelected.disconnect(self.setMapSelection)
-            except: pass
+            except:
+                pass
             self.updateStats()
         # connect calculate charts
         elif tab == 2:
@@ -310,7 +318,8 @@ class ExplorerTool(QObject):
                 self.dlg.attributesList.currentRowChanged.disconnect(self.updateStats)
                 if self.current_layer is not None:
                     self.current_layer.selectionChanged.disconnect(self.updateStats)
-            except: pass
+            except:
+                pass
             try:
                 if self.current_layer is not None:
                     self.current_layer.selectionChanged.connect(self.changedMapSelection)
@@ -319,7 +328,8 @@ class ExplorerTool(QObject):
                 self.dlg.showLinesChanged.connect(self.showhideChartLines)
                 self.attributeCharts.histogramSelected.connect(self.setMapSelection)
                 self.attributeCharts.scatterplotSelected.connect(self.setMapSelection)
-            except: pass
+            except:
+                pass
             self.updateCharts()
 
     ##
@@ -369,12 +379,14 @@ class ExplorerTool(QObject):
                 idx = self.checkValuesAvailable(attribute)
                 if idx == -1:
                     self.retrieveAttributeValues(attribute)
-                    idx = len(self.attribute_statistics)-1
+                    idx = len(self.attribute_statistics) - 1
                 stats = self.attribute_statistics[idx]
                 # calculate stats of selected objects only
                 select_stats = dict()
                 if self.current_layer.selectedFeatureCount() > 0:
-                    self.selection_values, self.selection_ids = lfh.getFieldValues(self.current_layer, attribute['name'], null=False, selection=True)
+                    self.selection_values, self.selection_ids = lfh.getFieldValues(self.current_layer,
+                                                                                   attribute['name'], null=False,
+                                                                                   selection=True)
                     sel_values = [val for val in self.selection_values if val != NULL]
                     select_stats['Number'] = len(sel_values)
                     select_stats['Mean'] = uf.truncateNumber(np.mean(sel_values))
@@ -383,10 +395,10 @@ class ExplorerTool(QObject):
                     select_stats['Median'] = uf.truncateNumber(np.median(sel_values))
                     select_stats['Minimum'] = np.min(sel_values)
                     select_stats['Maximum'] = np.max(sel_values)
-                    select_stats['Range'] = uf.truncateNumber(select_stats['Maximum']-select_stats['Minimum'])
-                    select_stats['1st Quart'] = uf.truncateNumber(np.percentile(sel_values,25))
-                    select_stats['3rd Quart'] = uf.truncateNumber(np.percentile(sel_values,75))
-                    select_stats['IQR'] = uf.truncateNumber(select_stats['3rd Quart']-select_stats['1st Quart'])
+                    select_stats['Range'] = uf.truncateNumber(select_stats['Maximum'] - select_stats['Minimum'])
+                    select_stats['1st Quart'] = uf.truncateNumber(np.percentile(sel_values, 25))
+                    select_stats['3rd Quart'] = uf.truncateNumber(np.percentile(sel_values, 75))
+                    select_stats['IQR'] = uf.truncateNumber(select_stats['3rd Quart'] - select_stats['1st Quart'])
                     select_stats['Gini'] = uf.roundNumber(uf.calcGini(sel_values))
                 else:
                     self.selection_values = []
@@ -407,7 +419,7 @@ class ExplorerTool(QObject):
                 # retrieve attribute values
                 if idx == -1:
                     self.retrieveAttributeValues(attribute)
-                    idx = len(self.attribute_values)-1
+                    idx = len(self.attribute_values) - 1
                 values = self.attribute_values[idx]['values']
                 ids = self.attribute_values[idx]['ids']
                 bins = self.attribute_values[idx]['bins']
@@ -420,9 +432,11 @@ class ExplorerTool(QObject):
                     self.attributeCharts.drawHistogram(values, attribute['min'], attribute['max'], bins)
                     # retrieve selection values
                     if self.current_layer.selectedFeatureCount() > 0:
-                        self.selection_values, self.selection_ids = lfh.getFieldValues(self.current_layer, attribute['name'], null=False, selection=True)
-                        #self.selection_values = field_values.values()
-                        #self.selection_ids = field_values.keys()
+                        self.selection_values, self.selection_ids = lfh.getFieldValues(self.current_layer,
+                                                                                       attribute['name'], null=False,
+                                                                                       selection=True)
+                        # self.selection_values = field_values.values()
+                        # self.selection_ids = field_values.keys()
                 # create a scatter plot
                 elif chart_type == 1:
                     current_dependent = self.dlg.getYAxisAttribute()
@@ -433,7 +447,7 @@ class ExplorerTool(QObject):
                         idx = self.checkValuesAvailable(dependent)
                         if idx == -1:
                             self.retrieveAttributeValues(dependent)
-                            idx = len(self.attribute_values)-1
+                            idx = len(self.attribute_values) - 1
                         dep_values = self.attribute_values[idx]['values']
                         dep_nulls = self.attribute_values[idx]['nulls']
 
@@ -448,22 +462,23 @@ class ExplorerTool(QObject):
                         # check if this attribute pair has already been calculated
                         idx = -1
                         for i, bistats in enumerate(self.bivariate_statistics):
-                            if bistats['Layer'] == self.current_layer.name() and bistats['x'] == current_attribute and bistats['y'] == current_dependent:
+                            if bistats['Layer'] == self.current_layer.name() and bistats['x'] == current_attribute and \
+                                    bistats['y'] == current_dependent:
                                 idx = i
                                 break
                         # if not then calculate
                         if idx == -1:
                             # calculate bi-variate stats
                             self.calculateBivariateStats(current_attribute, xvalues, current_dependent, yvalues)
-                            idx = len(self.bivariate_statistics)-1
+                            idx = len(self.bivariate_statistics) - 1
                         bistats = self.bivariate_statistics[idx]
 
                         # update the dialog
                         self.dlg.setCorrelation(bistats)
                         # fixme: get symbols from features
-                        #if len(ids) <= 100:
+                        # if len(ids) <= 100:
                         #    symbols = uf.getAllFeatureSymbols(self.current_layer)
-                        #else:
+                        # else:
                         symbols = None
                     else:
                         dependent = self.layer_attributes[current_attribute]
@@ -490,10 +505,14 @@ class ExplorerTool(QObject):
                         # fixme: get symbols from features
                         symbols = None
                     # plot chart
-                    self.attributeCharts.drawScatterplot(xvalues, attribute['min'], attribute['max'], yvalues, dependent['min'], dependent['max'], bistats['slope'], bistats['intercept'], xids, symbols)
+                    self.attributeCharts.drawScatterplot(xvalues, attribute['min'], attribute['max'], yvalues,
+                                                         dependent['min'], dependent['max'], bistats['slope'],
+                                                         bistats['intercept'], xids, symbols)
                     # retrieve selection values
                     if self.current_layer.selectedFeatureCount() > 0:
-                        field_values = lfh.getFieldsListValues(self.current_layer, [attribute['name'], dependent['name']], null=False, selection=True)
+                        field_values = lfh.getFieldsListValues(self.current_layer,
+                                                               [attribute['name'], dependent['name']], null=False,
+                                                               selection=True)
                         self.selection_values = field_values[attribute['name']]
                         self.dependent_values = field_values[dependent['name']]
                         self.selection_ids = field_values['id']
@@ -511,13 +530,16 @@ class ExplorerTool(QObject):
                 attribute = self.layer_attributes[current_attribute]
                 chart_type = self.dlg.getChartType()
                 if chart_type == 0:
-                    self.selection_values, self.selection_ids = lfh.getFieldValues(self.current_layer, attribute['name'], null=False, selection=True)
-                    #self.selection_values = field_values.values()
-                    #self.selection_ids = field_values.keys()
+                    self.selection_values, self.selection_ids = lfh.getFieldValues(self.current_layer,
+                                                                                   attribute['name'], null=False,
+                                                                                   selection=True)
+                    # self.selection_values = field_values.values()
+                    # self.selection_ids = field_values.keys()
                 elif chart_type == 1:
                     current_dependent = self.dlg.getYAxisAttribute()
                     dependent = self.layer_attributes[current_dependent]
-                    field_values = lfh.getFieldsListValues(self.current_layer, [attribute['name'], dependent['name']], null=False, selection=True)
+                    field_values = lfh.getFieldsListValues(self.current_layer, [attribute['name'], dependent['name']],
+                                                           null=False, selection=True)
                     self.selection_values = field_values[attribute['name']]
                     self.dependent_values = field_values[dependent['name']]
                     self.selection_ids = field_values['id']
@@ -534,17 +556,19 @@ class ExplorerTool(QObject):
                     if chart_type == 0:
                         idx = self.checkValuesAvailable(attribute)
                         bins = self.attribute_values[idx]['bins']
-                        self.attributeCharts.setHistogramSelection(self.selection_values, attribute['min'], attribute['max'], bins)
+                        self.attributeCharts.setHistogramSelection(self.selection_values, attribute['min'],
+                                                                   attribute['max'], bins)
 
                     # select scatter plot
                     elif chart_type == 1:
-                        #self.attributeCharts.setScatterplotIdSelection(self.selection_ids)
-                        self.attributeCharts.setScatterplotSelection(self.selection_values, self.dependent_values, self.selection_ids)
+                        # self.attributeCharts.setScatterplotIdSelection(self.selection_ids)
+                        self.attributeCharts.setScatterplotSelection(self.selection_values, self.dependent_values,
+                                                                     self.selection_ids)
                 else:
                     if chart_type == 0:
                         self.attributeCharts.setHistogramSelection([], attribute['max'], attribute['max'], 0)
                     elif chart_type == 1:
-                        #self.attributeCharts.setScatterplotIdSelection([])
+                        # self.attributeCharts.setScatterplotIdSelection([])
                         self.attributeCharts.setScatterplotSelection([], [], [])
 
     def setMapSelection(self, selection):
@@ -553,7 +577,9 @@ class ExplorerTool(QObject):
             if current_attribute >= 0:
                 chart_type = self.dlg.getChartType()
                 if chart_type == 0:
-                    features = lfh.getFeaturesRangeValues(self.current_layer, self.layer_attributes[current_attribute]['name'], selection[0], selection[1])
+                    features = lfh.getFeaturesRangeValues(self.current_layer,
+                                                          self.layer_attributes[current_attribute]['name'],
+                                                          selection[0], selection[1])
                     self.current_layer.selectByIds(list(features.keys()))
                     self.selection_values = list(features.values())
                     self.selection_ids = list(features.keys())
@@ -581,11 +607,11 @@ class ExplorerTool(QObject):
     def retrieveAttributeValues(self, attribute):
         storage = self.current_layer.storageType()
         if 'spatialite' in storage.lower():
-            #todo: retrieve values and ids using SQL query
+            # todo: retrieve values and ids using SQL query
             values, ids = lfh.getFieldValues(self.current_layer, attribute["name"], null=True)
             clean_values = [val for val in values if val != NULL]
         elif 'postgresql' in storage.lower():
-            #todo: retrieve values and ids using SQL query
+            # todo: retrieve values and ids using SQL query
             values, ids = lfh.getFieldValues(self.current_layer, attribute["name"], null=True)
             clean_values = [val for val in values if val != NULL]
         else:
@@ -603,10 +629,10 @@ class ExplorerTool(QObject):
             stats['Median'] = uf.truncateNumber(np.median(clean_values))
             stats['Minimum'] = np.min(clean_values)
             stats['Maximum'] = np.max(clean_values)
-            stats['Range'] = uf.truncateNumber(stats['Maximum']-stats['Minimum'])
-            stats['1st Quart'] = uf.truncateNumber(np.percentile(clean_values,25))
-            stats['3rd Quart'] = uf.truncateNumber(np.percentile(clean_values,75))
-            stats['IQR'] = uf.truncateNumber(stats['3rd Quart']-stats['1st Quart'])
+            stats['Range'] = uf.truncateNumber(stats['Maximum'] - stats['Minimum'])
+            stats['1st Quart'] = uf.truncateNumber(np.percentile(clean_values, 25))
+            stats['3rd Quart'] = uf.truncateNumber(np.percentile(clean_values, 75))
+            stats['IQR'] = uf.truncateNumber(stats['3rd Quart'] - stats['1st Quart'])
             stats['Gini'] = uf.roundNumber(uf.calcGini(clean_values))
             # store the results
             self.attribute_statistics.append(stats)
@@ -635,7 +661,8 @@ class ExplorerTool(QObject):
         if bistats['slope'] > 0:
             bistats['line'] = "%s + %s * X" % (uf.roundNumber(bistats['intercept']), uf.roundNumber(bistats['slope']))
         else:
-            bistats['line'] = "%s - %s * X" % (uf.roundNumber(abs(bistats['intercept'])), uf.roundNumber(bistats['slope']))
+            bistats['line'] = "%s - %s * X" % (
+            uf.roundNumber(abs(bistats['intercept'])), uf.roundNumber(bistats['slope']))
         self.bivariate_statistics.append(bistats)
 
     def retrieveValidAttributePairs(self, ids, values, dep_values):

@@ -20,11 +20,13 @@
  *                                                                         *
  ***************************************************************************/
 """
-from __future__ import print_function
 from __future__ import absolute_import
+from __future__ import print_function
 
 import os
+
 from qgis.PyQt import QtCore, QtWidgets, uic
+
 from .DbSettings_dialog import DbSettingsDialog
 from .. import db_helpers as dbh
 
@@ -50,7 +52,7 @@ class CreateNew_LUDialog(QtWidgets.QDialog, FORM_CLASS):
         self.pushButtonLUNewFileDLG.clicked.connect(self.newLULayer)
         self.closePopUpLUButton.clicked.connect(self.closePopUpLU)
 
-        available_dbs = dbh.getQGISDbs(portlast = True)
+        available_dbs = dbh.getQGISDbs(portlast=True)
         self.dbsettings_dlg = DbSettingsDialog(available_dbs)
         self.dbsettings_dlg.nameLineEdit.setText('landuse')
 
@@ -65,7 +67,7 @@ class CreateNew_LUDialog(QtWidgets.QDialog, FORM_CLASS):
         self.lu_memory_radioButton.clicked.connect(self.setOutput)
         self.pushButtonSelectLocationLU.setDisabled(True)
 
-        #self.dbsettings_dlg.setDbOutput.connect(self.setOutput)
+        # self.dbsettings_dlg.setDbOutput.connect(self.setOutput)
         self.dbsettings_dlg.dbCombo.currentIndexChanged.connect(self.setDbPath)
         self.dbsettings_dlg.schemaCombo.currentIndexChanged.connect(self.setDbPath)
         self.dbsettings_dlg.nameLineEdit.textChanged.connect(self.setDbPath)
@@ -98,7 +100,7 @@ class CreateNew_LUDialog(QtWidgets.QDialog, FORM_CLASS):
             try:
                 self.dbsettings = self.dbsettings_dlg.getDbSettings()
                 db_layer_name = "%s:%s:%s" % (
-                self.dbsettings['dbname'], self.dbsettings['schema'], self.dbsettings['table_name'])
+                    self.dbsettings['dbname'], self.dbsettings['schema'], self.dbsettings['table_name'])
                 self.lineEditLU.setText(db_layer_name)
             except:
                 self.lineEditLU.clear()

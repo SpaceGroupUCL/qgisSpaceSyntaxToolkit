@@ -1,10 +1,13 @@
 from __future__ import print_function
-# general imports
-from builtins import str
-from qgis.core import  QgsFields, QgsField, QgsGeometry, QgsFeature, QgsVectorLayer, QgsVectorFileWriter, NULL, QgsProject
+
+import ntpath
+
 import psycopg2
 from psycopg2.extensions import AsIs
-import ntpath
+# general imports
+from qgis.core import QgsGeometry, QgsFeature, QgsVectorLayer, QgsVectorFileWriter, QgsWkbTypes, \
+    QgsCoordinateTransformContext
+
 
 # source: ess utility functions
 
@@ -18,10 +21,10 @@ def prototype_feature(attrs, fields):
     feat.setGeometry(QgsGeometry())
     return feat
 
+
 # -------------------------- LAYER BUILD
 
 def to_layer(features, crs, encoding, geom_type, layer_type, path):
-
     first_feat = features[0]
     fields = first_feat.fields()
     layer = None
@@ -36,11 +39,12 @@ def to_layer(features, crs, encoding, geom_type, layer_type, path):
 
     elif layer_type == 'shapefile':
 
-        wkbTypes = { 'Point': QgsWkbTypes.Point, 'Linestring': QgsWkbTypes.LineString, 'Polygon': QgsWkbTypes.Polygon }
+        wkbTypes = {'Point': QgsWkbTypes.Point, 'Linestring': QgsWkbTypes.LineString, 'Polygon': QgsWkbTypes.Polygon}
         options = QgsVectorFileWriter.SaveVectorOptions()
         options.driverName = "ESRI Shapefile"
         options.fileEncoding = encoding
-        file_writer = QgsVectorFileWriter.create(path, fields, wkbTypes[geom_type], crs, QgsCoordinateTransformContext(), options)
+        file_writer = QgsVectorFileWriter.create(path, fields, wkbTypes[geom_type], crs,
+                                                 QgsCoordinateTransformContext(), options)
 
         if file_writer.hasError() != QgsVectorFileWriter.NoError:
             print("Error when creating shapefile: ", file_writer.errorMessage())
@@ -62,8 +66,9 @@ def to_layer(features, crs, encoding, geom_type, layer_type, path):
         try:
             con = psycopg2.connect(connstring)
             cur = con.cursor()
-            create_query = cur.mogrify("""DROP TABLE IF EXISTS "%s"."%s"; CREATE TABLE "%s"."%s"( geom geometry(%s, %s))""", (
-                AsIs(schema_name), AsIs(table_name), AsIs(schema_name), AsIs(table_name), geom_type, AsIs(crs_id)))
+            create_query = cur.mogrify(
+                """DROP TABLE IF EXISTS "%s"."%s"; CREATE TABLE "%s"."%s"( geom geometry(%s, %s))""", (
+                    AsIs(schema_name), AsIs(table_name), AsIs(schema_name), AsIs(table_name), geom_type, AsIs(crs_id)))
             cur.execute(create_query)
             con.commit()
             post_q_flds = {2: 'bigint', 6: 'numeric', 1: 'bool', 'else': 'text', 4: 'numeric'}
@@ -72,15 +77,15 @@ def to_layer(features, crs, encoding, geom_type, layer_type, path):
                 if f_type not in [2, 6, 1]:
                     f_type = 'else'
                 attr_query = cur.mogrify("""ALTER TABLE "%s"."%s" ADD COLUMN "%s" %s""", (
-                AsIs(schema_name), AsIs(table_name), AsIs(f.name()), AsIs(post_q_flds[f_type])))
+                    AsIs(schema_name), AsIs(table_name), AsIs(f.name()), AsIs(post_q_flds[f_type])))
                 cur.execute(attr_query)
                 con.commit()
-            field_names = ",".join([ '"'+f.name()+'"' for f in fields])
+            field_names = ",".join(['"' + f.name() + '"' for f in fields])
             for feature in features:
                 attrs = [i if i else None for i in feature.attributes()]
                 insert_query = cur.mogrify("""INSERT INTO "%s"."%s" (%s, geom) VALUES %s, ST_GeomFromText(%s,%s))""", (
-                AsIs(schema_name), AsIs(table_name), AsIs(field_names), tuple(attrs),
-                feature.geometry().asWkt(), AsIs(crs_id)))
+                    AsIs(schema_name), AsIs(table_name), AsIs(field_names), tuple(attrs),
+                    feature.geometry().asWkt(), AsIs(crs_id)))
                 idx = insert_query.find(', ST_GeomFromText') - 1
                 insert_query = insert_query[:idx] + insert_query[(idx + 1):]
                 cur.execute(insert_query)

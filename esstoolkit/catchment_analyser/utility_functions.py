@@ -22,12 +22,13 @@
 """
 from __future__ import print_function
 
-from builtins import str
-from qgis.PyQt.QtCore import QVariant
-from qgis.core import (QgsProject, QgsMapLayer, QgsVectorLayer, QgsField, QgsFeature, QgsGeometry, QgsVectorFileWriter, NULL)
 import ntpath
+
 import psycopg2
 from psycopg2.extensions import AsIs
+from qgis.core import (QgsProject, QgsMapLayer, QgsVectorLayer, QgsField, QgsFeature, QgsGeometry, QgsVectorFileWriter,
+                       NULL, QgsWkbTypes, QgsCoordinateTransformContext)
+
 
 def getLegendLayersNames(iface, geom='all', provider='all'):
     """geometry types: 0 point; 1 line; 2 polygon; 3 multipoint; 4 multiline; 5 multipolygon"""
@@ -42,6 +43,7 @@ def getLegendLayersNames(iface, geom='all', provider='all'):
             layers_list.append(layer.name())
     return layers_list
 
+
 def check_for_NULL_geom(layer):
     has_null = False
     for f in layer.getFeatures():
@@ -49,6 +51,7 @@ def check_for_NULL_geom(layer):
             has_null = True
             break
     return has_null
+
 
 def createTempLayer(name, geometry, srid, attributes, types):
     # Geometry can be 'POINT', 'LINESTRING' or 'POLYGON' or the 'MULTI' version of the previous
@@ -100,12 +103,10 @@ def createShapeFile(layer, path, crs):
     return shapefile
 
 
-
 # WRITE -----------------------------------------------------------------
 
 # geom_type allowed: 'Point', 'Linestring', 'Polygon'
 def to_layer(fields, crs, encoding, geom_type, layer_type, path):
-
     layer = None
     if layer_type == 'memory':
         layer = QgsVectorLayer(geom_type + '?crs=' + crs.authid(), path, "memory")
@@ -115,11 +116,12 @@ def to_layer(fields, crs, encoding, geom_type, layer_type, path):
 
     elif layer_type == 'shapefile':
 
-        wkbTypes = { 'Point': QgsWkbTypes.Point, 'Linestring': QgsWkbTypes.LineString, 'Polygon': QgsWkbTypes.Polygon }
+        wkbTypes = {'Point': QgsWkbTypes.Point, 'Linestring': QgsWkbTypes.LineString, 'Polygon': QgsWkbTypes.Polygon}
         options = QgsVectorFileWriter.SaveVectorOptions()
         options.driverName = "ESRI Shapefile"
         options.fileEncoding = encoding
-        file_writer = QgsVectorFileWriter.create(path, fields, wkbTypes[geom_type], crs, QgsCoordinateTransformContext(), options)
+        file_writer = QgsVectorFileWriter.create(path, fields, wkbTypes[geom_type], crs,
+                                                 QgsCoordinateTransformContext(), options)
         if file_writer.hasError() != QgsVectorFileWriter.NoError:
             print("Error when creating shapefile: ", file_writer.errorMessage())
         del file_writer
@@ -136,8 +138,9 @@ def to_layer(fields, crs, encoding, geom_type, layer_type, path):
         try:
             con = psycopg2.connect(connstring)
             cur = con.cursor()
-            create_query = cur.mogrify("""DROP TABLE IF EXISTS "%s"."%s"; CREATE TABLE "%s"."%s"( geom geometry(%s, %s))""", (
-                    AsIs(schema_name), AsIs(table_name), AsIs(schema_name), AsIs(table_name),geom_type, AsIs(crs_id)))
+            create_query = cur.mogrify(
+                """DROP TABLE IF EXISTS "%s"."%s"; CREATE TABLE "%s"."%s"( geom geometry(%s, %s))""", (
+                    AsIs(schema_name), AsIs(table_name), AsIs(schema_name), AsIs(table_name), geom_type, AsIs(crs_id)))
             cur.execute(create_query)
             con.commit()
             post_q_flds = {2: 'bigint', 6: 'numeric', 1: 'bool', 'else': 'text', 4: 'numeric'}
@@ -145,7 +148,8 @@ def to_layer(fields, crs, encoding, geom_type, layer_type, path):
                 f_type = f.type()
                 if f_type not in [2, 6, 1]:
                     f_type = 'else'
-                attr_query = cur.mogrify("""ALTER TABLE "%s"."%s" ADD COLUMN "%s" %s""", (AsIs(schema_name), AsIs(table_name), AsIs(f.name()), AsIs(post_q_flds[f_type])))
+                attr_query = cur.mogrify("""ALTER TABLE "%s"."%s" ADD COLUMN "%s" %s""", (
+                AsIs(schema_name), AsIs(table_name), AsIs(f.name()), AsIs(post_q_flds[f_type])))
                 cur.execute(attr_query)
                 con.commit()
             layer = QgsVectorLayer(uri, table_name, 'postgres')
@@ -153,10 +157,11 @@ def to_layer(fields, crs, encoding, geom_type, layer_type, path):
             print(e)
     return layer
 
+
 def has_unique_values(column, layer):
     if column:
         values = [f[column] for f in layer.getFeatures()]
-        if NULL in values: # len(values) > len(set(values)) or
+        if NULL in values:  # len(values) > len(set(values)) or
             return False
         else:
             return True

@@ -22,16 +22,16 @@
 """
 from __future__ import print_function
 
-from builtins import str
-from builtins import range
-from builtins import object
-
-from qgis.core import (QgsGeometry, QgsPoint)
-from qgis.analysis import QgsNetworkSpeedStrategy
-from shapely.geometry import Point, Polygon
-
 import math
 import os.path
+from builtins import object
+from builtins import range
+from builtins import str
+
+from qgis.PyQt.QtCore import QSettings
+from qgis.analysis import QgsNetworkSpeedStrategy
+from qgis.core import (QgsGeometry, QgsPoint)
+
 
 # check: https://gis.stackexchange.com/questions/220116/properter-to-get-travel-time-as-cost-for-network-analysis
 class SpeedFieldProperter(QgsNetworkSpeedStrategy):
@@ -43,7 +43,8 @@ class SpeedFieldProperter(QgsNetworkSpeedStrategy):
     @speedToDistanceFactor - factor to adjust speed units (e.g. km/h) to distance units (e.g. meters)
     if the speed attribute is in km/h and distance in meters, this should equal 1000
     """
-    def __init__(self, attributeIndex, defaultSpeed = 50, speedToDistanceFactor = 1000):
+
+    def __init__(self, attributeIndex, defaultSpeed=50, speedToDistanceFactor=1000):
         QgsNetworkSpeedStrategy.__init__(self)
         self.AttributeIndex = attributeIndex
         self.DefaultSpeed = defaultSpeed
@@ -64,6 +65,7 @@ class SpeedFieldProperter(QgsNetworkSpeedStrategy):
         needed for cost calculation in property()
         """
         return [self.AttributeIndex]
+
 
 class CustomCost(QgsNetworkSpeedStrategy):
     def __init__(self, costColumIndex, defaultValue):
@@ -240,6 +242,7 @@ class ConcaveHull(object):
         """
         Writes the geometry described by *point_list* in Well Known Text format to file
         :param point_list: list of tuples (x, y)
+        :param file_name: file name to write to
         :return: None
         """
         if file_name is None:
@@ -313,7 +316,6 @@ class ConcaveHull(object):
         :param geom: an arbitrary geometry feature
         :return: list of points
         """
-        multi_geom = QgsGeometry()
         temp_geom = []
         # point geometry
         if geom.type() == 0:
@@ -440,8 +442,8 @@ class ConcaveHull(object):
             # for the next candidate fails. The algorithm starts again with an increased number of neighbors
             if its is True:
                 # this tries to remove the potentially problematic recursion. might give less optimal results
-                #point_set = self.remove_point(point_set, current_point)
-                #continue
+                # point_set = self.remove_point(point_set, current_point)
+                # continue
                 return self.concave_hull(points_list, kk + 1)
 
             # the first point which complies with the requirements is added to the hull and gets the current point

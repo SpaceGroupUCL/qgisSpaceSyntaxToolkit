@@ -22,13 +22,16 @@
  """
 from __future__ import print_function
 
+import os
 # Import the PyQt and QGIS libraries
 from builtins import str
 from builtins import zip
-import os
+
 from qgis.PyQt.QtCore import (QObject, QVariant)
-from qgis.core import (QgsProject, QgsMapLayer, QgsVectorLayer, QgsField, QgsFeature, QgsGeometry, QgsVectorFileWriter, QgsDataSourceUri, QgsVectorLayerExporter, QgsMessageLog, QgsFeatureRequest, QgsVectorDataProvider)
-import processing
+from qgis.core import (QgsProject, QgsMapLayer, QgsVectorLayer, QgsField, QgsFeature, QgsGeometry, QgsVectorFileWriter,
+                       QgsDataSourceUri, QgsVectorLayerExporter, QgsMessageLog, QgsFeatureRequest,
+                       QgsVectorDataProvider, NULL, QgsWkbTypes, Qgis)
+
 from .. import layer_field_helpers as lfh
 
 
@@ -191,7 +194,7 @@ class FrontageTool(QObject):
             exploded_features = []
             i = 1
             for f in building_layer.getFeatures():
-                points = f.geometry().asPolygon()[0] # get list of points
+                points = f.geometry().asPolygon()[0]  # get list of points
                 for (p1, p2) in zip(points[:-1], points[1:]):
                     i += 1
                     feat = QgsFeature()
@@ -207,7 +210,7 @@ class FrontageTool(QObject):
             vl.commitChanges()
             print('building layer3')
 
-        if self.frontagedlg.f_shp_radioButton.isChecked(): #layer_type == 'shapefile':
+        if self.frontagedlg.f_shp_radioButton.isChecked():  # layer_type == 'shapefile':
 
             path = self.frontagedlg.lineEditFrontages.text()
 
@@ -225,18 +228,19 @@ class FrontageTool(QObject):
             db_path = self.frontagedlg.lineEditFrontages.text()
             if db_path and db_path != '':
 
-
                 (database, schema, table_name) = (self.frontagedlg.lineEditFrontages.text()).split(':')
                 db_con_info = self.frontagedlg.dbsettings_dlg.available_dbs[database]
                 uri = QgsDataSourceUri()
                 # passwords, usernames need to be empty if not provided or else connection will fail
                 if 'service' in list(db_con_info.keys()):
-                    uri.setConnection(db_con_info['service'], '' , '', '') #db_con_info['dbname']
-                elif 'password'in list(db_con_info.keys()):
-                    uri.setConnection(db_con_info['host'], db_con_info['port'], db_con_info['dbname'], db_con_info['user'], db_con_info['password'])
+                    uri.setConnection(db_con_info['service'], '', '', '')  # db_con_info['dbname']
+                elif 'password' in list(db_con_info.keys()):
+                    uri.setConnection(db_con_info['host'], db_con_info['port'], db_con_info['dbname'],
+                                      db_con_info['user'], db_con_info['password'])
                 else:
-                    print(db_con_info) #db_con_info['host']
-                    uri.setConnection('', db_con_info['port'], db_con_info['dbname'], '', '' )# , db_con_info['user'], '')
+                    print(db_con_info)  # db_con_info['host']
+                    uri.setConnection('', db_con_info['port'], db_con_info['dbname'], '',
+                                      '')  # , db_con_info['user'], '')
                 uri.setDataSource(schema, table_name, "geom")
                 error = QgsVectorLayerExporter.importLayer(vl, uri.uri(), "postgres", vl.crs(), False, False)
                 if error[0] != 0:
@@ -269,7 +273,7 @@ class FrontageTool(QObject):
             if self.isRequiredLayer(self.iface, vl, type):
                 self.dockwidget.useExistingcomboBox.addItem(vl.name(), vl)
 
-        #self.updateFrontageLayer() This is creating problems with signals - REMOVE
+        # self.updateFrontageLayer() This is creating problems with signals - REMOVE
 
         # TODO: updateLength function should receive a layer as input. It would be used earlier
         self.frontagedlg.closePopUp()
@@ -369,7 +373,7 @@ class FrontageTool(QObject):
         frontlayer.startEditing()
 
         buildingID = self.dockwidget.pushIDlistWidget.currentItem().text()
-        #print buildingID
+        # print buildingID
         newColumn = "b_" + buildingID
         frontlayer_pr = frontlayer.dataProvider()
         frontlayer_pr.addAttributes([QgsField(newColumn, QVariant.Int)])
@@ -379,7 +383,7 @@ class FrontageTool(QObject):
 
         for buildfeat in buildinglayer.getFeatures():
             for frontfeat in frontlayer.getFeatures():
-                if frontfeat.geometry().intersects(buildfeat.geometry()) == True:
+                if frontfeat.geometry().intersects(buildfeat.geometry()):
                     frontlayer.startEditing()
 
                     if frontlayer_caps & QgsVectorDataProvider.ChangeAttributeValues:

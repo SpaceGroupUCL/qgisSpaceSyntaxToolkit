@@ -20,23 +20,23 @@
  *                                                                         *
  ***************************************************************************/
 """
-from __future__ import print_function
 from __future__ import absolute_import
+from __future__ import print_function
 
 import os
 
 from qgis.PyQt import QtWidgets, uic
 from qgis.PyQt.QtCore import pyqtSignal
-#from qgis.core import QgsDataSourceURI
 
 from .. import db_helpers as dbh
+
+# from qgis.core import QgsDataSourceURI
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'DbSettings_dialog_base.ui'))
 
 
 class DbSettingsDialog(QtWidgets.QDialog, FORM_CLASS):
-
     closingPlugin = pyqtSignal()
     setDbOutput = pyqtSignal()
 
@@ -58,7 +58,7 @@ class DbSettingsDialog(QtWidgets.QDialog, FORM_CLASS):
 
     def popDbs(self):
         self.dbCombo.clear()
-        self.dbCombo.addItems(['select db'] +sorted(self.available_dbs.keys()))
+        self.dbCombo.addItems(['select db'] + sorted(self.available_dbs.keys()))
         return
 
     def getSelectedDb(self):

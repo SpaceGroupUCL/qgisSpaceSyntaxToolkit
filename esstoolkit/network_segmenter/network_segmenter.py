@@ -21,13 +21,13 @@
  ***************************************************************************/
 """
 from __future__ import absolute_import
-from builtins import object
-from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, Qt, QThread
-from qgis.PyQt.QtWidgets import QAction
-from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt import (QtGui, uic)
 
 import os.path
+from builtins import object
+
+from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
+from qgis.PyQt.QtGui import QIcon
+from qgis.PyQt.QtWidgets import QAction
 
 from . import network_segmenter_tool
 
@@ -36,6 +36,7 @@ from . import network_segmenter_tool
 is_debug = False
 try:
     import pydevd
+
     has_pydevd = True
 except ImportError as e:
     has_pydevd = False
@@ -104,16 +105,16 @@ class NetworkSegmenter(object):
         return QCoreApplication.translate('NetworkSegmenter', message)
 
     def add_action(
-        self,
-        icon_path,
-        text,
-        callback,
-        enabled_flag=True,
-        add_to_menu=True,
-        add_to_toolbar=True,
-        status_tip=None,
-        whats_this=None,
-        parent=None):
+            self,
+            icon_path,
+            text,
+            callback,
+            enabled_flag=True,
+            add_to_menu=True,
+            add_to_toolbar=True,
+            status_tip=None,
+            whats_this=None,
+            parent=None):
         """Add a toolbar icon to the toolbar.
 
         :param icon_path: Path to the icon for this action. Can be a resource
@@ -196,8 +197,6 @@ class NetworkSegmenter(object):
         # remove the toolbar
         del self.toolbar
 
-
     def run(self):
         """Run method that performs all the real work"""
         self.network_segmenter_tool.loadGUI()
-

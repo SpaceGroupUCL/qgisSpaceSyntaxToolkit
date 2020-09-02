@@ -22,8 +22,10 @@
 
 """
 from __future__ import absolute_import
+
 # Import the PyQt and QGIS libraries
 from builtins import object
+
 from qgis.PyQt.QtCore import (QSettings, QTranslator, QCoreApplication, qVersion)
 from qgis.PyQt.QtGui import (QIcon, QPixmap)
 from qgis.PyQt.QtWidgets import (QAction, QDialog)
@@ -32,18 +34,21 @@ from qgis.PyQt.QtWidgets import (QAction, QDialog)
 is_debug = False
 try:
     import pydevd_pycharm as pydevd
+
     has_pydevd = True
 except ImportError as e:
     has_pydevd = False
 
 import os.path
-#change sys path to networkx package if not installed
+# change sys path to networkx package if not installed
 import sys
 import inspect
+
 try:
     import networkx as nx
 except ImportError as e:
-    cmd_subfolder = os.path.realpath(os.path.abspath(os.path.join(os.path.split(inspect.getfile(inspect.currentframe()))[0],"external")))
+    cmd_subfolder = os.path.realpath(
+        os.path.abspath(os.path.join(os.path.split(inspect.getfile(inspect.currentframe()))[0], "external")))
     if cmd_subfolder not in sys.path:
         sys.path.insert(0, cmd_subfolder)
 
@@ -66,6 +71,7 @@ from .catchment_analyser import CatchmentAnalyser
 from .urban_data_input import urban_data_input_tool
 from .network_segmenter import network_segmenter_tool
 from .drawing import DrawingTool
+
 
 # import additional modules here
 ###########
@@ -266,21 +272,29 @@ class EssToolkit(object):
     def showAnalysis(self):
         self.iface.removeDockWidget(self.explorer.dlg)
         self.iface.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.analysis.dlg)
+
     def showExplorer(self):
         self.iface.removeDockWidget(self.analysis.dlg)
         self.iface.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.explorer.dlg)
+
     def showGateTransformer(self):
         self.gate_transformer.load_gui()
+
     def showRCLCleaner(self):
         self.rcl_cleaner.loadGUI()
+
     def showCatchmentAnalyser(self):
         self.catchment_tool.load_gui()
+
     def showUrbanDataInput(self):
         self.udi_tool.load_gui()
+
     def showNetworkSegmenter(self):
         self.network_segmenter.loadGUI()
+
     def showDrawingTool(self):
         self.drawing_tool.run()
+
     # add additional modules here
     ###########
     ###########
@@ -322,9 +336,10 @@ class EssToolkit(object):
         ###########
 
     def showMessage(self, msg, lev, dur, type):
-        self.iface.messageBar().pushMessage("Info",msg,level=lev,duration=dur)
+        self.iface.messageBar().pushMessage("Info", msg, level=lev, duration=dur)
 
-    def add_action(self,icon_path,text,callback,enabled_flag=True,add_to_menu=True,add_to_toolbar=True,status_tip=None,whats_this=None,parent=None):
+    def add_action(self, icon_path, text, callback, enabled_flag=True, add_to_menu=True, add_to_toolbar=True,
+                   status_tip=None, whats_this=None, parent=None):
 
         """Add a toolbar icon to the toolbar.
 
@@ -389,7 +404,6 @@ class EssToolkit(object):
 
 class AboutDialog(QDialog, Ui_AboutDialog):
     def __init__(self):
-
         QDialog.__init__(self)
 
         # Set up the user interface from Designer.
@@ -399,14 +413,14 @@ class AboutDialog(QDialog, Ui_AboutDialog):
 
         # load text
         about_msg = (
-        'The "Space Syntax Toolkit" is a collection of tools for space syntax analysis workflows in the QGIS environment.\n'
-        'It was originally developed at the Space Syntax Laboratory, the Bartlett, University College London (UCL).\n\n'
-        'Mailing list: spacesyntax-toolkit@jiscmail.ac.uk\n\n'
-        'Author: Jorge Gil\n\n'
-        'It includes contributions from:\n\n'
-        '- Space Syntax Limited:\n'
-        'Ioanna Kovolou, Abhimanyu Acharya, Stephen Law, Laurens Versluis\n\n'
-        '\nReleased under GNU Licence version 3')
+            'The "Space Syntax Toolkit" is a collection of tools for space syntax analysis workflows in the QGIS environment.\n'
+            'It was originally developed at the Space Syntax Laboratory, the Bartlett, University College London (UCL).\n\n'
+            'Mailing list: spacesyntax-toolkit@jiscmail.ac.uk\n\n'
+            'Author: Jorge Gil\n\n'
+            'It includes contributions from:\n\n'
+            '- Space Syntax Limited:\n'
+            'Ioanna Kovolou, Abhimanyu Acharya, Stephen Law, Laurens Versluis\n\n'
+            '\nReleased under GNU Licence version 3')
 
         self.messageText.setText(about_msg)
 

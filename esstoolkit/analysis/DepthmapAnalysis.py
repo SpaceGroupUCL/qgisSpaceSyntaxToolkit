@@ -21,15 +21,17 @@
  ***************************************************************************/
 
 """
+import math
+from builtins import str
 # Import the PyQt and QGIS libraries
 from builtins import zip
-from builtins import str
+
 from qgis.PyQt.QtCore import (QObject, QThread, pyqtSignal, QVariant)
+from qgis.core import (NULL, QgsVertexId)
 
-import math
-
-from .. import utility_functions as uf
 from .. import layer_field_helpers as lfh
+from .. import utility_functions as uf
+
 
 class DepthmapAnalysis(QObject):
 
@@ -38,18 +40,18 @@ class DepthmapAnalysis(QObject):
 
         self.iface = iface
 
-         #initialise global variables
+        # initialise global variables
         self.axial_layer = None
         self.datastore = None
         self.settings = None
-        self.axial_default = ('Connectivity','Id','Line Length')
-        self.segment_default = ('Angular Connectivity','Axial Connectivity','Axial Id',
-                                'Axial Line Length','Axial Line Ref','Connectivity','Segment Length')
+        self.axial_default = ('Connectivity', 'Id', 'Line Length')
+        self.segment_default = ('Angular Connectivity', 'Axial Connectivity', 'Axial Id',
+                                'Axial Line Length', 'Axial Line Ref', 'Connectivity', 'Segment Length')
         self.rcl_default = ('Angular Connectivity', 'Axial Line Ref', 'Connectivity', 'Id', 'Segment Length')
         self.axial_id = ''
 
     def showMessage(self, msg, type='Info', lev=1, dur=2):
-        self.iface.messageBar().pushMessage(type,msg,level=lev,duration=dur)
+        self.iface.messageBar().pushMessage(type, msg, level=lev, duration=dur)
 
     def setupAnalysis(self, layers, settings):
         self.settings = settings
@@ -75,7 +77,7 @@ class DepthmapAnalysis(QObject):
         else:
             self.axial_id = lfh.getIdField(self.axial_layer)
         # prepare map and unlinks layers
-        if self.settings['type'] in (0,1):
+        if self.settings['type'] in (0, 1):
             axial_data = self.prepareAxialMap(self.axial_id, weight_by)
             if axial_data == '':
                 self.showMessage("The axial layer is not ready for analysis: verify it first.", 'Info', lev=1, dur=5)
@@ -185,33 +187,33 @@ class DepthmapAnalysis(QObject):
                 if weight not in defaults:
                     for f in features:
                         axial_data += str(f.attribute(ref)) + "\t"
-                        axial_data += str(f.geometry().vertexAt(0).x()) + "\t" +\
+                        axial_data += str(f.geometry().vertexAt(0).x()) + "\t" + \
                                       str(f.geometry().vertexAt(0).y()) + "\t"
-                        axial_data += str(f.geometry().vertexAt(1).x()) + "\t" +\
+                        axial_data += str(f.geometry().vertexAt(1).x()) + "\t" + \
                                       str(f.geometry().vertexAt(1).y()) + "\t"
                         axial_data += str(f.attribute(weight)) + "\n"
                 else:
                     for f in features:
                         axial_data += str(f.attribute(ref)) + "\t"
-                        axial_data += str(f.geometry().vertexAt(0).x()) + "\t" +\
+                        axial_data += str(f.geometry().vertexAt(0).x()) + "\t" + \
                                       str(f.geometry().vertexAt(0).y()) + "\t"
-                        axial_data += str(f.geometry().vertexAt(1).x()) + "\t" +\
+                        axial_data += str(f.geometry().vertexAt(1).x()) + "\t" + \
                                       str(f.geometry().vertexAt(1).y()) + "\n"
             else:
                 if weight not in defaults:
                     for f in features:
                         axial_data += str(f.id()) + "\t"
-                        axial_data += str(f.geometry().vertexAt(0).x()) + "\t" +\
+                        axial_data += str(f.geometry().vertexAt(0).x()) + "\t" + \
                                       str(f.geometry().vertexAt(0).y()) + "\t"
-                        axial_data += str(f.geometry().vertexAt(1).x()) + "\t" +\
+                        axial_data += str(f.geometry().vertexAt(1).x()) + "\t" + \
                                       str(f.geometry().vertexAt(1).y()) + "\t"
                         axial_data += str(f.attribute(weight)) + "\n"
                 else:
                     for f in features:
                         axial_data += str(f.id()) + "\t"
-                        axial_data += str(f.geometry().vertexAt(0).x()) + "\t" +\
+                        axial_data += str(f.geometry().vertexAt(0).x()) + "\t" + \
                                       str(f.geometry().vertexAt(0).y()) + "\t"
-                        axial_data += str(f.geometry().vertexAt(1).x()) + "\t" +\
+                        axial_data += str(f.geometry().vertexAt(1).x()) + "\t" + \
                                       str(f.geometry().vertexAt(1).y()) + "\n"
             return axial_data
         except:
@@ -234,45 +236,45 @@ class DepthmapAnalysis(QObject):
                 if weight not in defaults:
                     for f in features:
                         nr = 0
-                        while f.geometry().vertexIdFromVertexNr(nr+1)[0]:
+                        while f.geometry().vertexIdFromVertexNr(nr + 1)[0]:
                             segment_data += str(f.attribute(ref)) + "\t"
-                            segment_data += str(f.geometry().vertexAt(nr).x()) + "\t" +\
-                                          str(f.geometry().vertexAt(nr).y()) + "\t"
-                            segment_data += str(f.geometry().vertexAt(nr+1).x()) + "\t" +\
-                                          str(f.geometry().vertexAt(nr+1).y()) + "\t"
+                            segment_data += str(f.geometry().vertexAt(nr).x()) + "\t" + \
+                                            str(f.geometry().vertexAt(nr).y()) + "\t"
+                            segment_data += str(f.geometry().vertexAt(nr + 1).x()) + "\t" + \
+                                            str(f.geometry().vertexAt(nr + 1).y()) + "\t"
                             segment_data += str(f.attribute(weight)) + "\n"
                             nr += 1
                 else:
                     for f in features:
                         nr = 0
-                        while f.geometry().vertexIdFromVertexNr(nr+1)[0]:
+                        while f.geometry().vertexIdFromVertexNr(nr + 1)[0]:
                             segment_data += str(f.attribute(ref)) + "\t"
-                            segment_data += str(f.geometry().vertexAt(nr).x()) + "\t" +\
-                                          str(f.geometry().vertexAt(nr).y()) + "\t"
-                            segment_data += str(f.geometry().vertexAt(nr+1).x()) + "\t" +\
-                                          str(f.geometry().vertexAt(nr+1).y()) + "\n"
+                            segment_data += str(f.geometry().vertexAt(nr).x()) + "\t" + \
+                                            str(f.geometry().vertexAt(nr).y()) + "\t"
+                            segment_data += str(f.geometry().vertexAt(nr + 1).x()) + "\t" + \
+                                            str(f.geometry().vertexAt(nr + 1).y()) + "\n"
                             nr += 1
             else:
                 if weight not in defaults:
                     for f in features:
                         nr = 0
-                        while f.geometry().vertexIdFromVertexNr(nr+1)[0]:
+                        while f.geometry().vertexIdFromVertexNr(nr + 1)[0]:
                             segment_data += str(f.id()) + "\t"
-                            segment_data += str(f.geometry().vertexAt(nr).x()) + "\t" +\
-                                          str(f.geometry().vertexAt(nr).y()) + "\t"
-                            segment_data += str(f.geometry().vertexAt(nr+1).x()) + "\t" +\
-                                          str(f.geometry().vertexAt(nr+1).y()) + "\t"
+                            segment_data += str(f.geometry().vertexAt(nr).x()) + "\t" + \
+                                            str(f.geometry().vertexAt(nr).y()) + "\t"
+                            segment_data += str(f.geometry().vertexAt(nr + 1).x()) + "\t" + \
+                                            str(f.geometry().vertexAt(nr + 1).y()) + "\t"
                             segment_data += str(f.attribute(weight)) + "\n"
                             nr += 1
                 else:
                     for f in features:
                         nr = 0
-                        while f.geometry().vertexIdFromVertexNr(nr+1)[0]:
+                        while f.geometry().vertexIdFromVertexNr(nr + 1)[0]:
                             segment_data += str(f.id()) + "\t"
-                            segment_data += str(f.geometry().vertexAt(nr).x()) + "\t" +\
-                                          str(f.geometry().vertexAt(nr).y()) + "\t"
-                            segment_data += str(f.geometry().vertexAt(nr+1).x()) + "\t" +\
-                                          str(f.geometry().vertexAt(nr+1).y()) + "\n"
+                            segment_data += str(f.geometry().vertexAt(nr).x()) + "\t" + \
+                                            str(f.geometry().vertexAt(nr).y()) + "\t"
+                            segment_data += str(f.geometry().vertexAt(nr + 1).x()) + "\t" + \
+                                            str(f.geometry().vertexAt(nr + 1).y()) + "\n"
                             nr += 1
             return segment_data
         except Exception as e:
@@ -282,14 +284,14 @@ class DepthmapAnalysis(QObject):
     def prepareUnlinks(self):
         unlinks_data = ''
         # check if unlinks layer is valid
-        if not uf.fieldExists(self.unlinks_layer, 'line1') or not uf.fieldExists(self.unlinks_layer, 'line2'):
+        if not lfh.fieldExists(self.unlinks_layer, 'line1') or not lfh.fieldExists(self.unlinks_layer, 'line2'):
             self.showMessage("Unlinks layer not ready for analysis: update and verify first.", 'Info', lev=1, dur=5)
             return unlinks_data
-        elif uf.fieldHasNullValues(self.unlinks_layer, 'line1') or uf.fieldHasNullValues(self.unlinks_layer, 'line2'):
+        elif lfh.fieldHasNullValues(self.unlinks_layer, 'line1') or lfh.fieldHasNullValues(self.unlinks_layer, 'line2'):
             self.showMessage("Unlinks layer not ready for analysis: update and verify first.", 'Info', lev=1, dur=5)
             return unlinks_data
         # get axial ids
-        axialids, ids = uf.getFieldValues(self.axial_layer, self.axial_id)
+        axialids, ids = lfh.getFieldValues(self.axial_layer, self.axial_id)
         # assign row number by id
         try:
             features = self.unlinks_layer.getFeatures()
@@ -298,13 +300,13 @@ class DepthmapAnalysis(QObject):
                 row2 = axialids.index(f.attribute('line2'))
                 unlinks_data += str(row1) + ',' + str(row2) + ';'
         except:
-            self.showMessage("Exporting unlinks failed.", 'Warning',lev=1, dur=5)
+            self.showMessage("Exporting unlinks failed.", 'Warning', lev=1, dur=5)
             return unlinks_data
         if unlinks_data != '':
             unlinks_data = unlinks_data[:-1]
         return unlinks_data
 
-    def getWeightPosition(self,name):
+    def getWeightPosition(self, name):
         pos = -1
         names = []
         weight_name = name.title()
@@ -344,10 +346,10 @@ class DepthmapAnalysis(QObject):
     def processAnalysisResult(self, datastore, result):
         # parse the results, splitting rows and then columns
         new_result = result.split("\n")
-        #discard the first row if it has garbage from comm:
+        # discard the first row if it has garbage from comm:
         while "--result100" not in new_result[0]:
             new_result.pop(0)
-        #collect result in rows
+        # collect result in rows
         final_result = []
         for line in new_result:
             if "--result" not in line and "--comm" not in line and line != '':
@@ -356,7 +358,7 @@ class DepthmapAnalysis(QObject):
             return None, None, None, None
         attributes = final_result[0]
         values = final_result[1:len(final_result)]
-        if values == []:
+        if not values:
             return attributes, None, None, None
         # Process the attributes, renaming them and selecting only relevant ones
         exclusions = []
@@ -390,9 +392,9 @@ class DepthmapAnalysis(QObject):
                 # this is for the id of the user's submitted axial data
                 attributes[idx] = "Axial Id"
             else:
-            # this is the original id of the user's submitted axial data
-            #    attributes[idx] = self.axial_id
-            # does not keep the user's original id as it can clash with new attribute names
+                # this is the original id of the user's submitted axial data
+                #    attributes[idx] = self.axial_id
+                # does not keep the user's original id as it can clash with new attribute names
                 attributes[idx] = "Axial Id"
 
         # remove attributes and values from lists
@@ -404,7 +406,7 @@ class DepthmapAnalysis(QObject):
                 values.pop(i)
             values = list(zip(*values))
         # remove spaces
-        attributes = [x.replace(" ","_") for x in attributes]
+        attributes = [x.replace(" ", "_") for x in attributes]
         # get data type of attributes
         types = []
         data_sample = [uf.convertNumeric(x) for x in values[0]]
@@ -429,7 +431,7 @@ class DepthmapAnalysis(QObject):
             attributes.extend(new_attributes)
             new_types = [QVariant.Double] * len(new_attributes)
             types.extend(new_types)
-        #the attribute names must be fixed
+        # the attribute names must be fixed
         if datastore['type'] == 0:
             # when working with shape files
             attributes = self.fixDepthmapNames(attributes)
@@ -475,7 +477,7 @@ class DepthmapAnalysis(QObject):
         new_attributes = []
         new_attributes.extend(nach)
         new_attributes.extend(nain)
-        #attributes.extend(new_attributes)
+        # attributes.extend(new_attributes)
         # calculate new values
         all_values = []
         for feat in values:
@@ -483,16 +485,16 @@ class DepthmapAnalysis(QObject):
             calc_values = []
             for i, j in enumerate(choice):
                 try:
-                    val = math.log(float(feat[j])+1.0)/math.log(float(feat[td[i]])+3.0)
+                    val = math.log(float(feat[j]) + 1.0) / math.log(float(feat[td[i]]) + 3.0)
                     calc_values.append(val)
                 except:
                     calc_values.append(NULL)
             for i, j in enumerate(td):
                 try:
                     if i < len(nc):
-                        val = (float(feat[nc[i]])**1.2)/(float(feat[j])+2.0)
+                        val = (float(feat[nc[i]]) ** 1.2) / (float(feat[j]) + 2.0)
                     else:
-                        val = (float(feat[nc[i-len(nc)]])**1.2)/(float(feat[j])+2.0)
+                        val = (float(feat[nc[i - len(nc)]]) ** 1.2) / (float(feat[j]) + 2.0)
                     calc_values.append(val)
                 except:
                     calc_values.append(NULL)
@@ -501,7 +503,7 @@ class DepthmapAnalysis(QObject):
         return new_attributes, all_values
 
     def fixDepthmapNames(self, names):
-        #proper conversion makes short version based on real name
+        # proper conversion makes short version based on real name
         replacement_table = {
             'choice': 'CH',
             'connectivity': 'CONN',
@@ -532,7 +534,7 @@ class DepthmapAnalysis(QObject):
             'nach': 'NACH',
             'nain': 'NAIN'
         }
-        #using simple dict / string operations
+        # using simple dict / string operations
         new_names = []
         for name in names:
             parts = name.split("_")
@@ -550,8 +552,8 @@ class DepthmapAnalysis(QObject):
             new_names.append(new_name)
         return new_names
 
-#####
-# newfeature: unused, not sure this is working properly. look at threads in verification
+    #####
+    # newfeature: unused, not sure this is working properly. look at threads in verification
     def threadAxialMap(self, action):
         # create thread to export map geometry and extra attributes
         if action == 'export':
@@ -560,7 +562,7 @@ class DepthmapAnalysis(QObject):
             else:
                 weight_by = ''
             self.axial_thread = ExportMap(self.iface.mainWindow(), self, self.axial_layer, self.user_id, weight_by)
-        #else:
+        # else:
         #    self.axial_thread = ImportAxialMap(self.iface.mainWindow(), self, result)
         # put it in separate thread
         self.axial_thread.status.connect(self.showMessage)
@@ -591,45 +593,45 @@ class ExportMap(QThread):
                 if self.weight != '':
                     for f in features:
                         nr = 0
-                        while f.geometry().vertexIdFromVertexNr(nr+1,vid):
+                        while f.geometry().vertexIdFromVertexNr(nr + 1, vid):
                             segment_data += str(f.attribute(self.id)) + "\t"
-                            segment_data += str(f.geometry().vertexAt(nr).x()) + "\t" +\
-                                          str(f.geometry().vertexAt(nr).y()) + "\t"
-                            segment_data += str(f.geometry().vertexAt(nr+1).x()) + "\t" +\
-                                          str(f.geometry().vertexAt(nr+1).y()) + "\t"
+                            segment_data += str(f.geometry().vertexAt(nr).x()) + "\t" + \
+                                            str(f.geometry().vertexAt(nr).y()) + "\t"
+                            segment_data += str(f.geometry().vertexAt(nr + 1).x()) + "\t" + \
+                                            str(f.geometry().vertexAt(nr + 1).y()) + "\t"
                             segment_data += str(f.attribute(self.weight)) + "\n"
                             nr += 1
                 else:
                     for f in features:
                         nr = 0
-                        while f.geometry().vertexIdFromVertexNr(nr+1,vid):
+                        while f.geometry().vertexIdFromVertexNr(nr + 1, vid):
                             segment_data += str(f.attribute(self.id)) + "\t"
-                            segment_data += str(f.geometry().vertexAt(nr).x()) + "\t" +\
-                                          str(f.geometry().vertexAt(nr).y()) + "\t"
-                            segment_data += str(f.geometry().vertexAt(nr+1).x()) + "\t" +\
-                                          str(f.geometry().vertexAt(nr+1).y()) + "\n"
+                            segment_data += str(f.geometry().vertexAt(nr).x()) + "\t" + \
+                                            str(f.geometry().vertexAt(nr).y()) + "\t"
+                            segment_data += str(f.geometry().vertexAt(nr + 1).x()) + "\t" + \
+                                            str(f.geometry().vertexAt(nr + 1).y()) + "\n"
                             nr += 1
             else:
                 if self.weight != '':
                     for f in features:
                         nr = 0
-                        while f.geometry().vertexIdFromVertexNr(nr+1,vid):
+                        while f.geometry().vertexIdFromVertexNr(nr + 1, vid):
                             segment_data += str(f.id()) + "\t"
-                            segment_data += str(f.geometry().vertexAt(nr).x()) + "\t" +\
-                                          str(f.geometry().vertexAt(nr).y()) + "\t"
-                            segment_data += str(f.geometry().vertexAt(nr+1).x()) + "\t" +\
-                                          str(f.geometry().vertexAt(nr+1).y()) + "\t"
+                            segment_data += str(f.geometry().vertexAt(nr).x()) + "\t" + \
+                                            str(f.geometry().vertexAt(nr).y()) + "\t"
+                            segment_data += str(f.geometry().vertexAt(nr + 1).x()) + "\t" + \
+                                            str(f.geometry().vertexAt(nr + 1).y()) + "\t"
                             segment_data += str(f.attribute(self.weight)) + "\n"
                             nr += 1
                 else:
                     for f in features:
                         nr = 0
-                        while f.geometry().vertexIdFromVertexNr(nr+1,vid):
+                        while f.geometry().vertexIdFromVertexNr(nr + 1, vid):
                             segment_data += str(f.id()) + "\t"
-                            segment_data += str(f.geometry().vertexAt(nr).x()) + "\t" +\
-                                          str(f.geometry().vertexAt(nr).y()) + "\t"
-                            segment_data += str(f.geometry().vertexAt(nr+1).x()) + "\t" +\
-                                          str(f.geometry().vertexAt(nr+1).y()) + "\n"
+                            segment_data += str(f.geometry().vertexAt(nr).x()) + "\t" + \
+                                            str(f.geometry().vertexAt(nr).y()) + "\t"
+                            segment_data += str(f.geometry().vertexAt(nr + 1).x()) + "\t" + \
+                                            str(f.geometry().vertexAt(nr + 1).y()) + "\n"
                             nr += 1
             self.status.emit('Model exported for analysis.')
             self.result.emit(segment_data)

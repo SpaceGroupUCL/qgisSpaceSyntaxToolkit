@@ -25,7 +25,6 @@ from __future__ import absolute_import
 import os
 
 from qgis.PyQt.QtWidgets import (QDialog, QFileDialog)
-from qgis.PyQt.QtGui import QCloseEvent
 from qgis.PyQt.uic import loadUiType
 
 from .DbSettings_dialog import DbSettingsDialog
@@ -75,12 +74,13 @@ class CatchmentAnalyserDialog(QDialog, FORM_CLASS):
         self.memoryRadioButton.clicked.connect(self.setTempOutput)
         self.setTempOutput()
         self.shpRadioButton.clicked.connect(self.setShpOutput)
-        #self.networkText.setDisabled(True)
-        #self.nameCombo.setDisabled(True)
+        # self.networkText.setDisabled(True)
+        # self.nameCombo.setDisabled(True)
 
     def setOutput(self):
         if self.shpRadioButton.isChecked():
-            self.file_name = QFileDialog.getSaveFileName(self, "Save output file ", self.getNetwork() + "_catchment", '*.shp')
+            self.file_name = QFileDialog.getSaveFileName(self, "Save output file ", self.getNetwork() + "_catchment",
+                                                         '*.shp')
             if self.file_name:
                 self.networkText.setText(self.file_name)
             else:
@@ -88,7 +88,7 @@ class CatchmentAnalyserDialog(QDialog, FORM_CLASS):
         elif self.postgisRadioButton.isChecked():
             self.dbsettings_dlg.show()
             # Run the dialog event loop
-            result2 = self.dbsettings_dlg.exec_()
+            self.dbsettings_dlg.exec_()
             self.dbsettings = self.dbsettings_dlg.getDbSettings()
         return
 
@@ -103,7 +103,7 @@ class CatchmentAnalyserDialog(QDialog, FORM_CLASS):
             try:
                 self.dbsettings = self.dbsettings_dlg.getDbSettings()
                 db_layer_name = "%s:%s:%s" % (
-                self.dbsettings['dbname'], self.dbsettings['schema'], self.dbsettings['table_name'])
+                    self.dbsettings['dbname'], self.dbsettings['schema'], self.dbsettings['table_name'])
                 self.networkText.setText(db_layer_name)
             except:
                 self.networkText.clear()
@@ -112,7 +112,7 @@ class CatchmentAnalyserDialog(QDialog, FORM_CLASS):
         self.disable_browse()
         try:
             self.networkText.setText(self.file_name)
-        except :
+        except:
             self.networkText.clear()
         self.networkText.setDisabled(True)
 
@@ -146,7 +146,7 @@ class CatchmentAnalyserDialog(QDialog, FORM_CLASS):
     def setCostFields(self, names):
         self.costCombo.clear()
         if names:
-            #self.costCheck.setEnabled(True)
+            # self.costCheck.setEnabled(True)
             self.costCombo.addItems(['length'] + names)
         else:
             fields = ['-----']
@@ -176,7 +176,7 @@ class CatchmentAnalyserDialog(QDialog, FORM_CLASS):
         return self.originsCombo.currentText()
 
     def activateName(self):
-        #print 'activateName'
+        # print 'activateName'
         if self.nameCheck.isChecked():
             self.nameCombo.setEnabled(True)
         else:
@@ -184,13 +184,13 @@ class CatchmentAnalyserDialog(QDialog, FORM_CLASS):
 
     def setNameFields(self, names):
         self.nameCombo.clear()
-        #print 'setNameFields'
+        # print 'setNameFields'
         if names:
             self.nameCheck.setEnabled(True)
             self.nameCombo.addItems(names)
         else:
             self.nameCheck.setEnabled(False)
-            #self.nameCombo.setEnabled(False)
+            # self.nameCombo.setEnabled(False)
             fields = ['-----']
             self.nameCombo.addItems(fields)
 
@@ -277,8 +277,6 @@ class CatchmentAnalyserDialog(QDialog, FORM_CLASS):
         else:
             return 'memory'
 
-
-
     def closeEvent(self, QCloseEvent):
         self.closeDialog()
 
@@ -294,8 +292,3 @@ class CatchmentAnalyserDialog(QDialog, FORM_CLASS):
         self.networkText.clear()
         self.analysisProgress.reset()
         self.close()
-
-
-
-
-

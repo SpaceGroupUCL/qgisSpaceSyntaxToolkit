@@ -22,26 +22,21 @@
 """
 from __future__ import print_function
 
-from builtins import zip
+import itertools
+import operator
 from builtins import str
-from builtins import range
-from qgis.PyQt.QtCore import (QVariant, QSettings)
-from qgis.PyQt.QtGui import QColor
-from qgis.PyQt.QtWidgets import QMessageBox
-from qgis.core import (QgsProject, QgsMapLayer, QgsDataSourceUri, QgsVectorLayer, QgsCredentials, QgsVectorDataProvider, QgsFields, QgsField, QgsPoint, QgsGeometry, QgsFeature, QgsVectorFileWriter, QgsFeatureRequest, QgsSpatialIndex, QgsCoordinateTransformContext, QgsWkbTypes)
+from sqlite3 import dbapi2 as sqlite
 
-# from pyspatialite import dbapi2 as sqlite
 import psycopg2 as pgsql
-import numpy as np
+from qgis.PyQt.QtCore import (QVariant, QSettings)
+from qgis.core import (QgsProject, QgsDataSourceUri, QgsVectorLayer, QgsCredentials, NULL)
 
-import os.path
-import math
-import sys
-import itertools, operator
+from . import gui_helpers as gh
 
-#------------------------------
+
+# ------------------------------
 # General database functions
-#------------------------------
+# ------------------------------
 def getDBLayerConnection(layer):
     provider = layer.providerType()
     uri = QgsDataSourceUri(layer.dataProvider().dataSourceUri())
@@ -56,7 +51,7 @@ def getDBLayerConnection(layer):
 
 
 def testSameDatabase(layers):
-    #check if the layers are in the same database
+    # check if the layers are in the same database
     if len(layers) > 1:
         database = []
         for layer in layers:
@@ -83,12 +78,12 @@ def getDBLayerPrimaryKey(layer):
     return uri.key()
 
 
-#---------------------------------------------
+# ---------------------------------------------
 # Spatialite database specific functions
 #
 # adapted from the QSpatiaLite plugin for QGIS by Romain Riviere
 # see: https://github.com/romain974/qspatialite
-#----------------------------------------------
+# ----------------------------------------------
 # spatialite geometry types
 # 1 point; 2 line; 3 polygon; 4 multipoint; 5 multiline; 6 multipolygon
 
@@ -102,43 +97,43 @@ def listSpatialiteConnections():
     res['name'] = [str(item) for item in settings.childGroups()]
     res['path'] = [str(settings.value(u'%s/sqlitepath' % str(item))) for item in settings.childGroups()]
     settings.endGroup()
-    #case: no connection available
+    # case: no connection available
     if len(res['name']) > 0:
-        #case: connections available
-        #try to select directly last opened dataBase ()
+        # case: connections available
+        # try to select directly last opened dataBase ()
         try:
             last_db = settings.value(u'/SpatiaLite/connections/selected')
             last_db = last_db.split('@', 1)[1]
-            #get last connexion index
+            # get last connexion index
             res['idx'] = res['name'].index(last_db)
         except:
             res['idx'] = 0
-    #return the result even if empty
+    # return the result even if empty
     return res
 
 
 def createSpatialiteConnection(name, path):
     try:
-        settings=QSettings()
+        settings = QSettings()
         settings.beginGroup('/SpatiaLite/connections')
         settings.setValue(u'%s/sqlitepath' % name, '%s' % path)
         settings.endGroup()
     except sqlite.OperationalError as error:
-        pop_up_error("Unable to create connection to selected database: \n %s" % error)
+        gh.pop_up_error("Unable to create connection to selected database: \n %s" % error)
 
 
 def getSpatialiteConnection(path):
     try:
-        connection=sqlite.connect(path)
+        connection = sqlite.connect(path)
     except sqlite.OperationalError as error:
-        #pop_up_error("Unable to connect to selected database: \n %s" % error)
+        # pop_up_error("Unable to connect to selected database: \n %s" % error)
         connection = None
     return connection
 
 
 def createSpatialiteDatabase(path):
     connection = getSpatialiteConnection(path)
-    executeSpatialiteQuery(connection,"SELECT initspatialmetadata()")
+    executeSpatialiteQuery(connection, "SELECT initspatialmetadata()")
 
 
 def getSpatialiteDatabaseName(layer):
@@ -163,21 +158,21 @@ def executeSpatialiteQuery(connection, query, params=(), commit=False):
             connection.commit()
     except sqlite.Error as error:
         connection.rollback()
-        pop_up_error("The SQL query seems to be invalid. \n %s" % query)
+        gh.pop_up_error("The SQL query seems to be invalid. \n %s" % query)
     cursor.close()
-    #return the result even if empty
+    # return the result even if empty
     return header, data, error
 
 
 def listSpatialiteColumns(connection, name):
     columns = {}
-    #query to extract the names and data types of the columns in a table of the database
+    # query to extract the names and data types of the columns in a table of the database
     query = """PRAGMA TABLE_INFO("%s")""" % name
     header, data, error = executeSpatialiteQuery(connection, query)
     if header != [] and data != []:
         for col in data:
             columns[col[1]] = col[2]
-    #return the result even if empty
+    # return the result even if empty
     return columns
 
 
@@ -188,11 +183,11 @@ def loadSpatialiteTable(connection, path, name):
     geometry = ''
     query = """SELECT f_geometry_column FROM geometry_columns WHERE f_table_name = '%s'""" % name
     header, data, error = executeSpatialiteQuery(connection, query)
-    if data != []:
+    if data:
         geometry = data[0][0]
-    uri.setDataSource('', "%s" %name, "%s" % geometry, '', "ROWID")
-    layer=QgsVectorLayer(uri.uri(), '%s' % name, 'spatialite')
-    #add layer to canvas
+    uri.setDataSource('', "%s" % name, "%s" % geometry, '', "ROWID")
+    layer = QgsVectorLayer(uri.uri(), '%s' % name, 'spatialite')
+    # add layer to canvas
     if layer.isValid():
         QgsProject.instance().addMapLayer(layer)
     else:
@@ -209,7 +204,7 @@ def getSpatialiteLayer(connection, path, name):
     tablename = name.lower()
     query = """SELECT f_geometry_column FROM geometry_columns WHERE f_table_name = '%s'""" % tablename
     header, data, error = executeSpatialiteQuery(connection, query)
-    if data != []:
+    if data:
         geometry = data[0][0]
     if geometry != '':
         uri.setDataSource('', "%s" % tablename, "%s" % geometry)
@@ -221,46 +216,49 @@ def getSpatialiteLayer(connection, path, name):
 
 def getSpatialiteGeometryColumn(connection, name):
     geomname = ''
-    query = """SELECT f_geometry_column, spatial_index_enabled FROM geometry_columns WHERE f_table_name = '%s'"""%(name)
+    query = """SELECT f_geometry_column, spatial_index_enabled FROM geometry_columns WHERE f_table_name = '%s'""" % (
+        name)
     header, data, error = executeSpatialiteQuery(connection, query)
     if data:
         geomname = data[0][0]
     # ensure that it has a spatial index
     if data[0][1] == 0:
-        query = """SELECT CreateSpatialIndex('%s', '%s')"""%(name,geomname)
-        header, data, error = executeSpatialiteQuery(connection, query, commit=True)
+        query = """SELECT CreateSpatialIndex('%s', '%s')""" % (name, geomname)
+        executeSpatialiteQuery(connection, query, commit=True)
     return geomname
 
 
 def testSpatialiteTableExists(connection, name):
-    '''check if name already exists in the database
-    '''
-    tablename = name.lower()#.replace(" ","_")
+    """check if name already exists in the database
+    """
+    tablename = name.lower()  # .replace(" ","_")
     query = """SELECT name FROM sqlite_master WHERE type='table' AND lower(name) = '%s' """ % tablename
     header, data, error = executePostgisQuery(connection, query)
-    if data != []:
+    if data:
         return True
     return False
 
 
 def createSpatialiteTable(connection, path, name, srid, attributes, types, geometrytype):
     res = True
-    #Drop table
-    header, data, error = executeSpatialiteQuery(connection,"""DROP TABLE IF EXISTS '%s' """ % name)
-    #Get the database uri
+    # Drop table
+    executeSpatialiteQuery(connection, """DROP TABLE IF EXISTS '%s' """ % name)
+    # Get the database uri
     uri = QgsDataSourceUri()
     uri.setDatabase(path)
     # Get the fields
     fields = []
     for i, type in enumerate(types):
         field_type = ''
-        if type in (QVariant.Char,QVariant.String): # field type is TEXT
+        if type in (QVariant.Char, QVariant.String):  # field type is TEXT
             field_type = 'TEXT'
-        elif type in (QVariant.Bool,QVariant.Int,QVariant.LongLong,QVariant.UInt,QVariant.ULongLong): # field type is INTEGER
+        elif type in (
+                QVariant.Bool, QVariant.Int, QVariant.LongLong, QVariant.UInt,
+                QVariant.ULongLong):  # field type is INTEGER
             field_type = 'INTEGER'
-        elif type==QVariant.Double: # field type is DOUBLE
+        elif type == QVariant.Double:  # field type is DOUBLE
             field_type = 'REAL'
-        fields.append('"%s" %s'% (attributes[i],field_type)) #.lower()
+        fields.append('"%s" %s' % (attributes[i], field_type))  # .lower()
     # Get the geometry
     geometry = False
     if geometrytype != '':
@@ -271,19 +269,24 @@ def createSpatialiteTable(connection, path, name, srid, attributes, types, geome
         elif 'polygon' in geometrytype.lower():
             geometry = 'MULTIPOLYGON'
     if geometry:
-        fields.insert(0,'"geometry" %s'%geometry)
-    #Create new table
-    fields=','.join(fields)
-    if len(fields)>0:
-        fields=', %s'%fields
-    header, data, error = executeSpatialiteQuery(connection,"""CREATE TABLE "%s" ( pk_id INTEGER PRIMARY KEY AUTOINCREMENT %s )""" % (name, fields))
+        fields.insert(0, '"geometry" %s' % geometry)
+    # Create new table
+    fields = ','.join(fields)
+    if len(fields) > 0:
+        fields = ', %s' % fields
+    header, data, error = executeSpatialiteQuery(connection,
+                                                 """CREATE TABLE "%s" ( pk_id INTEGER PRIMARY KEY AUTOINCREMENT %s )""" % (
+                                                     name, fields))
     if error:
         res = False
     else:
-        #Recover Geometry Column:
+        # Recover Geometry Column:
         if geometry:
-            header, data, error = executeSpatialiteQuery(connection,"""SELECT RecoverGeometryColumn("%s","geometry",%s,'%s',2)""" % (name,srid,geometry))
-            header,data, error = executeSpatialiteQuery(connection,"""SELECT CreateSpatialIndex("%s", "%s") """%(name,'geometry'))
+            executeSpatialiteQuery(connection,
+                                   """SELECT RecoverGeometryColumn("%s","geometry",%s,'%s',2)""" % (
+                                       name, srid, geometry))
+            executeSpatialiteQuery(connection, """SELECT CreateSpatialIndex("%s", "%s") """ % (
+                name, 'geometry'))
         if error:
             res = False
     if res:
@@ -293,41 +296,41 @@ def createSpatialiteTable(connection, path, name, srid, attributes, types, geome
 
 def insertSpatialiteValues(connection, name, attributes, values, coords=None):
     # get table srid and geometry column info
-    res = False
     geometry_attr = ''
     srid = ''
     geometry_type = ''
     tablename = name.lower()
-    query = """SELECT f_geometry_column, geometry_type, srid FROM geometry_columns WHERE f_table_name = '%s'""" % (tablename)
+    query = """SELECT f_geometry_column, geometry_type, srid FROM geometry_columns WHERE f_table_name = '%s'""" % (
+        tablename)
     header, data, error = executeSpatialiteQuery(connection, query)
-    if data != []:
+    if data:
         geometry_attr = data[0][0]
         geometry_type = data[0][1]
         srid = data[0][2]
-    else:
-        res = False
 
     # iterate through values to populate geometry and attributes
     if values:
         res = True
-        if geometry_type in (1,4) and len(coords) == 2:
+        if geometry_type in (1, 4) and len(coords) == 2:
             for val in values:
-                WKT = "POINT(%s %s)" % (val[coords[0]],val[coords[1]])
+                WKT = "POINT(%s %s)" % (val[coords[0]], val[coords[1]])
                 geometry_values = "CastToMulti(GeomFromText('%s', %s))" % (WKT, srid)
-                #Create line in DB table
+                # Create line in DB table
                 attr_values = ','.join(tuple([str(value) for value in val]))
-                query = """INSERT INTO "%s" ("%s","%s") VALUES (%s,%s)""" % (tablename, geometry_attr, '","'.join(attributes), geometry_values, attr_values)
+                query = """INSERT INTO "%s" ("%s","%s") VALUES (%s,%s)""" % (
+                    tablename, geometry_attr, '","'.join(attributes), geometry_values, attr_values)
                 header, data, error = executeSpatialiteQuery(connection, query, commit=False)
                 if error:
                     res = False
                     break
-                #cursor.execute()
-        elif geometry_type in (2,5) and len(coords) == 4:
+                # cursor.execute()
+        elif geometry_type in (2, 5) and len(coords) == 4:
             for val in values:
-                WKT = "LINESTRING(%s %s, %s %s)" % (val[coords[0]],val[coords[1]],val[coords[2]],val[coords[3]])
+                WKT = "LINESTRING(%s %s, %s %s)" % (val[coords[0]], val[coords[1]], val[coords[2]], val[coords[3]])
                 geometry_values = "CastToMulti(GeomFromText('%s',%s))" % (WKT, srid)
                 attr_values = ','.join(tuple([str(value) for value in val]))
-                query = """INSERT INTO "%s" ("%s","%s") VALUES (%s,%s)""" % (tablename, geometry_attr, '","'.join(attributes), geometry_values, attr_values)
+                query = """INSERT INTO "%s" ("%s","%s") VALUES (%s,%s)""" % (
+                    tablename, geometry_attr, '","'.join(attributes), geometry_values, attr_values)
                 header, data, error = executeSpatialiteQuery(connection, query, commit=False)
                 if error:
                     res = False
@@ -343,10 +346,11 @@ def insertSpatialiteValues(connection, name, attributes, values, coords=None):
     else:
         res = False
     if res:
-        #Commit changes to connection:
+        # Commit changes to connection:
         connection.commit()
-        #create spatial index
-        header, data, error = executeSpatialiteQuery(connection,"""SELECT CreateSpatialIndex("%s", '%s') """ % (tablename,'geometry'))
+        # create spatial index
+        executeSpatialiteQuery(connection, """SELECT CreateSpatialIndex("%s", '%s') """ % (
+            tablename, 'geometry'))
     else:
         connection.rollback()
     return res
@@ -357,28 +361,30 @@ def addSpatialiteColumns(connection, name, columns, types):
     res = False
     fields = listSpatialiteColumns(connection, name)
     for i, attr in enumerate(columns):
-        #add new field if it doesn't exist
+        # add new field if it doesn't exist
         if attr not in list(fields.keys()):
             field_type = ''
-            if types[i] in (QVariant.Char,QVariant.String): # field type is TEXT
+            if types[i] in (QVariant.Char, QVariant.String):  # field type is TEXT
                 field_type = 'TEXT'
-            elif types[i] in (QVariant.Bool,QVariant.Int,QVariant.LongLong,QVariant.UInt,QVariant.ULongLong): # field type is INTEGER
+            elif types[i] in (
+                    QVariant.Bool, QVariant.Int, QVariant.LongLong, QVariant.UInt,
+                    QVariant.ULongLong):  # field type is INTEGER
                 field_type = 'INTEGER'
-            elif types[i] == QVariant.Double: # field type is DOUBLE
+            elif types[i] == QVariant.Double:  # field type is DOUBLE
                 field_type = 'REAL'
             if field_type != '':
                 query = """ALTER TABLE "%s" ADD COLUMN "%s" %s""" % (name, attr, field_type)
-                header, data, error = executeSpatialiteQuery(connection,query)
+                header, data, error = executeSpatialiteQuery(connection, query)
                 if error:
                     res = False
                     break
                 else:
                     res = True
     if res:
-        #Commit changes to connection:
+        # Commit changes to connection:
         connection.commit()
         query = """SELECT UpdateLayerStatistics("%s")""" % name
-        header, data, error = executeSpatialiteQuery(connection,query, commit=True)
+        executeSpatialiteQuery(connection, query, commit=True)
     else:
         connection.rollback()
     return res
@@ -390,17 +396,17 @@ def dropSpatialiteColumns(connection, name, columns):
     fields = listSpatialiteColumns(connection, name)
     new_cols = []
     for attr in list(fields.keys()):
-        #drop column if it exists
+        # drop column if it exists
         if attr not in columns:
             new_cols.append(attr)
     query = """ALTER TABLE "%s" RENAME TO to_drop""" % name
-    header, data, error = executeSpatialiteQuery(connection,query)
+    executeSpatialiteQuery(connection, query)
     query = """CREATE TABLE "%s" AS SELECT "%s" FROM to_drop""" % (name, '","'.join(new_cols))
-    header, data, error = executeSpatialiteQuery(connection,query)
+    executeSpatialiteQuery(connection, query)
     query = """SELECT UpdateLayerStatistics("%s")""" % name
-    header, data, error = executeSpatialiteQuery(connection,query, commit=True)
-    header, data, error = executeSpatialiteQuery(connection,"DROP TABLE to_drop", commit=True)
-    header, data, error = executeSpatialiteQuery(connection,"VACUUM")
+    executeSpatialiteQuery(connection, query, commit=True)
+    executeSpatialiteQuery(connection, "DROP TABLE to_drop", commit=True)
+    executeSpatialiteQuery(connection, "VACUUM")
     return res
 
 
@@ -424,10 +430,10 @@ def addSpatialiteAttributes(connection, name, id, attributes, types, values):
             new_values = []
             for attr in attr_index.keys():
                 # add quotes if inserting a text value
-                if types[attr_index[attr]] in (QVariant.Char,QVariant.String):
-                    new_values.append("""'%s' = '%s'""" % (attr,val[attr_index[attr]]))
+                if types[attr_index[attr]] in (QVariant.Char, QVariant.String):
+                    new_values.append("""'%s' = '%s'""" % (attr, val[attr_index[attr]]))
                 else:
-                    new_values.append("""'%s' = %s""" % (attr,val[attr_index[attr]]))
+                    new_values.append("""'%s' = %s""" % (attr, val[attr_index[attr]]))
             if len(new_values) > 0:
                 query = """UPDATE "%s" SET %s WHERE %s = %s""" % (name, ', '.join(new_values), id, val[attr_id])
                 header, data, error = executeSpatialiteQuery(connection, query)
@@ -435,102 +441,115 @@ def addSpatialiteAttributes(connection, name, id, attributes, types, values):
                     res = False
                     break
         if res:
-            #Commit changes to connection:
+            # Commit changes to connection:
             connection.commit()
             query = """SELECT UpdateLayerStatistics("%s")""" % name
-            header, data, error = executeSpatialiteQuery(connection,query, commit=True)
+            executeSpatialiteQuery(connection, query, commit=True)
         else:
             connection.rollback()
     return res
 
 
 def copyLayerToSpatialite(connection, layer, path, name):
-    #Drop table
-    header,data, error = executeSpatialiteQuery(connection,"""DROP TABLE IF EXISTS "%s" """ % name)
-    #Get layer provider
+    # Drop table
+    executeSpatialiteQuery(connection, """DROP TABLE IF EXISTS "%s" """ % name)
+    # Get layer provider
     provider = layer.dataProvider()
-    #Get the database uri
+    # Get the database uri
     uri = QgsDataSourceUri()
     uri.setDatabase(path)
-    #Get fields with corresponding types
-    fields=[]
-    fieldsNames=[]
-    mapinfoDate=[]
-    for id,field in enumerate(provider.fields().toList()):
-        fldName=str(field.name()).replace("'"," ").replace('"'," ")
-        #Avoid two columns with same name:
+    # Get fields with corresponding types
+    fields = []
+    fieldsNames = []
+    mapinfoDate = []
+    for id, field in enumerate(provider.fields().toList()):
+        fldName = str(field.name()).replace("'", " ").replace('"', " ")
+        # Avoid two columns with same name:
         while fldName.upper() in fieldsNames:
-            fldName='%s_2'%fldName
-        fldType=field.type()
-        fldTypeName=str(field.typeName()).upper()
-        if fldTypeName=='DATE' and str(provider.storageType()).lower()==u'mapinfo file': # Mapinfo DATE compatibility
-            fldType='DATE'
-            mapinfoDate.append([id,fldName]) #stock id and name of DATE field for MAPINFO layers
-        elif fldType in (QVariant.Char,QVariant.String): # field type is TEXT
-            fldLength=field.length()
-            fldType='TEXT(%s)'%fldLength  #Add field Length Information
-        elif fldType in (QVariant.Bool,QVariant.Int,QVariant.LongLong,QVariant.UInt,QVariant.ULongLong): # field type is INTEGER
-            fldType='INTEGER'
-        elif fldType==QVariant.Double: # field type is DOUBLE
-            fldType='REAL'
-        else: # field type is not recognized by SQLITE
-            fldType=fldTypeName
-        fields.append(""" "%s" %s """%(fldName,fldType))
+            fldName = '%s_2' % fldName
+        fldType = field.type()
+        fldTypeName = str(field.typeName()).upper()
+        if fldTypeName == 'DATE' and str(
+                provider.storageType()).lower() == u'mapinfo file':  # Mapinfo DATE compatibility
+            fldType = 'DATE'
+            mapinfoDate.append([id, fldName])  # stock id and name of DATE field for MAPINFO layers
+        elif fldType in (QVariant.Char, QVariant.String):  # field type is TEXT
+            fldLength = field.length()
+            fldType = 'TEXT(%s)' % fldLength  # Add field Length Information
+        elif fldType in (
+                QVariant.Bool, QVariant.Int, QVariant.LongLong, QVariant.UInt,
+                QVariant.ULongLong):  # field type is INTEGER
+            fldType = 'INTEGER'
+        elif fldType == QVariant.Double:  # field type is DOUBLE
+            fldType = 'REAL'
+        else:  # field type is not recognized by SQLITE
+            fldType = fldTypeName
+        fields.append(""" "%s" %s """ % (fldName, fldType))
         fieldsNames.append(fldName.upper())
-    #Get the geometry type
-    geometry=False
+    # Get the geometry type
+    geometry = False
     if layer.isSpatial():
-        #Get geometry type
-        geom=['MULTIPOINT','MULTILINESTRING','MULTIPOLYGON','UnknownGeometry']
-        geometry=geom[layer.geometryType()]
-        #set SRID
-        srid=layer.crs().postgisSrid()
-    #select attributes to import (remove Pkuid if already exists):
+        # Get geometry type
+        geom = ['MULTIPOINT', 'MULTILINESTRING', 'MULTIPOLYGON', 'UnknownGeometry']
+        geometry = geom[layer.geometryType()]
+        # set SRID
+        srid = layer.crs().postgisSrid()
+    # select attributes to import (remove Pkuid if already exists):
     allAttrs = provider.attributeIndexes()
     fldDesc = provider.fieldNameIndex("pk_id")
     if fldDesc != -1:
-        #print "pk_id already exists and will be replaced!"
-        del allAttrs[fldDesc] #remove pk_id Field
-        del fields[fldDesc] #remove pk_id Field
+        # print "pk_id already exists and will be replaced!"
+        del allAttrs[fldDesc]  # remove pk_id Field
+        del fields[fldDesc]  # remove pk_id Field
     if geometry:
-        fields.insert(0,"geometry %s"%geometry)
-    #Create new table
-    fields=','.join(fields)
-    if len(fields)>0:
-        fields=', %s'%fields
-    header, data, error = executeSpatialiteQuery(connection,"""CREATE TABLE "%s" ( pk_id INTEGER PRIMARY KEY AUTOINCREMENT %s )"""%(name, fields))
-    #Recover Geometry Column:
+        fields.insert(0, "geometry %s" % geometry)
+    # Create new table
+    fields = ','.join(fields)
+    if len(fields) > 0:
+        fields = ', %s' % fields
+    executeSpatialiteQuery(connection,
+                                                 """CREATE TABLE "%s" ( pk_id INTEGER PRIMARY KEY AUTOINCREMENT %s )""" % (
+                                                     name, fields))
+    # Recover Geometry Column:
     if geometry:
-        header, data, error=executeSpatialiteQuery(connection,"""SELECT RecoverGeometryColumn("%s",'geometry',%s,'%s',2)"""%(name,srid,geometry,))
+        executeSpatialiteQuery(connection,
+                                                     """SELECT RecoverGeometryColumn("%s",'geometry',%s,'%s',2)""" % (
+                                                         name, srid, geometry,))
     # Retrieve every feature
     for feat in layer.getFeatures():
-        #PKUID and Geometry
-        values_auto=['NULL'] #PKUID value
+        # PKUID and Geometry
+        values_auto = ['NULL']  # PKUID value
         if geometry:
             geom = feat.geometry()
-            WKT=geom.asWkt()
-            values_auto.append('CastToMulti(GeomFromText("%s",%s))'%(WKT,srid))
+            WKT = geom.asWkt()
+            values_auto.append('CastToMulti(GeomFromText("%s",%s))' % (WKT, srid))
         # show all attributes and their values
-        values=[]
-        for val in allAttrs: # All except PKUID
+        values = []
+        for val in allAttrs:  # All except PKUID
             values.append(feat[val])
-        #Create line in DB table
-        if len(fields)>0:
-            header, data, error = executeSpatialiteQuery(connection,"""INSERT INTO "%s" VALUES (%s,%s)""" % (name,','.join([str(value).encode('utf-8') for value in values_auto]), ','.join('?'*len(values))), tuple([str(value) for value in values]))
-        else: #no attribute data
-            header, data, error = executeSpatialiteQuery(connection,"""INSERT INTO "%s" VALUES (%s)""" % (name,','.join([str(value).encode('utf-8') for value in values_auto])))
-    for date in mapinfoDate: #mapinfo compatibility: convert date in SQLITE format (2010/02/11 -> 2010-02-11 ) or rollback if any error
-        header, data, error = executeSpatialiteQuery(connection,"""UPDATE OR ROLLBACK "%s" set '%s'=replace( "%s", '/' , '-' )  """%(name,date[1],date[1]))
-    #Commit changes to connection:
+        # Create line in DB table
+        if len(fields) > 0:
+            executeSpatialiteQuery(connection, """INSERT INTO "%s" VALUES (%s,%s)""" % (
+                name, ','.join([str(value).encode('utf-8') for value in values_auto]), ','.join('?' * len(values))),
+                                                         tuple([str(value) for value in values]))
+        else:  # no attribute data
+            executeSpatialiteQuery(connection, """INSERT INTO "%s" VALUES (%s)""" % (
+                name, ','.join([str(value).encode('utf-8') for value in values_auto])))
+    for date in mapinfoDate:  # mapinfo compatibility: convert date in SQLITE format (2010/02/11 -> 2010-02-11 ) or rollback if any error
+        executeSpatialiteQuery(connection,
+                                                     """UPDATE OR ROLLBACK "%s" set '%s'=replace( "%s", '/' , '-' )  """ % (
+                                                         name, date[1], date[1]))
+    # Commit changes to connection:
     connection.commit()
-    #create spatial index
-    header, data, error = executeSpatialiteQuery(connection,"""SELECT CreateSpatialIndex("%s", "%s") """%(name,'geometry'))
+    # create spatial index
+    executeSpatialiteQuery(connection,
+                                                 """SELECT CreateSpatialIndex("%s", "%s") """ % (name, 'geometry'))
     return True
 
 
-#---------------------------------------------
+# ---------------------------------------------
 # PostGIS database specific functions
-#---------------------------------------------
+# ---------------------------------------------
 # postgis geometry types
 # 1 point; 2 line; 3 polygon; 4 multipoint; 5 multiline; 6 multipolygon
 
@@ -549,7 +568,7 @@ def getPostgisSelectedConnection():
 
     :return:
     """
-    #try to select directly the last opened dataBase
+    # try to select directly the last opened dataBase
     try:
         settings = QSettings()
         last_db = settings.value(u'/PostgreSQL/connections/selected')
@@ -588,23 +607,23 @@ def createPostgisConnectionSetting(name, connection=None):
     :param connection:
     :return:
     """
-    settings=QSettings()
+    settings = QSettings()
     settings.beginGroup('/PostgreSQL/connections')
     if connection and isinstance(connection, dict):
         if 'service' in connection:
             settings.setValue(u'%s/service' % name, u'%s' % connection['service'])
         if 'host' in connection:
-            settings.setValue(u'%s/host' % name,u'%s' % connection['host'])
+            settings.setValue(u'%s/host' % name, u'%s' % connection['host'])
         if 'port' in connection:
-            settings.setValue(u'%s/port' % name,u'%s' % connection['port'])
+            settings.setValue(u'%s/port' % name, u'%s' % connection['port'])
         if 'dbname' in connection:
-            settings.setValue(u'%s/database' % name,u'%s' % connection['dbname'])
+            settings.setValue(u'%s/database' % name, u'%s' % connection['dbname'])
         if 'user' in connection:
-            settings.setValue(u'%s/saveUsername' % name,u'%s' % "true")
-            settings.setValue(u'%s/username' % name,u'%s' % connection['user'])
+            settings.setValue(u'%s/saveUsername' % name, u'%s' % "true")
+            settings.setValue(u'%s/username' % name, u'%s' % connection['user'])
         if 'password' in connection:
-            settings.setValue(u'%s/savePassword' % name,u'%s' % "true")
-            settings.setValue(u'%s/password' % name,u'%s' % connection['password'])
+            settings.setValue(u'%s/savePassword' % name, u'%s' % "true")
+            settings.setValue(u'%s/password' % name, u'%s' % connection['password'])
     settings.endGroup()
 
 
@@ -616,7 +635,7 @@ def getPostgisConnection(name):
     """
     con_str = getPostgisConnectionString(name)
     try:
-        connection=pgsql.connect(con_str)
+        connection = pgsql.connect(con_str)
     except pgsql.Error as e:
         print(e.pgerror)
         connection = None
@@ -631,9 +650,9 @@ def getPostgisConnectionString(name):
     """
     connstring = ''
     settings = QSettings()
-    settings.beginGroup('/PostgreSQL/connections/%s'%name)
+    settings.beginGroup('/PostgreSQL/connections/%s' % name)
     for item in settings.allKeys():
-        if item in ('host','port','password','service'):
+        if item in ('host', 'port', 'password', 'service'):
             if settings.value(item):
                 connstring += "%s='%s' " % (item, settings.value(item))
         elif item == 'database':
@@ -645,7 +664,7 @@ def getPostgisConnectionString(name):
     return connstring
 
 
-def executePostgisQuery(connection, query, params='',commit=False):
+def executePostgisQuery(connection, query, params='', commit=False):
     """Execute query (string) with given parameters (tuple)
     (optionally perform commit to save Db)
     :return: result set [header,data] or [error] error
@@ -666,7 +685,7 @@ def executePostgisQuery(connection, query, params='',commit=False):
         error = e.pgerror
         connection.rollback()
     cursor.close()
-    #return the result even if empty
+    # return the result even if empty
     return header, data, error
 
 
@@ -694,14 +713,14 @@ def getPostgisConnectionInfo(layer):
             info['dbname'] = uri.database()
             (success, username, passwd) = QgsCredentials.instance().get(uri.connectionInfo(), None, None)
             if success:
-                info['user'] = username #uri.username()
-                info['password'] = passwd #uri.password()
+                info['user'] = username  # uri.username()
+                info['password'] = passwd  # uri.password()
             connection_settings = getPostgisConnectionSettings()
             for connection in connection_settings:
-                if (connection['database'] == info['dbname'])\
-                    and (connection['host'] == info['host'])\
-                    and (connection['port'] == info['port'])\
-                    and (connection['service'] == info['service']):
+                if (connection['database'] == info['dbname']) \
+                        and (connection['host'] == info['host']) \
+                        and (connection['port'] == info['port']) \
+                        and (connection['service'] == info['service']):
                     info['name'] = connection['name']
                     break
     return info
@@ -737,25 +756,26 @@ def listPostgisGeomTables(connection):
     tables = []
     query = """SELECT * FROM geometry_columns ORDER BY lower(f_table_name)"""
     header, data, error = executePostgisQuery(connection, query)
-    #extract information from query
-    #info per table (array): name (0),geometry_column (1), geometry_column_type (2),
+    # extract information from query
+    # info per table (array): name (0),geometry_column (1), geometry_column_type (2),
     # geometry_dimension (3), srid (4), spatial_index_enabled (5)
     if header != [] and data != []:
         tables = data
-    #return the result even if empty
+    # return the result even if empty
     return tables
 
 
 def listPostgisColumns(connection, schema, name):
-    '''query to extract the names and data types of the columns in a table of the database
-    '''
+    """query to extract the names and data types of the columns in a table of the database
+    """
     columns = {}
-    query = """SELECT column_name, data_type FROM information_schema.columns WHERE table_schema = '%s' AND table_name = '%s';""" % (schema, name)
+    query = """SELECT column_name, data_type FROM information_schema.columns WHERE table_schema = '%s' AND table_name = '%s';""" % (
+        schema, name)
     header, data, error = executePostgisQuery(connection, query)
     if data:
         for col in data:
             columns[col[0]] = col[1]
-    #return the result even if empty
+    # return the result even if empty
     return columns
 
 
@@ -769,17 +789,17 @@ def loadPostgisTable(connection, name, schema, table):
             dsn = con
             break
     if dsn:
-        if dsn['service'] != 'NULL' and dsn['service'] !='':
-            uri.setConnection(dsn['service'], '','','')
+        if dsn['service'] != 'NULL' and dsn['service'] != '':
+            uri.setConnection(dsn['service'], '', '', '')
         elif dsn['username'] == 'NULL' or dsn['password'] == 'NULL':
-            uri.setConnection(dsn['host'], dsn['port'], dsn['database'],'','')
+            uri.setConnection(dsn['host'], dsn['port'], dsn['database'], '', '')
         else:
             uri.setConnection(dsn['host'], dsn['port'], dsn['database'], dsn['username'], dsn['password'])
         geometry = getPostgisGeometryColumn(connection, schema, table)
         if geometry:
             uri.setDataSource("%s" % schema, "%s" % table, "%s" % geometry)
-            layer=QgsVectorLayer(uri, "%s" % table, 'postgres')
-            #add layer to canvas
+            layer = QgsVectorLayer(uri, "%s" % table, 'postgres')
+            # add layer to canvas
             if layer.isValid():
                 QgsProject.instance().addMapLayer(layer)
             else:
@@ -801,15 +821,16 @@ def getPostgisLayer(connection, name, schema, table):
             dsn = con
             break
     if dsn:
-        if dsn['service'] != 'NULL' and dsn['service'] !='':
-            uri.setConnection(dsn['service'], '','','')
+        if dsn['service'] != 'NULL' and dsn['service'] != '':
+            uri.setConnection(dsn['service'], '', '', '')
         elif dsn['username'] == 'NULL' or dsn['password'] == 'NULL':
-            uri.setConnection(dsn['host'], dsn['port'], dsn['database'],'','')
+            uri.setConnection(dsn['host'], dsn['port'], dsn['database'], '', '')
         else:
             uri.setConnection(dsn['host'], dsn['port'], dsn['database'], dsn['username'], dsn['password'])
-        query = """SELECT f_geometry_column FROM geometry_columns WHERE f_table_schema = '%s' AND f_table_name = '%s'""" % (schema, table)
+        query = """SELECT f_geometry_column FROM geometry_columns WHERE f_table_schema = '%s' AND f_table_name = '%s'""" % (
+            schema, table)
         header, data, error = executePostgisQuery(connection, query)
-        if data != []:
+        if data:
             geometry = data[0][0]
             uri.setDataSource("%s" % schema, "%s" % table, "%s" % geometry)
             layer = QgsVectorLayer(uri.uri(), "%s" % table, 'postgres')
@@ -822,7 +843,8 @@ def getPostgisLayer(connection, name, schema, table):
 
 def getPostgisGeometryColumn(connection, schema, table):
     geomname = ''
-    query = """SELECT f_geometry_column FROM geometry_columns WHERE f_table_schema = '%s' AND f_table_name = '%s'""" % (schema, table)
+    query = """SELECT f_geometry_column FROM geometry_columns WHERE f_table_schema = '%s' AND f_table_name = '%s'""" % (
+        schema, table)
     header, data, error = executePostgisQuery(connection, query)
     if data:
         geomname = data[0][0]
@@ -831,24 +853,25 @@ def getPostgisGeometryColumn(connection, schema, table):
 
 def createPostgisSpatialIndex(connection, schema, table, geomname):
     # create a spatial index if not present, it makes subsequent queries much faster
-    index = table.lower().replace(" ","_")
+    index = table.lower().replace(" ", "_")
     query = """CREATE INDEX %s_gidx ON "%s"."%s" USING GIST ("%s")""" % (index, schema, table, geomname)
     try:
-        header, data, error = executePostgisQuery(connection, query)
+        executePostgisQuery(connection, query)
     except:
         pass
     return
 
 
 def testPostgisTableExists(connection, schema, name):
-    '''
+    """
     :param connection:
     :param schema:
     :param name:
     :return:
-    '''
-    query = """SELECT table_schema, table_name FROM information_schema.tables WHERE table_schema = '%s' AND table_name = '%s' """ % (schema, name)
-    header, data, error = executePostgisQuery(connection, query)
+    """
+    query = """SELECT table_schema, table_name FROM information_schema.tables WHERE table_schema = '%s' AND table_name = '%s' """ % (
+        schema, name)
+    executePostgisQuery(connection, query)
     if data:
         return True
     return False
@@ -856,19 +879,22 @@ def testPostgisTableExists(connection, schema, name):
 
 def createPostgisTable(connection, schema, name, srid, attributes, types, geometrytype):
     res = True
-    #Drop table
-    header, data, error = executePostgisQuery(connection,"""DROP TABLE IF EXISTS "%s"."%s" CASCADE """ % (schema, name))
+    # Drop table
+    executePostgisQuery(connection,
+                                              """DROP TABLE IF EXISTS "%s"."%s" CASCADE """ % (schema, name))
     # Get the fields
     fields = []
     for i, type in enumerate(types):
         field_type = ''
-        if type in (QVariant.Char,QVariant.String): # field type is TEXT
+        if type in (QVariant.Char, QVariant.String):  # field type is TEXT
             field_type = 'character varying'
-        elif type in (QVariant.Bool,QVariant.Int,QVariant.LongLong,QVariant.UInt,QVariant.ULongLong): # field type is INTEGER
+        elif type in (
+                QVariant.Bool, QVariant.Int, QVariant.LongLong, QVariant.UInt,
+                QVariant.ULongLong):  # field type is INTEGER
             field_type = 'integer'
-        elif type == QVariant.Double: # field type is DOUBLE
+        elif type == QVariant.Double:  # field type is DOUBLE
             field_type = 'double precision'
-        fields.append('"%s" %s'% (attributes[i],field_type))
+        fields.append('"%s" %s' % (attributes[i], field_type))
     # Get the geometry
     geometry = False
     if geometrytype != '':
@@ -878,59 +904,65 @@ def createPostgisTable(connection, schema, name, srid, attributes, types, geomet
             geometry = 'MULTILINESTRING'
         elif 'polygon' in geometrytype.lower():
             geometry = 'MULTIPOLYGON'
-    #Create new table
+    # Create new table
     fields = ','.join(fields)
     if len(fields) > 0:
-        fields=', %s' % fields
-    header, data, error = executePostgisQuery(connection,"""CREATE TABLE "%s"."%s" ( sid SERIAL NOT NULL PRIMARY KEY %s ) """ % (schema, name, fields))
+        fields = ', %s' % fields
+    header, data, error = executePostgisQuery(connection,
+                                              """CREATE TABLE "%s"."%s" ( sid SERIAL NOT NULL PRIMARY KEY %s ) """ % (
+                                                  schema, name, fields))
     if error:
         res = False
     else:
-        #Add the geometry column:
+        # Add the geometry column:
         if geometry:
-            header, data, error = executePostgisQuery(connection,"""ALTER TABLE "%s"."%s" ADD COLUMN geom geometry('%s', %s) """ % (schema, name, geometry, srid))
-            idx_name = name.lower().replace(" ","_")
-            header,data, error = executePostgisQuery(connection,"""CREATE INDEX %s_gix ON "%s"."%s" USING GIST (geom) """ % (idx_name, schema, name))
+            executePostgisQuery(connection,
+                                                      """ALTER TABLE "%s"."%s" ADD COLUMN geom geometry('%s', %s) """ % (
+                                                          schema, name, geometry, srid))
+            idx_name = name.lower().replace(" ", "_")
+            header, data, error = executePostgisQuery(connection,
+                                                      """CREATE INDEX %s_gix ON "%s"."%s" USING GIST (geom) """ % (
+                                                          idx_name, schema, name))
         if error:
             res = False
     if res:
-        #Commit changes to connection:
+        # Commit changes to connection:
         connection.commit()
     return res
 
 
 def insertPostgisValues(connection, schema, name, attributes, values, coords=None):
-    res = False
     # get table srid and geometry column info
-    query = """SELECT f_geometry_column,  type, srid FROM geometry_columns WHERE f_table_schema = '%s' AND f_table_name = '%s'""" % (schema, name)
+    query = """SELECT f_geometry_column,  type, srid FROM geometry_columns WHERE f_table_schema = '%s' AND f_table_name = '%s'""" % (
+        schema, name)
     header, data, error = executePostgisQuery(connection, query)
     if data:
         geometry_attr = data[0][0]
         geometry_type = data[0][1]
         srid = data[0][2]
-    else:
-        res = False
 
     # iterate through values to populate geometry and attributes
     if values:
         res = True
-        if geometry_type in ('POINT','MULTIPOINT') and len(coords) == 2:
+        if geometry_type in ('POINT', 'MULTIPOINT') and len(coords) == 2:
             for val in values:
-                WKT = "POINT(%s %s)" % (val[coords[0]],val[coords[1]])
+                WKT = "POINT(%s %s)" % (val[coords[0]], val[coords[1]])
                 geometry_values = "ST_Multi(ST_GeomFromText('%s',%s))" % (WKT, srid)
-                #Create line in DB table
+                # Create line in DB table
                 attr_values = ','.join(tuple([str(value) for value in val]))
-                query = """INSERT INTO "%s"."%s" ("%s","%s") VALUES (%s,%s)""" % (schema, name, geometry_attr, '","'.join(attributes), geometry_values, attr_values)
+                query = """INSERT INTO "%s"."%s" ("%s","%s") VALUES (%s,%s)""" % (
+                    schema, name, geometry_attr, '","'.join(attributes), geometry_values, attr_values)
                 header, data, error = executePostgisQuery(connection, query, commit=False)
                 if error:
                     res = False
                     break
-        elif geometry_type in ('LINESTRING','MULTILINESTRING') and len(coords) == 4:
+        elif geometry_type in ('LINESTRING', 'MULTILINESTRING') and len(coords) == 4:
             for val in values:
-                WKT = "LINESTRING(%s %s, %s %s)" % (val[coords[0]],val[coords[1]],val[coords[2]],val[coords[3]])
+                WKT = "LINESTRING(%s %s, %s %s)" % (val[coords[0]], val[coords[1]], val[coords[2]], val[coords[3]])
                 geometry_values = "ST_Multi(ST_GeomFromText('%s',%s))" % (WKT, srid)
                 attr_values = ','.join(tuple([str(value) for value in val]))
-                query = """INSERT INTO "%s"."%s" ("%s","%s") VALUES (%s,%s)""" % (schema, name, geometry_attr, '","'.join(attributes), geometry_values, attr_values)
+                query = """INSERT INTO "%s"."%s" ("%s","%s") VALUES (%s,%s)""" % (
+                    schema, name, geometry_attr, '","'.join(attributes), geometry_values, attr_values)
                 header, data, error = executePostgisQuery(connection, query, commit=False)
                 if error:
                     res = False
@@ -938,7 +970,8 @@ def insertPostgisValues(connection, schema, name, attributes, values, coords=Non
         else:
             for val in values:
                 attr_values = ','.join(tuple([str(value) for value in val]))
-                query = """INSERT INTO "%s"."%s" ("%s") VALUES (%s)""" % (schema, name, '","'.join(attributes), attr_values)
+                query = """INSERT INTO "%s"."%s" ("%s") VALUES (%s)""" % (
+                    schema, name, '","'.join(attributes), attr_values)
                 header, data, error = executePostgisQuery(connection, query, commit=False)
                 if error:
                     res = False
@@ -946,7 +979,7 @@ def insertPostgisValues(connection, schema, name, attributes, values, coords=Non
     else:
         res = False
     if res:
-        #Commit changes to connection:
+        # Commit changes to connection:
         connection.commit()
     return res
 
@@ -956,15 +989,17 @@ def addPostgisColumns(connection, schema, name, columns, types):
     res = False
     fields = listPostgisColumns(connection, schema, name)
     for i, attr in enumerate(columns):
-        #add new field if it doesn't exist
+        # add new field if it doesn't exist
         if attr not in list(fields.keys()):
             res = True
             field_type = ''
-            if types[i] in (QVariant.Char,QVariant.String): # field type is TEXT
+            if types[i] in (QVariant.Char, QVariant.String):  # field type is TEXT
                 field_type = 'character varying'
-            elif types[i] in (QVariant.Bool,QVariant.Int,QVariant.LongLong,QVariant.UInt,QVariant.ULongLong): # field type is INTEGER
+            elif types[i] in (
+                    QVariant.Bool, QVariant.Int, QVariant.LongLong, QVariant.UInt,
+                    QVariant.ULongLong):  # field type is INTEGER
                 field_type = 'integer'
-            elif types[i] == QVariant.Double: # field type is DOUBLE
+            elif types[i] == QVariant.Double:  # field type is DOUBLE
                 field_type = 'double precision'
             if field_type != '':
                 query = """ALTER TABLE "%s"."%s" ADD COLUMN "%s" %s""" % (schema, name, attr, field_type)
@@ -972,7 +1007,7 @@ def addPostgisColumns(connection, schema, name, columns, types):
                 if error:
                     res = False
                     break
-    #Commit changes to connection:
+    # Commit changes to connection:
     connection.commit()
     return res
 
@@ -996,13 +1031,14 @@ def addPostgisAttributes(connection, schema, name, id, attributes, types, values
             new_values = []
             for attr in attr_index.keys():
                 # add quotes if inserting a text value
-                if types[attr_index[attr]] in (QVariant.Char,QVariant.String):
-                    new_values.append(""" "%s" = '%s'""" % (attr,val[attr_index[attr]]))
+                if types[attr_index[attr]] in (QVariant.Char, QVariant.String):
+                    new_values.append(""" "%s" = '%s'""" % (attr, val[attr_index[attr]]))
                 else:
-                    new_values.append(""" "%s" = %s""" % (attr,val[attr_index[attr]]))
+                    new_values.append(""" "%s" = %s""" % (attr, val[attr_index[attr]]))
             if len(new_values) > 0:
-                query = """UPDATE "%s"."%s" SET %s WHERE "%s" = %s""" % (schema, name, ', '.join(new_values), id, val[attr_id])
-                header, data, error = executePostgisQuery(connection,query)
+                query = """UPDATE "%s"."%s" SET %s WHERE "%s" = %s""" % (
+                    schema, name, ', '.join(new_values), id, val[attr_id])
+                header, data, error = executePostgisQuery(connection, query)
                 if error:
                     res = False
                     break
@@ -1012,6 +1048,7 @@ def addPostgisAttributes(connection, schema, name, id, attributes, types, values
             connection.rollback()
     return res
 
+
 def getPostgisSchemas(connstring, commit=False):
     """Execute query (string) with given parameters (tuple)
     (optionally perform commit to save Db)
@@ -1019,8 +1056,8 @@ def getPostgisSchemas(connstring, commit=False):
     """
 
     try:
-        connection = psycopg2.connect(connstring)
-    except psycopg2.Error as e:
+        connection = pgsql.connect(connstring)
+    except pgsql.Error as e:
         print(e.pgerror)
         connection = None
 
@@ -1035,7 +1072,7 @@ def getPostgisSchemas(connstring, commit=False):
                 data = cursor.fetchall()
             if commit:
                 connection.commit()
-        except psycopg2.Error as e:
+        except pgsql.Error as e:
             connection.rollback()
         cursor.close()
 
@@ -1043,10 +1080,11 @@ def getPostgisSchemas(connstring, commit=False):
     for schema in data:
         if schema[0] not in ('topology', 'information_schema') and schema[0][:3] != 'pg_':
             schemas.append(schema[0])
-    #return the result even if empty
+    # return the result even if empty
     return sorted(schemas)
 
-def getQGISDbs(portlast = False):
+
+def getQGISDbs(portlast=False):
     """Return all PostGIS connection settings stored in QGIS
     :return: connection dict() with name and other settings
             """
@@ -1057,7 +1095,7 @@ def getQGISDbs(portlast = False):
                 settings.value(i) != NULL and settings.value(i) != '']
 
     query_columns = ['name', 'host', 'service', 'password', 'username', 'port', 'database']
-    if(portlast):
+    if portlast:
         query_columns = ['name', 'host', 'service', 'password', 'username', 'database', 'port']
 
     all_info = [i for i in all_info if

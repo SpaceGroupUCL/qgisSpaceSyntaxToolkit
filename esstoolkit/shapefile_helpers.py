@@ -22,28 +22,19 @@
 """
 from __future__ import print_function
 
-from builtins import zip
-from builtins import str
-from builtins import range
-from qgis.PyQt.QtCore import (QVariant, QSettings)
-from qgis.PyQt.QtGui import QColor
-from qgis.PyQt.QtWidgets import QMessageBox
-from qgis.core import (QgsProject, QgsMapLayer, QgsDataSourceUri, QgsVectorLayer, QgsCredentials, QgsVectorDataProvider, QgsFields, QgsField, QgsPoint, QgsGeometry, QgsFeature, QgsVectorFileWriter, QgsFeatureRequest, QgsSpatialIndex, QgsCoordinateTransformContext, QgsWkbTypes)
-
-# from pyspatialite import dbapi2 as sqlite
-import psycopg2 as pgsql
-import numpy as np
-
 import os.path
-import math
-import sys
-from itertools import zip_longest
+
+from qgis.core import (QgsVectorLayer, QgsVectorDataProvider, QgsFields, QgsField, QgsPoint, QgsGeometry, QgsFeature,
+                       QgsVectorFileWriter, QgsCoordinateTransformContext, QgsWkbTypes)
 
 from . import layer_field_helpers as lfh
 
-#---------------------------------------------
+
+# from pyspatialite import dbapi2 as sqlite
+
+# ---------------------------------------------
 # Shape file specific functions
-#---------------------------------------------
+# ---------------------------------------------
 def listShapeFolders():
     # get folder name and path of open layers
     res = dict()
@@ -58,26 +49,26 @@ def listShapeFolders():
             try:
                 idx = res['path'].index(path)
             except:
-                res['name'].append(os.path.basename(os.path.normpath(path))) #layer.name()
+                res['name'].append(os.path.basename(os.path.normpath(path)))  # layer.name()
                 res['path'].append(path)
-            #for the file name: os.path.basename(uri).split('|')[0]
-    #case: no folders available
+            # for the file name: os.path.basename(uri).split('|')[0]
+    # case: no folders available
     if len(res['name']) < 1:
         res = None
-    #return the result even if empty
+    # return the result even if empty
     return res
 
 
 def testShapeFileExists(path, name):
-    filename = path+"/"+name+".shp"
+    filename = path + "/" + name + ".shp"
     exists = os.path.isfile(filename)
     return exists
 
 
 def copyLayerToShapeFile(layer, path, name):
-    #Get layer provider
+    # Get layer provider
     provider = layer.dataProvider()
-    filename = path+"/"+name+".shp"
+    filename = path + "/" + name + ".shp"
     fields = provider.fields()
     if layer.isSpatial():
         geometry = layer.wkbType()
@@ -107,8 +98,8 @@ def copyLayerToShapeFile(layer, path, name):
 
 def createShapeFileFullLayer(path, name, srid, attributes, types, values, coords):
     # create new layer with given attributes
-    filename = path+"/"+name+".shp"
-    #create the required fields
+    filename = path + "/" + name + ".shp"
+    # create the required fields
     fields = QgsFields()
     for i, attr in enumerate(attributes):
         fields.append(QgsField(attr, types[i]))
@@ -119,10 +110,12 @@ def createShapeFileFullLayer(path, name, srid, attributes, types, values, coords
     options.fileEncoding = 'utf-8'
     if len(coords) == 2:
         type = 'point'
-        writer = QgsVectorFileWriter.create(filename, fields, QgsWkbTypes.Point, srid, QgsCoordinateTransformContext(), options)
+        writer = QgsVectorFileWriter.create(filename, fields, QgsWkbTypes.Point, srid, QgsCoordinateTransformContext(),
+                                            options)
     elif len(coords) == 4:
         type = 'line'
-        writer = QgsVectorFileWriter.create(filename, fields, QgsWkbTypes.LineString , srid, QgsCoordinateTransformContext(), options)
+        writer = QgsVectorFileWriter.create(filename, fields, QgsWkbTypes.LineString, srid,
+                                            QgsCoordinateTransformContext(), options)
     if writer.hasError() != QgsVectorFileWriter.NoError:
         print("Error when creating shapefile: ", writer.hasError())
         return None
@@ -132,11 +125,12 @@ def createShapeFileFullLayer(path, name, srid, attributes, types, values, coords
         # add geometry
         try:
             if type == 'point':
-                feat.setGeometry(QgsGeometry.fromPoint([QgsPoint(float(val[coords[0]]),float(val[coords[1]]))]))
+                feat.setGeometry(QgsGeometry.fromPoint([QgsPoint(float(val[coords[0]]), float(val[coords[1]]))]))
             elif type == 'line':
-                feat.setGeometry(QgsGeometry.fromPolyline([QgsPoint(float(val[coords[0]]),float(val[coords[1]])), \
-                                                           QgsPoint(float(val[coords[2]]),float(val[coords[3]]))]))
-        except: pass
+                feat.setGeometry(QgsGeometry.fromPolyline([QgsPoint(float(val[coords[0]]), float(val[coords[1]])),
+                                                           QgsPoint(float(val[coords[2]]), float(val[coords[3]]))]))
+        except:
+            pass
         # add attributes
         attrs = []
         for j, attr in enumerate(attributes):
@@ -157,8 +151,8 @@ def createShapeFileLayer(path, name, srid, attributes, types, geometrytype):
     # create new layer with given attributes
     # todo: created table has no attributes. not used
     # use createShapeFileFullLayer instead
-    filename = path+"/"+name+".shp"
-    #create the required fields
+    filename = path + "/" + name + ".shp"
+    # create the required fields
     fields = QgsFields()
     for i, attr in enumerate(attributes):
         fields.append(QgsField(attr, types[i]))
@@ -168,11 +162,14 @@ def createShapeFileLayer(path, name, srid, attributes, types, geometrytype):
     options.driverName = "ESRI Shapefile"
     options.fileEncoding = 'utf-8'
     if 'point' in geometrytype.lower():
-        writer = QgsVectorFileWriter.create(filename, fields, QgsWkbTypes.Point, srid, QgsCoordinateTransformContext(), options)
+        writer = QgsVectorFileWriter.create(filename, fields, QgsWkbTypes.Point, srid, QgsCoordinateTransformContext(),
+                                            options)
     elif 'line' in geometrytype.lower():
-        writer = QgsVectorFileWriter.create(filename, fields, QgsWkbTypes.LineString , srid, QgsCoordinateTransformContext(), options)
+        writer = QgsVectorFileWriter.create(filename, fields, QgsWkbTypes.LineString, srid,
+                                            QgsCoordinateTransformContext(), options)
     elif 'polygon' in geometrytype.lower():
-        writer = QgsVectorFileWriter.create(filename, fields, QgsWkbTypes.Polygon , srid, QgsCoordinateTransformContext(), options)
+        writer = QgsVectorFileWriter.create(filename, fields, QgsWkbTypes.Polygon, srid,
+                                            QgsCoordinateTransformContext(), options)
     if writer.hasError() != QgsVectorFileWriter.NoError:
         print("Error when creating shapefile: ", writer.hasError())
         return None
@@ -202,11 +199,13 @@ def insertShapeFileValues(layer, attributes, values, coords):
                 feat = QgsFeature()
                 # add geometry
                 try:
-                    if geom_type in (0,3):
-                        feat.setGeometry(QgsGeometry.fromPoint([QgsPoint(float(val[coords[0]]),float(val[coords[1]]))]))
-                    elif geom_type in (1,4):
-                        feat.setGeometry(QgsGeometry.fromPolyline([QgsPoint(float(val[coords[0]]),float(val[coords[1]])), \
-                                                                   QgsPoint(float(val[coords[2]]),float(val[coords[3]]))]))
+                    if geom_type in (0, 3):
+                        feat.setGeometry(
+                            QgsGeometry.fromPoint([QgsPoint(float(val[coords[0]]), float(val[coords[1]]))]))
+                    elif geom_type in (1, 4):
+                        feat.setGeometry(
+                            QgsGeometry.fromPolyline([QgsPoint(float(val[coords[0]]), float(val[coords[1]])),
+                                                      QgsPoint(float(val[coords[2]]), float(val[coords[3]]))]))
                 except:
                     pass
                 # add attributes
@@ -239,31 +238,31 @@ def addShapeFileAttributes(layer, attributes, types, values):
             fields = provider.fields()
             count = fields.count()
             for i, name in enumerate(attributes):
-                #add new field if it doesn't exist
+                # add new field if it doesn't exist
                 if fields.indexFromName(name) == -1:
                     res = provider.addAttributes([QgsField(name, types[i])])
                     # keep position of attributes that are added, since name can change
                     attributes_pos[i] = count
                     count += 1
-            #apply changes if any made
+            # apply changes if any made
             if res:
                 layer.updateFields()
         # update attribute values by iterating the layer's features
         res = False
         if caps & QgsVectorDataProvider.ChangeAttributeValues:
-            #fields = provider.fields() #the fields must be retrieved again after the updateFields() method
+            # fields = provider.fields() #the fields must be retrieved again after the updateFields() method
             iter = layer.getFeatures()
             for i, feature in enumerate(iter):
                 fid = feature.id()
-                #to update the features the attribute/value pairs must be converted to a dictionary for each feature
+                # to update the features the attribute/value pairs must be converted to a dictionary for each feature
                 attrs = {}
                 for j in attributes_pos.keys():
                     field_id = attributes_pos[j]
                     val = values[i][j]
                     attrs.update({field_id: val})
-                #update the layer with the corresponding dictionary
+                # update the layer with the corresponding dictionary
                 res = provider.changeAttributeValues({fid: attrs})
-            #apply changes if any made
+            # apply changes if any made
             if res:
                 layer.updateFields()
     return res

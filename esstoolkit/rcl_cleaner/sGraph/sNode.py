@@ -1,8 +1,8 @@
 # general imports
 from builtins import str
-from qgis.core import QgsFeature, QgsGeometry, QgsField, QgsFields
-from qgis.PyQt.QtCore import QObject, QVariant
 
+from qgis.PyQt.QtCore import QObject, QVariant
+from qgis.core import QgsField, QgsFields
 
 flds = QgsFields()
 flds.append(QgsField('id', QVariant.Int))
@@ -10,6 +10,7 @@ flds.append(QgsField('id', QVariant.Int))
 flds2 = QgsFields(flds)
 flds2.append(QgsField('topology', QVariant.String))
 flds2.append(QgsField('adj_edges', QVariant.String))
+
 
 class sNode(QObject):
 

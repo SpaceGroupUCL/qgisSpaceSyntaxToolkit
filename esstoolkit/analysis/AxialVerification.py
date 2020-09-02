@@ -22,20 +22,22 @@
 
 """
 from __future__ import print_function
-# Import the PyQt and QGIS libraries
-from builtins import zip
-from builtins import str
-from qgis.PyQt.QtCore import (QThread, pyqtSignal)
-from qgis.core import (QgsFeatureRequest, QgsGeometry, QgsFeatureRequest)
-
-from .. import layer_field_helpers as lfh
-from .. import db_helpers as dbh
 
 import time
+from builtins import str
+# Import the PyQt and QGIS libraries
+from builtins import zip
 
-# try to import installed networx, if not available use the one shipped with the esstoolkit
+from qgis.PyQt.QtCore import (QThread, pyqtSignal)
+from qgis.core import (QgsGeometry, QgsFeatureRequest)
+
+from .. import db_helpers as dbh
+from .. import layer_field_helpers as lfh
+
+# try to import installed networkx, if not available use the one shipped with the esstoolkit
 try:
     import networkx as nx
+
     has_networkx = True
 except ImportError as e:
     has_networkx = False
@@ -43,6 +45,7 @@ except ImportError as e:
 # Import the debug library
 try:
     import pydevd_pycharm as pydevd
+
     has_pydevd = True
 except ImportError as e:
     has_pydevd = False
@@ -67,10 +70,10 @@ class AxialVerification(QThread):
         self.problem_nodes = []
         # error types to identify:
         self.axial_errors = {'orphan': [], 'island': [], 'short line': [], 'invalid geometry': [], 'polyline': [],
-                            'coinciding points': [], 'small line': [], 'duplicate geometry': [], 'overlap': []}
+                             'coinciding points': [], 'small line': [], 'duplicate geometry': [], 'overlap': []}
 
     def run(self):
-        #QgsMessageLog.logMessage('has nx %s' % str(e), level=Qgis.Critical)
+        # QgsMessageLog.logMessage('has nx %s' % str(e), level=Qgis.Critical)
         if has_pydevd and is_debug:
             pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True)
 
@@ -80,7 +83,7 @@ class AxialVerification(QThread):
         for k, v in self.axial_errors.items():
             self.axial_errors[k] = []
         provider = self.axial_layer.storageType()
-        #caps = self.axial_layer.dataProvider().capabilities()
+        # caps = self.axial_layer.dataProvider().capabilities()
         graph_links = []
         datastore = provider.lower()
         if 'spatialite' in datastore or 'postgis' in datastore:
@@ -104,7 +107,7 @@ class AxialVerification(QThread):
                 return
             start_time = time.time()
             # could use this generic but I want to force a spatial index
-            #geomname = dbh.getDBLayerGeometryColumn(self.axial_layer)
+            # geomname = dbh.getDBLayerGeometryColumn(self.axial_layer)
             connection = dbh.getDBLayerConnection(self.axial_layer)
             if 'spatialite' in datastore:
                 geomname = dbh.getSpatialiteGeometryColumn(connection, axialname)
@@ -112,7 +115,7 @@ class AxialVerification(QThread):
                 layerinfo = dbh.getPostgisLayerInfo(self.axial_layer)
                 geomname = dbh.getPostgisGeometryColumn(connection, layerinfo['schema'], axialname)
                 # todo: ensure that it has a spatial index
-                #dbh.createPostgisSpatialIndex(onnection, layerinfo['schema'], axialname, geomname)
+                # dbh.createPostgisSpatialIndex(onnection, layerinfo['schema'], axialname, geomname)
             if is_debug:
                 print("Preparing the map: %s" % str(time.time() - start_time))
             self.verificationProgress.emit(5)
@@ -135,7 +138,8 @@ class AxialVerification(QThread):
                 if 'spatialite' in datastore:
                     graph_links = self.spatialiteBuildTopology(connection, axialname, geomname, unlinkname, linkname)
                 else:
-                    graph_links = self.postgisBuildTopology(connection, layerinfo['schema'], axialname, geomname, unlinkschema, unlinkname, linkschema, linkname)
+                    graph_links = self.postgisBuildTopology(connection, layerinfo['schema'], axialname, geomname,
+                                                            unlinkschema, unlinkname, linkschema, linkname)
                 if is_debug:
                     print("Building topology: %s" % str(time.time() - start_time))
             self.verificationProgress.emit(90)
@@ -195,7 +199,7 @@ class AxialVerification(QThread):
             if len(components) > 1:
                 islands = []
                 # get vertex ids
-                for cluster in components[1:len(components)]:  #excludes the first giant component
+                for cluster in components[1:len(components)]:  # excludes the first giant component
                     # identify orphans
                     if len(cluster) == 1:
                         node = cluster.pop()
@@ -226,7 +230,8 @@ class AxialVerification(QThread):
         # geometry is valid (generally)
         if not self.running: return
         start_time = time.time()
-        query = """SELECT "%s" FROM "%s" WHERE NOT ST_IsSimple("%s") OR NOT ST_IsValid("%s")"""%(idcol, axialname, geomname, geomname)
+        query = """SELECT "%s" FROM "%s" WHERE NOT ST_IsSimple("%s") OR NOT ST_IsValid("%s")""" % (
+            idcol, axialname, geomname, geomname)
         header, data, error = dbh.executeSpatialiteQuery(connection, query)
         if data:
             nodes = list(zip(*data)[0])
@@ -234,11 +239,11 @@ class AxialVerification(QThread):
             self.axial_errors['invalid geometry'] = nodes
         self.verificationProgress.emit(10)
         if is_debug:
-            print("analyse valid: %s" % str(time.time()-start_time))
+            print("analyse valid: %s" % str(time.time() - start_time))
         # geometry is polyline
         if not self.running: return
         start_time = time.time()
-        query = """SELECT "%s" FROM "%s" WHERE ST_NPoints("%s") <> 2 """%(idcol, axialname, geomname)
+        query = """SELECT "%s" FROM "%s" WHERE ST_NPoints("%s") <> 2 """ % (idcol, axialname, geomname)
         header, data, error = dbh.executeSpatialiteQuery(connection, query)
         if data:
             nodes = list(zip(*data)[0])
@@ -246,11 +251,12 @@ class AxialVerification(QThread):
             self.axial_errors['polyline'] = nodes
         self.verificationProgress.emit(15)
         if is_debug:
-            print("analyse polyline: %s" % str(time.time()-start_time))
+            print("analyse polyline: %s" % str(time.time() - start_time))
         # has two coinciding points
         if not self.running: return
         start_time = time.time()
-        query = """SELECT "%s" FROM "%s" WHERE ST_Equals(ST_StartPoint("%s"),ST_EndPoint("%s"))"""%(idcol, axialname, geomname, geomname)
+        query = """SELECT "%s" FROM "%s" WHERE ST_Equals(ST_StartPoint("%s"),ST_EndPoint("%s"))""" % (
+            idcol, axialname, geomname, geomname)
         header, data, error = dbh.executeSpatialiteQuery(connection, query)
         if data:
             nodes = list(zip(*data)[0])
@@ -258,11 +264,11 @@ class AxialVerification(QThread):
             self.axial_errors['coinciding points'] = nodes
         self.verificationProgress.emit(20)
         if is_debug:
-            print("analyse coinciding: %s" % str(time.time()-start_time))
+            print("analyse coinciding: %s" % str(time.time() - start_time))
         # small lines, with small length
         if not self.running: return
         start_time = time.time()
-        query = """SELECT "%s" FROM "%s" WHERE ST_Length("%s")<%s"""%(idcol, axialname, geomname,length)
+        query = """SELECT "%s" FROM "%s" WHERE ST_Length("%s")<%s""" % (idcol, axialname, geomname, length)
         header, data, error = dbh.executeSpatialiteQuery(connection, query)
         if data:
             nodes = list(zip(*data)[0])
@@ -270,7 +276,7 @@ class AxialVerification(QThread):
             self.axial_errors['small line'] = nodes
         self.verificationProgress.emit(25)
         if is_debug:
-            print("analyse small: %s" % str(time.time()-start_time))
+            print("analyse small: %s" % str(time.time() - start_time))
         # short lines, just about touch without intersecting
         if not self.running: return
         start_time = time.time()
@@ -278,7 +284,7 @@ class AxialVerification(QThread):
                 '(PtDistWithin(ST_StartPoint(a."%s"),b."%s",%s) OR PtDistWithin(ST_EndPoint(a."%s"),b."%s",%s)) ' \
                 'AND a.ROWID IN (SELECT ROWID FROM SpatialIndex WHERE f_table_name="%s" AND search_frame=b."%s")' \
                 % (idcol, axialname, axialname, idcol, idcol, geomname, geomname, geomname, geomname, threshold,
-                  geomname, geomname, threshold, axialname, geomname)
+                   geomname, geomname, threshold, axialname, geomname)
         header, data, error = dbh.executeSpatialiteQuery(connection, query)
         if data:
             nodes = list(zip(*data)[0])
@@ -286,7 +292,7 @@ class AxialVerification(QThread):
             self.axial_errors['short line'] = nodes
         self.verificationProgress.emit(40)
         if is_debug:
-            print("analyse short: %s"%str(time.time()-start_time))
+            print("analyse short: %s" % str(time.time() - start_time))
         # duplicate geometry
         if not self.running: return
         start_time = time.time()
@@ -300,13 +306,15 @@ class AxialVerification(QThread):
             self.axial_errors['duplicate geometry'] = nodes
         self.verificationProgress.emit(60)
         if is_debug:
-            print("analyse duplicate: %s"%str(time.time()-start_time))
+            print("analyse duplicate: %s" % str(time.time() - start_time))
         # geometry overlaps
         if not self.running: return
         start_time = time.time()
         query = 'SELECT a."%s" FROM "%s" a, "%s" b WHERE a."%s" <> b."%s" AND NOT ST_Equals(a."%s",b."%s") AND ST_Overlaps(a."%s",b."%s") ' \
-            'AND a.ROWID IN (SELECT ROWID FROM SpatialIndex WHERE f_table_name="%s" AND search_frame=b."%s")' \
-            % (idcol, axialname, axialname, idcol, idcol, geomname, geomname, geomname, geomname, axialname, geomname)
+                'AND a.ROWID IN (SELECT ROWID FROM SpatialIndex WHERE f_table_name="%s" AND search_frame=b."%s")' \
+                % (
+                    idcol, axialname, axialname, idcol, idcol, geomname, geomname, geomname, geomname, axialname,
+                    geomname)
         header, data, error = dbh.executeSpatialiteQuery(connection, query)
         if data:
             nodes = list(zip(*data)[0])
@@ -314,7 +322,7 @@ class AxialVerification(QThread):
             self.axial_errors['overlap'] = nodes
         self.verificationProgress.emit(80)
         if is_debug:
-            print("analyse overlap: %s"%str(time.time()-start_time))
+            print("analyse overlap: %s" % str(time.time() - start_time))
         # the overlap function is very accurate and rare in GIS
         # an alternative function with buffer is too slow
 
@@ -326,36 +334,39 @@ class AxialVerification(QThread):
             idcol = self.user_id
         # remove temporary table if already exists
         graphname = "temp_axial_topology"
-        header, data, error = dbh.executeSpatialiteQuery(connection,"""DROP TABLE IF EXISTS "%s" """ % graphname)
+        dbh.executeSpatialiteQuery(connection, """DROP TABLE IF EXISTS "%s" """ % graphname)
         start_time = time.time()
         # create a new temporary table
-        query = """CREATE TEMP TABLE %s (pk_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, a_fid INTEGER, b_fid INTEGER)""" % (graphname)
-        header, data, error = dbh.executeSpatialiteQuery(connection, query)
+        query = """CREATE TEMP TABLE %s (pk_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, a_fid INTEGER, b_fid INTEGER)""" % (
+            graphname)
+        dbh.executeSpatialiteQuery(connection, query)
         # calculate edges from intersecting feature pairs
         query = 'INSERT INTO %s (a_fid, b_fid) SELECT DISTINCT CASE WHEN a."%s" < b."%s" THEN a."%s" ELSE b."%s" END AS least_col, ' \
                 'CASE WHEN a."%s" > b."%s" THEN a."%s" ELSE b."%s" END AS greatest_col ' \
                 'FROM "%s" a, "%s" b WHERE a."%s" <> b."%s" AND Intersects(a."%s",b."%s") ' \
                 'AND a.ROWID IN (SELECT ROWID FROM SpatialIndex WHERE f_table_name="%s" AND search_frame=b."%s")' \
-                % (graphname, idcol, idcol, idcol, idcol, idcol, idcol, idcol, idcol, axialname, axialname, idcol, idcol,
-                  geomname, geomname, axialname, geomname)
-        header, data, error = dbh.executeSpatialiteQuery(connection, query, commit=True)
+                % (
+                    graphname, idcol, idcol, idcol, idcol, idcol, idcol, idcol, idcol, axialname, axialname, idcol,
+                    idcol,
+                    geomname, geomname, axialname, geomname)
+        dbh.executeSpatialiteQuery(connection, query, commit=True)
         if is_debug:
-            print("Building the graph: %s"%str(time.time()-start_time))
+            print("Building the graph: %s" % str(time.time() - start_time))
         # eliminate unlinks
         if unlinkname:
-            if lfh.fieldExists(self.unlinks_layer,'line1') and lfh.fieldExists(self.unlinks_layer,'line2'):
+            if lfh.fieldExists(self.unlinks_layer, 'line1') and lfh.fieldExists(self.unlinks_layer, 'line2'):
                 start_time = time.time()
                 query = 'DELETE FROM %s WHERE cast(a_fid as text)||"_"||cast(b_fid as text) in (SELECT cast(line1 as text)||"_"||cast(line2 as text) FROM "%s") ' \
                         'OR cast(b_fid as text)||"_"||cast(a_fid as text) in (SELECT cast(line1 as text)||"_"||cast(line2 as text) FROM "%s")' \
                         % (graphname, unlinkname, unlinkname)
-                header, data, error = dbh.executeSpatialiteQuery(connection, query, commit=True)
+                dbh.executeSpatialiteQuery(connection, query, commit=True)
                 if is_debug:
-                    print("Unlinking the graph: %s"%str(time.time()-start_time))
+                    print("Unlinking the graph: %s" % str(time.time() - start_time))
             else:
                 self.verificationError.emit("The unlinks layer is not ready. Please update its line ID columns.")
         # newfeature: implement inserting links
         # return all the links to build the graph
-        query = """SELECT a_fid, b_fid FROM "%s";"""%(graphname)
+        query = """SELECT a_fid, b_fid FROM "%s";""" % graphname
         header, data, error = dbh.executeSpatialiteQuery(connection, query)
         return data
 
@@ -373,18 +384,20 @@ class AxialVerification(QThread):
         if not self.running: return
         start_time = time.time()
 
-        query = """CREATE INDEX sidx_"%s"_"%s" ON "%s"."%s" USING GIST("%s");""" % (axialname, geomname, schema, axialname, geomname)
-        header, data, error = dbh.executePostgisQuery(connection, query)
+        query = """CREATE INDEX sidx_"%s"_"%s" ON "%s"."%s" USING GIST("%s");""" % (
+            axialname, geomname, schema, axialname, geomname)
+        dbh.executePostgisQuery(connection, query)
 
-        query = """SELECT "%s" FROM "%s"."%s" WHERE NOT ST_IsSimple("%s") OR NOT ST_IsValid("%s")""" % (idcol, schema, axialname, geomname, geomname)
-        header, data, error = dbh.executePostgisQuery(connection, query)
+        query = """SELECT "%s" FROM "%s"."%s" WHERE NOT ST_IsSimple("%s") OR NOT ST_IsValid("%s")""" % (
+            idcol, schema, axialname, geomname, geomname)
+        dbh.executePostgisQuery(connection, query)
         if data:
             nodes = list(zip(*data)[0])
             self.problem_nodes.extend(nodes)
             self.axial_errors['invalid geometry'] = nodes
         self.verificationProgress.emit(10)
         if is_debug:
-            print("analyse valid: %s" % str(time.time()-start_time))
+            print("analyse valid: %s" % str(time.time() - start_time))
         # geometry is polyline
         if not self.running: return
         start_time = time.time()
@@ -396,11 +409,12 @@ class AxialVerification(QThread):
             self.axial_errors['polyline'] = nodes
         self.verificationProgress.emit(15)
         if is_debug:
-            print("analyse polyline: %s" % str(time.time()-start_time))
+            print("analyse polyline: %s" % str(time.time() - start_time))
         # has two coinciding points
         if not self.running: return
         start_time = time.time()
-        query = """SELECT "%s" FROM "%s"."%s" WHERE ST_Equals(ST_StartPoint("%s"),ST_EndPoint("%s"))""" % (idcol, schema, axialname, geomname, geomname)
+        query = """SELECT "%s" FROM "%s"."%s" WHERE ST_Equals(ST_StartPoint("%s"),ST_EndPoint("%s"))""" % (
+            idcol, schema, axialname, geomname, geomname)
         header, data, error = dbh.executePostgisQuery(connection, query)
         if data:
             nodes = list(zip(*data)[0])
@@ -408,11 +422,11 @@ class AxialVerification(QThread):
             self.axial_errors['coinciding points'] = nodes
         self.verificationProgress.emit(20)
         if is_debug:
-            print("analyse coinciding: %s" % str(time.time()-start_time))
+            print("analyse coinciding: %s" % str(time.time() - start_time))
         # small lines, with small length
         if not self.running: return
         start_time = time.time()
-        query = """SELECT "%s" FROM "%s"."%s" WHERE ST_Length("%s")<%s""" % (idcol, schema, axialname, geomname,length)
+        query = """SELECT "%s" FROM "%s"."%s" WHERE ST_Length("%s")<%s""" % (idcol, schema, axialname, geomname, length)
         header, data, error = dbh.executePostgisQuery(connection, query)
         if data:
             nodes = list(zip(*data)[0])
@@ -420,14 +434,15 @@ class AxialVerification(QThread):
             self.axial_errors['small line'] = nodes
         self.verificationProgress.emit(25)
         if is_debug:
-            print("analyse small: %s" % str(time.time()-start_time))
+            print("analyse small: %s" % str(time.time() - start_time))
         # short lines, just about touch without intersecting
         if not self.running: return
         start_time = time.time()
         query = 'SELECT a."%s" FROM "%s"."%s" a, "%s"."%s" b WHERE a."%s" <> b."%s" AND NOT ST_Intersects(a."%s",b."%s") AND ' \
-                '(ST_DWithin(ST_StartPoint(a."%s"),b."%s",%s) OR ST_DWithin(ST_EndPoint(a."%s"),b."%s",%s))'\
-                % (idcol, schema, axialname, schema, axialname, idcol, idcol, geomname, geomname, geomname, geomname, threshold,
-                  geomname, geomname, threshold)
+                '(ST_DWithin(ST_StartPoint(a."%s"),b."%s",%s) OR ST_DWithin(ST_EndPoint(a."%s"),b."%s",%s))' \
+                % (idcol, schema, axialname, schema, axialname, idcol, idcol, geomname, geomname, geomname, geomname,
+                   threshold,
+                   geomname, geomname, threshold)
         header, data, error = dbh.executePostgisQuery(connection, query)
         if data:
             nodes = list(zip(*data)[0])
@@ -435,7 +450,7 @@ class AxialVerification(QThread):
             self.axial_errors['short line'] = nodes
         self.verificationProgress.emit(40)
         if is_debug:
-            print("analyse short: %s" % str(time.time()-start_time))
+            print("analyse short: %s" % str(time.time() - start_time))
         # duplicate geometry
         if not self.running: return
         start_time = time.time()
@@ -448,12 +463,12 @@ class AxialVerification(QThread):
             self.axial_errors['duplicate geometry'] = nodes
         self.verificationProgress.emit(60)
         if is_debug:
-            print("analyse duplicate: %s" % str(time.time()-start_time))
+            print("analyse duplicate: %s" % str(time.time() - start_time))
         # geometry overlaps
         if not self.running: return
         start_time = time.time()
         query = 'SELECT a."%s" FROM "%s"."%s" a, "%s"."%s" b WHERE a."%s" <> b."%s" AND NOT ST_Equals(a."%s",b."%s") AND ST_Overlaps(a."%s",b."%s")' \
-            % (idcol, schema, axialname, schema, axialname, idcol, idcol, geomname, geomname, geomname, geomname)
+                % (idcol, schema, axialname, schema, axialname, idcol, idcol, geomname, geomname, geomname, geomname)
         header, data, error = dbh.executePostgisQuery(connection, query)
         if data:
             nodes = list(zip(*data)[0])
@@ -461,7 +476,7 @@ class AxialVerification(QThread):
             self.axial_errors['overlap'] = nodes
         self.verificationProgress.emit(80)
         if is_debug:
-            print("analyse overlap: %s" % str(time.time()-start_time))
+            print("analyse overlap: %s" % str(time.time() - start_time))
         # the overlap function is very accurate and rare in GIS
         # an alternative function with buffer is too slow
 
@@ -472,30 +487,32 @@ class AxialVerification(QThread):
             return
         # remove temporary table if already exists
         graphname = "temp_axial_topology"
-        header, data, error = dbh.executePostgisQuery(connection,"""DROP TABLE IF EXISTS %s CASCADE """ % graphname)
+        dbh.executePostgisQuery(connection, """DROP TABLE IF EXISTS %s CASCADE """ % graphname)
         start_time = time.time()
         # create a new temporary table
         query = """CREATE TEMP TABLE %s (pk_id serial NOT NULL PRIMARY KEY, a_fid integer, b_fid integer)""" % graphname
-        header, data, error = dbh.executePostgisQuery(connection, query)
+        dbh.executePostgisQuery(connection, query)
         # calculate edges from intersecting feature pairs
         query = 'INSERT INTO %s (a_fid, b_fid) SELECT DISTINCT CASE WHEN a."%s" < b."%s" THEN a."%s" ELSE b."%s" END AS least_col, ' \
-                'CASE WHEN a."%s" > b."%s" THEN a."%s" ELSE b."%s" END AS greatest_col '\
-                'FROM "%s"."%s" a, "%s"."%s" b WHERE a."%s" <> b."%s" AND ST_Intersects(a."%s",b."%s") '\
-                % (graphname, idcol, idcol, idcol, idcol, idcol, idcol, idcol, idcol, schema, axialname, schema, axialname,
-                  idcol, idcol, geomname, geomname)
-        header, data, error = dbh.executePostgisQuery(connection, query, commit=True)
+                'CASE WHEN a."%s" > b."%s" THEN a."%s" ELSE b."%s" END AS greatest_col ' \
+                'FROM "%s"."%s" a, "%s"."%s" b WHERE a."%s" <> b."%s" AND ST_Intersects(a."%s",b."%s") ' \
+                % (
+                    graphname, idcol, idcol, idcol, idcol, idcol, idcol, idcol, idcol, schema, axialname, schema,
+                    axialname,
+                    idcol, idcol, geomname, geomname)
+        dbh.executePostgisQuery(connection, query, commit=True)
         if is_debug:
-            print("Building the graph: %s" % str(time.time()-start_time))
+            print("Building the graph: %s" % str(time.time() - start_time))
         # eliminate unlinks
         if unlinkname:
-            if lfh.fieldExists(self.unlinks_layer,'line1') and lfh.fieldExists(self.unlinks_layer,'line2'):
+            if lfh.fieldExists(self.unlinks_layer, 'line1') and lfh.fieldExists(self.unlinks_layer, 'line2'):
                 start_time = time.time()
                 query = 'DELETE FROM %s WHERE a_fid::text||"_"||b_fid::text in (SELECT line1::||"_"||line2::text FROM "%s"."%s") ' \
                         'OR b_fid::text||"_"||a_fid::text in (SELECT line1::text)||"_"||line2::text FROM "%s"."%s")' \
                         % (graphname, unlinkschema, unlinkname, unlinkschema, unlinkname)
-                header, data, error = dbh.executePostgisQuery(connection, query, commit=True)
+                dbh.executePostgisQuery(connection, query, commit=True)
                 if is_debug:
-                    print("Unlinking the graph: %s" % str(time.time()-start_time))
+                    print("Unlinking the graph: %s" % str(time.time() - start_time))
             else:
                 self.verificationError.emit("The unlinks layer is not ready. Please update its line ID columns.")
         # return all the links to build the graph
@@ -511,21 +528,21 @@ class AxialVerification(QThread):
         threshold = self.verification_settings['ax_dist']
         axial_links = []
         unlinks_list = []
-        links_list = []
         # get unlinks pairs
         if not self.running: return
         if unlinks:
-            if lfh.fieldExists(unlinks,'line1') and lfh.fieldExists(unlinks,'line2'):
-                features = unlinks.getFeatures(QgsFeatureRequest().setSubsetOfAttributes(['line1','line2'],unlinks.fields()))
+            if lfh.fieldExists(unlinks, 'line1') and lfh.fieldExists(unlinks, 'line2'):
+                features = unlinks.getFeatures(
+                    QgsFeatureRequest().setSubsetOfAttributes(['line1', 'line2'], unlinks.fields()))
                 for feature in features:
-                    unlinks_list.append((feature.attribute('line1'),feature.attribute('line2')))
+                    unlinks_list.append((feature.attribute('line1'), feature.attribute('line2')))
         if not self.running: return
         if self.user_id == '':
             features = axial.getFeatures(QgsFeatureRequest().setSubsetOfAttributes([]))
         else:
             field = lfh.getFieldIndex(axial, self.user_id)
             features = axial.getFeatures(QgsFeatureRequest().setSubsetOfAttributes([field]))
-        steps = 85.0/float(axial.featureCount())
+        steps = 85.0 / float(axial.featureCount())
         progress = 5.0
         start_buff = QgsGeometry()
         end_buff = QgsGeometry()
@@ -561,11 +578,10 @@ class AxialVerification(QThread):
                 has_problem = True
                 self.axial_errors['small line'].append(fid)
             # testing against other lines in the layer
-            buff = None
             if threshold > 0:
-                start_buff = QgsGeometry.fromPoint(geom.asPolyline()[0]).buffer(threshold,4)
-                end_buff = QgsGeometry.fromPoint(geom.asPolyline()[1]).buffer(threshold,4)
-                buff = geom.buffer(threshold,4)
+                start_buff = QgsGeometry.fromPoint(geom.asPolyline()[0]).buffer(threshold, 4)
+                end_buff = QgsGeometry.fromPoint(geom.asPolyline()[1]).buffer(threshold, 4)
+                buff = geom.buffer(threshold, 4)
                 box = buff.boundingBox()
             else:
                 box = geom.boundingBox()

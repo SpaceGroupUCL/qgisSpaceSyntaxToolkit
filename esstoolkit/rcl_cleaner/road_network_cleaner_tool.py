@@ -20,19 +20,20 @@
  *                                                                         *
  ***************************************************************************/
 """
-from __future__ import print_function
 from __future__ import absolute_import
+from __future__ import print_function
+
 from future import standard_library
+
 standard_library.install_aliases()
 from builtins import str
 import traceback
-from qgis.PyQt.QtCore import (QThread, QSettings)
-from qgis.core import (QgsMapLayer, QgsProject, QgsMessageLog, QgsMapLayer)
-import operator
+from qgis.PyQt.QtCore import (QThread)
+from qgis.core import (QgsProject, QgsMapLayer)
 import os
 
 from .road_network_cleaner_dialog import RoadNetworkCleanerDialog
-from .sGraph.sGraph import * # better give these a name to make it explicit to which module the methods belong
+from .sGraph.sGraph import *  # better give these a name to make it explicit to which module the methods belong
 from .sGraph.utilityFunctions import *
 from .. import layer_field_helpers as lfh
 from .. import db_helpers as dbh
@@ -42,13 +43,14 @@ from .. import db_helpers as dbh
 is_debug = False
 try:
     import pydevd_pycharm
+
     has_pydevd = True
 except ImportError as e:
     has_pydevd = False
     is_debug = False
 
-import sys
-#sys.path.append("pydevd-pycharm.egg")
+
+# sys.path.append("pydevd-pycharm.egg")
 
 class NetworkCleanerTool(QObject):
 
@@ -56,7 +58,7 @@ class NetworkCleanerTool(QObject):
     def __init__(self, iface):
         QObject.__init__(self)
 
-        self.iface=iface
+        self.iface = iface
         self.legend = QgsProject.instance().mapLayers()
 
         # load the dialog from the run method otherwise the objects gets created multiple times
@@ -68,7 +70,7 @@ class NetworkCleanerTool(QObject):
 
     def loadGUI(self):
         # create the dialog objects
-        self.dlg = RoadNetworkCleanerDialog(dbh.getQGISDbs(portlast = True))
+        self.dlg = RoadNetworkCleanerDialog(dbh.getQGISDbs(portlast=True))
 
         # setup GUI signals
         self.dlg.closingPlugin.connect(self.unloadGUI)
@@ -129,7 +131,7 @@ class NetworkCleanerTool(QObject):
 
     def giveMessage(self, message, level):
         # Gives warning according to message
-        self.iface.messageBar().pushMessage("Road network cleaner: ", "%s" % (message), level, duration=5)
+        self.iface.messageBar().pushMessage("Road network cleaner: ", "%s" % message, level, duration=5)
 
     def workerError(self, e, exception_string):
         # Gives error according to message
@@ -176,11 +178,11 @@ class NetworkCleanerTool(QObject):
         if is_debug:
             print('trying to finish')
         self.dlg.lockGUI(False)
-        #TODO: only if edit default has been pressed before
+        # TODO: only if edit default has been pressed before
         self.dlg.lockSettingsGUI(False)
         # get cleaning settings
         layer_name = self.settings['input']
-        path, unlinks_path, errors_path  = self.settings['output'] # if postgis: connstring, schema, table_name
+        path, unlinks_path, errors_path = self.settings['output']  # if postgis: connstring, schema, table_name
 
         output_type = self.settings['output_type']
         #  get settings from layer
@@ -206,7 +208,8 @@ class NetworkCleanerTool(QObject):
             print('path', path)
             if self.settings['errors']:
                 if len(errors_features) > 0:
-                    errors = to_layer(errors_features, layer.crs(), layer.dataProvider().encoding(), 'Point', output_type, errors_path)
+                    errors = to_layer(errors_features, layer.crs(), layer.dataProvider().encoding(), 'Point',
+                                      output_type, errors_path)
                     errors.loadNamedStyle(os.path.dirname(__file__) + '/qgis_styles/errors.qml')
                     QgsProject.instance().addMapLayer(errors)
                     node = QgsProject.instance().layerTreeRoot().findLayer(errors.id())
@@ -217,7 +220,8 @@ class NetworkCleanerTool(QObject):
 
             if self.settings['unlinks']:
                 if len(unlinks_features) > 0:
-                    unlinks = to_layer(unlinks_features, layer.crs(), layer.dataProvider().encoding(), 'Point', output_type, unlinks_path)
+                    unlinks = to_layer(unlinks_features, layer.crs(), layer.dataProvider().encoding(), 'Point',
+                                       output_type, unlinks_path)
                     unlinks.loadNamedStyle(os.path.dirname(__file__) + '/qgis_styles/unlinks.qml')
                     QgsProject.instance().addMapLayer(unlinks)
                     node = QgsProject.instance().layerTreeRoot().findLayer(unlinks.id())
@@ -225,7 +229,8 @@ class NetworkCleanerTool(QObject):
                 else:
                     self.giveMessage('No unlinks detected!', Qgis.Info)
 
-            cleaned = to_layer(cleaned_features, layer.crs(), layer.dataProvider().encoding(), 'Linestring', output_type, path)
+            cleaned = to_layer(cleaned_features, layer.crs(), layer.dataProvider().encoding(), 'Linestring',
+                               output_type, path)
             cleaned.loadNamedStyle(os.path.dirname(__file__) + '/qgis_styles/cleaned.qml')
             QgsProject.instance().addMapLayer(cleaned)
             node = QgsProject.instance().layerTreeRoot().findLayer(cleaned.id())
@@ -256,13 +261,13 @@ class NetworkCleanerTool(QObject):
             self.cleaning.error.disconnect(self.workerError)
             self.cleaning.warning.disconnect(self.giveMessage)
             self.cleaning.cl_progress.disconnect(self.dlg.cleaningProgress.setValue)
-            try: # it might not have been connected already
+            try:  # it might not have been connected already
                 self.cleaning.graph.progress.disconnect(self.dlg.cleaningProgress.setValue)
             except TypeError:
                 pass
             # Clean up thread and analysis
             self.cleaning.kill()
-            self.cleaning.graph.kill() #todo
+            self.cleaning.graph.kill()  # todo
             self.cleaning.deleteLater()
             self.thread.quit()
             self.thread.wait()
@@ -272,7 +277,6 @@ class NetworkCleanerTool(QObject):
             self.dlg.close()
         else:
             self.dlg.close()
-
 
     # SOURCE: https://snorfalorpagus.net/blog/2013/12/07/multithreading-in-qgis-python-plugins/
     class Worker(QObject):
@@ -294,9 +298,10 @@ class NetworkCleanerTool(QObject):
 
         def run(self):
             if has_pydevd and is_debug:
-                pydevd_pycharm.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True, suspend=False)
+                pydevd_pycharm.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True,
+                                        suspend=False)
             ret = None
-            #if self.settings:
+            # if self.settings:
             try:
                 # cleaning settings
                 layer_name = self.settings['input']
@@ -309,7 +314,8 @@ class NetworkCleanerTool(QObject):
                 fix_unlinks = self.settings['fix_unlinks']
                 orphans = self.settings['orphans']
                 getUnlinks = self.settings['unlinks']
-                [load_range, cl1_range, cl2_range, cl3_range, break_range, merge_range, snap_range, unlinks_range, fix_range] = self.settings['progress_ranges']
+                [load_range, cl1_range, cl2_range, cl3_range, break_range, merge_range, snap_range, unlinks_range,
+                 fix_range] = self.settings['progress_ranges']
                 QgsMessageLog.logMessage('settings %s' % self.settings, level=Qgis.Critical)
 
                 self.cl_progress.emit(0)
@@ -323,7 +329,9 @@ class NetworkCleanerTool(QObject):
                     self.pseudo_graph.load_edges_w_o_topology(clean_features_iter(layer.getFeatures()))
                     QgsMessageLog.logMessage('pseudo_graph edges added %s' % load_range, level=Qgis.Critical)
                     self.pseudo_graph.step = break_range / float(len(self.pseudo_graph.sEdges))
-                    self.graph.load_edges(self.pseudo_graph.break_features_iter(getUnlinks, angle_threshold, fix_unlinks), angle_threshold)
+                    self.graph.load_edges(
+                        self.pseudo_graph.break_features_iter(getUnlinks, angle_threshold, fix_unlinks),
+                        angle_threshold)
                     QgsMessageLog.logMessage('pseudo_graph edges broken %s' % break_range, level=Qgis.Critical)
                     self.pseudo_graph.progress.disconnect()
                     self.graph.progress.connect(self.cl_progress.emit)
@@ -344,7 +352,6 @@ class NetworkCleanerTool(QObject):
                 QgsMessageLog.logMessage('graph clean parallel and closed pl %s' % cl1_range, level=Qgis.Critical)
 
                 if fix_unlinks:
-
                     self.graph.step = fix_range / float(len(self.graph.sEdges))
                     self.graph.fix_unlinks()
                     QgsMessageLog.logMessage('unlinks added  %s' % fix_range, level=Qgis.Critical)
@@ -368,7 +375,8 @@ class NetworkCleanerTool(QObject):
 
                     self.graph.step = merge_range / float(len(self.graph.sNodes))
                     self.graph.merge_b_intersections(angle_threshold)
-                    QgsMessageLog.logMessage('merge %s %s angle_threshold ' % (merge_range, angle_threshold), level=Qgis.Critical)
+                    QgsMessageLog.logMessage('merge %s %s angle_threshold ' % (merge_range, angle_threshold),
+                                             level=Qgis.Critical)
 
                 elif merge_type == 'collinear':
 

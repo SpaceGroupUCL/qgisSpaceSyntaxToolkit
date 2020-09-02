@@ -1,11 +1,12 @@
-from qgis.core import (QgsApplication, QgsVectorLayer, QgsFeature, QgsLineString, QgsPoint)
-from qgis.PyQt.QtCore import (QCoreApplication, QVariant)
 import unittest
+
+from qgis.core import (QgsApplication, QgsVectorLayer, QgsFeature, QgsLineString, QgsPoint)
 
 qgs = QgsApplication([], False)
 qgs.initQgis()
 
 from gate_transformer import TransformerAnalysis
+
 
 class TestGateTransformer(unittest.TestCase):
 
@@ -13,7 +14,7 @@ class TestGateTransformer(unittest.TestCase):
         vl = QgsVectorLayer("LineString", "temp", "memory")
         pr = vl.dataProvider()
         f = QgsFeature()
-        f.setGeometry( QgsLineString( [ QgsPoint( 210, 41 ), QgsPoint( 301, 55 ) ] ) )
+        f.setGeometry(QgsLineString([QgsPoint(210, 41), QgsPoint(301, 55)]))
         pr.addFeature(f)
         vl.updateExtents()
         self.assertEqual(vl.featureCount(), 1)
@@ -29,7 +30,7 @@ class TestGateTransformer(unittest.TestCase):
         vl = QgsVectorLayer("LineString", "temp", "memory")
         pr = vl.dataProvider()
         f = QgsFeature()
-        f.setGeometry( QgsLineString( [ QgsPoint( 210, 41 ), QgsPoint( 301, 55 ) ] ) )
+        f.setGeometry(QgsLineString([QgsPoint(210, 41), QgsPoint(301, 55)]))
         pr.addFeature(f)
         vl.updateExtents()
         self.assertEqual(vl.featureCount(), 1)
@@ -45,7 +46,7 @@ class TestGateTransformer(unittest.TestCase):
         vl = QgsVectorLayer("LineString", "temp", "memory")
         pr = vl.dataProvider()
         f = QgsFeature()
-        f.setGeometry( QgsLineString( [ QgsPoint( 210, 41 ), QgsPoint( 301, 55 ) ] ) )
+        f.setGeometry(QgsLineString([QgsPoint(210, 41), QgsPoint(301, 55)]))
         pr.addFeature(f)
         vl.updateExtents()
         self.assertEqual(vl.featureCount(), 1)
@@ -56,6 +57,7 @@ class TestGateTransformer(unittest.TestCase):
         self.assertAlmostEqual(rotFeat[0][1], 153.0, places=3)
         self.assertAlmostEqual(rotFeat[1][0], -427.0, places=3)
         self.assertAlmostEqual(rotFeat[1][1], -56.9999, places=3)
+
 
 if __name__ == '__main__':
     unittest.main()

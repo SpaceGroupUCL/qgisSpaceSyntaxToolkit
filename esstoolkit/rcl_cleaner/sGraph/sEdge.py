@@ -1,6 +1,6 @@
 # general imports
-from qgis.core import QgsFeature, QgsGeometry, QgsField
-from qgis.PyQt.QtCore import QObject, QVariant
+from qgis.PyQt.QtCore import QObject
+
 
 class sEdge(QObject):
     def __init__(self, id, feature, nodes):
@@ -10,9 +10,9 @@ class sEdge(QObject):
         self.nodes = nodes
 
         # TODO: only for catchment
-        #self.visited = {}
-        #self.agg_cost = {}
-        #self.len = self.feature.geometry().length()
+        # self.visited = {}
+        # self.agg_cost = {}
+        # self.len = self.feature.geometry().length()
 
     def get_startnode(self):
         return self.nodes[0]

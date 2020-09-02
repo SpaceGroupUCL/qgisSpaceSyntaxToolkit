@@ -21,14 +21,15 @@
  ***************************************************************************/
 """
 from __future__ import absolute_import
+
 from qgis.PyQt.QtCore import (QObject, QSettings, Qt)
 from qgis.core import QgsProject
 
-from .urban_data_input_dockwidget import UrbanDataInputDockWidget
-from .frontages import FrontageTool
 from .entrances import EntranceTool
+from .frontages import FrontageTool
 from .landuse import LanduseTool
- 
+from .urban_data_input_dockwidget import UrbanDataInputDockWidget
+
 
 class UrbanDataInputTool(QObject):
     # initialise class with self and iface
@@ -50,7 +51,8 @@ class UrbanDataInputTool(QObject):
         # get current user settings
         self.user_settings = {}
         self.user_settings['crs'] = QSettings().value('/qgis/crs/use_project_crs')
-        self.user_settings['attrib_dialog'] = QSettings().value('/qgis/digitizing/disable_enter_attribute_values_dialog')
+        self.user_settings['attrib_dialog'] = QSettings().value(
+            '/qgis/digitizing/disable_enter_attribute_values_dialog')
 
     def load_gui(self):
         # Overide existing QGIS settings
@@ -76,15 +78,16 @@ class UrbanDataInputTool(QObject):
         self.iface.mapCanvas().selectionChanged.connect(self.dockwidget.addEntranceDataFields)
         # Landuse
         self.iface.mapCanvas().selectionChanged.connect(self.dockwidget.addLUDataFields)
-        #Initialisation
+        # Initialisation
         self.updateLayers()
 
     def unload_gui(self):
-        #self.dockwidget.close()
+        # self.dockwidget.close()
         # disconnect interface signals
         try:
             # restore user settings
-            QSettings().setValue('/qgis/digitizing/disable_enter_attribute_values_dialog', self.user_settings['attrib_dialog'])
+            QSettings().setValue('/qgis/digitizing/disable_enter_attribute_values_dialog',
+                                 self.user_settings['attrib_dialog'])
             QSettings().setValue('/qgis/crs/use_project_crs', self.user_settings['crs'])
 
             # legend change connections
@@ -109,7 +112,7 @@ class UrbanDataInputTool(QObject):
         self.frontage_tool.updateLayers()
         self.frontage_tool.updateFrontageLayer()
         # this is not being used at the moment
-        #self.frontage_tool.updateLayersPushID
+        # self.frontage_tool.updateLayersPushID
         # entrances
         self.entrance_tool.updateEntranceLayer()
         # land use

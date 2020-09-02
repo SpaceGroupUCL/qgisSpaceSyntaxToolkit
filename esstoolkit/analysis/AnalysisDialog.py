@@ -23,13 +23,14 @@
 from __future__ import absolute_import
 
 from builtins import str
+
 from qgis.PyQt import QtCore, QtWidgets
-from .ui_Analysis import Ui_AnalysisDialog
+
 from .DepthmapAdvancedDialog import DepthmapAdvancedDialog
 from .VerificationSettingsDialog import VerificationSettingsDialog
-
-from .. import utility_functions as uf
+from .ui_Analysis import Ui_AnalysisDialog
 from .. import layer_field_helpers as lfh
+
 
 class AnalysisDialog(QtWidgets.QDockWidget, Ui_AnalysisDialog):
     dialogClosed = QtCore.pyqtSignal()
@@ -42,9 +43,9 @@ class AnalysisDialog(QtWidgets.QDockWidget, Ui_AnalysisDialog):
         self.setupUi(self)
 
         # define globals
-        self.layers = [{'idx': 0, 'name': '', 'map_type': 0},{'idx': 0, 'name': ''}]
-        self.axial_verify_report = [{'progress': 0, 'summary': [], 'filter': -1, 'report': dict(), 'nodes': []}
-                                    , {'progress': 0, 'summary': [], 'filter': -1, 'report': dict(), 'nodes': []}]
+        self.layers = [{'idx': 0, 'name': '', 'map_type': 0}, {'idx': 0, 'name': ''}]
+        self.axial_verify_report = [{'progress': 0, 'summary': [], 'filter': -1, 'report': dict(), 'nodes': []},
+                                    {'progress': 0, 'summary': [], 'filter': -1, 'report': dict(), 'nodes': []}]
         self.axial_verification_settings = {'ax_dist': 1.0, 'ax_min': 1.0, 'unlink_dist': 1.0, 'link_dist': 1.0}
         self.dlg_depthmap = DepthmapAdvancedDialog()
         self.dlg_verify = VerificationSettingsDialog(self.axial_verification_settings)
@@ -72,7 +73,6 @@ class AnalysisDialog(QtWidgets.QDockWidget, Ui_AnalysisDialog):
         self.updateAxialVerifyReport()
         self.clearAxialDepthmapTab()
 
-
     #####
     # General functions of the analysis dialog
     def closeEvent(self, event):
@@ -99,10 +99,9 @@ class AnalysisDialog(QtWidgets.QDockWidget, Ui_AnalysisDialog):
             layers.extend(names)
         self.analysisMapCombo.clear()
         self.analysisMapCombo.addItems(layers)
-        self.analysisMapCombo.setCurrentIndex(idx+1)
-        self.layers[0]['idx'] = idx+1
-        self.layers[0]['name'] = layers[idx+1]
-        #self.setSegmentedMode(map_type)
+        self.analysisMapCombo.setCurrentIndex(idx + 1)
+        self.layers[0]['idx'] = idx + 1
+        self.layers[0]['name'] = layers[idx + 1]
         self.layers[0]['map_type'] = map_type
         self.setSegmentedMode(map_type)
         if idx == -1:
@@ -141,9 +140,9 @@ class AnalysisDialog(QtWidgets.QDockWidget, Ui_AnalysisDialog):
             layers.extend(names)
         self.analysisUnlinksCombo.clear()
         self.analysisUnlinksCombo.addItems(layers)
-        self.analysisUnlinksCombo.setCurrentIndex(idx+1)
-        self.layers[1]['idx'] = idx+1
-        self.layers[1]['name'] = layers[idx+1]
+        self.analysisUnlinksCombo.setCurrentIndex(idx + 1)
+        self.layers[1]['idx'] = idx + 1
+        self.layers[1]['name'] = layers[idx + 1]
         if idx == -1:
             self.clearAxialProblems(1)
 
@@ -155,7 +154,7 @@ class AnalysisDialog(QtWidgets.QDockWidget, Ui_AnalysisDialog):
         self.updateAnalysisTabs()
 
     def getAnalysisLayers(self):
-        layers = {'map': '','unlinks': '','map_type': 0}
+        layers = {'map': '', 'unlinks': '', 'map_type': 0}
         for i, layer in enumerate(self.layers):
             name = layer['name']
             if name != '-----':
@@ -180,7 +179,7 @@ class AnalysisDialog(QtWidgets.QDockWidget, Ui_AnalysisDialog):
         else:
             if self.getLayerTab() == 0 and self.layers[0]['map_type'] == 2:
                 self.axialAnalysisTabs.setTabEnabled(0, False)
-                #self.analysisLayersTabs.setTabEnabled(1, False)
+                # self.analysisLayersTabs.setTabEnabled(1, False)
             else:
                 self.axialAnalysisTabs.setTabEnabled(0, True)
                 # self.analysisLayersTabs.setTabEnabled(1, True)
@@ -312,7 +311,7 @@ class AnalysisDialog(QtWidgets.QDockWidget, Ui_AnalysisDialog):
                 return
             else:
                 for v in report[select]:
-                    problems.append((v,select))
+                    problems.append((v, select))
             # update the interface
             self.axialReportList.setColumnCount(2)
             self.axialReportList.setHorizontalHeaderLabels(["ID", "Problem"])
@@ -373,7 +372,7 @@ class AnalysisDialog(QtWidgets.QDockWidget, Ui_AnalysisDialog):
     def getAxialVerifyProblems(self):
         ids = []
         rows = [item.row() for item in self.axialReportList.selectedItems()]
-        #if not rows:
+        # if not rows:
         #    rows = [item.row() for item in self.axialReportList.selectedItems()]
         rows = sorted(set(rows))
         if self.getAxialProblemsFilter() == "island":
@@ -415,10 +414,10 @@ class AnalysisDialog(QtWidgets.QDockWidget, Ui_AnalysisDialog):
             # project use of weights
             if 'weight' in settings:
                 self.axialDepthmapWeightCheck.setChecked(settings['weight'])
-                #self.setDepthmapWeighted(settings['weight'])
+                # self.setDepthmapWeighted(settings['weight'])
             else:
                 self.axialDepthmapWeightCheck.setChecked(False)
-                #self.setDepthmapWeighted(0)
+                # self.setDepthmapWeighted(0)
             # project output name
             if 'output' in settings:
                 self.setAxialDepthmapOutputTable(settings['output'])
@@ -456,20 +455,20 @@ class AnalysisDialog(QtWidgets.QDockWidget, Ui_AnalysisDialog):
             txt, idxs = lfh.getNumericFieldNames(layer)
             if self.axial_analysis_type == 0:
                 self.setAxialDepthmapOutputTable(self.layers[0]['name'])
-                #self.axialDepthmapAxialRadio.setDisabled(False)
+                # self.axialDepthmapAxialRadio.setDisabled(False)
                 txt.insert(0, "Line Length")
             elif self.axial_analysis_type == 1:
-                self.setAxialDepthmapOutputTable(self.layers[0]['name']+'_segment')
-                #self.axialDepthmapAxialRadio.setDisabled(False)
+                self.setAxialDepthmapOutputTable(self.layers[0]['name'] + '_segment')
+                # self.axialDepthmapAxialRadio.setDisabled(False)
                 txt.insert(0, "Segment Length")
             elif self.axial_analysis_type == 2:
-                self.setAxialDepthmapOutputTable(self.layers[0]['name']+'_analysis')
-                #self.axialDepthmapSegmentRadio.setChecked(True)
+                self.setAxialDepthmapOutputTable(self.layers[0]['name'] + '_analysis')
+                # self.axialDepthmapSegmentRadio.setChecked(True)
                 self.axialDepthmapAxialRadio.setDisabled(True)
-                #txt.insert(0, "Segment Length")
+                # txt.insert(0, "Segment Length")
             self.setDepthmapWeightAttributes(txt)
             self.updateAxialDepthmapAdvancedSettings()
-            #self.clearAxialDepthmapReport()
+            # self.clearAxialDepthmapReport()
         else:
             self.lockAxialDepthmapTab(True)
 

@@ -21,20 +21,21 @@
  ***************************************************************************/
 """
 from __future__ import absolute_import
+
+import os.path
 from builtins import object
-from PyQt4.QtCore import (QSettings, QTranslator, QCoreApplication, QAction)
-from PyQt4.QtGui import QIcon
+
+from qgis.PyQt.QtCore import (QSettings, QTranslator, QCoreApplication, qVersion)
+from qgis.PyQt.QtGui import QIcon
+from qgis.PyQt.QtWidgets import QAction
 
 from . import urban_data_input_tool
 
-import os.path
-
-import resources
-
-#import debug package
+# import debug package
 is_debug = False
 try:
     import pydevd
+
     has_pydevd = True
 except ImportError as e:
     has_pydevd = False
@@ -78,7 +79,7 @@ class UrbanDataInput(object):
         self.toolbar = self.iface.addToolBar(u'Urban Data Input ')
         self.toolbar.setObjectName(u'Urban Data Input ')
 
-        #print "** INITIALIZING UrbanDataInput"
+        # print "** INITIALIZING UrbanDataInput"
 
         if has_pydevd and is_debug:
             pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True, suspend=False)
@@ -175,7 +176,6 @@ class UrbanDataInput(object):
 
         return action
 
-
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
         icon_path = ':/plugins/UrbanDataInputTool/icon.png'
@@ -186,7 +186,7 @@ class UrbanDataInput(object):
             parent=self.iface.mainWindow(),
             status_tip='urban Data Input')
 
-    #--------------------------------------------------------------------------
+    # --------------------------------------------------------------------------
 
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
@@ -200,17 +200,8 @@ class UrbanDataInput(object):
 
         self.urban_data_input.unload_gui()
 
-    #--------------------------------------------------------------------------
+    # --------------------------------------------------------------------------
 
     def run(self):
         """Run method that loads and starts the plugin"""
         self.urban_data_input.load_gui()
-
-
-
-
-
-
-
-
-

@@ -22,11 +22,12 @@
 """
 
 from builtins import str
-from qgis.PyQt import QtCore, QtWidgets
-from qgis.PyQt.QtWidgets import QDialog
-from .ui_VerificationSettings import Ui_VerificationSettingsDialog
 
+from qgis.PyQt import QtWidgets
+
+from .ui_VerificationSettings import Ui_VerificationSettingsDialog
 from .. import utility_functions as uf
+
 
 class VerificationSettingsDialog(QtWidgets.QDialog, Ui_VerificationSettingsDialog):
     def __init__(self, settings):

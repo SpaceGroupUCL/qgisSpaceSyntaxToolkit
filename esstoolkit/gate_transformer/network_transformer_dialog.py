@@ -21,17 +21,18 @@
  ***************************************************************************/
 """
 
-from qgis.PyQt import QtGui, uic
-from qgis.PyQt.QtWidgets import QDialog
-
 import os.path
+
+from qgis.PyQt import uic
+from qgis.PyQt.QtWidgets import QDialog
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'network_transformer_dialog_base.ui'))
 
+
 class NetworkTransformerDialog(QDialog, FORM_CLASS):
 
-############################ initialisation ############################
+    ############################ initialisation ############################
 
     def __init__(self, parent=None):
         """Constructor."""
@@ -51,15 +52,14 @@ class NetworkTransformerDialog(QDialog, FORM_CLASS):
         # rotate_button is checked for default
         self.rotate_radio.click()
 
-
     # define a series of get/set/update/disable function
 
     # update layer - fill combo with layer lists
-    def update_layer(self,layer_objects):
+    def update_layer(self, layer_objects):
         self.comboBox.clear()
         if layer_objects:
             for layer in layer_objects:
-                self.comboBox.addItem(layer[0],layer[1])
+                self.comboBox.addItem(layer[0], layer[1])
             self.disable_all(False)
             self.disable_button()
         else:

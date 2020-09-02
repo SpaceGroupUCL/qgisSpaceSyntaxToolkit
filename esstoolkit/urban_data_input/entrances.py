@@ -22,14 +22,15 @@
  """
 from __future__ import print_function
 
+import os
 # Import the PyQt and QGIS libraries
 from builtins import str
+
 from qgis.PyQt.QtCore import (QObject, QVariant)
-from qgis.core import (QgsProject, QgsVectorLayer, QgsField, QgsCoordinateReferenceSystem, QgsVectorFileWriter, QgsDataSourceUri, QgsVectorLayerExporter, QgsMessageLog, QgsMapLayer)
+from qgis.core import (QgsProject, QgsVectorLayer, QgsField, QgsCoordinateReferenceSystem, QgsVectorFileWriter,
+                       QgsDataSourceUri, QgsVectorLayerExporter, QgsMessageLog, QgsMapLayer, Qgis)
 
 from .. import layer_field_helpers as lfh
-
-import os
 
 
 class EntranceTool(QObject):
@@ -105,12 +106,12 @@ class EntranceTool(QObject):
 
         provider = vl.dataProvider()
         provider.addAttributes([QgsField("e_id", QVariant.Int),
-                             QgsField("e_category", QVariant.String),
-                             QgsField("e_subcat", QVariant.String),
-                             QgsField("e_level", QVariant.Double)])
+                                QgsField("e_category", QVariant.String),
+                                QgsField("e_subcat", QVariant.String),
+                                QgsField("e_level", QVariant.Double)])
 
         vl.updateFields()
-        if self.entrancedlg.e_shp_radioButton.isChecked(): #layer_type == 'shapefile':
+        if self.entrancedlg.e_shp_radioButton.isChecked():  # layer_type == 'shapefile':
 
             path = self.entrancedlg.lineEditEntrances.text()
             if path and path != '':
@@ -118,7 +119,7 @@ class EntranceTool(QObject):
                 location = os.path.abspath(path)
                 crs = QgsCoordinateReferenceSystem()
                 crs.createFromSrid(3857)
-                QgsVectorFileWriter.writeAsVectorFormat(vl, location, "ogr", crs , "ESRI Shapefile")
+                QgsVectorFileWriter.writeAsVectorFormat(vl, location, "ogr", crs, "ESRI Shapefile")
                 vl = self.iface.addVectorLayer(location, filename[:-4], "ogr")
             else:
                 vl = 'invalid data source'
@@ -128,17 +129,18 @@ class EntranceTool(QObject):
             db_path = self.entrancedlg.lineEditEntrances.text()
             if db_path and db_path != '':
 
-                (database, schema, table_name) = (db_path).split(':')
+                (database, schema, table_name) = db_path.split(':')
                 db_con_info = self.entrancedlg.dbsettings_dlg.available_dbs[database]
                 uri = QgsDataSourceUri()
                 # passwords, usernames need to be empty if not provided or else connection will fail
                 if 'service' in list(db_con_info.keys()):
                     uri.setConnection(db_con_info['service'], '', '', '')
                 elif 'password' in list(db_con_info.keys()):
-                    uri.setConnection(db_con_info['host'], db_con_info['port'], db_con_info['dbname'], db_con_info['user'],
+                    uri.setConnection(db_con_info['host'], db_con_info['port'], db_con_info['dbname'],
+                                      db_con_info['user'],
                                       db_con_info['password'])
                 else:
-                    print(db_con_info) #db_con_info['host']
+                    print(db_con_info)  # db_con_info['host']
                     uri.setConnection('', db_con_info['port'], db_con_info['dbname'], '', '')
                 uri.setDataSource(schema, table_name, "geom")
                 error = QgsVectorLayerExporter.importLayer(vl, uri.uri(), "postgres", vl.crs(), False, False)
@@ -198,6 +200,7 @@ class EntranceTool(QObject):
             self.entrance_layer = None
 
             # Draw New Feature
+
     def logEntranceFeatureAdded(self, fid):
 
         QgsMessageLog.logMessage("feature added, id = " + str(fid))

@@ -21,11 +21,12 @@
  ***************************************************************************/
 """
 from __future__ import absolute_import
-from qgis.PyQt import QtGui, uic
-from qgis.PyQt.QtCore import pyqtSignal, Qt
-from qgis.PyQt.QtWidgets import QDialog
 
 import os.path
+
+from qgis.PyQt import QtGui, uic
+from qgis.PyQt.QtCore import pyqtSignal
+from qgis.PyQt.QtWidgets import QDialog
 
 from .DbSettings_dialog import DbSettingsDialog
 
@@ -34,7 +35,6 @@ FORM_CLASS, _ = uic.loadUiType(os.path.join(
 
 
 class RoadNetworkCleanerDialog(QDialog, FORM_CLASS):
-
     closingPlugin = pyqtSignal()
 
     def __init__(self, available_dbs, parent=None):
@@ -258,11 +258,15 @@ class RoadNetworkCleanerDialog(QDialog, FORM_CLASS):
             return None
 
     def get_settings(self):
-        break_at_vertices, merge_type, snap_threshold, orphans, fix_unlinks = self.getBreakages(), self.getMerge(),  self.getTolerance(), self.getOrphans(), self.fix_unlinks()
+        break_at_vertices, merge_type, snap_threshold, orphans, fix_unlinks = self.getBreakages(), self.getMerge(), self.getTolerance(), self.getOrphans(), self.fix_unlinks()
         getUnlinks = self.get_unlinks()
-        settings = {'input': self.getNetwork(), 'output': self.getOutput(), 'snap': snap_threshold, 'break': break_at_vertices, 'merge': merge_type, 'orphans': orphans,
-                    'errors': self.get_errors(), 'unlinks': getUnlinks, 'collinear_angle': self.getCollinearThreshold(), 'simplification_threshold': self.getSimplificationTolerance(),
-                    'fix_unlinks': fix_unlinks, 'output_type': self.get_output_type(), 'progress_ranges': self.get_progress_ranges(break_at_vertices, merge_type, snap_threshold, getUnlinks, fix_unlinks)}
+        settings = {'input': self.getNetwork(), 'output': self.getOutput(), 'snap': snap_threshold,
+                    'break': break_at_vertices, 'merge': merge_type, 'orphans': orphans,
+                    'errors': self.get_errors(), 'unlinks': getUnlinks, 'collinear_angle': self.getCollinearThreshold(),
+                    'simplification_threshold': self.getSimplificationTolerance(),
+                    'fix_unlinks': fix_unlinks, 'output_type': self.get_output_type(),
+                    'progress_ranges': self.get_progress_ranges(break_at_vertices, merge_type, snap_threshold,
+                                                                getUnlinks, fix_unlinks)}
         return settings
 
     def get_progress_ranges(self, break_at_vertices, merge_type, snap_threshold, getUnlinks, fix_unlinks):
@@ -271,7 +275,7 @@ class RoadNetworkCleanerDialog(QDialog, FORM_CLASS):
         weigths = {'break': 4, 'load': 2, 'snap': 2, 'merge': 1, 'unlinks': 1, 'clean': 1, 'fix': 1}
         total_range = 95
         total_pr_w = weigths['load']
-        total_pr_w += (float(2) * weigths['clean']) # 2 cleanings are happening by default
+        total_pr_w += (float(2) * weigths['clean'])  # 2 cleanings are happening by default
         if break_at_vertices:
             total_pr_w += weigths['break']
         if merge_type in ('intersections', 'collinear'):
@@ -302,7 +306,8 @@ class RoadNetworkCleanerDialog(QDialog, FORM_CLASS):
         if getUnlinks:
             unlinks_range = weigths['unlinks'] * float(factor)
 
-        return [load_range, cl1_range, cl2_range, cl3_range, break_range, merge_range, snap_range, unlinks_range, fix_range]
+        return [load_range, cl1_range, cl2_range, cl3_range, break_range, merge_range, snap_range, unlinks_range,
+                fix_range]
 
     def get_dbsettings(self):
         settings = self.dbsettings_dlg.getDbSettings()
@@ -310,7 +315,8 @@ class RoadNetworkCleanerDialog(QDialog, FORM_CLASS):
 
     def setOutput(self):
         if self.shpRadioButton.isChecked():
-            self.file_name = QtGui.QFileDialog.getSaveFileName(self, "Save output file ", self.getNetwork() + "_cl", '*.shp')
+            self.file_name = QtGui.QFileDialog.getSaveFileName(self, "Save output file ", self.getNetwork() + "_cl",
+                                                               '*.shp')
             if self.file_name:
                 self.outputCleaned.setText(self.file_name)
             else:
@@ -318,7 +324,7 @@ class RoadNetworkCleanerDialog(QDialog, FORM_CLASS):
         elif self.postgisRadioButton.isChecked():
             self.dbsettings_dlg.show()
             # Run the dialog event loop
-            #result2 = self.dbsettings_dlg.exec_()
+            # result2 = self.dbsettings_dlg.exec_()
             self.dbsettings = self.dbsettings_dlg.getDbSettings()
         return
 
@@ -334,7 +340,7 @@ class RoadNetworkCleanerDialog(QDialog, FORM_CLASS):
             try:
                 self.dbsettings = self.dbsettings_dlg.getDbSettings()
                 db_layer_name = "%s:%s:%s" % (
-                self.dbsettings['dbname'], self.dbsettings['schema'], self.dbsettings['table_name'])
+                    self.dbsettings['dbname'], self.dbsettings['schema'], self.dbsettings['table_name'])
                 self.outputCleaned.setText(db_layer_name)
             except:
                 self.outputCleaned.clear()
@@ -350,6 +356,6 @@ class RoadNetworkCleanerDialog(QDialog, FORM_CLASS):
         self.disable_browse()
         try:
             self.outputCleaned.setText(self.file_name)
-        except :
+        except:
             self.outputCleaned.clear()
         self.outputCleaned.setDisabled(True)

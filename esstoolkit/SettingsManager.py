@@ -4,7 +4,7 @@
  essToolkit
                             Space Syntax Toolkit
  Set of tools for essential space syntax network analysis and results exploration
-                              -------------------
+                              -------------------\
         begin                : 2014-04-01
         copyright            : (C) 2015, UCL
         author               : Jorge Gil
@@ -25,10 +25,9 @@
 from qgis.PyQt.QtCore import (QObject, QSettings, QFileInfo)
 from qgis.PyQt.QtWidgets import QDialog
 
-from . import utility_functions as uf
-
 # import toolkit settings dialog
 from .ui_Settings import Ui_SettingsDialog
+
 
 class SettingsManager(QObject):
 
@@ -43,16 +42,16 @@ class SettingsManager(QObject):
 
     def getLastDir(self):
         settings = QSettings()
-        return settings.value("/esst/lastUsedDir","")
+        return settings.value("/esst/lastUsedDir", "")
 
     def setLastDir(self, path):
         settings = QSettings()
         save_path = QFileInfo(path).filePath()
         settings.setValue("/esst/lastUsedDir", save_path)
 
+
 class SettingsDialog(QDialog, Ui_SettingsDialog):
     def __init__(self):
-
         QDialog.__init__(self)
 
         # Set up the user interface from Designer.

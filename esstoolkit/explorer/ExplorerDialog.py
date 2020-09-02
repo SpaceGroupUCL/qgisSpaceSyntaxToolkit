@@ -21,18 +21,22 @@
  ***************************************************************************/
 """
 
-from builtins import str
 from builtins import range
+from builtins import str
+
 from qgis.PyQt import QtCore, QtWidgets
+
 from .ui_Explorer import Ui_ExplorerDialog
 
 # try to import installed pyqtgraph, if not available use the one shipped with the esstoolkit
 try:
     import pyqtgraph as pg
+
     has_pyqtgraph = True
 except ImportError as e:
     try:
         from ..external import pyqtgraph as pg
+
         has_pyqtgraph = True
     except ImportError as e:
         has_pyqtgraph = False
@@ -64,11 +68,12 @@ class ExplorerDialog(QtWidgets.QDockWidget, Ui_ExplorerDialog):
         self.curr_chart = 0
 
         # default symbology values
-        self.colourRangeCombo.addItems(["Classic","Red - blue","Greyscale","Monochrome"]) #"Classic inflection"
-        self.intervalTypeCombo.addItems(["Equal intervals","Quantiles","Natural breaks","Custom (Equal)"]) #"Default NACh"
-        #self.layerRefreshButton.hide()
+        self.colourRangeCombo.addItems(["Classic", "Red - blue", "Greyscale", "Monochrome"])  # "Classic inflection"
+        self.intervalTypeCombo.addItems(
+            ["Equal intervals", "Quantiles", "Natural breaks", "Custom (Equal)"])  # "Default NACh"
+        # self.layerRefreshButton.hide()
         self.current_symbology = dict()
-        #self.__clearSymbology()
+        # self.__clearSymbology()
 
         # statistics labels
         self.__addStatsLabels()
@@ -95,7 +100,7 @@ class ExplorerDialog(QtWidgets.QDockWidget, Ui_ExplorerDialog):
         self.chartsLayout.setStretch(1, 1)
 
         # Connect dialog's internal signals and slots
-        #self.attributesLoaded.connect(self.__lockColourControls)
+        # self.attributesLoaded.connect(self.__lockColourControls)
         self.layerRefreshButton.clicked.connect(self.__refreshLayers)
         self.layerCombo.activated.connect(self.__selectCurrentLayer)
         self.attributesList.currentRowChanged.connect(self.__lockApplyButton)
@@ -118,7 +123,6 @@ class ExplorerDialog(QtWidgets.QDockWidget, Ui_ExplorerDialog):
         self.yaxisCombo.currentIndexChanged.connect(self.yAxisChanged)
         self.lineCheck.stateChanged.connect(self.__extraLinesChanged)
 
-
     #####
     # General functions of the explorer dialog
 
@@ -137,11 +141,11 @@ class ExplorerDialog(QtWidgets.QDockWidget, Ui_ExplorerDialog):
 
     def setCurrentLayer(self, names, idx=0):
         # block the signal to update the attributes to avoid repeat updates when there is a layer selected
-        #self.layerCombo.blockSignals(True)
+        # self.layerCombo.blockSignals(True)
         self.layerCombo.clear()
         self.layerCombo.addItems(names)
         self.layerCombo.setCurrentIndex(idx)
-        #self.layerCombo.blockSignals(False)
+        # self.layerCombo.blockSignals(False)
         if idx == 0:
             self.__selectCurrentLayer()
 
@@ -169,9 +173,9 @@ class ExplorerDialog(QtWidgets.QDockWidget, Ui_ExplorerDialog):
             self.__lockColourControls(False)
         else:
             self.__setYAxisCombo([])
-            #self.clearPlot()
+            # self.clearPlot()
             self.__lockColourControls(True)
-        #self.attributesLoaded.emit(self.attributesList.count())
+        # self.attributesLoaded.emit(self.attributesList.count())
         self.attributesList.blockSignals(False)
 
     def setAttributesSymbology(self, data):
@@ -211,7 +215,8 @@ class ExplorerDialog(QtWidgets.QDockWidget, Ui_ExplorerDialog):
     def __clearSymbology(self):
         # set default current display settings
         self.current_symbology = dict(attribute="", colour_range=0, line_width=0.25, invert_colour=0, display_order=0,
-                        intervals=10, interval_type=0, top_percent=100, top_value=0.0, bottom_percent=0, bottom_value=0.0)
+                                      intervals=10, interval_type=0, top_percent=100, top_value=0.0, bottom_percent=0,
+                                      bottom_value=0.0)
         self.attribute_max = 0.0
         self.attribute_min = 0.0
         # update the interface
@@ -241,13 +246,14 @@ class ExplorerDialog(QtWidgets.QDockWidget, Ui_ExplorerDialog):
     # Symbology group
     #
     def __lockApplyButton(self, onoff):
-        if not onoff and self.current_symbology['top_value'] is not None and self.current_symbology['bottom_value'] is not None:
+        if not onoff and self.current_symbology['top_value'] is not None and self.current_symbology[
+            'bottom_value'] is not None:
             self.symbologyApplyButton.setDisabled(onoff)
         else:
             self.symbologyApplyButton.setDisabled(True)
 
     def __lockColourControls(self, onoff):
-        #set all the colour and interval controls
+        # set all the colour and interval controls
         if self.attributesList.count() == 0 or self.current_symbology['colour_range'] == 0:
             self.colourRangeCombo.setDisabled(onoff)
         self.invertColourCheck.setDisabled(onoff)
@@ -269,7 +275,7 @@ class ExplorerDialog(QtWidgets.QDockWidget, Ui_ExplorerDialog):
 
     # Colour settings
     def setColourRanges(self, idx):
-        if idx > -1 and idx <= self.colourRangeCombo.maxVisibleItems():
+        if -1 < idx <= self.colourRangeCombo.maxVisibleItems():
             self.colourRangeCombo.setCurrentIndex(idx)
         self.__colourRangeSelected(idx)
 
@@ -297,7 +303,7 @@ class ExplorerDialog(QtWidgets.QDockWidget, Ui_ExplorerDialog):
 
     def setDisplayOrder(self, idx):
         self.displayOrderCombo.setCurrentIndex(idx)
-        #self.__displayOrderSelected(idx)
+        # self.__displayOrderSelected(idx)
 
     def __displayOrderSelected(self, idx):
         self.current_symbology['display_order'] = idx
@@ -310,7 +316,7 @@ class ExplorerDialog(QtWidgets.QDockWidget, Ui_ExplorerDialog):
         self.current_symbology['intervals'] = value
 
     def setIntervalType(self, idx):
-        if idx > -1 and idx <= self.intervalTypeCombo.maxVisibleItems():
+        if -1 < idx <= self.intervalTypeCombo.maxVisibleItems():
             self.intervalTypeCombo.setCurrentIndex(idx)
         self.__intervalTypeChanged(idx)
 
@@ -333,7 +339,7 @@ class ExplorerDialog(QtWidgets.QDockWidget, Ui_ExplorerDialog):
                 self.__topLimitTextChanged()
                 self.setBottomLimitText("0.8")
                 self.__bottomLimitTextChanged()
-            #else:
+            # else:
             #    self.current_symbology["top_value"] = self.attribute_max
             #    self.current_symbology["bottom_value"] = self.attribute_min
             self.__lockApplyButton(False)
@@ -342,7 +348,8 @@ class ExplorerDialog(QtWidgets.QDockWidget, Ui_ExplorerDialog):
         self.current_symbology['top_percent'] = value
         if value < 100:
             # calculate spin absolute value
-            spin = ((self.attribute_max-self.attribute_min)*self.current_symbology['top_percent']/100)+self.attribute_min
+            spin = ((self.attribute_max - self.attribute_min) * self.current_symbology[
+                'top_percent'] / 100) + self.attribute_min
         else:
             spin = self.attribute_max
         self.setTopLimitText(str(spin))
@@ -360,9 +367,11 @@ class ExplorerDialog(QtWidgets.QDockWidget, Ui_ExplorerDialog):
         value = self.topLimitText.text()
         if uf.isNumeric(value):
             self.current_symbology['top_value'] = float(value)
-            if self.current_symbology['top_value'] >= self.current_symbology['bottom_value'] and self.current_symbology['top_value'] <= self.attribute_max:
+            if self.current_symbology['top_value'] >= self.current_symbology['bottom_value'] and self.current_symbology[
+                'top_value'] <= self.attribute_max:
                 # calculate spin percentage
-                spin = abs(((self.current_symbology['top_value']-self.attribute_min)/(self.attribute_max-self.attribute_min))*100)
+                spin = abs(((self.current_symbology['top_value'] - self.attribute_min) / (
+                            self.attribute_max - self.attribute_min)) * 100)
                 self.setTopLimitSpin(spin)
                 self.bottomLimitSpin.setMaximum(spin)
                 self.__lockApplyButton(False)
@@ -383,7 +392,8 @@ class ExplorerDialog(QtWidgets.QDockWidget, Ui_ExplorerDialog):
         self.current_symbology['bottom_percent'] = value
         if value > 0:
             # calculate spin absolute value
-            spin = ((self.attribute_max-self.attribute_min)*self.current_symbology['bottom_percent']/100)+self.attribute_min
+            spin = ((self.attribute_max - self.attribute_min) * self.current_symbology[
+                'bottom_percent'] / 100) + self.attribute_min
         else:
             spin = self.attribute_min
         self.setBottomLimitText(str(spin))
@@ -401,9 +411,11 @@ class ExplorerDialog(QtWidgets.QDockWidget, Ui_ExplorerDialog):
         value = self.bottomLimitText.text()
         if uf.isNumeric(value):
             self.current_symbology['bottom_value'] = float(value)
-            if self.current_symbology['bottom_value'] <= self.current_symbology['top_value'] and self.current_symbology['bottom_value'] >= self.attribute_min:
+            if self.current_symbology['bottom_value'] <= self.current_symbology['top_value'] and self.current_symbology[
+                'bottom_value'] >= self.attribute_min:
                 # calculate spin percentage
-                spin = abs(((self.current_symbology['bottom_value']-self.attribute_min)/(self.attribute_max-self.attribute_min))*100)
+                spin = abs(((self.current_symbology['bottom_value'] - self.attribute_min) / (
+                            self.attribute_max - self.attribute_min)) * 100)
                 self.setBottomLimitSpin(spin)
                 self.topLimitSpin.setMinimum(spin)
                 self.__lockApplyButton(False)
@@ -424,25 +436,25 @@ class ExplorerDialog(QtWidgets.QDockWidget, Ui_ExplorerDialog):
     # Statistics group
     #
     def __addStatsLabels(self):
-        self.statisticsTable.setHorizontalHeaderLabels(["Statistic","Value","Selection"])
+        self.statisticsTable.setHorizontalHeaderLabels(["Statistic", "Value", "Selection"])
         self.statisticsTable.setRowCount(12)
-        self.statisticsTable.setItem(0,0,QtWidgets.QTableWidgetItem("Number"))
-        self.statisticsTable.setItem(1,0,QtWidgets.QTableWidgetItem("Mean"))
-        self.statisticsTable.setItem(2,0,QtWidgets.QTableWidgetItem("Std Dev"))
-        self.statisticsTable.setItem(3,0,QtWidgets.QTableWidgetItem("Variance"))
-        self.statisticsTable.setItem(4,0,QtWidgets.QTableWidgetItem("Median"))
-        self.statisticsTable.setItem(5,0,QtWidgets.QTableWidgetItem("Minimum"))
-        self.statisticsTable.setItem(6,0,QtWidgets.QTableWidgetItem("Maximum"))
-        self.statisticsTable.setItem(7,0,QtWidgets.QTableWidgetItem("Range"))
-        self.statisticsTable.setItem(8,0,QtWidgets.QTableWidgetItem("1st Quart"))
-        self.statisticsTable.setItem(9,0,QtWidgets.QTableWidgetItem("3rd Quart"))
-        self.statisticsTable.setItem(10,0,QtWidgets.QTableWidgetItem("IQR"))
-        self.statisticsTable.setItem(11,0,QtWidgets.QTableWidgetItem("Gini"))
+        self.statisticsTable.setItem(0, 0, QtWidgets.QTableWidgetItem("Number"))
+        self.statisticsTable.setItem(1, 0, QtWidgets.QTableWidgetItem("Mean"))
+        self.statisticsTable.setItem(2, 0, QtWidgets.QTableWidgetItem("Std Dev"))
+        self.statisticsTable.setItem(3, 0, QtWidgets.QTableWidgetItem("Variance"))
+        self.statisticsTable.setItem(4, 0, QtWidgets.QTableWidgetItem("Median"))
+        self.statisticsTable.setItem(5, 0, QtWidgets.QTableWidgetItem("Minimum"))
+        self.statisticsTable.setItem(6, 0, QtWidgets.QTableWidgetItem("Maximum"))
+        self.statisticsTable.setItem(7, 0, QtWidgets.QTableWidgetItem("Range"))
+        self.statisticsTable.setItem(8, 0, QtWidgets.QTableWidgetItem("1st Quart"))
+        self.statisticsTable.setItem(9, 0, QtWidgets.QTableWidgetItem("3rd Quart"))
+        self.statisticsTable.setItem(10, 0, QtWidgets.QTableWidgetItem("IQR"))
+        self.statisticsTable.setItem(11, 0, QtWidgets.QTableWidgetItem("Gini"))
 
     def setStats(self, stats, selection):
         # update the interface
         for row in range(self.statisticsTable.rowCount()):
-            label = self.statisticsTable.item(row,0).text()
+            label = self.statisticsTable.item(row, 0).text()
             if label in stats:
                 item = QtWidgets.QTableWidgetItem(str(stats[label]))
                 self.statisticsTable.setItem(row, 1, item)
@@ -499,7 +511,7 @@ class ExplorerDialog(QtWidgets.QDockWidget, Ui_ExplorerDialog):
     def __setYAxisCombo(self, attributes):
         self.yaxisCombo.clear()
         self.yaxisCombo.addItems(attributes)
-        #for attr in attributes:
+        # for attr in attributes:
         #    self.yaxisCombo.addItem(attr,attr)
         self.yaxisCombo.setCurrentIndex(0)
 
@@ -524,10 +536,10 @@ class ExplorerDialog(QtWidgets.QDockWidget, Ui_ExplorerDialog):
         self.lineLabel.setText("Y = ")
 
     def setCorrelation(self, stats):
-        self.rLabel.setText("r: "+str(stats["r"]))
-        self.pLabel.setText("p: "+str(stats["p"]))
-        self.r2Label.setText("r2: "+str(stats["r2"]))
-        self.lineLabel.setText("Y = "+str(stats["line"]))
+        self.rLabel.setText("r: " + str(stats["r"]))
+        self.pLabel.setText("p: " + str(stats["p"]))
+        self.r2Label.setText("r2: " + str(stats["r2"]))
+        self.lineLabel.setText("Y = " + str(stats["line"]))
 
     def __extraLinesChanged(self, onoff):
         self.showLinesChanged.emit(onoff)

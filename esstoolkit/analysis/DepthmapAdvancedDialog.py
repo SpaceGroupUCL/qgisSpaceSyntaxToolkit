@@ -22,7 +22,9 @@
 """
 
 from builtins import str
-from qgis.PyQt import QtCore, QtWidgets
+
+from qgis.PyQt import QtWidgets
+
 from .ui_DepthmapAdvanced import Ui_DepthmapAdvancedDialog
 
 
@@ -51,23 +53,23 @@ class DepthmapAdvancedDialog(QtWidgets.QDialog, Ui_DepthmapAdvancedDialog):
     def setRadiusType(self, idx):
         self.axialRadiusCombo.setCurrentIndex(idx)
 
-    def disableRadiusType(self,onoff):
+    def disableRadiusType(self, onoff):
         self.axialRadiusLabel.setDisabled(onoff)
         self.axialRadiusCombo.setDisabled(onoff)
 
-    def setCalculateNorm(self,onoff):
+    def setCalculateNorm(self, onoff):
         self.axialCalculateNormCheck.setChecked(onoff)
 
-    def disableCalculateNorm(self,onoff):
+    def disableCalculateNorm(self, onoff):
         self.axialCalculateNormCheck.setDisabled(onoff)
 
-    def setCalculateFull(self,onoff):
+    def setCalculateFull(self, onoff):
         self.axialCalculateFullCheck.setChecked(onoff)
 
     def disableCalculateFull(self, onoff):
         self.axialCalculateFullCheck.setDisabled(onoff)
 
-    def setCalculateChoice(self,onoff):
+    def setCalculateChoice(self, onoff):
         self.axialCalculateChoiceCheck.setChecked(onoff)
 
     def setRemoveStubs(self, value):
@@ -85,4 +87,5 @@ class DepthmapAdvancedDialog(QtWidgets.QDialog, Ui_DepthmapAdvancedDialog):
             self.closeButtonBox.button(QtWidgets.QDialogButtonBox.Ok).setToolTip('')
         except ValueError:
             self.closeButtonBox.button(QtWidgets.QDialogButtonBox.Ok).setDisabled(True)
-            self.closeButtonBox.button(QtWidgets.QDialogButtonBox.Ok).setToolTip('Please enter a valid stubs removal % (integer).')
+            self.closeButtonBox.button(QtWidgets.QDialogButtonBox.Ok).setToolTip(
+                'Please enter a valid stubs removal % (integer).')

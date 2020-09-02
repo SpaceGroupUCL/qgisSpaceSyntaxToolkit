@@ -20,20 +20,19 @@
  *                                                                         *
  ***************************************************************************/
 """
-from __future__ import print_function
 from __future__ import absolute_import
+from __future__ import print_function
+
 from future import standard_library
+
 standard_library.install_aliases()
 from builtins import str
 from builtins import zip
 from builtins import range
-import datetime
 import traceback
 
-
-from qgis.PyQt.QtCore import (QThread, QSettings, QObject, pyqtSignal, QVariant)
-from qgis.core import (QgsMapLayer, Qgis, QgsProject)
-import time
+from qgis.PyQt.QtCore import (QThread, QObject, pyqtSignal)
+from qgis.core import (QgsMapLayer, Qgis, QgsProject, QgsGeometry, QgsMessageLog)
 import os
 import itertools
 
@@ -48,13 +47,14 @@ from .. import db_helpers as dbh
 is_debug = False
 try:
     import pydevd
+
     has_pydevd = True
 except ImportError as e:
     has_pydevd = False
     is_debug = False
 
-class NetworkSegmenterTool(QObject):
 
+class NetworkSegmenterTool(QObject):
     closingPlugin = pyqtSignal()
     setDbOutput = pyqtSignal()
 
@@ -62,7 +62,7 @@ class NetworkSegmenterTool(QObject):
     def __init__(self, iface):
         QObject.__init__(self)
 
-        self.iface=iface
+        self.iface = iface
         self.legend = QgsProject.instance().mapLayers()
 
         # load the dialog from the run method otherwise the objects gets created multiple times
@@ -98,7 +98,7 @@ class NetworkSegmenterTool(QObject):
 
         self.settings = None
 
-        print('settings',  self.settings)
+        print('settings', self.settings)
 
         # show the dialog
         self.dlg.show()
@@ -163,7 +163,7 @@ class NetworkSegmenterTool(QObject):
 
     def giveMessage(self, message, level):
         # Gives warning according to message
-        self.iface.messageBar().pushMessage("Network segmenter: ", "%s" % (message), level, duration=5)
+        self.iface.messageBar().pushMessage("Network segmenter: ", "%s" % message, level, duration=5)
 
     def workerError(self, e, exception_string):
         # Gives error according to message
@@ -182,7 +182,7 @@ class NetworkSegmenterTool(QObject):
         if lfh.getLayerByName(self.settings['input']).crs().postgisSrid() == 4326:
             self.giveMessage('Re-project the layer. EPSG:4326 not allowed.', Qgis.Info)
         elif self.settings['output'] != '':
-            segmenting = self.Worker(self.settings , self.iface)
+            segmenting = self.Worker(self.settings, self.iface)
             self.dlg.lockGUI(True)
             # start the segmenting in a new thread
             thread = QThread()
@@ -199,14 +199,14 @@ class NetworkSegmenterTool(QObject):
             self.thread = thread
             self.segmenting = segmenting
 
-            #if is_debug:
+            # if is_debug:
             print('has started')
         else:
             self.giveMessage('Missing user input!', Qgis.Info)
             return
 
     def workerFinished(self, ret):
-        #if is_debug:
+        # if is_debug:
         print('trying to finish')
         # get segmenting settings
         self.dlg.lockGUI(False)
@@ -222,7 +222,7 @@ class NetworkSegmenterTool(QObject):
             self.segmenting.error.disconnect(self.workerError)
             self.segmenting.warning.disconnect(self.giveMessage)
             self.segmenting.segm_progress.disconnect(self.dlg.segmentingProgress.setValue)
-            #self.segmenting.my_segmentor.progress.disconnect(self.segm_progress.emit)
+            # self.segmenting.my_segmentor.progress.disconnect(self.segm_progress.emit)
 
         self.thread.deleteLater()
         self.thread.quit()
@@ -235,7 +235,7 @@ class NetworkSegmenterTool(QObject):
             print(len(break_lines), 'ret')
 
             segmented = uf.to_layer(break_lines, layer.crs(), layer.dataProvider().encoding(),
-                                 'Linestring', output_type, output_path)
+                                    'Linestring', output_type, output_path)
             QgsProject.instance().addMapLayer(segmented)
             segmented.updateExtents()
 
@@ -243,8 +243,9 @@ class NetworkSegmenterTool(QObject):
                 if len(break_points) == 0:
                     self.giveMessage('No points detected!', Qgis.Info)
                 else:
-                    errors = uf.to_layer(break_points, layer.crs(), layer.dataProvider().encoding(), 'Point', output_type,
-                                      errors_path)
+                    errors = uf.to_layer(break_points, layer.crs(), layer.dataProvider().encoding(), 'Point',
+                                         output_type,
+                                         errors_path)
                     errors.loadNamedStyle(os.path.dirname(__file__) + '/errors_style.qml')
                     QgsProject.instance().addMapLayer(errors)
                     QgsProject.instance().mapLayers().refreshLayerLegend(errors)
@@ -268,14 +269,14 @@ class NetworkSegmenterTool(QObject):
             self.dlg.close()
 
     def killWorker(self):
-        #if is_debug:
+        # if is_debug:
         print('trying to cancel')
         # add emit signal to segmenttool or mergeTool only to stop the loop
         if self.segmenting:
             self.segmenting.finished.disconnect(self.workerFinished)
             self.segmenting.error.disconnect(self.workerError)
             self.segmenting.warning.disconnect(self.giveMessage)
-            try: # it might not have been connected already
+            try:  # it might not have been connected already
                 self.segmenting.segm_progress.disconnect(self.dlg.segmentingProgress.setValue)
             except TypeError:
                 pass
@@ -314,7 +315,7 @@ class NetworkSegmenterTool(QObject):
             if has_pydevd and is_debug:
                 pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True, suspend=False)
             ret = None
-            #if self.settings:
+            # if self.settings:
             try:
                 # segmenting settings
                 layer_name = self.settings['input']
@@ -338,19 +339,30 @@ class NetworkSegmenterTool(QObject):
                 self.my_segmentor.load_graph()
                 # self.step specified in load_graph
                 # progress emitted by break_segm & break_feats_iter
-                cross_p_list = [self.my_segmentor.break_segm(feat) for feat in self.my_segmentor.list_iter(list(self.my_segmentor.feats.values()))]
+                cross_p_list = [self.my_segmentor.break_segm(feat) for feat in
+                                self.my_segmentor.list_iter(list(self.my_segmentor.feats.values()))]
                 self.my_segmentor.step = 20 / float(len(cross_p_list))
-                segmented_feats = [self.my_segmentor.copy_feat(feat_geom_fid[0], feat_geom_fid[1], feat_geom_fid[2]) for feat_geom_fid in self.my_segmentor.break_feats_iter(cross_p_list)]
+                segmented_feats = [self.my_segmentor.copy_feat(feat_geom_fid[0], feat_geom_fid[1], feat_geom_fid[2]) for
+                                   feat_geom_fid in self.my_segmentor.break_feats_iter(cross_p_list)]
 
                 if errors:
                     cross_p_list = set(list(itertools.chain.from_iterable(cross_p_list)))
 
                     ids1 = [i for i in range(0, len(cross_p_list))]
-                    break_point_feats = [self.my_segmentor.copy_feat(self.my_segmentor.break_f, QgsGeometry.fromPointXY(p_fid[0]), p_fid[1]) for p_fid in (list(zip(cross_p_list, ids1)))]
+                    break_point_feats = [
+                        self.my_segmentor.copy_feat(self.my_segmentor.break_f, QgsGeometry.fromPointXY(p_fid[0]),
+                                                    p_fid[1]) for p_fid in (list(zip(cross_p_list, ids1)))]
                     ids2 = [i for i in range(max(ids1) + 1, max(ids1) + 1 + len(self.my_segmentor.invalid_unlinks))]
-                    invalid_unlink_point_feats = [self.my_segmentor.copy_feat(self.my_segmentor.invalid_unlink_f, QgsGeometry.fromPointXY(p_fid1[0]), p_fid1[1]) for p_fid1 in (list(zip(self.my_segmentor.invalid_unlinks, ids2)))]
-                    ids = [i for i in range(max(ids1 + ids2) + 1, max(ids1 + ids2) + 1 + len(self.my_segmentor.stubs_points))]
-                    stubs_point_feats = [self.my_segmentor.copy_feat(self.my_segmentor.stub_f, QgsGeometry.fromPointXY(p_fid2[0]), p_fid2[1]) for p_fid2 in (list(zip(self.my_segmentor.stubs_points, ids)))]
+                    invalid_unlink_point_feats = [self.my_segmentor.copy_feat(self.my_segmentor.invalid_unlink_f,
+                                                                              QgsGeometry.fromPointXY(p_fid1[0]),
+                                                                              p_fid1[1]) for p_fid1 in
+                                                  (list(zip(self.my_segmentor.invalid_unlinks, ids2)))]
+                    ids = [i for i in
+                           range(max(ids1 + ids2) + 1, max(ids1 + ids2) + 1 + len(self.my_segmentor.stubs_points))]
+                    stubs_point_feats = [
+                        self.my_segmentor.copy_feat(self.my_segmentor.stub_f, QgsGeometry.fromPointXY(p_fid2[0]),
+                                                    p_fid2[1]) for p_fid2 in
+                        (list(zip(self.my_segmentor.stubs_points, ids)))]
 
                 ret = segmented_feats, break_point_feats + invalid_unlink_point_feats + stubs_point_feats
 
@@ -360,7 +372,7 @@ class NetworkSegmenterTool(QObject):
                 print(e)
                 self.error.emit(e, traceback.format_exc())
 
-            #print "survived!"
+            # print "survived!"
 
             self.finished.emit(ret)
 

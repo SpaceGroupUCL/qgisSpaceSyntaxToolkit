@@ -20,25 +20,25 @@
  *                                                                         *
  ***************************************************************************/
 """
-from __future__ import print_function
 from __future__ import absolute_import
+from __future__ import print_function
+
 from builtins import str
-from qgis.PyQt.QtCore import (QObject, QSettings, QVariant, QThread)
+
+from qgis.PyQt.QtCore import (QObject, QVariant, QThread)
 from qgis.PyQt.QtGui import QColor
-
 # Import QGIS classes
-from qgis.core import (QgsSymbol, QgsRendererRange, QgsGraduatedSymbolRenderer, QgsProject, QgsFillSymbol, QgsMessageLog, Qgis)
-import itertools, operator
+from qgis.core import (QgsSymbol, QgsRendererRange, QgsGraduatedSymbolRenderer, QgsProject, QgsFillSymbol,
+                       QgsMessageLog, Qgis)
 
-# Import the code for the dialog
-from .catchment_analyser_dialog import CatchmentAnalyserDialog
 # import the main analysis module
 from . import catchment_analysis as ca
-
 # Import utility tools
 from . import utility_functions as uf
-from .. import layer_field_helpers as lfh
+# Import the code for the dialog
+from .catchment_analyser_dialog import CatchmentAnalyserDialog
 from .. import db_helpers as dbh
+from .. import layer_field_helpers as lfh
 
 
 class CatchmentTool(QObject):
@@ -128,11 +128,10 @@ class CatchmentTool(QObject):
             'catchment_network',
             'LINESTRING',
             epsg,
-            ['id',],
-            [QVariant.Int,]
+            ['id', ],
+            [QVariant.Int, ]
         )
         return output_network
-
 
     def tempPolygon(self, epsg):
         if self.dlg.polygonCheck.isChecked():
@@ -149,7 +148,7 @@ class CatchmentTool(QObject):
         # Gives warning according to message
         self.iface.messageBar().pushMessage(
             "Catchment Analyser: ",
-            "%s" % (message),
+            "%s" % message,
             level=Qgis.Warning,
             duration=5)
 
@@ -229,15 +228,18 @@ class CatchmentTool(QObject):
             output_network_features = output['output network features']
             # create layer
             new_fields = output_network_features[0].fields()
-            print(new_fields, self.settings['network'].crs(), self.settings['network'].dataProvider().encoding(), 'Linestring',self.settings['layer_type'], self.settings['output path'][0])
-            output_network = uf.to_layer(new_fields, self.settings['network'].crs(), self.settings['network'].dataProvider().encoding(), 'Linestring',
+            print(new_fields, self.settings['network'].crs(), self.settings['network'].dataProvider().encoding(),
+                  'Linestring', self.settings['layer_type'], self.settings['output path'][0])
+            output_network = uf.to_layer(new_fields, self.settings['network'].crs(),
+                                         self.settings['network'].dataProvider().encoding(), 'Linestring',
                                          self.settings['layer_type'], self.settings['output path'][0])
 
             output_network.dataProvider().addFeatures(output_network_features)
             output_polygon_features = output['output polygon features']
             if output_polygon_features and len(output_polygon_features) > 0:
                 new_fields = output_polygon_features[0].fields()
-                output_polygon = uf.to_layer(new_fields, self.settings['network'].crs(), self.settings['network'].dataProvider().encoding(),
+                output_polygon = uf.to_layer(new_fields, self.settings['network'].crs(),
+                                             self.settings['network'].dataProvider().encoding(),
                                              'Polygon', self.settings['layer_type'],
                                              self.settings['output path'][1])
 

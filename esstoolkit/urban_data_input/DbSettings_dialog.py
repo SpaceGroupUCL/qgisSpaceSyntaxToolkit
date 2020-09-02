@@ -20,13 +20,13 @@
  *                                                                         *
  ***************************************************************************/
 """
-from __future__ import print_function
 from __future__ import absolute_import
-
-from builtins import str
-from qgis.PyQt import QtWidgets, uic
+from __future__ import print_function
 
 import os
+from builtins import str
+
+from qgis.PyQt import QtWidgets, uic
 from qgis.PyQt.QtCore import pyqtSignal
 
 from .. import db_helpers as dbh
@@ -34,8 +34,8 @@ from .. import db_helpers as dbh
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'DbSettings_dialog_base.ui'))
 
-class DbSettingsDialog(QtWidgets.QDialog, FORM_CLASS):
 
+class DbSettingsDialog(QtWidgets.QDialog, FORM_CLASS):
     closingPlugin = pyqtSignal()
     setDbOutput = pyqtSignal()
 
@@ -82,7 +82,6 @@ class DbSettingsDialog(QtWidgets.QDialog, FORM_CLASS):
             schemas = dbh.getPostgisSchemas(self.connstring)
             print('connstring', self.connstring)
         self.schemaCombo.addItems(schemas)
-
 
     def get_connstring(self, selected_db):
         db_info = self.available_dbs[selected_db]

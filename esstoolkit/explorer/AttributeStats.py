@@ -24,8 +24,6 @@
 # Import the PyQt and QGIS libraries
 from qgis.PyQt.QtCore import (QThread, pyqtSignal)
 
-from .. import utility_functions as uf
-
 
 class AttributeStats(QThread):
     calculationFinished = pyqtSignal(dict, list)
@@ -38,7 +36,6 @@ class AttributeStats(QThread):
         self.running = False
         self.layer = layer
         self.attribute = attribute
-
 
     def run(self):
         pass

@@ -22,27 +22,22 @@
 """
 from __future__ import print_function
 
-from builtins import zip
+import os.path
 from builtins import str
-from builtins import range
-from qgis.PyQt.QtCore import (QVariant, QSettings)
+from builtins import zip
+
+from qgis.PyQt.QtCore import (QVariant)
 from qgis.PyQt.QtGui import QColor
-from qgis.PyQt.QtWidgets import QMessageBox
-from qgis.core import (QgsProject, QgsMapLayer, QgsDataSourceUri, QgsVectorLayer, QgsCredentials, QgsVectorDataProvider, QgsFields, QgsField, QgsPoint, QgsGeometry, QgsFeature, QgsVectorFileWriter, QgsFeatureRequest, QgsSpatialIndex, QgsCoordinateTransformContext, QgsWkbTypes, NULL)
+from qgis.core import (QgsProject, QgsMapLayer, QgsDataSourceUri, QgsVectorLayer, QgsVectorDataProvider, QgsField,
+                       QgsPoint, QgsGeometry, QgsFeature, QgsFeatureRequest, QgsSpatialIndex, NULL)
+
 
 # from pyspatialite import dbapi2 as sqlite
-import psycopg2 as pgsql
-import numpy as np
-
-import os.path
-import math
-import sys
-from itertools import zip_longest
 
 
-#------------------------------
+# ------------------------------
 # QGIS layer and field handling functions
-#------------------------------
+# ------------------------------
 # QGIS enum types reference
 # geometry types:
 # 0 point; 1 line; 2 polygon; 3 multipoint; 4 multiline; 5 multipolygon
@@ -50,9 +45,9 @@ from itertools import zip_longest
 # 'ogr'; 'spatialite'; 'postgis'
 
 
-#------------------------------
+# ------------------------------
 # Layer functions
-#------------------------------
+# ------------------------------
 def getVectorLayers(geom='all', provider='all'):
     """Return list of valid QgsVectorLayer in QgsProject, with specific geometry type and/or data provider"""
     layers_list = []
@@ -160,12 +155,14 @@ def reloadLayer(layer):
         QgsProject.instance().addMapLayer(new_layer)
     return new_layer
 
+
 def layerHasFields(layer, fields):
     return set(fields).issubset(getFieldNames(layer))
 
-#------------------------------
+
+# ------------------------------
 # Field functions
-#------------------------------
+# ------------------------------
 def fieldExists(layer, name):
     fields = getFieldNames(layer)
     if name in fields:
@@ -186,7 +183,7 @@ def getNumericFields(layer, type='all'):
     if type == 'all':
         types = (QVariant.Int, QVariant.LongLong, QVariant.Double, QVariant.UInt, QVariant.ULongLong)
     else:
-        types = (type)
+        types = type
     if layer and layer.dataProvider():
         for field in layer.dataProvider().fields():
             if field.type() in types:
@@ -212,9 +209,10 @@ def getNumericFieldNames(layer, type='all'):
 def getValidFieldNames(layer, type='all', null='any'):
     field_names = {}
     if type == 'all':
-        types = (QVariant.Int, QVariant.LongLong, QVariant.Double, QVariant.UInt, QVariant.ULongLong, QVariant.String, QVariant.Char)
+        types = (QVariant.Int, QVariant.LongLong, QVariant.Double, QVariant.UInt, QVariant.ULongLong, QVariant.String,
+                 QVariant.Char)
     else:
-        types = (type)
+        types = type
     if layer and layer.dataProvider():
         for index, field in enumerate(layer.dataProvider().fields()):
             if field.type() in types:
@@ -226,7 +224,7 @@ def getValidFieldNames(layer, type='all', null='any'):
                         field_names[field.name()] = index
                 # exclude layers with any NULL values
                 elif null == 'any':
-                    vals = layer.uniqueValues(index,2)
+                    vals = layer.uniqueValues(index, 2)
                     if len(vals) > 0 and vals[0] != NULL:
                         field_names[field.name()] = index
     return field_names
@@ -239,7 +237,7 @@ def getFieldIndex(layer, name):
 
 def fieldHasValues(layer, name):
     if layer and fieldExists(layer, name):
-    # find fields that only have NULL values
+        # find fields that only have NULL values
         idx = getFieldIndex(layer, name)
         maxval = layer.maximumValue(idx)
         minval = layer.minimumValue(idx)
@@ -261,7 +259,7 @@ def getUniqueValuesNumber(layer, name):
 def fieldHasNullValues(layer, name):
     if layer and fieldExists(layer, name):
         idx = getFieldIndex(layer, name)
-        vals = layer.uniqueValues(idx,1)
+        vals = layer.uniqueValues(idx, 1)
         # depending on the provider list is empty or has NULL value in first position
         if len(vals) == 0 or (len(vals) == 1 and next(iter(vals)) == NULL):
             return True
@@ -272,7 +270,7 @@ def fieldHasNullValues(layer, name):
 def getFieldValues(layer, fieldname, null=True, selection=False):
     attributes = []
     ids = []
-    #field_values = {}
+    # field_values = {}
     if fieldExists(layer, fieldname):
         if selection:
             features = layer.selectedFeatures()
@@ -281,18 +279,18 @@ def getFieldValues(layer, fieldname, null=True, selection=False):
             features = layer.getFeatures(request)
         if null:
             for feature in features:
-                #field_values[str(feature.id())] = feature.attribute(fieldname)
+                # field_values[str(feature.id())] = feature.attribute(fieldname)
                 attributes.append(feature.attribute(fieldname))
                 ids.append(feature.id())
         else:
             for feature in features:
                 val = feature.attribute(fieldname)
                 if val != NULL:
-                    #field_values[str(feature.id())] = val
+                    # field_values[str(feature.id())] = val
                     attributes.append(val)
                     ids.append(feature.id())
-        #field_values['id'] = ids
-        #field_values[fieldname] = attributes
+        # field_values['id'] = ids
+        # field_values[fieldname] = attributes
     return attributes, ids
 
 
@@ -337,7 +335,7 @@ def getIdField(layer):
     else:
         names, idxs = getNumericFieldNames(layer)
         user_id = ''
-        standard_id = ("pk","pkuid","pkid","pk_id","pk id","sid","uid","fid","id","ref")
+        standard_id = ("pk", "pkuid", "pkid", "pk_id", "pk id", "sid", "uid", "fid", "id", "ref")
         # look for user defined ID, take first found
         for field in names:
             if field.lower() in standard_id:
@@ -355,7 +353,7 @@ def getIdFieldNames(layer):
         user_ids.append(layer.dataProvider().fields().field(pk[0]).name())
     # followed by other ids
     names, idxs = getNumericFieldNames(layer)
-    standard_id = ("pk","pkuid","pkid","pk_id","pk id","sid","uid","fid","id","ref")
+    standard_id = ("pk", "pkuid", "pkid", "pk_id", "pk id", "sid", "uid", "fid", "id", "ref")
     # look for user defined ID, take first found
     for field in names:
         if field.lower() in standard_id and field.lower() not in user_ids:
@@ -380,18 +378,18 @@ def addFields(layer, names, types):
         if caps & QgsVectorDataProvider.AddAttributes:
             fields = provider.fields()
             for i, name in enumerate(names):
-                #add new field if it doesn't exist
+                # add new field if it doesn't exist
                 if fields.indexFromName(name) == -1:
                     res = provider.addAttributes([QgsField(name, types[i])])
-        #apply changes if any made
+        # apply changes if any made
         if res:
             layer.updateFields()
     return res
 
 
-#------------------------------
+# ------------------------------
 # Feature functions
-#------------------------------
+# ------------------------------
 def getFeaturesListValues(layer, name, values=list):
     features = {}
     if layer:
@@ -444,7 +442,7 @@ def getAllFeatureSymbols(layer):
             if len(symb) > 0:
                 symbols = {feature.id(): symb[0].color()}
             else:
-                symbols = {feature.id(): QColor(200,200,200,255)}
+                symbols = {feature.id(): QColor(200, 200, 200, 255)}
     return symbols
 
 
@@ -460,21 +458,23 @@ def getAllFeatureData(layer):
             if len(symb) > 0:
                 symbols = {feature.id(): symb[0].color()}
             else:
-                symbols = {feature.id(): QColor(200,200,200,255)}
+                symbols = {feature.id(): QColor(200, 200, 200, 255)}
     return data, symbols
 
 
-#------------------------------
+# ------------------------------
 # Creation functions
-#------------------------------
+# ------------------------------
 def createTempLayer(name, srid, attributes, types, values, coords):
     # create an instance of a memory vector layer
     type = ''
-    if len(coords) == 2: type = 'Point'
-    elif len(coords) == 4: type = 'LineString'
-    vlayer = QgsVectorLayer('%s?crs=EPSG:%s'% (type, srid), name, "memory")
+    if len(coords) == 2:
+        type = 'Point'
+    elif len(coords) == 4:
+        type = 'LineString'
+    vlayer = QgsVectorLayer('%s?crs=EPSG:%s' % (type, srid), name, "memory")
     provider = vlayer.dataProvider()
-    #create the required fields
+    # create the required fields
     fields = []
     for i, name in enumerate(attributes):
         fields.append(QgsField(name, types[i]))
@@ -491,10 +491,10 @@ def createTempLayer(name, srid, attributes, types, values, coords):
         # add geometry
         try:
             if type == 'Point':
-                feat.setGeometry(QgsGeometry.fromPoint([QgsPoint(float(val[coords[0]]),float(val[coords[1]]))]))
+                feat.setGeometry(QgsGeometry.fromPoint([QgsPoint(float(val[coords[0]]), float(val[coords[1]]))]))
             elif type == 'LineString':
-                feat.setGeometry(QgsGeometry.fromPolyline([QgsPoint(float(val[coords[0]]),float(val[coords[1]])), \
-                                                           QgsPoint(float(val[coords[2]]),float(val[coords[3]]))]))
+                feat.setGeometry(QgsGeometry.fromPolyline([QgsPoint(float(val[coords[0]]), float(val[coords[1]])),
+                                                           QgsPoint(float(val[coords[2]]), float(val[coords[3]]))]))
         except:
             pass
         # add attribute values
@@ -537,14 +537,14 @@ def buildTopology(self, axial, unlinks, links):
     links_list = []
     # get unlinks pairs
     if unlinks:
-        features = unlinks.getFeatures(QgsFeatureRequest().setSubsetOfAttributes(['line1','line2'],unlinks.fields()))
+        features = unlinks.getFeatures(QgsFeatureRequest().setSubsetOfAttributes(['line1', 'line2'], unlinks.fields()))
         for feature in features:
-            unlinks_list.append((feature.attribute('line1'),feature.attribute('line2')))
+            unlinks_list.append((feature.attribute('line1'), feature.attribute('line2')))
     # get links pairs
     if links:
-        features = links.getFeatures(QgsFeatureRequest().setSubsetOfAttributes(['line1','line2'],links.fields()))
+        features = links.getFeatures(QgsFeatureRequest().setSubsetOfAttributes(['line1', 'line2'], links.fields()))
         for feature in features:
-            links_list.append((feature.attribute('line1'),feature.attribute('line2')))
+            links_list.append((feature.attribute('line1'), feature.attribute('line2')))
     # get axial intersections
     features = axial.getFeatures(QgsFeatureRequest().setSubsetOfAttributes([]))
     for feature in features:
@@ -566,6 +566,6 @@ def buildTopology(self, axial, unlinks, links):
             id_b = target.id()
             if not id_b == id and geom.intersects(geom_b):
                 # check if in the unlinks
-                if (id,id_b) not in unlinks_list and (id,id_b) not in unlinks_list:
-                    axial_links.append((id,id_b))
+                if (id, id_b) not in unlinks_list and (id, id_b) not in unlinks_list:
+                    axial_links.append((id, id_b))
     return axial_links
