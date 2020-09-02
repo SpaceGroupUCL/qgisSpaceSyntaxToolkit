@@ -68,7 +68,13 @@ def getVectorLayers(geom='all', provider='all'):
 
 
 def getLegendLayers(iface, geom='all', provider='all'):
-    """Return list of valid QgsVectorLayer in QgsLegendInterface, with specific geometry type and/or data provider"""
+    """
+    Return list of layer objects in the legend, with specific geometry type and/or data provider
+    :param iface: QgsInterface
+    :param geom: string ('point', 'linestring', 'polygon')
+    :param provider: string
+    :return: list QgsVectorLayer
+    """
     layers_list = []
     for layer in QgsProject.instance().mapLayers().values():
         add_layer = False
@@ -139,21 +145,16 @@ def getLayerPath(layer):
     return path
 
 
-def getLayersListNames(layerslist):
-    layer_names = [layer.name() for layer in layerslist]
-    return layer_names
-
-
 def reloadLayer(layer):
     layer_name = layer.name()
     layer_provider = layer.dataProvider().name()
     new_layer = None
-    if layer_provider in ('spatialite','postgres'):
+    if layer_provider in ('spatialite', 'postgres'):
         uri = QgsDataSourceUri(layer.dataProvider().dataSourceUri())
-        new_layer = QgsVectorLayer(uri.uri(),layer_name,layer_provider)
+        new_layer = QgsVectorLayer(uri.uri(), layer_name, layer_provider)
     elif layer_provider == 'ogr':
         uri = layer.dataProvider().dataSourceUri()
-        new_layer = QgsVectorLayer(uri.split("|")[0],layer_name,layer_provider)
+        new_layer = QgsVectorLayer(uri.split("|")[0], layer_name, layer_provider)
     QgsProject.instance().removeMapLayer(layer.id())
     if new_layer:
         QgsProject.instance().addMapLayer(new_layer)
@@ -566,4 +567,3 @@ def buildTopology(self, axial, unlinks, links):
                 if (id,id_b) not in unlinks_list and (id,id_b) not in unlinks_list:
                     axial_links.append((id,id_b))
     return axial_links
-

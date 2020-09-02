@@ -5,8 +5,10 @@ from past.builtins import execfile
 execfile(u'/Users/i.kolovou/Documents/Github/qgisSpaceSyntaxToolkit/esstoolkit/catchment_analyser/catchment_analysis.py'.encode('utf-8'))
 execfile(u'/Users/i.kolovou/Documents/Github/qgisSpaceSyntaxToolkit/esstoolkit/catchment_analyser/utility_functions.py'.encode('utf-8'))
 
-origin_vector = getLayerByName('2595D_pr_tfl_bus_stops')
-network = getLayerByName('2595D_spm_pr2_seg2')
+from .. import layer_field_helpers as lfh
+
+origin_vector = lfh.getLayerByName('2595D_pr_tfl_bus_stops')
+network = lfh.getLayerByName('2595D_spm_pr2_seg2')
 origin_name_field = None
 cost_field = 'length'
 tolerance = 0.01

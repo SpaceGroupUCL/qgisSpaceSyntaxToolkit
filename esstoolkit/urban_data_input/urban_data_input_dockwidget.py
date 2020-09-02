@@ -26,10 +26,11 @@ from builtins import str
 import os
 from qgis.core import QgsProject
 from qgis.PyQt.QtCore import pyqtSignal
-from qgis.PyQt.QtWidgets import (QDockWidget, QTableWidgetItem)
+from qgis.PyQt.QtWidgets import (QDockWidget, QTableWidgetItem, QHeaderView)
 from qgis.PyQt.uic import loadUiType
 
 from . import utility_functions as uf
+from .. import layer_field_helpers as lfh
 
 from .CreateNew_Entrance_dialog import CreateNew_EntranceDialog
 from .CreateNew_LU_dialog import CreateNew_LUDialog
@@ -190,7 +191,7 @@ class UrbanDataInputDockWidget(QDockWidget, FORM_CLASS):
     # Get building layer based on name
     def getSelectedLayerPushID(self):
         layer_name = self.pushIDcomboBox.currentText()
-        layer = uf.getLegendLayerByName(self.iface, layer_name)
+        layer = lfh.getLegendLayerByName(self.iface, layer_name)
         return layer
 
     def clearDataFields(self):
@@ -485,7 +486,7 @@ class UrbanDataInputDockWidget(QDockWidget, FORM_CLASS):
         layer = self.setLULayer()
         if layer:
             dp = layer.dataProvider()
-            fieldlist = uf.getFieldNames(layer)
+            fieldlist = lfh.getFieldNames(layer)
             features = layer.selectedFeatures()
             attrs = []
             for feat in features:

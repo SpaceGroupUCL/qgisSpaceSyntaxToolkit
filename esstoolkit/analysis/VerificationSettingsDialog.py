@@ -26,7 +26,7 @@ from qgis.PyQt import QtCore, QtWidgets
 from qgis.PyQt.QtWidgets import QDialog
 from .ui_VerificationSettings import Ui_VerificationSettingsDialog
 
-from ..utility_functions import *
+from .. import utility_functions as uf
 
 class VerificationSettingsDialog(QtWidgets.QDialog, Ui_VerificationSettingsDialog):
     def __init__(self, settings):
@@ -56,7 +56,7 @@ class VerificationSettingsDialog(QtWidgets.QDialog, Ui_VerificationSettingsDialo
         ax_dist = self.axialThresholdEdit.text()
         unlink_dist = self.unlinksThresholdEdit.text()
         link_dist = self.linksThresholdEdit.text()
-        if isNumeric(ax_min) and isNumeric(ax_dist) and isNumeric(unlink_dist) and isNumeric(link_dist):
+        if uf.isNumeric(ax_min) and uf.isNumeric(ax_dist) and uf.isNumeric(unlink_dist) and uf.isNumeric(link_dist):
             self.ok.setDisabled(False)
         else:
             self.ok.setToolTip("Check if the settings values are correct.")
@@ -73,5 +73,3 @@ class VerificationSettingsDialog(QtWidgets.QDialog, Ui_VerificationSettingsDialo
         self.settings['ax_min'] = float(self.axialMinimumEdit.text())
         self.settings['unlink_dist'] = float(self.unlinksThresholdEdit.text())
         self.settings['link_dist'] = float(self.linksThresholdEdit.text())
-
-

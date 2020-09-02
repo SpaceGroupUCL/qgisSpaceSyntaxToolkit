@@ -6,13 +6,15 @@ execfile(u'/Users/i.kolovou/Documents/Github/Rcl-topology-cleaner/sGraph/sNode.p
 execfile(u'/Users/i.kolovou/Documents/Github/Rcl-topology-cleaner/sGraph/sEdge.py'.encode('utf-8'))
 execfile(u'/Users/i.kolovou/Documents/Github/Rcl-topology-cleaner/sGraph/utilityFunctions.py'.encode('utf-8'))
 
+from .. import layer_field_helpers as lfh
+
 # parameters
 layer_name = 'gb_roadlink_test'
 # time with previous version: ~ 16 minutes
 # time with new      version: ~ 3 minutes
 # reduction: 80%
 
-layer = getLayerByName(layer_name)
+layer = lfh.getLayerByName(layer_name)
 crs = layer.crs()
 encoding = layer.dataProvider().encoding()
 geom_type = layer.dataProvider().geometryType()

@@ -140,38 +140,9 @@ def merge_geoms(geoms, simpl_threshold):
 
 # ITERATORS -----------------------------------------------------------------
 
-
-# connected components iterator from group_dictionary e.g. { A: [B,C,D], B: [D,E,F], ...}
-def con_comp_iter(group_dictionary):
-    components_passed = set([])
-    for id in list(group_dictionary.keys()):
-        if {id}.isdisjoint(components_passed):
-            group = [[id]]
-            candidates = ['dummy', 'dummy']
-            while len(candidates) > 0:
-                flat_group = group[:-1] + group[-1]
-                candidates = [set(group_dictionary[last_visited_node]).difference(set(flat_group)) for last_visited_node in group[-1]]
-                candidates = list(set(itertools.chain.from_iterable(candidates)))
-                group = flat_group + [candidates]
-                components_passed.update(set(candidates))
-            yield group[:-1]
-
 gr = [[29, 27, 26, 28], [31, 11, 10, 3, 30], [71, 51, 52, 69],
       [78, 67, 68, 39, 75], [86, 84, 81, 82, 83, 85], [84, 67, 78, 77, 81],
       [86, 68, 67, 84]]
-
-
-def grouper(sequence):
-    result = []  # will hold (members, group) tuples
-    for item in sequence:
-        for members, group in result:
-            if members.intersection(item):  # overlap
-                members.update(item)
-                group.append(item)
-                break
-        else:  # no group found, add new
-            result.append((set(item), [item]))
-    return [group for members, group in result]
 
 # WRITE -----------------------------------------------------------------
 
@@ -243,50 +214,3 @@ def to_layer(features, crs, encoding, geom_type, layer_type, path):
         except psycopg2.DatabaseError as e:
             print(e)
     return layer
-
-# LAYER -----------------------------------------------------------------
-
-def getLayerByName(name):
-    layer = None
-    for i in list(QgsProject.instance().mapLayers().values()):
-        if i.name() == name:
-            layer = i
-    return layer
-
-
-# POSTGIS -----------------------------------------------------------------
-
-def getPostgisSchemas(connstring, commit=False):
-    """Execute query (string) with given parameters (tuple)
-    (optionally perform commit to save Db)
-    :return: result set [header,data] or [error] error
-    """
-
-    try:
-        connection = psycopg2.connect(connstring)
-    except psycopg2.Error as e:
-        print(e.pgerror)
-        connection = None
-
-    schemas = []
-    data = []
-    if connection:
-        query = str("""SELECT schema_name from information_schema.schemata;""")
-        cursor = connection.cursor()
-        try:
-            cursor.execute(query)
-            if cursor.description is not None:
-                data = cursor.fetchall()
-            if commit:
-                connection.commit()
-        except psycopg2.Error as e:
-            connection.rollback()
-        cursor.close()
-
-    # only extract user schemas
-    for schema in data:
-        if schema[0] not in ('topology', 'information_schema') and schema[0][:3] != 'pg_':
-            schemas.append(schema[0])
-    #return the result even if empty
-    return sorted(schemas)
-

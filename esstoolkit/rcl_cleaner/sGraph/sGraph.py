@@ -9,7 +9,7 @@ from collections import defaultdict
 
 # plugin module imports
 try:
-    from .utilityFunctions import *
+    from . import utilityFunctions as uf
     from .sNode import sNode
     from .sEdge import sEdge
 except ImportError:
@@ -173,7 +173,7 @@ class sGraph(QObject):
 
             # self intersections
             # include first and last
-            self_intersections = getSelfIntersections(pl)
+            self_intersections = uf.getSelfIntersections(pl)
 
             # common vertices
             intersections = list(itertools.chain.from_iterable([set(pl[1:-1]).intersection(set(self.sEdges[line].feature.geometry().asPolyline())) for line in lines]))
@@ -188,7 +188,7 @@ class sGraph(QObject):
                     err_f.setGeometry(QgsGeometry.fromPointXY(pnt))
                     err_f.setAttributes(['broken'])
                     self.errors.append(err_f)
-                vertices_indices = find_vertex_indices(pl, intersections)
+                vertices_indices = uf.find_vertex_indices(pl, intersections)
                 for start, end in zip(vertices_indices[:-1], vertices_indices[1:]):
                     broken_feat = QgsFeature(f)
                     broken_geom = QgsGeometry.fromPolylineXY(pl[start:end + 1]).simplify(angle_threshold)
@@ -562,7 +562,7 @@ class sGraph(QObject):
     def merge_collinear(self, collinear_threshold, angle_threshold=0):
 
         filtered_nodes = dict([id_nd for id_nd in list(graph.sNodes.items()) if len(id_nd[1].topology) == 2 and len(id_nd[1].adj_edges) == 2])
-        filtered_nodes = dict([id_nd1 for id_nd1 in list(filtered_nodes.items()) if angle_3_points(graph.sNodes[id_nd1[1].topology[0]].feature.geometry().asPoint(), id_nd1[1].feature.geometry().asPoint(), graph.sNodes[id_nd1[1].topology[1]].feature.geometry().asPoint()) <= collinear_threshold])
+        filtered_nodes = dict([id_nd1 for id_nd1 in list(filtered_nodes.items()) if uf.angle_3_points(graph.sNodes[id_nd1[1].topology[0]].feature.geometry().asPoint(), id_nd1[1].feature.geometry().asPoint(), graph.sNodes[id_nd1[1].topology[1]].feature.geometry().asPoint()) <= collinear_threshold])
         filtered_nodes = {id: nd.adj_edges for id, nd in list(filtered_nodes.items())}
         filtered_edges = {}
         for k, v in list(filtered_nodes.items()):
@@ -705,7 +705,7 @@ class sGraph(QObject):
         # attributes from longest
         longest_feat = self.sEdges[group_edges[lengths.index(max_len)]].feature
         feat.setAttributes(longest_feat.attributes())
-        merged_geom = merge_geoms(geoms, angle_threshold)
+        merged_geom = uf.merge_geoms(geoms, angle_threshold)
         if merged_geom.wkbType() == 2:
             p0 = merged_geom.asPolyline()[0]
             p1 = merged_geom.asPolyline()[-1]

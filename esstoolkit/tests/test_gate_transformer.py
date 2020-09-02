@@ -1,5 +1,5 @@
-from qgis.core import *
-from qgis.PyQt.QtCore import QCoreApplication, QVariant
+from qgis.core import (QgsApplication, QgsVectorLayer, QgsFeature, QgsLineString, QgsPoint)
+from qgis.PyQt.QtCore import (QCoreApplication, QVariant)
 import unittest
 
 qgs = QgsApplication([], False)
@@ -24,7 +24,7 @@ class TestGateTransformer(unittest.TestCase):
         self.assertAlmostEqual(rotFeat[0][1], 93.5, places=3)
         self.assertAlmostEqual(rotFeat[1][0], 262.5, places=3)
         self.assertAlmostEqual(rotFeat[1][1], 2.5, places=3)
-        
+
     def test_resize(self):
         vl = QgsVectorLayer("LineString", "temp", "memory")
         pr = vl.dataProvider()
@@ -40,7 +40,7 @@ class TestGateTransformer(unittest.TestCase):
         self.assertAlmostEqual(rotFeat[0][1], 48.0380, places=3)
         self.assertAlmostEqual(rotFeat[1][0], 255.2529, places=3)
         self.assertAlmostEqual(rotFeat[1][1], 47.9619, places=3)
-        
+
     def test_rescale(self):
         vl = QgsVectorLayer("LineString", "temp", "memory")
         pr = vl.dataProvider()

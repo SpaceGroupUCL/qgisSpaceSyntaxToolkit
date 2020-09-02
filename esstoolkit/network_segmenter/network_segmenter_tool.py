@@ -32,14 +32,16 @@ import traceback
 
 
 from qgis.PyQt.QtCore import (QThread, QSettings, QObject, pyqtSignal, QVariant)
-from qgis.core import (QgsMapLayer, Qgis)
+from qgis.core import (QgsMapLayer, Qgis, QgsProject)
 import time
 import os
-import itertools, operator
+import itertools
 
 from .network_segmenter_dialog import NetworkSegmenterDialog
-from .segment_tools import *  # better give these a name to make it explicit to which module the methods belong
-from .utilityFunctions import *
+from .segment_tools import segmentor
+from . import utilityFunctions as uf
+from .. import layer_field_helpers as lfh
+from .. import db_helpers as dbh
 
 # Import the debug library - required for the cleaning class in separate thread
 # set is_debug to False in release version
@@ -72,7 +74,7 @@ class NetworkSegmenterTool(QObject):
 
     def loadGUI(self):
         # create the dialog objects
-        self.dlg = NetworkSegmenterDialog(self.getQGISDbs())
+        self.dlg = NetworkSegmenterDialog(dbh.getQGISDbs())
 
         # setup GUI signals
         self.dlg.closingPlugin.connect(self.unloadGUI)
@@ -128,23 +130,6 @@ class NetworkSegmenterTool(QObject):
 
         self.dlg = None
 
-    def getQGISDbs(self):
-        """Return all PostGIS connection settings stored in QGIS
-        :return: connection dict() with name and other settings
-                """
-        settings = QSettings()
-        settings.beginGroup('/PostgreSQL/connections')
-        named_dbs = settings.childGroups()
-        all_info = [i.split("/") + [str(settings.value(i))] for i in settings.allKeys() if
-                    settings.value(i) != NULL and settings.value(i) != '']
-        all_info = [i for i in all_info if
-                    i[0] in named_dbs and i[2] != NULL and i[1] in ['name', 'host', 'service', 'password', 'username',
-                                                                    'port', 'database']]
-        dbs = dict(
-            [k, dict([i[1:] for i in list(g)])] for k, g in itertools.groupby(sorted(all_info), operator.itemgetter(0)))
-        settings.endGroup()
-        return dbs
-
     def getActiveLayers(self):
         layers_list = []
         for layer in QgsProject.instance().mapLayers().values():
@@ -194,7 +179,7 @@ class NetworkSegmenterTool(QObject):
             db_settings = self.dlg.get_dbsettings()
             self.settings.update(db_settings)
 
-        if getLayerByName(self.settings['input']).crs().postgisSrid() == 4326:
+        if lfh.getLayerByName(self.settings['input']).crs().postgisSrid() == 4326:
             self.giveMessage('Re-project the layer. EPSG:4326 not allowed.', Qgis.Info)
         elif self.settings['output'] != '':
             segmenting = self.Worker(self.settings , self.iface)
@@ -229,7 +214,7 @@ class NetworkSegmenterTool(QObject):
         output_path, errors_path = self.settings['output']
         output_type = self.settings['output_type']
         #  get settings from layer
-        layer = getLayerByName(layer_name)
+        layer = lfh.getLayerByName(layer_name)
         # create the segmenting results layers
         if self.segmenting:
             # clean up the worker and thread
@@ -249,7 +234,7 @@ class NetworkSegmenterTool(QObject):
             break_lines, break_points = ret
             print(len(break_lines), 'ret')
 
-            segmented = to_layer(break_lines, layer.crs(), layer.dataProvider().encoding(),
+            segmented = uf.to_layer(break_lines, layer.crs(), layer.dataProvider().encoding(),
                                  'Linestring', output_type, output_path)
             QgsProject.instance().addMapLayer(segmented)
             segmented.updateExtents()
@@ -258,7 +243,7 @@ class NetworkSegmenterTool(QObject):
                 if len(break_points) == 0:
                     self.giveMessage('No points detected!', Qgis.Info)
                 else:
-                    errors = to_layer(break_points, layer.crs(), layer.dataProvider().encoding(), 'Point', output_type,
+                    errors = uf.to_layer(break_points, layer.crs(), layer.dataProvider().encoding(), 'Point', output_type,
                                       errors_path)
                     errors.loadNamedStyle(os.path.dirname(__file__) + '/errors_style.qml')
                     QgsProject.instance().addMapLayer(errors)
@@ -334,8 +319,8 @@ class NetworkSegmenterTool(QObject):
                 # segmenting settings
                 layer_name = self.settings['input']
                 unlinks_layer_name = self.settings['unlinks']
-                layer = getLayerByName(layer_name)
-                unlinks = getLayerByName(unlinks_layer_name)
+                layer = lfh.getLayerByName(layer_name)
+                unlinks = lfh.getLayerByName(unlinks_layer_name)
                 stub_ratio = self.settings['stub_ratio']
                 buffer = self.settings['buffer']
                 errors = self.settings['errors']
@@ -382,5 +367,3 @@ class NetworkSegmenterTool(QObject):
         def kill(self):
             print('killed')
             self.segm_killed = True
-
-

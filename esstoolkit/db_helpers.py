@@ -37,7 +37,7 @@ import numpy as np
 import os.path
 import math
 import sys
-from itertools import zip_longest
+import itertools, operator
 
 #------------------------------
 # General database functions
@@ -1011,3 +1011,58 @@ def addPostgisAttributes(connection, schema, name, id, attributes, types, values
         else:
             connection.rollback()
     return res
+
+def getPostgisSchemas(connstring, commit=False):
+    """Execute query (string) with given parameters (tuple)
+    (optionally perform commit to save Db)
+    :return: result set [header,data] or [error] error
+    """
+
+    try:
+        connection = psycopg2.connect(connstring)
+    except psycopg2.Error as e:
+        print(e.pgerror)
+        connection = None
+
+    schemas = []
+    data = []
+    if connection:
+        query = str("""SELECT schema_name from information_schema.schemata;""")
+        cursor = connection.cursor()
+        try:
+            cursor.execute(query)
+            if cursor.description is not None:
+                data = cursor.fetchall()
+            if commit:
+                connection.commit()
+        except psycopg2.Error as e:
+            connection.rollback()
+        cursor.close()
+
+    # only extract user schemas
+    for schema in data:
+        if schema[0] not in ('topology', 'information_schema') and schema[0][:3] != 'pg_':
+            schemas.append(schema[0])
+    #return the result even if empty
+    return sorted(schemas)
+
+def getQGISDbs(portlast = False):
+    """Return all PostGIS connection settings stored in QGIS
+    :return: connection dict() with name and other settings
+            """
+    settings = QSettings()
+    settings.beginGroup('/PostgreSQL/connections')
+    named_dbs = settings.childGroups()
+    all_info = [i.split("/") + [str(settings.value(i))] for i in settings.allKeys() if
+                settings.value(i) != NULL and settings.value(i) != '']
+
+    query_columns = ['name', 'host', 'service', 'password', 'username', 'port', 'database']
+    if(portlast):
+        query_columns = ['name', 'host', 'service', 'password', 'username', 'database', 'port']
+
+    all_info = [i for i in all_info if
+                i[0] in named_dbs and i[2] != NULL and i[1] in query_columns]
+    dbs = dict(
+        [k, dict([i[1:] for i in list(g)])] for k, g in itertools.groupby(sorted(all_info), operator.itemgetter(0)))
+    settings.endGroup()
+    return dbs

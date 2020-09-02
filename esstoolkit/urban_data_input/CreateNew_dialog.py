@@ -25,8 +25,8 @@ from __future__ import absolute_import
 
 import os
 from qgis.PyQt import QtCore, QtWidgets, uic
-from .utility_functions import getQGISDbs
 from .DbSettings_dialog import DbSettingsDialog
+from .. import db_helpers as dbh
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'CreateNew_dialog_base.ui'))
@@ -50,7 +50,7 @@ class CreatenewDialog(QtWidgets.QDialog, FORM_CLASS):
         self.pushButtonSelectLocation.clicked.connect(self.selectSaveLocation)
         self.pushButtonNewFileDLG.clicked.connect(self.createLayer)
 
-        available_dbs = getQGISDbs()
+        available_dbs = dbh.getQGISDbs()
         self.dbsettings_dlg = DbSettingsDialog(available_dbs)
         self.dbsettings_dlg.nameLineEdit.setText('frontages')
 
@@ -135,4 +135,3 @@ class CreatenewDialog(QtWidgets.QDialog, FORM_CLASS):
             self.lineEditFrontages.setDisabled(False)
             self.lineEditFrontages.setPlaceholderText('Specify temporary layer name')
             self.pushButtonSelectLocation.setDisabled(True)
-

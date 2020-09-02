@@ -30,6 +30,7 @@ from qgis.PyQt.QtCore import (QObject, QVariant)
 from qgis.core import (QgsProject, QgsMapLayer, QgsVectorLayer, QgsField, QgsFeature, QgsGeometry, QgsVectorFileWriter, QgsDataSourceUri, QgsVectorLayerExporter, QgsMessageLog, QgsFeatureRequest, QgsVectorDataProvider)
 import processing
 from . import utility_functions as uf
+from .. import layer_field_helpers as lfh
 
 
 class FrontageTool(QObject):
@@ -130,7 +131,7 @@ class FrontageTool(QObject):
     # Get building layer selected in the combo box
     def getSelectedLayer(self):
         layer_name = self.frontagedlg.selectLUCombo.currentText()
-        self.LU_layer = uf.getLegendLayerByName(self.iface, layer_name)
+        self.LU_layer = lfh.getLegendLayerByName(self.iface, layer_name)
         return self.LU_layer
 
     # Set layer as frontage layer and apply thematic style

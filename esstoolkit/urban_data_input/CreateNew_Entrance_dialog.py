@@ -26,8 +26,8 @@ from __future__ import absolute_import
 import os
 
 from qgis.PyQt import QtCore, QtWidgets, uic
-from .utility_functions import getQGISDbs
 from .DbSettings_dialog import DbSettingsDialog
+from .. import db_helpers as dbh
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'CreateNew_Entrance_dialog_base.ui'))
@@ -49,9 +49,9 @@ class CreateNew_EntranceDialog(QtWidgets.QDialog, FORM_CLASS):
         # setup signals
         self.pushButtonSelectLocationEntrance.clicked.connect(self.selectSaveLocationEntrance)
         self.pushButtonEntrancesNewFileDLG.clicked.connect(self.newEntranceLayer)
-        self.closePopUpEntrancesButton.clicked.connect(self.closePopUpEntrances)        
-        
-        available_dbs = getQGISDbs()
+        self.closePopUpEntrancesButton.clicked.connect(self.closePopUpEntrances)
+
+        available_dbs = dbh.getQGISDbs()
         self.dbsettings_dlg = DbSettingsDialog(available_dbs)
         self.dbsettings_dlg.nameLineEdit.setText('entrances')
 

@@ -38,6 +38,7 @@ from . import catchment_analysis as ca
 # Import utility tools
 from . import utility_functions as uf
 from .. import layer_field_helpers as lfh
+from .. import db_helpers as dbh
 
 
 class CatchmentTool(QObject):
@@ -47,7 +48,7 @@ class CatchmentTool(QObject):
 
         self.iface = iface
 
-        self.dlg = CatchmentAnalyserDialog(self.getQGISDbs())
+        self.dlg = CatchmentAnalyserDialog(dbh.getQGISDbs())
         self.analysis = None
         # Setup GUI signals
         self.dlg.networkCombo.activated.connect(self.updateCost)
@@ -79,23 +80,6 @@ class CatchmentTool(QObject):
         # Update layers
         self.updateLayers()
 
-    def getQGISDbs(self):
-        """Return all PostGIS connection settings stored in QGIS
-        :return: connection dict() with name and other settings
-                """
-        settings = QSettings()
-        settings.beginGroup('/PostgreSQL/connections')
-        named_dbs = settings.childGroups()
-        all_info = [i.split("/") + [str(settings.value(i))] for i in settings.allKeys() if
-                    settings.value(i) != NULL and settings.value(i) != '']
-        all_info = [i for i in all_info if
-                    i[0] in named_dbs and i[2] != NULL and i[1] in ['name', 'host', 'service', 'password', 'username',
-                                                                    'port', 'database']]
-        dbs = dict(
-            [k, dict([i[1:] for i in list(g)])] for k, g in itertools.groupby(sorted(all_info), operator.itemgetter(0)))
-        settings.endGroup()
-        return dbs
-
     def updateLayers(self):
         self.updateNetwork()
         self.updateOrigins()
@@ -114,7 +98,8 @@ class CatchmentTool(QObject):
 
     def updateCost(self):
         network = self.getNetwork()
-        self.dlg.setCostFields(uf.getNumericFieldNames(network))
+        txt, idxs = lfh.getNumericFieldNames(network)
+        self.dlg.setCostFields(txt)
 
     def updateName(self):
         origins = self.getOrigins()

@@ -34,6 +34,8 @@ import os
 from .road_network_cleaner_dialog import RoadNetworkCleanerDialog
 from .sGraph.sGraph import * # better give these a name to make it explicit to which module the methods belong
 from .sGraph.utilityFunctions import *
+from .. import layer_field_helpers as lfh
+from .. import db_helpers as dbh
 
 # Import the debug library - required for the cleaning class in separate thread
 # set is_debug to False in release version
@@ -66,7 +68,7 @@ class NetworkCleanerTool(QObject):
 
     def loadGUI(self):
         # create the dialog objects
-        self.dlg = RoadNetworkCleanerDialog(self.getQGISDbs())
+        self.dlg = RoadNetworkCleanerDialog(dbh.getQGISDbs(portlast = True))
 
         # setup GUI signals
         self.dlg.closingPlugin.connect(self.unloadGUI)
@@ -102,25 +104,6 @@ class NetworkCleanerTool(QObject):
             QgsProject.instance().layersRemoved.disconnect(self.updateLayers)
 
         self.dlg = None
-
-    def getQGISDbs(self):
-        """Return all PostGIS connection settings stored in QGIS
-        :return: connection dict() with name and other settings
-        """
-        settings = QSettings()
-        settings.beginGroup('/PostgreSQL/connections')
-        named_dbs = settings.childGroups()
-        all_info = [i.split("/") + [str(settings.value(i))] for i in settings.allKeys() if
-                    settings.value(i) != NULL and settings.value(i) != '']
-        all_info = [i for i in all_info if
-                    i[0] in named_dbs and i[2] != NULL and i[1] in ['name', 'host', 'service', 'password', 'username', 'database',
-                                                                    'port']]
-        dbs = dict(
-            [k, dict([i[1:] for i in list(g)])] for k, g in itertools.groupby(sorted(all_info), operator.itemgetter(0)))
-        QgsMessageLog.logMessage('dbs %s' % str(dbs), level=Qgis.Critical)
-        settings.endGroup()
-
-        return dbs
 
     def getActiveLayers(self):
         layers_list = []
@@ -160,7 +143,7 @@ class NetworkCleanerTool(QObject):
             db_settings = self.dlg.get_dbsettings()
             self.settings.update(db_settings)
 
-        if getLayerByName(self.settings['input']).crs().postgisSrid() == 4326:
+        if lfh.getLayerByName(self.settings['input']).crs().postgisSrid() == 4326:
             self.giveMessage('Re-project the layer. EPSG:4326 not allowed.', Qgis.Info)
             return
         elif self.settings['output'] != '':
@@ -201,7 +184,7 @@ class NetworkCleanerTool(QObject):
 
         output_type = self.settings['output_type']
         #  get settings from layer
-        layer = getLayerByName(layer_name)
+        layer = lfh.getLayerByName(layer_name)
 
         if self.cleaning:
             # clean up the worker and thread
@@ -317,7 +300,7 @@ class NetworkCleanerTool(QObject):
             try:
                 # cleaning settings
                 layer_name = self.settings['input']
-                layer = getLayerByName(layer_name)
+                layer = lfh.getLayerByName(layer_name)
                 snap_threshold = self.settings['snap']
                 break_at_vertices = self.settings['break']
                 merge_type = self.settings['merge']

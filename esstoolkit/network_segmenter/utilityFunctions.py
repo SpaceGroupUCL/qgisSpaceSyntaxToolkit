@@ -8,19 +8,6 @@ import ntpath
 
 # source: ess utility functions
 
-# -------------------------- LAYER HANDLING
-
-
-def getLayerByName(name):
-    layer = None
-    for i in list(QgsProject.instance().mapLayers().values()):
-        if i.name() == name:
-            layer = i
-    return layer
-
-# -------------------------- GEOMETRY HANDLING
-
-
 # -------------------------- FEATURE HANDLING
 
 def prototype_feature(attrs, fields):
@@ -30,47 +17,6 @@ def prototype_feature(attrs, fields):
     feat.setAttributes(attrs)
     feat.setGeometry(QgsGeometry())
     return feat
-
-# -------------------------- POSTGIS INFO RETRIEVAL
-
-
-# SOURCE: ESS TOOLKIT
-
-def getPostgisSchemas(connstring, commit=False):
-    """Execute query (string) with given parameters (tuple)
-    (optionally perform commit to save Db)
-    :return: result set [header,data] or [error] error
-    """
-
-    try:
-        connection = psycopg2.connect(connstring)
-    except psycopg2.Error as e:
-        # fix_print_with_import
-        print(e.pgerror)
-        connection = None
-
-    schemas = []
-    data = []
-    if connection:
-        query = str("""SELECT schema_name from information_schema.schemata;""")
-        cursor = connection.cursor()
-        try:
-            cursor.execute(query)
-            if cursor.description is not None:
-                data = cursor.fetchall()
-            if commit:
-                connection.commit()
-        except psycopg2.Error as e:
-            connection.rollback()
-        cursor.close()
-
-    # only extract user schemas
-    for schema in data:
-        if schema[0] not in ('topology', 'information_schema') and schema[0][:3] != 'pg_':
-            schemas.append(schema[0])
-    #return the result even if empty
-    return sorted(schemas)
-
 
 # -------------------------- LAYER BUILD
 
@@ -89,13 +35,13 @@ def to_layer(features, crs, encoding, geom_type, layer_type, path):
         layer.commitChanges()
 
     elif layer_type == 'shapefile':
-        
+
         wkbTypes = { 'Point': QgsWkbTypes.Point, 'Linestring': QgsWkbTypes.LineString, 'Polygon': QgsWkbTypes.Polygon }
         options = QgsVectorFileWriter.SaveVectorOptions()
         options.driverName = "ESRI Shapefile"
         options.fileEncoding = encoding
         file_writer = QgsVectorFileWriter.create(path, fields, wkbTypes[geom_type], crs, QgsCoordinateTransformContext(), options)
-        
+
         if file_writer.hasError() != QgsVectorFileWriter.NoError:
             print("Error when creating shapefile: ", file_writer.errorMessage())
         del file_writer
@@ -151,6 +97,3 @@ def to_layer(features, crs, encoding, geom_type, layer_type, path):
             print(e)
 
     return layer
-
-
-

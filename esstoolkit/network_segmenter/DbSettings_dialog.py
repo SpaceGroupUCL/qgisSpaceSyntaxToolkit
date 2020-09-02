@@ -30,7 +30,7 @@ from qgis.PyQt import QtWidgets, uic
 from qgis.PyQt.QtCore import pyqtSignal
 #from qgis.core import QgsDataSourceURI
 
-from .utilityFunctions import *
+from .. import db_helpers as dbh
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'DbSettings_dialog_base.ui'))
@@ -83,7 +83,7 @@ class DbSettingsDialog(QtWidgets.QDialog, FORM_CLASS):
         selected_db = self.getSelectedDb()
         if len(self.getSelectedDb()) > 1:
             self.get_connstring(selected_db)
-            schemas = getPostgisSchemas(self.connstring)
+            schemas = dbh.getPostgisSchemas(self.connstring)
             # fix_print_with_import
             # fix_print_with_import
             print('connstring', self.connstring)

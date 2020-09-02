@@ -29,14 +29,6 @@ import ntpath
 import psycopg2
 from psycopg2.extensions import AsIs
 
-def getLayerByName(name):
-    layer = None
-    for i in list(QgsProject.instance().mapLayers().values()):
-        if i.name() == name:
-            layer = i
-    return layer
-
-
 def getLegendLayersNames(iface, geom='all', provider='all'):
     """geometry types: 0 point; 1 line; 2 polygon; 3 multipoint; 4 multiline; 5 multipolygon"""
     layers_list = []
@@ -49,19 +41,6 @@ def getLegendLayersNames(iface, geom='all', provider='all'):
         if add_layer:
             layers_list.append(layer.name())
     return layers_list
-
-
-def getNumericFieldNames(layer, type='all'):
-    field_names = []
-    if type == 'all':
-        types = (QVariant.Int, QVariant.LongLong, QVariant.Double, QVariant.UInt, QVariant.ULongLong)
-    else:
-        types = [type]
-    if layer and layer.dataProvider():
-        for field in layer.dataProvider().fields():
-            if field.type() in types:
-                field_names.append(field.name())
-    return field_names
 
 def check_for_NULL_geom(layer):
     has_null = False
@@ -121,40 +100,6 @@ def createShapeFile(layer, path, crs):
     return shapefile
 
 
-
-def getPostgisSchemas(connstring, commit=False):
-    """Execute query (string) with given parameters (tuple)
-    (optionally perform commit to save Db)
-    :return: result set [header,data] or [error] error
-    """
-
-    try:
-        connection = psycopg2.connect(connstring)
-    except psycopg2.Error as e:
-        print(e.pgerror)
-        connection = None
-
-    schemas = []
-    data = []
-    if connection:
-        query = str("""SELECT schema_name from information_schema.schemata;""")
-        cursor = connection.cursor()
-        try:
-            cursor.execute(query)
-            if cursor.description is not None:
-                data = cursor.fetchall()
-            if commit:
-                connection.commit()
-        except psycopg2.Error as e:
-            connection.rollback()
-        cursor.close()
-
-    # only extract user schemas
-    for schema in data:
-        if schema[0] not in ('topology', 'information_schema') and schema[0][:3] != 'pg_':
-            schemas.append(schema[0])
-    #return the result even if empty
-    return sorted(schemas)
 
 # WRITE -----------------------------------------------------------------
 
@@ -217,4 +162,3 @@ def has_unique_values(column, layer):
             return True
     else:
         return True
-

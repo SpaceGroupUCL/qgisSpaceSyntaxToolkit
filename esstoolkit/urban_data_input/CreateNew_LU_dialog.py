@@ -24,9 +24,9 @@ from __future__ import print_function
 from __future__ import absolute_import
 
 import os
-from .utility_functions import getQGISDbs
 from qgis.PyQt import QtCore, QtWidgets, uic
 from .DbSettings_dialog import DbSettingsDialog
+from .. import db_helpers as dbh
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'CreateNew_LU_dialog_base.ui'))
@@ -50,7 +50,7 @@ class CreateNew_LUDialog(QtWidgets.QDialog, FORM_CLASS):
         self.pushButtonLUNewFileDLG.clicked.connect(self.newLULayer)
         self.closePopUpLUButton.clicked.connect(self.closePopUpLU)
 
-        available_dbs = getQGISDbs()
+        available_dbs = dbh.getQGISDbs(portlast = True)
         self.dbsettings_dlg = DbSettingsDialog(available_dbs)
         self.dbsettings_dlg.nameLineEdit.setText('landuse')
 

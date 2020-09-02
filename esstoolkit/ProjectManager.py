@@ -29,7 +29,8 @@ from qgis.PyQt.QtWidgets import QDialog
 
 import os.path
 
-from . import utility_functions as uf
+from . import shapefile_helpers as shph
+from . import db_helpers as dbh
 
 # import project settings dialog
 from .ui_Project import Ui_ProjectDialog
@@ -287,15 +288,15 @@ class ProjectDialog(QDialog, Ui_ProjectDialog):
     def loadDatastoreList(self):
         # get list of datastores from loaded layers or existing database connections
         if self.datastore_type == 0:
-            self.datastores = uf.listShapeFolders()
+            self.datastores = shph.listShapeFolders()
         elif self.datastore_type == 1:
-            self.datastores = uf.listSpatialiteConnections()
+            self.datastores = dbh.listSpatialiteConnections()
         elif self.datastore_type == 2:
-            con_settings = uf.getPostgisConnectionSettings()
+            con_settings = dbh.getPostgisConnectionSettings()
             if len(con_settings) > 0:
                 self.datastores = dict()
                 self.datastores['name'] = [con['name'] for con in con_settings]
-                self.datastores['idx'] = self.datastores['name'].index(uf.getPostgisSelectedConnection())
+                self.datastores['idx'] = self.datastores['name'].index(dbh.getPostgisSelectedConnection())
                 path = []
                 for con in con_settings:
                     if con['database']!='NULL':
@@ -378,8 +379,8 @@ class ProjectDialog(QDialog, Ui_ProjectDialog):
     def loadSchemaList(self, name):
         if name:
             # get schemas for selected database
-            connection = uf.getPostgisConnection(name)
-            self.datastores['schema'] = uf.listPostgisSchemas(connection)
+            connection = dbh.getPostgisConnection(name)
+            self.datastores['schema'] = dbh.listPostgisSchemas(connection)
             connection.close()
             #
             self.schemaCombo.blockSignals(True)
@@ -422,7 +423,7 @@ class ProjectDialog(QDialog, Ui_ProjectDialog):
                     append = False
                 #if not, create new connection in registry
                 else:
-                    uf.createSpatialiteConnection(name, path)
+                    dbh.createSpatialiteConnection(name, path)
         if path != "" and name != "":
             #store the path used
             self.settings.setLastDir(path)
@@ -452,8 +453,8 @@ class ProjectDialog(QDialog, Ui_ProjectDialog):
                     self.iface.messageBar().pushMessage("Error","A database already exists with the same name.",level = 1,duration = 5)
                 #if not, create new connection in registry
                 else:
-                    uf.createSpatialiteConnection(name, path)
-                    uf.createSpatialiteDatabase(path)
+                    dbh.createSpatialiteConnection(name, path)
+                    dbh.createSpatialiteDatabase(path)
         if path != "" and name != "":
             #store the path used
             self.settings.setLastDir(path)

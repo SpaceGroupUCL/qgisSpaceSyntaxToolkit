@@ -39,6 +39,8 @@ import math
 import sys
 from itertools import zip_longest
 
+from . import layer_field_helpers as lfh
+
 #---------------------------------------------
 # Shape file specific functions
 #---------------------------------------------
@@ -48,7 +50,7 @@ def listShapeFolders():
     res['idx'] = 0
     res['name'] = []
     res['path'] = []
-    layers = getVectorLayers('all', 'ogr')
+    layers = lfh.getVectorLayers('all', 'ogr')
     for layer in layers:
         provider = layer.dataProvider()
         if layer.storageType() == 'ESRI Shapefile':
@@ -265,4 +267,3 @@ def addShapeFileAttributes(layer, attributes, types, values):
             if res:
                 layer.updateFields()
     return res
-

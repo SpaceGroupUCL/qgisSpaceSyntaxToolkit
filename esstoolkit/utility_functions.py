@@ -37,12 +37,6 @@ from itertools import zip_longest
 # General functions
 #------------------------------
 
-# Return iterator with items of iterable grouped by n
-def grouper(iterable, n, fillvalue=None):
-    args = [iter(iterable)] * n
-    return zip_longest(*args, fillvalue=fillvalue)
-
-
 # check if a text string is of numeric type
 def isNumeric(txt):
     try:
@@ -204,4 +198,3 @@ def calcPvalue(x, y):
             ydiff2 += ydiff * ydiff
         pearson = diffprod / math.sqrt(xdiff2 * ydiff2)
     return pearson
-

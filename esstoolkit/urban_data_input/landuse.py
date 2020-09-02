@@ -26,8 +26,9 @@ from __future__ import print_function
 from builtins import str
 import os
 from qgis.PyQt.QtCore import (QObject, QVariant)
-from qgis.core import (Qgis, QgsField, QgsProject, QgsMapLayer, QgsVectorLayer, QgsFeature, QgsVectorFileWriter, QgsDataSourceUri, QgsVectorLayerExporter, QgsMessageLog, QgsFeatureRequest)
+from qgis.core import (Qgis, QgsField, QgsProject, QgsMapLayer, QgsVectorLayer, QgsFeature, QgsVectorFileWriter, QgsDataSourceUri, QgsVectorLayerExporter, QgsMessageLog, QgsFeatureRequest, NULL)
 from . import utility_functions as uf
+from .. import layer_field_helpers as lfh
 
 is_debug = False
 
@@ -121,7 +122,7 @@ class LanduseTool(QObject):
 
     def getSelectedLULayer(self):
         layer_name = self.ludlg.selectbuildingCombo.currentText()
-        self.building_layer = uf.getLegendLayerByName(self.iface, layer_name)
+        self.building_layer = lfh.getLegendLayerByName(self.iface, layer_name)
         return self.building_layer
 
 # Update the F_ID column of the Frontage layer

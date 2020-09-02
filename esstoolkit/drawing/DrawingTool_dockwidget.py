@@ -31,7 +31,8 @@ from qgis.core import (QgsProject, QgsSnappingConfig, QgsTolerance, Qgis)
 from qgis.PyQt.QtGui import (QPixmap, QIcon)
 
 from qgis.PyQt import (QtWidgets, uic)
-from .utility_functions import *
+
+from .. import layer_field_helpers as lfh
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'DrawingTool_dockwidget_base.ui'))
@@ -160,7 +161,7 @@ class DrawingToolDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             # fix_print_with_import
             print(proj, 'ax')
             proj.writeEntry('Digitizing', 'SnappingMode', 'advanced')
-            layer = getLayerByName(self.settings[0])
+            layer = lfh.getLayerByName(self.settings[0])
             self.iface.setActiveLayer(layer)
             #if layer.isEditable():
             #    layer.commitChanges()
@@ -194,7 +195,7 @@ class DrawingToolDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             # fix_print_with_import
             print(proj, 'seg')
             proj.writeEntry('Digitizing', 'SnappingMode', 'advanced')
-            layer = getLayerByName(self.settings[0])
+            layer = lfh.getLayerByName(self.settings[0])
             self.iface.setActiveLayer(layer)
             #if layer.isEditable():
             #    layer.commitChanges()
@@ -217,7 +218,7 @@ class DrawingToolDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
     def setUnlinkSnapping(self):
         # disable previous snapping setting if segment
         self.resetSnapping()
-        
+
         # snap to vertex
         if self.settings[1] != 'no unlinks':
             self.resetIcons()
@@ -229,8 +230,8 @@ class DrawingToolDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             # fix_print_with_import
             print(proj, 'un')
             proj.writeEntry('Digitizing', 'SnappingMode', 'advanced')
-            layer = getLayerByName(self.settings[0])
-            unlinks_layer = getLayerByName(self.settings[1])
+            layer = lfh.getLayerByName(self.settings[0])
+            unlinks_layer = lfh.getLayerByName(self.settings[1])
             #if unlinks_layer.isEditable():
             #    unlinks_layer.commitChanges()
             #else:
@@ -249,7 +250,7 @@ class DrawingToolDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             self.iface.messageBar().pushMessage("Unlinks layer not specified!", Qgis.Critical, duration=5)
             self.unlink_mode = False
         return
-        
+
     def resetSnapping(self):
         self.unlink_mode = False
         # disable previous snapping setting
@@ -257,7 +258,7 @@ class DrawingToolDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         snapConfig = QgsSnappingConfig()
         if self.settings[0] != '' and self.settings[0]:
             #proj.writeEntry('Digitizing', 'SnappingMode', 'advanced')
-            layer = getLayerByName(self.settings[0])
+            layer = lfh.getLayerByName(self.settings[0])
             if layer: # layer might have been removed
                 snapConfig.setMode(QgsSnappingConfig.AdvancedConfiguration)
                 layerSnapConfig =  QgsSnappingConfig.IndividualLayerSettings(False, QgsSnappingConfig.Vertex,  self.settings[2], QgsTolerance.LayerUnits)
@@ -265,7 +266,7 @@ class DrawingToolDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 proj.setAvoidIntersectionsLayers([layer])
         if self.settings[1] != 'no unlinks' and self.settings[1]:
             #proj.writeEntry('Digitizing', 'SnappingMode', 'advanced')
-            layer = getLayerByName(self.settings[1])
+            layer = lfh.getLayerByName(self.settings[1])
             if layer:
                 snapConfig.setMode(QgsSnappingConfig.AdvancedConfiguration)
                 layerSnapConfig =  QgsSnappingConfig.IndividualLayerSettings(False, QgsSnappingConfig.Vertex,  self.settings[2], QgsTolerance.LayerUnits)
@@ -290,5 +291,3 @@ class DrawingToolDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
     def closeEvent(self, event):
         self.closingPlugin.emit()
         event.accept()
-
-
