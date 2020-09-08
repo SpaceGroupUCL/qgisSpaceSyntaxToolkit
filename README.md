@@ -30,3 +30,7 @@ If you encounter problems when using the software, please check the [Wiki](https
 * The toolkit source code can be downloaded from the 'esstoolkit' folder.
 * Documentation can be obtained from the 'documents' folder.
 * A sample dataset is in the 'data' folder, for experimenting with the plugin and following the documentation.
+
+## Development notes:
+* Development of this module has been done primarily using PyCharm, with the top folder (qgisSpaceSyntaxToolkit) selected and the QGIS python selected as an interpreter. This allows for having a similar module loading process as QGIS itself.
+* Unit tests reside in the esstoolkit/tests directory, but have to be carrie out from the top directory of the repository (qgisSpaceSyntaxToolkit).
