@@ -23,6 +23,7 @@
 """
 from __future__ import absolute_import
 
+
 def classFactory(iface):
     # load essToolkit class from file essToolkit
     from .EssToolkit import EssToolkit
