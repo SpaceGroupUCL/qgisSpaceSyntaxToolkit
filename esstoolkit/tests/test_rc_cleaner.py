@@ -6,7 +6,7 @@ from qgis.core import QgsProject
 
 from rcl_cleaner.sGraph.sGraph import sGraph
 from rcl_cleaner.sGraph.utilityFunctions import (clean_features_iter, to_layer)
-import layer_field_helpers as lfh
+from utilities import layer_field_helpers as lfh
 
 # parameters
 layer_name = 'gb_roadlink_test'

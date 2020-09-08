@@ -28,7 +28,7 @@ import os
 from qgis.PyQt import QtWidgets, uic
 from qgis.PyQt.QtCore import pyqtSignal
 
-from .. import db_helpers as dbh
+from utilities import db_helpers as dbh
 
 # from qgis.core import QgsDataSourceURI
 

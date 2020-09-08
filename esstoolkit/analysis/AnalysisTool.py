@@ -38,8 +38,7 @@ from .AnalysisDialog import AnalysisDialog
 from .AxialVerification import *
 from .DepthmapAnalysis import *
 from .UnlinksVerification import *
-from .. import layer_field_helpers as lfh
-from .. import shapefile_helpers as shph
+from utilities import layer_field_helpers as lfh, shapefile_helpers as shph
 
 
 class AnalysisTool(QObject):

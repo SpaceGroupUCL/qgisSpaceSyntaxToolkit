@@ -23,7 +23,6 @@
 """
 from __future__ import absolute_import
 
-import numpy as np
 # Import the PyQt and QGIS libraries
 from qgis.core import (QgsProject, NULL)
 
@@ -31,8 +30,7 @@ from .AttributeCharts import *
 from .AttributeSymbology import *
 # Import required modules
 from .ExplorerDialog import ExplorerDialog
-from .. import layer_field_helpers as lfh
-from .. import utility_functions as uf
+from utilities import layer_field_helpers as lfh, utility_functions as uf
 
 
 class ExplorerTool(QObject):

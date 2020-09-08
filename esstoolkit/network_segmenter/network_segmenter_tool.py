@@ -39,8 +39,7 @@ import itertools
 from .network_segmenter_dialog import NetworkSegmenterDialog
 from .segment_tools import segmentor
 from . import utilityFunctions as uf
-from .. import layer_field_helpers as lfh
-from .. import db_helpers as dbh
+from utilities import db_helpers as dbh, layer_field_helpers as lfh
 
 # Import the debug library - required for the cleaning class in separate thread
 # set is_debug to False in release version

@@ -29,8 +29,7 @@ from qgis.PyQt import QtCore, QtWidgets
 from qgis.PyQt.QtWidgets import QDialog
 from qgis.core import QgsProject
 
-from . import db_helpers as dbh
-from . import shapefile_helpers as shph
+from utilities import db_helpers as dbh, shapefile_helpers as shph
 # import project settings dialog
 from .ui_Project import Ui_ProjectDialog
 

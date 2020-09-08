@@ -29,7 +29,7 @@ from qgis.PyQt import QtCore, QtWidgets
 from .DepthmapAdvancedDialog import DepthmapAdvancedDialog
 from .VerificationSettingsDialog import VerificationSettingsDialog
 from .ui_Analysis import Ui_AnalysisDialog
-from .. import layer_field_helpers as lfh
+from utilities import layer_field_helpers as lfh
 
 
 class AnalysisDialog(QtWidgets.QDockWidget, Ui_AnalysisDialog):

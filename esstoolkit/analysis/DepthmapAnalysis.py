@@ -29,8 +29,7 @@ from builtins import zip
 from qgis.PyQt.QtCore import (QObject, QThread, pyqtSignal, QVariant)
 from qgis.core import (NULL, QgsVertexId)
 
-from .. import layer_field_helpers as lfh
-from .. import utility_functions as uf
+from utilities import layer_field_helpers as lfh, utility_functions as uf
 
 
 class DepthmapAnalysis(QObject):

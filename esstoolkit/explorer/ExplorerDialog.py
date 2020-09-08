@@ -41,7 +41,7 @@ except ImportError as e:
     except ImportError as e:
         has_pyqtgraph = False
 
-from .. import utility_functions as uf
+from utilities import utility_functions as uf
 
 
 class ExplorerDialog(QtWidgets.QDockWidget, Ui_ExplorerDialog):

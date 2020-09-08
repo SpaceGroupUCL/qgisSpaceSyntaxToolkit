@@ -508,13 +508,13 @@ def copyLayerToSpatialite(connection, layer, path, name):
     if len(fields) > 0:
         fields = ', %s' % fields
     executeSpatialiteQuery(connection,
-                                                 """CREATE TABLE "%s" ( pk_id INTEGER PRIMARY KEY AUTOINCREMENT %s )""" % (
-                                                     name, fields))
+                           """CREATE TABLE "%s" ( pk_id INTEGER PRIMARY KEY AUTOINCREMENT %s )""" % (
+                               name, fields))
     # Recover Geometry Column:
     if geometry:
         executeSpatialiteQuery(connection,
-                                                     """SELECT RecoverGeometryColumn("%s",'geometry',%s,'%s',2)""" % (
-                                                         name, srid, geometry,))
+                               """SELECT RecoverGeometryColumn("%s",'geometry',%s,'%s',2)""" % (
+                                   name, srid, geometry,))
     # Retrieve every feature
     for feat in layer.getFeatures():
         # PKUID and Geometry
@@ -531,19 +531,19 @@ def copyLayerToSpatialite(connection, layer, path, name):
         if len(fields) > 0:
             executeSpatialiteQuery(connection, """INSERT INTO "%s" VALUES (%s,%s)""" % (
                 name, ','.join([str(value).encode('utf-8') for value in values_auto]), ','.join('?' * len(values))),
-                                                         tuple([str(value) for value in values]))
+                                   tuple([str(value) for value in values]))
         else:  # no attribute data
             executeSpatialiteQuery(connection, """INSERT INTO "%s" VALUES (%s)""" % (
                 name, ','.join([str(value).encode('utf-8') for value in values_auto])))
     for date in mapinfoDate:  # mapinfo compatibility: convert date in SQLITE format (2010/02/11 -> 2010-02-11 ) or rollback if any error
         executeSpatialiteQuery(connection,
-                                                     """UPDATE OR ROLLBACK "%s" set '%s'=replace( "%s", '/' , '-' )  """ % (
-                                                         name, date[1], date[1]))
+                               """UPDATE OR ROLLBACK "%s" set '%s'=replace( "%s", '/' , '-' )  """ % (
+                                   name, date[1], date[1]))
     # Commit changes to connection:
     connection.commit()
     # create spatial index
     executeSpatialiteQuery(connection,
-                                                 """SELECT CreateSpatialIndex("%s", "%s") """ % (name, 'geometry'))
+                           """SELECT CreateSpatialIndex("%s", "%s") """ % (name, 'geometry'))
     return True
 
 
@@ -881,7 +881,7 @@ def createPostgisTable(connection, schema, name, srid, attributes, types, geomet
     res = True
     # Drop table
     executePostgisQuery(connection,
-                                              """DROP TABLE IF EXISTS "%s"."%s" CASCADE """ % (schema, name))
+                        """DROP TABLE IF EXISTS "%s"."%s" CASCADE """ % (schema, name))
     # Get the fields
     fields = []
     for i, type in enumerate(types):
@@ -917,8 +917,8 @@ def createPostgisTable(connection, schema, name, srid, attributes, types, geomet
         # Add the geometry column:
         if geometry:
             executePostgisQuery(connection,
-                                                      """ALTER TABLE "%s"."%s" ADD COLUMN geom geometry('%s', %s) """ % (
-                                                          schema, name, geometry, srid))
+                                """ALTER TABLE "%s"."%s" ADD COLUMN geom geometry('%s', %s) """ % (
+                                    schema, name, geometry, srid))
             idx_name = name.lower().replace(" ", "_")
             header, data, error = executePostgisQuery(connection,
                                                       """CREATE INDEX %s_gix ON "%s"."%s" USING GIST (geom) """ % (

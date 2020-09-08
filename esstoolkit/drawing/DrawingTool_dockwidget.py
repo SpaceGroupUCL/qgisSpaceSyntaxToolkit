@@ -31,7 +31,7 @@ from qgis.PyQt.QtCore import (pyqtSignal, QSize)
 from qgis.PyQt.QtGui import (QPixmap, QIcon)
 from qgis.core import (QgsProject, QgsSnappingConfig, QgsTolerance, Qgis)
 
-from .. import layer_field_helpers as lfh
+from utilities import layer_field_helpers as lfh
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'DrawingTool_dockwidget_base.ui'))

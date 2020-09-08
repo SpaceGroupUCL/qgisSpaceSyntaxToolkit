@@ -1,6 +1,6 @@
 import unittest
 
-import utility_functions as uf
+from utilities import utility_functions as uf
 
 
 class TestUtilityFunctions(unittest.TestCase):

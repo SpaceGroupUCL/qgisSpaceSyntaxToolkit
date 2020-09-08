@@ -30,7 +30,7 @@ from qgis.PyQt.QtCore import (QObject, QVariant)
 from qgis.core import (Qgis, QgsField, QgsProject, QgsMapLayer, QgsVectorLayer, QgsFeature, QgsVectorFileWriter,
                        QgsDataSourceUri, QgsVectorLayerExporter, QgsMessageLog, QgsFeatureRequest, NULL)
 
-from .. import layer_field_helpers as lfh
+from utilities import layer_field_helpers as lfh
 
 is_debug = False
 
