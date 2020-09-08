@@ -27,8 +27,9 @@ import math
 from qgis.PyQt.QtCore import QObject
 from qgis.core import (QgsProject, QgsMapLayer, QgsWkbTypes, QgsFeature, QgsGeometry, QgsPoint)
 
+from esstoolkit.utilities import gui_helpers as guih
+from esstoolkit.utilities.exceptions import BadInputError
 from .network_transformer_dialog import NetworkTransformerDialog
-from utilities import gui_helpers as guih
 
 
 # analysis class

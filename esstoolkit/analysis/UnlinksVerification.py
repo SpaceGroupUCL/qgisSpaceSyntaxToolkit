@@ -31,7 +31,7 @@ from builtins import zip
 from qgis.PyQt.QtCore import (QThread, QVariant, pyqtSignal)
 from qgis.core import (QgsFeatureRequest, NULL, QgsWkbTypes)
 
-from utilities import db_helpers as dbh, layer_field_helpers as lfh
+from esstoolkit.utilities import db_helpers as dbh, layer_field_helpers as lfh
 
 # Import the debug library
 is_debug = False

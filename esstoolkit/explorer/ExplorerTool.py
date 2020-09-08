@@ -30,7 +30,7 @@ from .AttributeCharts import *
 from .AttributeSymbology import *
 # Import required modules
 from .ExplorerDialog import ExplorerDialog
-from utilities import layer_field_helpers as lfh, utility_functions as uf
+from esstoolkit.utilities import layer_field_helpers as lfh, utility_functions as uf
 
 
 class ExplorerTool(QObject):

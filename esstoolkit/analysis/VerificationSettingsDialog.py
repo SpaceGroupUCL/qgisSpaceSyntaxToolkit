@@ -26,7 +26,7 @@ from builtins import str
 from qgis.PyQt import QtWidgets
 
 from .ui_VerificationSettings import Ui_VerificationSettingsDialog
-from utilities import utility_functions as uf
+from esstoolkit.utilities import utility_functions as uf
 
 
 class VerificationSettingsDialog(QtWidgets.QDialog, Ui_VerificationSettingsDialog):

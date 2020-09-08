@@ -35,7 +35,7 @@ import os
 from .road_network_cleaner_dialog import RoadNetworkCleanerDialog
 from .sGraph.sGraph import *  # better give these a name to make it explicit to which module the methods belong
 from .sGraph.utilityFunctions import *
-from utilities import db_helpers as dbh, layer_field_helpers as lfh
+from esstoolkit.utilities import db_helpers as dbh, layer_field_helpers as lfh
 
 # Import the debug library - required for the cleaning class in separate thread
 # set is_debug to False in release version

@@ -6,7 +6,7 @@ from qgis.core import (QgsSpatialIndex, QgsGeometry, QgsFeature, QgsFields, QgsF
 import catchment_analyser.catchment_analysis as catchment
 import catchment_analyser.utility_functions as uf
 from catchment_analyser.analysis_tools import CustomCost
-from utilities import layer_field_helpers as lfh
+from esstoolkit.utilities import layer_field_helpers as lfh
 
 origin_vector = lfh.getLayerByName('2595D_pr_tfl_bus_stops')
 network = lfh.getLayerByName('2595D_spm_pr2_seg2')

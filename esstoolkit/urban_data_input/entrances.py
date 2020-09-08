@@ -30,7 +30,7 @@ from qgis.PyQt.QtCore import (QObject, QVariant)
 from qgis.core import (QgsProject, QgsVectorLayer, QgsField, QgsCoordinateReferenceSystem, QgsVectorFileWriter,
                        QgsDataSourceUri, QgsVectorLayerExporter, QgsMessageLog, QgsMapLayer, Qgis)
 
-from utilities import layer_field_helpers as lfh
+from esstoolkit.utilities import layer_field_helpers as lfh
 
 
 class EntranceTool(QObject):

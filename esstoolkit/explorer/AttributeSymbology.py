@@ -30,7 +30,7 @@ from qgis.PyQt.QtGui import QColor
 from qgis.core import (QgsSymbol, QgsFillSymbol, QgsGraduatedSymbolRenderer, QgsRendererRange, QgsRenderContext,
                        QgsGradientColorRamp, QgsGradientStop)
 
-from utilities import gui_helpers as guih
+from esstoolkit.utilities import gui_helpers as guih
 
 
 class AttributeSymbology(QObject):

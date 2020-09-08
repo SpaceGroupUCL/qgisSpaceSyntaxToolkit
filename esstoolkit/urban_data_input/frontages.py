@@ -32,7 +32,7 @@ from qgis.core import (QgsProject, QgsMapLayer, QgsVectorLayer, QgsField, QgsFea
                        QgsDataSourceUri, QgsVectorLayerExporter, QgsMessageLog, QgsFeatureRequest,
                        QgsVectorDataProvider, NULL, QgsWkbTypes, Qgis)
 
-from utilities import layer_field_helpers as lfh
+from esstoolkit.utilities import layer_field_helpers as lfh
 
 
 class FrontageTool(QObject):

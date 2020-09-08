@@ -63,14 +63,14 @@ from .ProjectManager import ProjectManager
 ###########
 ###########
 # Import esstoolkit tool modules
-from .analysis import AnalysisTool
-from .explorer import ExplorerTool
-from .gate_transformer import TransformerAnalysis
-from .rcl_cleaner import road_network_cleaner_tool
-from .catchment_analyser import CatchmentAnalyser
-from .urban_data_input import urban_data_input_tool
-from .network_segmenter import network_segmenter_tool
-from .drawing import DrawingTool
+from esstoolkit.analysis import AnalysisTool
+from esstoolkit.explorer import ExplorerTool
+from esstoolkit.gate_transformer import TransformerAnalysis
+from esstoolkit.rcl_cleaner import road_network_cleaner_tool
+from esstoolkit.catchment_analyser import CatchmentAnalyser
+from esstoolkit.urban_data_input import urban_data_input_tool
+from esstoolkit.network_segmenter import network_segmenter_tool
+from esstoolkit.drawing import DrawingTool
 
 
 # import additional modules here

@@ -1,6 +1,6 @@
 import unittest
 
-from utilities import utility_functions as uf
+from esstoolkit.utilities import utility_functions as uf
 
 
 class TestUtilityFunctions(unittest.TestCase):

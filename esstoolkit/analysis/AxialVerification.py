@@ -31,7 +31,7 @@ from builtins import zip
 from qgis.PyQt.QtCore import (QThread, pyqtSignal)
 from qgis.core import (QgsGeometry, QgsFeatureRequest)
 
-from utilities import db_helpers as dbh, layer_field_helpers as lfh
+from esstoolkit.utilities import db_helpers as dbh, layer_field_helpers as lfh
 
 # try to import installed networkx, if not available use the one shipped with the esstoolkit
 try:

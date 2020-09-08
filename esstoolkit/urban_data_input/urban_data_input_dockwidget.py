@@ -33,7 +33,7 @@ from qgis.core import QgsProject
 from .CreateNew_Entrance_dialog import CreateNew_EntranceDialog
 from .CreateNew_LU_dialog import CreateNew_LUDialog
 from .CreateNew_dialog import CreatenewDialog
-from utilities import layer_field_helpers as lfh
+from esstoolkit.utilities import layer_field_helpers as lfh
 
 FORM_CLASS, _ = loadUiType(os.path.join(
     os.path.dirname(__file__), 'urban_data_input_dockwidget_base.ui'))
