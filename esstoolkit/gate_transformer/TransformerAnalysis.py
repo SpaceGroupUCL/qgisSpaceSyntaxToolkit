@@ -50,7 +50,7 @@ class GateTransformer(QObject):
     # prepare the dialog
     def load_gui(self):
         # put current layers into comboBox
-        self.dlg.update_layer(self.get_layers())
+        self.dlg.update_layer(GateTransformer.get_layers())
         # show the dialog
         self.dlg.show()
 
@@ -62,7 +62,8 @@ class GateTransformer(QObject):
             self.dlg.run_button.clicked.disconnect(self.run_method)
             self.dlg.close_button.clicked.disconnect(self.close_method)
 
-    def get_layers(self):
+    @staticmethod
+    def get_layers():
         layers = list(QgsProject.instance().mapLayers().values())
         layer_objects = []
         for layer in layers:
@@ -71,31 +72,59 @@ class GateTransformer(QObject):
 
         return layer_objects
 
-    ################################# run and close methods #############################
     def run_method(self):
         layer = self.dlg.get_layer()
         transformation, value = self.dlg.get_transformation()
 
-        if transformation == 1:
-            self.rotate_line02(layer, value)
-            # self.close_method()
+        try:
+            if transformation == 1:
+                self.rotate_line(layer, value)
 
-        elif transformation == 2:
-            self.resize_line02(layer, value)
-            # self.close_method()
+            elif transformation == 2:
+                self.resize_line(layer, value)
 
-        elif transformation == 3:
-            self.rescale_line02(layer, value)
-            # self.close_method()
+            elif transformation == 3:
+                self.rescale_line(layer, value)
+        except BadInputError as e:
+            guih.showMessage(self.iface, str(e))
 
         # self.close_method()
 
     def close_method(self):
         self.dlg.close()
 
-    ########################### transformation block ########################
-    # rotate_line_scripts
-    def rotate_line02(self, layer, value):
+    @staticmethod
+    def check_singlepart_lines(layer):
+
+        # do not allow non-line layers
+        if layer.geometryType() != QgsWkbTypes.LineGeometry:
+            raise BadInputError("Only line layers can be resized")
+
+        # QGis 3 imports shapefiles as MultiLineStrings by default so this check only fails if there are actually
+        # multi-part features or if a linestring contains more than two vertices
+        for feature in layer.getFeatures():
+            geom = feature.geometry()
+            if geom.isMultipart():  # line is multi-part, pick first part
+                polys = geom.asMultiPolyline()
+                if len(polys) == 0:
+                    raise BadInputError(
+                        "Feature with id " + str(feature.id()) + " has no line geometry, please correct")
+                if len(polys) > 1:
+                    raise BadInputError(
+                        "Feature with id " + str(feature.id()) +
+                        " contains more than 1 line, please correct")
+                pt = polys[0]
+            else:
+                pt = geom.asPolyline()
+            if len(pt) < 2:
+                raise BadInputError(
+                    "Line with id " + str(feature.id()) + " has fewer than 2 vertices, please correct")
+            if len(pt) > 2:
+                raise BadInputError(
+                    "Line with id " + str(feature.id()) + " has more than 2 vertices, please correct")
+
+    @staticmethod
+    def rotate_line(layer, value):
 
         layer.startEditing()
         layer.selectAll()
@@ -110,17 +139,22 @@ class GateTransformer(QObject):
         layer.reload()
         layer.removeSelection()
 
-    # resize_line_scripts
-    def resize_line02(self, layer, value):
+    @staticmethod
+    def resize_line(layer, value):
+
+        GateTransformer.check_singlepart_lines(layer)
 
         layer.startEditing()
         layer.selectAll()
 
         set_length = value
 
-        for i in layer.selectedFeatures():
-            geom = i.geometry()
-            pt = geom.asPolyline()
+        for feature in layer.selectedFeatures():
+            geom = feature.geometry()
+            if geom.isMultipart():  # line is multi-part, pick first part
+                pt = geom.asMultiPolyline()[0]
+            else:
+                pt = geom.asPolyline()
             dy = pt[1][1] - pt[0][1]
             dx = pt[1][0] - pt[0][0]
             angle = math.atan2(dy, dx)
@@ -131,23 +165,28 @@ class GateTransformer(QObject):
             endy = geom.centroid().asPoint()[1] - ((0.5 * length * set_length / length) * math.sin(angle))
             n_geom = QgsFeature()
             n_geom.setGeometry(QgsGeometry.fromPolyline([QgsPoint(startx, starty), QgsPoint(endx, endy)]))
-            layer.changeGeometry(i.id(), n_geom.geometry())
+            layer.changeGeometry(feature.id(), n_geom.geometry())
 
         layer.updateExtents()
         layer.reload()
         layer.removeSelection()
 
-    # rescale_line_scripts
-    def rescale_line02(self, layer, value):
+    @staticmethod
+    def rescale_line(layer, value):
+
+        GateTransformer.check_singlepart_lines(layer)
 
         layer.startEditing()
         layer.selectAll()
 
         set_scale = value
 
-        for i in layer.selectedFeatures():
-            geom = i.geometry()
-            pt = geom.asPolyline()
+        for feature in layer.selectedFeatures():
+            geom = feature.geometry()
+            if geom.isMultipart():  # line is multi-part, pick first part
+                pt = geom.asMultiPolyline()[0]
+            else:
+                pt = geom.asPolyline()
             dy = pt[1][1] - pt[0][1]
             dx = pt[1][0] - pt[0][0]
             angle = math.atan2(dy, dx)
@@ -158,7 +197,7 @@ class GateTransformer(QObject):
             endy = geom.centroid().asPoint()[1] - ((0.5 * length * set_scale) * math.sin(angle))
             new_geom = QgsFeature()
             new_geom.setGeometry(QgsGeometry.fromPolyline([QgsPoint(startx, starty), QgsPoint(endx, endy)]))
-            layer.changeGeometry(i.id(), new_geom.geometry())
+            layer.changeGeometry(feature.id(), new_geom.geometry())
 
         layer.updateExtents()
         layer.reload()
