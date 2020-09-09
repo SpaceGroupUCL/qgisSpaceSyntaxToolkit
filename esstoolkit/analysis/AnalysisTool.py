@@ -660,6 +660,7 @@ class AnalysisTool(QObject):
                                                     "Do not close QGIS or depthmapXnet while the analysis is running!",
                                                     level=0, duration=5)
                 # start the analysis by sending the command and starting the timer
+                self.socket.sendData(command)
                 # timer to check if results are ready, in milliseconds
                 self.timer.start(1000)
                 self.running_analysis = 'axial'
