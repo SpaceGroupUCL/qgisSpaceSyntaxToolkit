@@ -170,6 +170,7 @@ class DrawingToolDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             layerSnapConfig = QgsSnappingConfig.IndividualLayerSettings(False, QgsSnappingConfig.Vertex,
                                                                         self.settings[2], QgsTolerance.LayerUnits)
             snapConfig.setIndividualLayerSettings(layer, layerSnapConfig)
+            snapConfig.setEnabled(False)
             proj.setAvoidIntersectionsLayers([layer])
             proj.setSnappingConfig(snapConfig)
             proj.setTopologicalEditing(False)
@@ -207,6 +208,7 @@ class DrawingToolDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             snapConfig.setIndividualLayerSettings(layer, layerSnapConfig)
             proj.setAvoidIntersectionsLayers([layer])
             snapConfig.setIntersectionSnapping(False)
+            snapConfig.setEnabled(True)
             proj.setSnappingConfig(snapConfig)
             proj.setTopologicalEditing(True)
             self.segment_mode = True
@@ -244,6 +246,7 @@ class DrawingToolDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             snapConfig.setIndividualLayerSettings(layer, layerSnapConfig)
             proj.setAvoidIntersectionsLayers([layer])
             snapConfig.setIntersectionSnapping(True)
+            snapConfig.setEnabled(True)
             QgsProject.instance().setSnappingConfig(snapConfig)
             proj.setTopologicalEditing(False)
             self.unlink_mode = True
