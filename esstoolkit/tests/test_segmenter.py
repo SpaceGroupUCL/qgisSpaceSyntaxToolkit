@@ -9,7 +9,7 @@ qgs = QgsApplication([], False)
 qgs.initQgis()
 
 
-class TestGateTransformer(unittest.TestCase):
+class TestNetworkSegmenter(unittest.TestCase):
 
     @staticmethod
     def make_geometry_feature_layer(layertype: str, geometries):
@@ -26,7 +26,7 @@ class TestGateTransformer(unittest.TestCase):
 
         error_tolerance = 0.0001
 
-        vl = TestGateTransformer.make_geometry_feature_layer(
+        vl = TestNetworkSegmenter.make_geometry_feature_layer(
             "LineString",
             [QgsLineString([QgsPoint(535088.141198, 185892.128181),
                             QgsPoint(535037.617992, 186342.145327)]),
@@ -35,7 +35,7 @@ class TestGateTransformer(unittest.TestCase):
              QgsLineString([QgsPoint(534952.224080, 186285.463215),
                             QgsPoint(535248.881516, 185907.343107)])])
 
-        ul = TestGateTransformer.make_geometry_feature_layer(
+        ul = TestNetworkSegmenter.make_geometry_feature_layer(
             "Point", [
                 QgsPoint(535067.772756, 186147.054373),  # invalid unlink
                 QgsPoint(535059.304801, 186148.977932)  # valid unlink
