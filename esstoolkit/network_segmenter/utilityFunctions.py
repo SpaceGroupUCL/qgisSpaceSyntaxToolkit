@@ -86,7 +86,7 @@ def to_layer(features, crs, encoding, geom_type, layer_type, path):
                 insert_query = cur.mogrify("""INSERT INTO "%s"."%s" (%s, geom) VALUES %s, ST_GeomFromText(%s,%s))""", (
                     AsIs(schema_name), AsIs(table_name), AsIs(field_names), tuple(attrs),
                     feature.geometry().asWkt(), AsIs(crs_id)))
-                idx = insert_query.find(', ST_GeomFromText') - 1
+                idx = insert_query.find(b', ST_GeomFromText') - 1
                 insert_query = insert_query[:idx] + insert_query[(idx + 1):]
                 cur.execute(insert_query)
                 con.commit()
