@@ -269,7 +269,8 @@ class RoadNetworkCleanerDialog(QDialog, FORM_CLASS):
                                                                 getUnlinks, fix_unlinks)}
         return settings
 
-    def get_progress_ranges(self, break_at_vertices, merge_type, snap_threshold, getUnlinks, fix_unlinks):
+    @staticmethod
+    def get_progress_ranges(break_at_vertices, merge_type, snap_threshold, getUnlinks, fix_unlinks):
 
         # hard-coded ranges
         weigths = {'break': 4, 'load': 2, 'snap': 2, 'merge': 1, 'unlinks': 1, 'clean': 1, 'fix': 1}
