@@ -48,38 +48,38 @@ class TestGateTransformer(unittest.TestCase):
         buffer = 1
         errors = True
 
-        self.my_segmentor = segmentor(vl, ul, stub_ratio, buffer, errors)
+        my_segmentor = segmentor(vl, ul, stub_ratio, buffer, errors)
 
         break_point_feats, invalid_unlink_point_feats, stubs_point_feats, segmented_feats = [], [], [], []
 
-        self.my_segmentor.step = 10 / float(self.my_segmentor.layer.featureCount())
-        self.my_segmentor.load_graph()
+        my_segmentor.step = 10 / float(my_segmentor.layer.featureCount())
+        my_segmentor.load_graph()
         # self.step specified in load_graph
         # progress emitted by break_segm & break_feats_iter
-        cross_p_list = [self.my_segmentor.break_segm(feat) for feat in
-                        self.my_segmentor.list_iter(list(self.my_segmentor.feats.values()))]
-        self.my_segmentor.step = 20 / float(len(cross_p_list))
-        segmented_feats = [self.my_segmentor.copy_feat(feat_geom_fid[0], feat_geom_fid[1], feat_geom_fid[2]) for
-                           feat_geom_fid in self.my_segmentor.break_feats_iter(cross_p_list)]
+        cross_p_list = [my_segmentor.break_segm(feat) for feat in
+                        my_segmentor.list_iter(list(my_segmentor.feats.values()))]
+        my_segmentor.step = 20 / float(len(cross_p_list))
+        segmented_feats = [my_segmentor.copy_feat(feat_geom_fid[0], feat_geom_fid[1], feat_geom_fid[2]) for
+                           feat_geom_fid in my_segmentor.break_feats_iter(cross_p_list)]
 
         if errors:
             cross_p_list = set(list(itertools.chain.from_iterable(cross_p_list)))
 
             ids1 = [i for i in range(0, len(cross_p_list))]
             break_point_feats = [
-                self.my_segmentor.copy_feat(self.my_segmentor.break_f, QgsGeometry.fromPointXY(p_fid[0]),
+                my_segmentor.copy_feat(my_segmentor.break_f, QgsGeometry.fromPointXY(p_fid[0]),
                                             p_fid[1]) for p_fid in (list(zip(cross_p_list, ids1)))]
-            ids2 = [i for i in range(max(ids1) + 1, max(ids1) + 1 + len(self.my_segmentor.invalid_unlinks))]
-            invalid_unlink_point_feats = [self.my_segmentor.copy_feat(self.my_segmentor.invalid_unlink_f,
+            ids2 = [i for i in range(max(ids1) + 1, max(ids1) + 1 + len(my_segmentor.invalid_unlinks))]
+            invalid_unlink_point_feats = [my_segmentor.copy_feat(my_segmentor.invalid_unlink_f,
                                                                       QgsGeometry.fromPointXY(p_fid1[0]),
                                                                       p_fid1[1]) for p_fid1 in
-                                          (list(zip(self.my_segmentor.invalid_unlinks, ids2)))]
+                                          (list(zip(my_segmentor.invalid_unlinks, ids2)))]
             ids = [i for i in
-                   range(max(ids1 + ids2) + 1, max(ids1 + ids2) + 1 + len(self.my_segmentor.stubs_points))]
+                   range(max(ids1 + ids2) + 1, max(ids1 + ids2) + 1 + len(my_segmentor.stubs_points))]
             stubs_point_feats = [
-                self.my_segmentor.copy_feat(self.my_segmentor.stub_f, QgsGeometry.fromPointXY(p_fid2[0]),
+                my_segmentor.copy_feat(my_segmentor.stub_f, QgsGeometry.fromPointXY(p_fid2[0]),
                                             p_fid2[1]) for p_fid2 in
-                (list(zip(self.my_segmentor.stubs_points, ids)))]
+                (list(zip(my_segmentor.stubs_points, ids)))]
 
         expected_segments = [
             QgsLineString([QgsPoint(535088.141198, 185892.128181), QgsPoint(535060.302601, 186140.090392)]),
