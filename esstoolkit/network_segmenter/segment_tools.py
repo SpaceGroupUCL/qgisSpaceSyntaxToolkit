@@ -103,17 +103,26 @@ class segmentor(QObject):
                 sh_line = (ml_geom.shortestLine(self.feats[line].geometry())).asPolyline()
                 if sh_line[0] in inter_line_geom_pl:
                     if sh_line[0] == inter_line_geom_pl[0]:
-                        self.feats[line].geometry().moveVertex(sh_line[-1].x(), sh_line[-1].y(), 0)
+                        line_geometry = self.feats[line].geometry()
+                        line_geometry.moveVertex(sh_line[-1].x(), sh_line[-1].y(), 0)
+                        self.feats[line].setGeometry(line_geometry)
                     if sh_line[0] == inter_line_geom_pl[-1]:
-                        self.feats[line].geometry().moveVertex(sh_line[-1].x(), sh_line[-1].y(),
-                                                               len(inter_line_geom_pl) - 1)
+                        line_geometry = self.feats[line].geometry()
+                        line_geometry.moveVertex(sh_line[-1].x(), sh_line[-1].y(),
+                                                 len(inter_line_geom_pl) - 1)
+                        self.feats[line].setGeometry(line_geometry)
+
                     yield ml_geom.lineLocatePoint(QgsGeometry.fromPointXY(sh_line[-1])), sh_line[-1]
                 else:
                     if sh_line[-1] == inter_line_geom_pl[0]:
-                        self.feats[line].geometry().moveVertex(sh_line[0].x(), sh_line[0].y(), 0)
+                        line_geometry = self.feats[line].geometry()
+                        line_geometry.moveVertex(sh_line[0].x(), sh_line[0].y(), 0)
+                        self.feats[line].setGeometry(line_geometry)
                     if sh_line[-1] == inter_line_geom_pl[-1]:
-                        self.feats[line].geometry().moveVertex(sh_line[0].x(), sh_line[0].y(),
-                                                               len(inter_line_geom_pl) - 1)
+                        line_geometry = self.feats[line].geometry()
+                        line_geometry.moveVertex(sh_line[0].x(), sh_line[0].y(),
+                                                 len(inter_line_geom_pl) - 1)
+                        self.feats[line].setGeometry(line_geometry)
                     yield ml_geom.lineLocatePoint(QgsGeometry.fromPointXY(sh_line[0])), sh_line[0]
         ml_pl = ml_geom.asPolyline()
         pl_len = 0  # executed first time

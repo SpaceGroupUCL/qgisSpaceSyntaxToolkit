@@ -232,15 +232,19 @@ class sGraph(QObject):
                 crossing_points = f_geom.intersection(self.sEdges[line].feature.geometry())
                 if crossing_points.geometry().wkbType() == 1:
                     if crossing_points.asPoint() in pl[1:-1]:
-                        self.sEdges[sedge.id].feature.geometry().moveVertex(crossing_points.asPoint().x() + 1,
-                                                                            crossing_points.asPoint().y() + 1,
-                                                                            pl.index(crossing_points.asPoint()))
+                        edge_geometry = self.sEdges[sedge.id].feature.geometry()
+                        edge_geometry.moveVertex(crossing_points.asPoint().x() + 1,
+                                                 crossing_points.asPoint().y() + 1,
+                                                 pl.index(crossing_points.asPoint()))
+                        self.sEdges[sedge.id].feature.setGeometry(edge_geometry)
                 elif crossing_points.geometry().wkbType() == 4:
                     for p in crossing_points.asMultiPoint():
                         if p in pl[1:-1]:
-                            self.sEdges[sedge.id].feature.geometry().moveVertex(p.x() + 1,
-                                                                                p.y() + 1,
-                                                                                pl.index(p))
+                            edge_geometry = self.sEdges[sedge.id].feature.geometry()
+                            edge_geometry.moveVertex(p.x() + 1,
+                                                     p.y() + 1,
+                                                     pl.index(p))
+                            self.sEdges[sedge.id].feature.setGeometry(edge_geometry)
             # TODO: exclude vertices - might be in one of the lines
 
         return
