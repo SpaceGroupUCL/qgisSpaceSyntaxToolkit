@@ -1,25 +1,21 @@
 # -*- coding: utf-8 -*-
-"""
-/***************************************************************************
- DrawingToolDockWidget
-                                 A QGIS plugin
- Drawing tool for axial lines, segment lines and unlinks.
-                             -------------------
-        begin                : 2019-06-16
-        git sha              : $Format:%H$
-        copyright            : (C) 2019 by Space Syntax Limited
-        email                : i.kolovou@spaceyntax.com
- ***************************************************************************/
 
-/***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
+# Space Syntax Toolkit
+# Set of tools for essential space syntax network analysis and results exploration
+# -------------------
+# begin                : 2019-06-16
+# copyright            : (C) 2019 by Space Syntax Limited
+# author               : Ioanna Kolovou
+# email                : i.kolovou@spaceyntax.com
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+
+""" Drawing tool for axial lines, segment lines and unlinks.
 """
+
 from __future__ import absolute_import
 from __future__ import print_function
 

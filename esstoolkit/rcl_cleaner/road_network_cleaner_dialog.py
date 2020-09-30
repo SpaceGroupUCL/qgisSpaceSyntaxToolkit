@@ -1,25 +1,21 @@
 # -*- coding: utf-8 -*-
-"""
-/***************************************************************************
- RoadNetworkCleanerDialog
-                                 A QGIS plugin
- This plugin clean a road centre line map.
-                             -------------------
-        begin                : 2016-11-10
-        git sha              : $Format:%H$
-        copyright            : (C) 2016 by Space SyntaxLtd
-        email                : i.kolovou@spacesyntax.com
- ***************************************************************************/
 
-/***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
+# Space Syntax Toolkit
+# Set of tools for essential space syntax network analysis and results exploration
+# -------------------
+# begin                : 2016-11-10
+# copyright            : (C) 2016 by Space Syntax Ltd
+# author               : Ioanna Kolovou
+# email                : i.kolovou@spacesyntax.com
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+
+""" This module helps clean a road centre line map.
 """
+
 from __future__ import absolute_import
 
 import os.path

@@ -1,25 +1,21 @@
 # -*- coding: utf-8 -*-
-"""
-/***************************************************************************
- GateTransformer
-                                 A QGIS plugin
- This plugin performs basic transformation on a line in qgis.
-                              -------------------
-        begin                : 2016-02-29
-        author               : Stephen Law
-        copyright            : (C) 2016 by Space Syntax Limited
-        email                : s.law@spacesyntax.com
- ***************************************************************************/
 
-/***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 3 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
+# Space Syntax Toolkit
+# Set of tools for essential space syntax network analysis and results exploration
+# -------------------
+# begin                : 2016-02-29
+# copyright            : (C) 2016 by Space Syntax Limited
+# author               : Stephen Law
+# email                : s.law@spacesyntax.com
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+
+""" This plugin performs basic transformation on a line in qgis.
 """
+
 from __future__ import absolute_import
 
 import math

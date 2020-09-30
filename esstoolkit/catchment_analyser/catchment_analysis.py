@@ -1,25 +1,21 @@
 # -*- coding: utf-8 -*-
-"""
-/***************************************************************************
- CatchmentAnalyser
-                             Catchment Analyser
- Network based catchment analysis
-                              -------------------
-        begin                : 2016-05-19
-        author               : Laurens Versluis
-        copyright            : (C) 2016 by Space Syntax Limited
-        email                : l.versluis@spacesyntax.com
- ***************************************************************************/
 
-/***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
+# Space Syntax Toolkit
+# Set of tools for essential space syntax network analysis and results exploration
+# -------------------
+# begin                : 2016-05-19
+# copyright            : (C) 2016 by Space Syntax Limited
+# author               : Laurens Versluis
+# email                : l.versluis@spacesyntax.com
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+
+""" Network based catchment analysis
 """
+
 from __future__ import absolute_import
 
 from builtins import range

@@ -1,25 +1,18 @@
 # -*- coding: utf-8 -*-
-"""
-/***************************************************************************
- CreateNew_EntranceDialog
-                                 A QGIS plugin
- CreateNew_Entrance
-                             -------------------
-        begin                : 2016-08-16
-        git sha              : $Format:%H$
-        copyright            : (C) 2016 by AA
-        email                : AA
- ***************************************************************************/
 
-/***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
-"""
+# Space Syntax Toolkit
+# Set of tools for essential space syntax network analysis and results exploration
+# -------------------
+# begin                : 2016-08-16
+# copyright            : (C) 2016 by Abhimanyu Acharya/(C) 2016 by Space Syntax Limited’.
+# author               : Abhimanyu Acharya
+# email                : a.acharya@spacesyntax.com
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+
 from __future__ import absolute_import
 from __future__ import print_function
 
