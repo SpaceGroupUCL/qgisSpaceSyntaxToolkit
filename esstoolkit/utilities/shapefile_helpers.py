@@ -153,7 +153,7 @@ def create_shapefile_full_layer_ogr(path, name, srid, attributes, types, values,
             attrs.append(val[j])
         feat.setAttributes(attrs)
         pr.addFeature(feat)
-        
+
     vl.updateExtents()
     if not vl.isValid():
         raise IOError("Layer could not be created")

@@ -20,8 +20,8 @@ import os
 
 from qgis.PyQt import QtCore, QtWidgets, uic
 
-from .DbSettings_dialog import DbSettingsDialog
 from esstoolkit.utilities import db_helpers as dbh
+from .DbSettings_dialog import DbSettingsDialog
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'CreateNew_dialog_base.ui'))
