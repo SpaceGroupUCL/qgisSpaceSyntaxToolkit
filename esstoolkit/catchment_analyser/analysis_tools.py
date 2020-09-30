@@ -259,11 +259,22 @@ class ConcaveHull(object):
     def as_wkt(self, point_list):
         """
         Returns the geometry described by *point_list* in Well Known Text format
+
         Example: hull = self.as_wkt(the_hull)
                  feature.setGeometry(QgsGeometry.fromWkt(hull))
-        :param point_list: list of tuples (x, y)
-        :return: polygon geometry as WTK
+
+        Parameters
+        ----------
+        point_list : array_like
+            list of tuples (x, y)
+
+        Returns
+        -------
+        vl : `str`
+            polygon geometry as WTK
+
         """
+
         wkt = 'POLYGON((' + str(point_list[0][0]) + ' ' + str(point_list[0][1])
         for p in point_list[1:]:
             wkt += ', ' + str(p[0]) + ' ' + str(p[1])
@@ -273,8 +284,20 @@ class ConcaveHull(object):
     def as_polygon(self, point_list):
         """
         Returns the geometry described by *point_list* in as QgsGeometry
-        :param point_list: list of tuples (x, y)
-        :return: QgsGeometry
+
+        Example: hull = self.as_wkt(the_hull)
+                 feature.setGeometry(QgsGeometry.fromWkt(hull))
+
+        Parameters
+        ----------
+        point_list : array_like
+            list of tuples (x, y)
+
+        Returns
+        -------
+        vl : `QgsGeometry`
+            polygon geometry as QgsGeometry
+
         """
         # create a list of QgsPoint() from list of point coordinate strings in *point_list*
         points = [QgsPoint(point[0], point[1]) for point in point_list]
