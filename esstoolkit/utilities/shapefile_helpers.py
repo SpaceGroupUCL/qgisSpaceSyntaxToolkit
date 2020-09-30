@@ -96,7 +96,103 @@ def copyLayerToShapeFile(layer, path, name):
     return vlayer
 
 
-def createShapeFileFullLayer(path, name, srid, attributes, types, values, coords):
+def create_shapefile_full_layer_ogr(path, name, srid, attributes, types, values, coords):
+    """
+    Creates a shapefile using the OGR driver
+
+    Parameters
+    ----------
+    path : `str`
+        folder where the shapefile is to be saved
+    name : `str`
+        name of the shapefile
+    srid : `str`
+        CRS of the newly created shapefile
+    attributes: array_like
+        list of attribute (field) names
+    types : array_like
+        list of types (field) types, in sync with the `attributes` parameter
+    values : array_like
+        coordinates and attribute data, one array for each feature (F, C + A),
+        F for features, C for coordinates and A for attribute data
+    coords : array_like
+        indices of the coordinate values within the `values` array
+
+    Returns
+    -------
+    vl : `QgsVectorLayer`
+        the newly-created layer
+
+    """
+    # create new layer with given attributes
+    filename = path + "/" + name + ".shp"
+    # create the required fields
+    fields = QgsFields()
+    for i, attr in enumerate(attributes):
+        fields.append(QgsField(attr, types[i]))
+
+    # create a new layer using the OGR driver which will create the vector file.
+    vl = QgsVectorLayer(filename, name, "ogr")
+    vl.setCrs(srid)
+    pr = vl.dataProvider()
+    # add features by iterating the values
+    feat = QgsFeature()
+    for i, val in enumerate(values):
+        # add geometry
+        try:
+            if type == 'point':
+                geometry = QgsGeometry.fromPoint([QgsPoint(float(val[coords[0]]),
+                                                           float(val[coords[1]]))])
+            elif type == 'line':
+                geometry = QgsGeometry.fromPolyline([QgsPoint(float(val[coords[0]]),
+                                                              float(val[coords[1]])),
+                                                     QgsPoint(float(val[coords[2]]),
+                                                              float(val[coords[3]]))])
+            feat.setGeometry(geometry)
+        except:
+            pass
+        # add attributes
+        attrs = []
+        for j, attr in enumerate(attributes):
+            attrs.append(val[j])
+        feat.setAttributes(attrs)
+        pr.addFeature(feat)
+        
+    vl.updateExtents()
+    if not vl.isValid():
+        raise IOError("Layer could not be created")
+        return None
+    return vl
+
+
+def create_shapefile_full_layer_writer(path, name, srid, attributes, types, values, coords):
+    """
+    Creates a shapefile using the QGIS QgsVectorFileWriter
+
+    Parameters
+    ----------
+    path : `str`
+        folder where the shapefile is to be saved
+    name : `str`
+        name of the shapefile
+    srid : `str`
+        CRS of the newly created shapefile
+    attributes: array_like
+        list of attribute (field) names
+    types : array_like
+        list of types (field) types, in sync with the `attributes` parameter
+    values : array_like
+        coordinates and attribute data, one array for each feature (F, C + A),
+        F for features, C for coordinates and A for attribute data
+    coords : array_like
+        indices of the coordinate values within the `values` array
+
+    Returns
+    -------
+    vl : `QgsVectorLayer`
+        the newly-created layer
+
+    """
     # create new layer with given attributes
     filename = path + "/" + name + ".shp"
     # create the required fields
@@ -110,8 +206,8 @@ def createShapeFileFullLayer(path, name, srid, attributes, types, values, coords
     options.fileEncoding = 'utf-8'
     if len(coords) == 2:
         type = 'point'
-        writer = QgsVectorFileWriter.create(filename, fields, QgsWkbTypes.Point, srid, QgsCoordinateTransformContext(),
-                                            options)
+        writer = QgsVectorFileWriter.create(filename, fields, QgsWkbTypes.Point, srid,
+                                            QgsCoordinateTransformContext(), options)
     elif len(coords) == 4:
         type = 'line'
         writer = QgsVectorFileWriter.create(filename, fields, QgsWkbTypes.LineString, srid,
@@ -125,10 +221,14 @@ def createShapeFileFullLayer(path, name, srid, attributes, types, values, coords
         # add geometry
         try:
             if type == 'point':
-                feat.setGeometry(QgsGeometry.fromPoint([QgsPoint(float(val[coords[0]]), float(val[coords[1]]))]))
+                geometry = QgsGeometry.fromPoint([QgsPoint(float(val[coords[0]]),
+                                                           float(val[coords[1]]))])
             elif type == 'line':
-                feat.setGeometry(QgsGeometry.fromPolyline([QgsPoint(float(val[coords[0]]), float(val[coords[1]])),
-                                                           QgsPoint(float(val[coords[2]]), float(val[coords[3]]))]))
+                geometry = QgsGeometry.fromPolyline([QgsPoint(float(val[coords[0]]),
+                                                              float(val[coords[1]])),
+                                                     QgsPoint(float(val[coords[2]]),
+                                                              float(val[coords[3]]))])
+            feat.setGeometry(geometry)
         except:
             pass
         # add attributes

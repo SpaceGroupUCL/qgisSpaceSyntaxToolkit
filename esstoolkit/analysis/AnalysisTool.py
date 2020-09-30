@@ -839,7 +839,7 @@ class AnalysisTool(QObject):
                     types[idx] = QVariant.Double
             # write a new file
             if 'shapefile' not in provider.lower() or create_table:
-                new_layer = shph.createShapeFileFullLayer(path, table, srid, attributes, types, values, coords)
+                new_layer = shph.create_shapefile_full_layer_ogr(path, table, srid, attributes, types, values, coords)
                 if new_layer:
                     res = True
                 else:
