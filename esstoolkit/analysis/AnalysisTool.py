@@ -17,8 +17,6 @@ from __future__ import absolute_import
 
 import datetime
 import os.path
-import select
-import socket
 
 # Import the PyQt and QGIS libraries
 from qgis.PyQt.QtCore import QTimer
@@ -28,7 +26,7 @@ from qgis.core import (QgsProject, QgsVectorDataProvider)
 # Import required modules
 from .AnalysisDialog import AnalysisDialog
 from .AxialVerification import *
-from .DepthmapAnalysis import *
+from .DepthmapNetEngine import *
 from .UnlinksVerification import *
 from esstoolkit.utilities import layer_field_helpers as lfh, shapefile_helpers as shph
 
@@ -43,6 +41,8 @@ class AnalysisTool(QObject):
         self.settings = settings
         self.project = project
         self.legend = QgsProject.instance().mapLayers()
+        self.analysis_engine = DepthmapNetEngine(self.iface)
+        self.running_analysis = ''
 
     def load(self):
         # initialise UI
@@ -50,7 +50,6 @@ class AnalysisTool(QObject):
 
         # initialise axial analysis classes
         self.verificationThread = None
-        self.depthmapAnalysis = DepthmapAnalysis(self.iface)
 
         # connect signal/slots with main program
         self.project.settingsUpdated.connect(self.setDatastore)
@@ -64,8 +63,8 @@ class AnalysisTool(QObject):
         self.dlg.axialUpdateButton.clicked.connect(self.runAxialUpdate)
         self.dlg.axialVerifyCancelButton.clicked.connect(self.cancelAxialVerification)
         self.dlg.axialReportList.itemSelectionChanged.connect(self.zoomAxialProblem)
-        self.dlg.axialDepthmapCalculateButton.clicked.connect(self.runDepthmapAnalysis)
-        self.dlg.axialDepthmapCancelButton.clicked.connect(self.cancelDepthmapAnalysis)
+        self.dlg.axialDepthmapCalculateButton.clicked.connect(self.run_analysis)
+        self.dlg.axialDepthmapCancelButton.clicked.connect(self.cancel_analysis)
 
         # initialise internal globals
         self.isVisible = False
@@ -80,7 +79,7 @@ class AnalysisTool(QObject):
 
         # timer to check for analysis result
         self.timer = QTimer()
-        self.timer.timeout.connect(self.checkDepthmapAnalysisProgress)
+        self.timer.timeout.connect(self.check_analysis_progress)
 
         # define analysis data structures
         self.analysis_layers = {'map': "", 'unlinks': "", 'map_type': 0}
@@ -551,36 +550,13 @@ class AnalysisTool(QObject):
                 if layer.geometryType() in (QgsWkbTypes.Polygon, QgsWkbTypes.Point):
                     self.iface.mapCanvas().zoomOut()
 
-    ##
-    ## Depthmap analysis functions
-    ##
-    def getDepthmapConnection(self):
-        # newfeature: get these settings from settings manager.
-        # no need for it now as it's hardcoded in depthmapXnet.
-        connection = {'host': 'localhost', 'port': 31337}
-        return connection
-
-    def connectDepthmapNet(self):
-        connection = self.getDepthmapConnection()
-        self.socket = MySocket()
-        # connect socket
-        result = self.socket.connectSocket(connection['host'], connection['port'])
-        # if connection fails give warning and stop analysis
-        if result != '':
-            self.iface.messageBar().pushMessage("Info", "Make sure depthmapXnet is running.", level=0, duration=4)
-            connected = False
-            self.socket.closeSocket()
-        else:
-            connected = True
-        return connected
-
-    def runDepthmapAnalysis(self):
+    def run_analysis(self):
         # check if there's a datastore defined
         if not self.isDatastoreSet():
             # self.iface.messageBar().pushMessage("Warning","Please select a 'Data store' to save the analysis results.", level=1, duration=4)
             return
         # try to connect to the analysis engine
-        if self.connectDepthmapNet():
+        if self.analysis_engine.ready():
             self.dlg.clearAxialDepthmapReport()
             # get selected layers
             self.analysis_layers = self.dlg.getAnalysisLayers()
@@ -597,7 +573,7 @@ class AnalysisTool(QObject):
             self.axial_analysis_settings['id'] = lfh.getIdField(analysis_layer)
             self.axial_analysis_settings['weight'] = self.dlg.getDepthmapWeighted()
             self.axial_analysis_settings['weightBy'] = self.dlg.getDepthmapWeightAttribute()
-            txt = self.depthmapAnalysis.parseRadii(self.dlg.getDepthmapRadiusText())
+            txt = DepthmapEngine.parse_radii(self.dlg.getDepthmapRadiusText())
             if txt == '':
                 self.dlg.writeAxialDepthmapReport("Please verify the radius values.")
                 return
@@ -639,20 +615,19 @@ class AnalysisTool(QObject):
                 else:
                     return
             # run the analysis
-            command = self.depthmapAnalysis.setupAnalysis(self.analysis_layers, self.axial_analysis_settings)
-            if command and command != '':
+            analysis_ready = self.analysis_engine.setup_analysis(self.analysis_layers, self.axial_analysis_settings)
+            if analysis_ready:
                 self.updateProjectSettings()
                 self.start_time = datetime.datetime.now()
                 # write a short analysis summary
-                message = self.compileDepthmapAnalysisSummary()
+                message = self.compile_analysis_summary()
                 # print message in results window
                 self.dlg.writeAxialDepthmapReport(message)
                 self.dlg.lockAxialDepthmapTab(True)
                 self.iface.messageBar().pushMessage("Info",
                                                     "Do not close QGIS or depthmapXnet while the analysis is running!",
                                                     level=0, duration=5)
-                # start the analysis by sending the command and starting the timer
-                self.socket.sendData(command)
+                self.analysis_engine.start_analysis()
                 # timer to check if results are ready, in milliseconds
                 self.timer.start(1000)
                 self.running_analysis = 'axial'
@@ -660,7 +635,7 @@ class AnalysisTool(QObject):
                 self.dlg.writeAxialDepthmapReport(
                     "Unable to run this analysis. Please check the input layer and analysis settings.")
 
-    def compileDepthmapAnalysisSummary(self):
+    def compile_analysis_summary(self):
         message = u"Running analysis for map layer '%s':" % self.analysis_layers['map']
         if self.analysis_layers['unlinks']:
             message += u"\n   unlinks layer - '%s'" % self.analysis_layers['unlinks']
@@ -698,82 +673,54 @@ class AnalysisTool(QObject):
         message += u"\n\nStart: %s\n..." % self.start_time.strftime("%d/%m/%Y %H:%M:%S")
         return message
 
-    def cancelDepthmapAnalysis(self):
+    def cancel_analysis(self):
         if self.running_analysis == 'axial':
             self.dlg.setAxialDepthmapProgressbar(0, 100)
             self.dlg.lockAxialDepthmapTab(False)
             self.dlg.writeAxialDepthmapReport("Analysis canceled by user.")
         self.timer.stop()
-        self.socket.closeSocket()
+        self.analysis_engine.cleanup()
         self.running_analysis = ''
 
-    def checkDepthmapAnalysisProgress(self):
-        error = False
-        result = self.socket.isReady()
-        if result:
-            connected, msg = self.socket.checkData(4096)
-            if "--r" in msg or "esult" in msg:
+    def check_analysis_progress(self):
+        try:
+            step, progress = self.analysis_engine.get_progress(self.axial_analysis_settings, self.datastore)
+            if not progress:
+                # no progress, just wait...
+                return
+            elif progress == 100:
                 self.timer.stop()
-                # retrieve all the remaining data
-                if not msg.endswith("--result--\n"):
-                    received, result = self.socket.receiveData(4096, "--result--\n")
-                    if received:
-                        msg += result
-                self.socket.closeSocket()
                 # update calculation time
                 dt = datetime.datetime.now()
                 feedback = u"Finish: %s" % dt.strftime("%d/%m/%Y %H:%M:%S")
                 self.dlg.writeAxialDepthmapReport(feedback)
                 # process the output in the analysis
-                self.processDepthmapAnalysisResults(msg)
+                self.process_analysis_results(self.analysis_engine.results)
                 self.running_analysis = ''
-            elif "--comm: 3," in msg:
-                prog = self.updateDepthmapAnalysisProgress(msg)
+            else:
                 if self.running_analysis == 'axial':
-                    self.dlg.updateAxialDepthmapProgressbar(prog)
-            elif not connected:
-                error = True
-        else:
-            error = True
-        if error:
+                    self.dlg.updateAxialDepthmapProgressbar(progress)
+                    if step > 0:
+                        self.timer.start(step)
+        except AnalysisEngine.AnalysisEngineError as engine_error:
             if self.running_analysis == 'axial':
                 self.dlg.setAxialDepthmapProgressbar(0, 100)
                 self.dlg.lockAxialDepthmapTab(False)
-                self.dlg.writeAxialDepthmapReport("Analysis error.")
+                self.dlg.writeAxialDepthmapReport("Analysis error: " + str(engine_error))
             self.timer.stop()
-            self.socket.closeSocket()
+            self.analysis_engine.cleanup()
             self.running_analysis = ''
 
-    def updateDepthmapAnalysisProgress(self, msg):
-        # calculate percent done and adjust timer
-        relprog = 0
-        # extract number of nodes
-        if "--comm: 2," in msg:
-            pos1 = msg.find(": 2,")
-            pos2 = msg.find(",0 --", pos1)
-            self.analysis_nodes = int(msg[(pos1 + 4):pos2])
-            step = int(self.analysis_nodes) * 0.2
-            self.timer.start(step)
-        # extract progress info from string
-        progress = msg.split("\n")
-        # calculate progress
-        if self.analysis_nodes > 0:
-            pos1 = progress[-2].find(": 3,")
-            pos2 = progress[-2].find(",0 ")
-            prog = progress[-2][(pos1 + 4):pos2]
-            relprog = (float(prog) / float(self.analysis_nodes)) * 100
-        return relprog
-
-    def processDepthmapAnalysisResults(self, msg):
+    def process_analysis_results(self, analysis_results: AnalysisEngine.AnalysisResults):
         new_layer = None
         if self.running_analysis == 'axial':
             self.dlg.setAxialDepthmapProgressbar(100, 100)
-            attributes, types, values, coords = self.depthmapAnalysis.processAnalysisResult(self.datastore, msg)
-            if attributes:
+            if analysis_results.attributes:
                 dt = datetime.datetime.now()
                 message = u"Post-processing start: %s\n..." % dt.strftime("%d/%m/%Y %H:%M:%S")
                 self.dlg.writeAxialDepthmapReport(message)
-                new_layer = self.saveAnalysisResults(attributes, types, values, coords)
+                new_layer = self.save_analysis_results(analysis_results.attributes, analysis_results.types,
+                                                       analysis_results.values, analysis_results.coords)
                 # update processing time
                 dt = datetime.datetime.now()
                 message = u"Post-processing finish: %s" % dt.strftime("%d/%m/%Y %H:%M:%S")
@@ -797,7 +744,7 @@ class AnalysisTool(QObject):
             QgsProject.instance().addMapLayer(new_layer)
             new_layer.updateExtents()
 
-    def saveAnalysisResults(self, attributes, types, values, coords):
+    def save_analysis_results(self, attributes, types, values, coords):
         # Save results to output
         res = False
         analysis_layer = lfh.getLegendLayerByName(self.iface, self.analysis_layers['map'])
@@ -903,94 +850,3 @@ class AnalysisTool(QObject):
 
         return new_layer
 
-
-# socket class with adapted methods and error trapping, derived from QObject to support Signals
-class MySocket(QObject):
-    def __init__(self, s=None):
-        QObject.__init__(self)
-        if s is None:
-            self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        else:
-            self.sock = s
-
-    def connectSocket(self, host, port):
-        msg = ''
-        try:
-            self.sock.connect((host, port))
-        except socket.error as errormsg:
-            msg = errormsg.strerror
-        return msg
-
-    def sendData(self, data):
-        size = len(data)
-        totalsent = 0
-        try:
-            while totalsent < size:
-                sent = self.sock.send(data[totalsent:].encode('ascii'))
-                if not sent:
-                    raise IOError("Socket connection broken")
-                totalsent = totalsent + sent
-            sent = True
-            msg = totalsent
-        except socket.error as errormsg:
-            # self.closeSocket()
-            sent = False
-            msg = errormsg
-        return sent, str(msg)
-
-    def isReady(self):
-        try:
-            to_read, to_write, exception = select.select([self.sock], [], [self.sock], 0)
-            if exception:
-                waiting = False
-            else:
-                waiting = True
-        except:
-            waiting = False
-        return waiting
-
-    def checkData(self, buff=1):
-        try:
-            msg = self.sock.recv(buff).decode('ascii')
-            if msg == '':
-                check = False
-            else:
-                check = True
-        except socket.error as errormsg:
-            msg = errormsg
-            check = False
-        return check, msg
-
-    def dumpData(self, buff=1):
-        msg = ''
-        try:
-            while True:
-                chunk = self.sock.recv(buff).decode('ascii')
-                if not chunk:
-                    break
-                msg += chunk
-            dump = True
-        except socket.error as errormsg:
-            msg = errormsg
-            dump = False
-        return dump, msg
-
-    def receiveData(self, buff=1024, suffix=''):
-        msg = ''
-        try:
-            while True:
-                chunk = self.sock.recv(buff).decode('ascii')
-                if not chunk:
-                    break
-                msg += chunk
-                if msg.endswith(suffix):
-                    break
-            receive = True
-        except socket.error as errormsg:
-            msg = errormsg
-            receive = False
-        return receive, msg
-
-    def closeSocket(self):
-        self.sock.close()
-        # self.sock = None
