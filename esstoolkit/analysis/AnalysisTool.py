@@ -132,7 +132,7 @@ class AnalysisTool(QObject):
         self.dlg.clearAxialProblems(0)
         self.dlg.clearAxialProblems(1)
         # update graph analysis
-        self.dlg.setAxialDepthmapTab(self.axial_analysis_settings)
+        self.dlg.set_axial_depthmap_tab(self.axial_analysis_settings)
 
     def updateProjectSettings(self):
         self.project.writeSettings(self.analysis_layers, "analysis")
@@ -290,13 +290,13 @@ class AnalysisTool(QObject):
             if selected_layers['unlinks'] != '' and selected_layers['unlinks'] in unlinks_list:
                 analysis_unlinks = unlinks_list.index(selected_layers['unlinks'])
         else:
-            self.dlg.clearAxialDepthmapTab()
+            self.dlg.clear_analysis_tab()
 
         # update UI
-        self.dlg.setMapLayers(map_list, analysis_map, map_type)
-        self.dlg.setUnlinksLayers(unlinks_list, analysis_unlinks)
-        self.dlg.updateAnalysisTabs()
-        self.dlg.updateAxialDepthmapTab()
+        self.dlg.set_map_layers(map_list, analysis_map, map_type)
+        self.dlg.set_unlinks_layers(unlinks_list, analysis_unlinks)
+        self.dlg.update_analysis_tabs()
+        self.dlg.update_analysis_tab()
 
     ##
     ## Layer verification functions
@@ -557,11 +557,11 @@ class AnalysisTool(QObject):
             return
         # try to connect to the analysis engine
         if self.analysis_engine.ready():
-            self.dlg.clearAxialDepthmapReport()
+            self.dlg.clear_analysis_report()
             # get selected layers
             self.analysis_layers = self.dlg.getAnalysisLayers()
             # get analysis type based on map and axial/segment choice
-            if self.dlg.getDepthmapAnalysisType() == 0:
+            if self.dlg.get_analysis_type() == 0:
                 self.axial_analysis_settings['type'] = 0
             else:
                 if self.dlg.getSegmentedMode() == 0:
@@ -571,23 +571,23 @@ class AnalysisTool(QObject):
             # get the basic analysis settings
             analysis_layer = lfh.getLegendLayerByName(self.iface, self.analysis_layers['map'])
             self.axial_analysis_settings['id'] = lfh.getIdField(analysis_layer)
-            self.axial_analysis_settings['weight'] = self.dlg.getDepthmapWeighted()
-            self.axial_analysis_settings['weightBy'] = self.dlg.getDepthmapWeightAttribute()
-            txt = DepthmapEngine.parse_radii(self.dlg.getDepthmapRadiusText())
+            self.axial_analysis_settings['weight'] = self.dlg.get_analysis_weighted()
+            self.axial_analysis_settings['weightBy'] = self.dlg.get_analysis_weight_attribute()
+            txt = DepthmapEngine.parse_radii(self.dlg.get_analysis_radius_text())
             if txt == '':
-                self.dlg.writeAxialDepthmapReport("Please verify the radius values.")
+                self.dlg.write_analysis_report("Please verify the radius values.")
                 return
             else:
                 self.axial_analysis_settings['rvalues'] = txt
-            self.axial_analysis_settings['output'] = self.dlg.getAxialDepthmapOutputTable()
+            self.axial_analysis_settings['output'] = self.dlg.get_analysis_output_table()
             self.analysis_output = self.axial_analysis_settings['output']
             # get the advanced analysis settings
-            self.axial_analysis_settings['distance'] = self.dlg.getAxialDepthmapDistanceType()
-            self.axial_analysis_settings['radius'] = self.dlg.getAxialDepthmapRadiusType()
-            self.axial_analysis_settings['fullset'] = self.dlg.getAxialDepthmapFullset()
-            self.axial_analysis_settings['betweenness'] = self.dlg.getAxialDepthmapChoice()
-            self.axial_analysis_settings['newnorm'] = self.dlg.getAxialDepthmapNormalised()
-            self.axial_analysis_settings['stubs'] = self.dlg.getAxialDepthmapStubs()
+            self.axial_analysis_settings['distance'] = self.dlg.get_analysis_distance_type()
+            self.axial_analysis_settings['radius'] = self.dlg.get_analysis_radius_type()
+            self.axial_analysis_settings['fullset'] = self.dlg.get_analysis_fullset()
+            self.axial_analysis_settings['betweenness'] = self.dlg.get_analysis_choice()
+            self.axial_analysis_settings['newnorm'] = self.dlg.get_analysis_normalised()
+            self.axial_analysis_settings['stubs'] = self.dlg.get_analysis_stubs()
 
             # check if output file/table already exists
             table_exists = False
@@ -622,8 +622,8 @@ class AnalysisTool(QObject):
                 # write a short analysis summary
                 message = self.compile_analysis_summary()
                 # print message in results window
-                self.dlg.writeAxialDepthmapReport(message)
-                self.dlg.lockAxialDepthmapTab(True)
+                self.dlg.write_analysis_report(message)
+                self.dlg.lock_analysis_tab(True)
                 self.iface.messageBar().pushMessage("Info",
                                                     "Do not close QGIS or depthmapXnet while the analysis is running!",
                                                     level=0, duration=5)
@@ -632,7 +632,7 @@ class AnalysisTool(QObject):
                 self.timer.start(1000)
                 self.running_analysis = 'axial'
             else:
-                self.dlg.writeAxialDepthmapReport(
+                self.dlg.write_analysis_report(
                     "Unable to run this analysis. Please check the input layer and analysis settings.")
 
     def compile_analysis_summary(self):
@@ -675,9 +675,9 @@ class AnalysisTool(QObject):
 
     def cancel_analysis(self):
         if self.running_analysis == 'axial':
-            self.dlg.setAxialDepthmapProgressbar(0, 100)
-            self.dlg.lockAxialDepthmapTab(False)
-            self.dlg.writeAxialDepthmapReport("Analysis canceled by user.")
+            self.dlg.set_analysis_progressbar(0, 100)
+            self.dlg.lock_analysis_tab(False)
+            self.dlg.write_analysis_report("Analysis canceled by user.")
         self.timer.stop()
         self.analysis_engine.cleanup()
         self.running_analysis = ''
@@ -693,20 +693,20 @@ class AnalysisTool(QObject):
                 # update calculation time
                 dt = datetime.datetime.now()
                 feedback = u"Finish: %s" % dt.strftime("%d/%m/%Y %H:%M:%S")
-                self.dlg.writeAxialDepthmapReport(feedback)
+                self.dlg.write_analysis_report(feedback)
                 # process the output in the analysis
                 self.process_analysis_results(self.analysis_engine.results)
                 self.running_analysis = ''
             else:
                 if self.running_analysis == 'axial':
-                    self.dlg.updateAxialDepthmapProgressbar(progress)
+                    self.dlg.update_analysis_progressbar(progress)
                     if step > 0:
                         self.timer.start(step)
         except AnalysisEngine.AnalysisEngineError as engine_error:
             if self.running_analysis == 'axial':
-                self.dlg.setAxialDepthmapProgressbar(0, 100)
-                self.dlg.lockAxialDepthmapTab(False)
-                self.dlg.writeAxialDepthmapReport("Analysis error: " + str(engine_error))
+                self.dlg.set_analysis_progressbar(0, 100)
+                self.dlg.lock_analysis_tab(False)
+                self.dlg.write_analysis_report("Analysis error: " + str(engine_error))
             self.timer.stop()
             self.analysis_engine.cleanup()
             self.running_analysis = ''
@@ -714,27 +714,27 @@ class AnalysisTool(QObject):
     def process_analysis_results(self, analysis_results: AnalysisEngine.AnalysisResults):
         new_layer = None
         if self.running_analysis == 'axial':
-            self.dlg.setAxialDepthmapProgressbar(100, 100)
+            self.dlg.set_analysis_progressbar(100, 100)
             if analysis_results.attributes:
                 dt = datetime.datetime.now()
                 message = u"Post-processing start: %s\n..." % dt.strftime("%d/%m/%Y %H:%M:%S")
-                self.dlg.writeAxialDepthmapReport(message)
+                self.dlg.write_analysis_report(message)
                 new_layer = self.save_analysis_results(analysis_results.attributes, analysis_results.types,
                                                        analysis_results.values, analysis_results.coords)
                 # update processing time
                 dt = datetime.datetime.now()
                 message = u"Post-processing finish: %s" % dt.strftime("%d/%m/%Y %H:%M:%S")
-                self.dlg.writeAxialDepthmapReport(message)
+                self.dlg.write_analysis_report(message)
             else:
                 self.iface.messageBar().pushMessage("Info", "Failed to import the analysis results.", level=1,
                                                     duration=5)
-                self.dlg.writeAxialDepthmapReport(u"Post-processing: Failed!")
+                self.dlg.write_analysis_report(u"Post-processing: Failed!")
             self.end_time = datetime.datetime.now()
             elapsed = self.end_time - self.start_time
             message = u"Total running time: %s" % elapsed
-            self.dlg.writeAxialDepthmapReport(message)
-            self.dlg.lockAxialDepthmapTab(False)
-            self.dlg.setAxialDepthmapProgressbar(0, 100)
+            self.dlg.write_analysis_report(message)
+            self.dlg.lock_analysis_tab(False)
+            self.dlg.set_analysis_progressbar(0, 100)
         if new_layer:
             existing_names = [layer.name() for layer in lfh.getLegendLayers(self.iface)]
             if new_layer.name() in existing_names:
