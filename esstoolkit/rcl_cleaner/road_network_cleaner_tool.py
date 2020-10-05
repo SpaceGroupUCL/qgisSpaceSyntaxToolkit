@@ -21,13 +21,13 @@ from future import standard_library
 standard_library.install_aliases()
 from builtins import str
 import traceback
-from qgis.PyQt.QtCore import (QThread)
-from qgis.core import (QgsProject, QgsMapLayer)
+from qgis.PyQt.QtCore import (QObject, QThread, pyqtSignal)
+from qgis.core import (QgsProject, QgsMapLayer, QgsMessageLog, Qgis)
 import os
 
 from .road_network_cleaner_dialog import RoadNetworkCleanerDialog
-from .sGraph.sGraph import *  # better give these a name to make it explicit to which module the methods belong
-from .sGraph.utilityFunctions import *
+from .sGraph.sGraph import sGraph  # better give these a name to make it explicit to which module the methods belong
+from .sGraph import utilityFunctions as utf
 from esstoolkit.utilities import db_helpers as dbh, layer_field_helpers as lfh
 
 # Import the debug library - required for the cleaning class in separate thread
@@ -200,8 +200,8 @@ class NetworkCleanerTool(QObject):
             print('path', path)
             if self.settings['errors']:
                 if len(errors_features) > 0:
-                    errors = to_layer(errors_features, layer.crs(), layer.dataProvider().encoding(), 'Point',
-                                      output_type, errors_path)
+                    errors = utf.to_layer(errors_features, layer.crs(), layer.dataProvider().encoding(), 'Point',
+                                          output_type, errors_path)
                     errors.loadNamedStyle(os.path.dirname(__file__) + '/qgis_styles/errors.qml')
                     QgsProject.instance().addMapLayer(errors)
                     node = QgsProject.instance().layerTreeRoot().findLayer(errors.id())
@@ -212,8 +212,8 @@ class NetworkCleanerTool(QObject):
 
             if self.settings['unlinks']:
                 if len(unlinks_features) > 0:
-                    unlinks = to_layer(unlinks_features, layer.crs(), layer.dataProvider().encoding(), 'Point',
-                                       output_type, unlinks_path)
+                    unlinks = utf.to_layer(unlinks_features, layer.crs(), layer.dataProvider().encoding(), 'Point',
+                                           output_type, unlinks_path)
                     unlinks.loadNamedStyle(os.path.dirname(__file__) + '/qgis_styles/unlinks.qml')
                     QgsProject.instance().addMapLayer(unlinks)
                     node = QgsProject.instance().layerTreeRoot().findLayer(unlinks.id())
@@ -221,8 +221,8 @@ class NetworkCleanerTool(QObject):
                 else:
                     self.giveMessage('No unlinks detected!', Qgis.Info)
 
-            cleaned = to_layer(cleaned_features, layer.crs(), layer.dataProvider().encoding(), 'Linestring',
-                               output_type, path)
+            cleaned = utf.to_layer(cleaned_features, layer.crs(), layer.dataProvider().encoding(), 'Linestring',
+                                   output_type, path)
             cleaned.loadNamedStyle(os.path.dirname(__file__) + '/qgis_styles/cleaned.qml')
             QgsProject.instance().addMapLayer(cleaned)
             node = QgsProject.instance().layerTreeRoot().findLayer(cleaned.id())
@@ -318,7 +318,7 @@ class NetworkCleanerTool(QObject):
                     self.pseudo_graph.progress.connect(self.cl_progress.emit)
                     self.graph = sGraph({}, {})
                     self.graph.total_progress = load_range
-                    self.pseudo_graph.load_edges_w_o_topology(clean_features_iter(layer.getFeatures()))
+                    self.pseudo_graph.load_edges_w_o_topology(utf.clean_features_iter(layer.getFeatures()))
                     QgsMessageLog.logMessage('pseudo_graph edges added %s' % load_range, level=Qgis.Critical)
                     self.pseudo_graph.step = break_range / float(len(self.pseudo_graph.sEdges))
                     self.graph.load_edges(
@@ -333,7 +333,7 @@ class NetworkCleanerTool(QObject):
                     self.graph = sGraph({}, {})
                     self.graph.progress.connect(self.cl_progress.emit)
                     self.graph.step = load_range / float(layer.featureCount())
-                    self.graph.load_edges(clean_features_iter(layer.getFeatures()), angle_threshold)
+                    self.graph.load_edges(utf.clean_features_iter(layer.getFeatures()), angle_threshold)
                     QgsMessageLog.logMessage('graph edges added %s' % load_range, level=Qgis.Critical)
 
                 self.graph.step = cl1_range / (float(len(self.graph.sEdges)) * 2.0)
@@ -397,8 +397,8 @@ class NetworkCleanerTool(QObject):
 
                 cleaned_features = [e.feature for e in list(self.graph.sEdges.values())]
                 # add to errors multiparts and points
-                self.graph.errors += multiparts
-                self.graph.errors += points
+                self.graph.errors += utf.multiparts
+                self.graph.errors += utf.points
 
                 if is_debug:
                     print("survived!")

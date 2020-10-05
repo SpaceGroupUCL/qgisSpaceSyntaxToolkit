@@ -18,7 +18,7 @@ from __future__ import absolute_import
 # Import the PyQt and QGIS libraries
 from builtins import object
 
-from qgis.PyQt.QtCore import (QSettings, QTranslator, QCoreApplication, qVersion)
+from qgis.PyQt.QtCore import (QSettings, QTranslator, QCoreApplication, qVersion, Qt)
 from qgis.PyQt.QtGui import (QIcon, QPixmap)
 from qgis.PyQt.QtWidgets import (QAction, QDialog)
 
@@ -43,9 +43,6 @@ except ImportError as e:
         os.path.abspath(os.path.join(os.path.split(inspect.getfile(inspect.currentframe()))[0], "external")))
     if cmd_subfolder not in sys.path:
         sys.path.insert(0, cmd_subfolder)
-
-# Initialize Qt resources from file resources.py
-from .resources import *
 
 # Import general esstoolkit modules
 from .ui_About import Ui_AboutDialog
@@ -263,11 +260,11 @@ class EssToolkit(object):
     ###########
     def showAnalysis(self):
         self.iface.removeDockWidget(self.explorer.dlg)
-        self.iface.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.analysis.dlg)
+        self.iface.addDockWidget(Qt.RightDockWidgetArea, self.analysis.dlg)
 
     def showExplorer(self):
         self.iface.removeDockWidget(self.analysis.dlg)
-        self.iface.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.explorer.dlg)
+        self.iface.addDockWidget(Qt.RightDockWidgetArea, self.explorer.dlg)
 
     def showGateTransformer(self):
         self.gate_transformer.load_gui()

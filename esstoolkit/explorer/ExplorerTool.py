@@ -15,14 +15,16 @@
 
 from __future__ import absolute_import
 
+import numpy as np
 # Import the PyQt and QGIS libraries
-from qgis.core import (QgsProject, NULL)
+from qgis.PyQt.QtCore import QObject
+from qgis.core import (QgsProject, NULL, QgsRenderContext)
 
-from .AttributeCharts import *
-from .AttributeSymbology import *
+from esstoolkit.utilities import layer_field_helpers as lfh, utility_functions as uf
+from .AttributeCharts import AttributeCharts
+from .AttributeSymbology import AttributeSymbology
 # Import required modules
 from .ExplorerDialog import ExplorerDialog
-from esstoolkit.utilities import layer_field_helpers as lfh, utility_functions as uf
 
 
 class ExplorerTool(QObject):
@@ -652,7 +654,7 @@ class ExplorerTool(QObject):
             bistats['line'] = "%s + %s * X" % (uf.roundNumber(bistats['intercept']), uf.roundNumber(bistats['slope']))
         else:
             bistats['line'] = "%s - %s * X" % (
-            uf.roundNumber(abs(bistats['intercept'])), uf.roundNumber(bistats['slope']))
+                uf.roundNumber(abs(bistats['intercept'])), uf.roundNumber(bistats['slope']))
         self.bivariate_statistics.append(bistats)
 
     def retrieveValidAttributePairs(self, ids, values, dep_values):
