@@ -39,7 +39,7 @@ class DepthmapNetEngine(QObject, DepthmapEngine):
         self.axial_id = ''
         self.socket = None
         self.command = ''
-        self.results = None
+        self.analysis_results = None
 
     def ready(self):
         return self.connect_depthmap_net()
@@ -119,7 +119,7 @@ class DepthmapNetEngine(QObject, DepthmapEngine):
                     msg += result
             self.socket.closeSocket()
             attributes, values = self.parse_results(msg)
-            self.results = DepthmapEngine.process_analysis_result(analysis_settings, datastore, attributes, values)
+            self.analysis_results = DepthmapEngine.process_analysis_result(analysis_settings, datastore, attributes, values)
             return 0, 100
         elif "--comm: 3," in msg:
             return self.parse_progress(msg)

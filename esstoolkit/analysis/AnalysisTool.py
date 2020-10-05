@@ -695,7 +695,7 @@ class AnalysisTool(QObject):
                 feedback = u"Finish: %s" % dt.strftime("%d/%m/%Y %H:%M:%S")
                 self.dlg.write_analysis_report(feedback)
                 # process the output in the analysis
-                self.process_analysis_results(self.analysis_engine.results)
+                self.process_analysis_results(self.analysis_engine.analysis_results)
                 self.running_analysis = ''
             else:
                 if self.running_analysis == 'axial':
