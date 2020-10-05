@@ -21,14 +21,14 @@ import os.path
 # Import the PyQt and QGIS libraries
 from qgis.PyQt.QtCore import QTimer
 from qgis.PyQt.QtWidgets import QMessageBox
-from qgis.core import (QgsProject, QgsVectorDataProvider)
+from qgis.core import (QgsProject, QgsVectorDataProvider, Qgis)
 
+from esstoolkit.utilities import shapefile_helpers as shph
 # Import required modules
 from .AnalysisDialog import AnalysisDialog
 from .AxialVerification import *
 from .DepthmapNetEngine import *
 from .UnlinksVerification import *
-from esstoolkit.utilities import layer_field_helpers as lfh, shapefile_helpers as shph
 
 
 class AnalysisTool(QObject):
@@ -769,8 +769,35 @@ class AnalysisTool(QObject):
             create_table = True
         # shapefile data store
         if self.datastore['type'] == 0:
-            if lfh.getLayerPath(analysis_layer) != path or analysis_layer.name() != table:
+            existing_layer_path = lfh.getLayerPath(analysis_layer) + "/" + analysis_layer.name() + ".shp"
+            new_layer_path = path + "/" + table + ".shp"
+            original_table_name = table
+
+            if len(values) != analysis_layer.featureCount() and existing_layer_path == new_layer_path:
+                # we can't overwrite the file anymore because the number of lines is not the same,
+                # force a new file, by appending a number at the end
+                overwrite_counter = 1
+                while os.path.isfile(new_layer_path):
+                    # repeat until no such path exists
+                    table = original_table_name + "_" + str(overwrite_counter)
+                    new_layer_path = path + "/" + table + ".shp"
+                    overwrite_counter = overwrite_counter + 1
+                    if overwrite_counter > 1000:
+                        self.iface.messageBar().pushMessage("Error",
+                                                            "Existing file and newly suggested file have different "
+                                                            "number of lines, but can not create new file as too many "
+                                                            "existing duplicates",
+                                                            level=Qgis.Critical, duration=5)
+
+            if original_table_name != table:
+                self.iface.messageBar().pushMessage("Warning",
+                                                    "Existing file and newly suggested file have different "
+                                                    "number of lines, new file created with different name",
+                                                    level=Qgis.Warning, duration=5)
+            if original_table_name == table and \
+                    (lfh.getLayerPath(analysis_layer) != path or analysis_layer.name() != table):
                 create_table = True
+
             # convert type of choice columns to float
             for attr in attributes:
                 if 'CH' in attr:
@@ -850,4 +877,3 @@ class AnalysisTool(QObject):
             new_layer = lfh.createTempLayer(table, srid.postgisSrid(), attributes, types, values, coords)
 
         return new_layer
-
