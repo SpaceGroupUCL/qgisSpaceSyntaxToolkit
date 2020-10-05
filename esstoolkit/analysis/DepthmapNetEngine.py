@@ -165,7 +165,7 @@ class DepthmapNetEngine(QObject, DepthmapEngine):
                 self.showMessage("The axial layer is not ready for analysis: verify it first.", 'Info', lev=1, dur=5)
                 return False
             if self.unlinks_layer:
-                unlinks_data = self.prepareUnlinks()
+                unlinks_data = self.prepare_unlinks()
             else:
                 unlinks_data = ''
         else:
