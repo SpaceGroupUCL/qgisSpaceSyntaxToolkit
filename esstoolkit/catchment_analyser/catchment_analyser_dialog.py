@@ -75,8 +75,8 @@ class CatchmentAnalyserDialog(QDialog, FORM_CLASS):
 
     def setOutput(self):
         if self.shpRadioButton.isChecked():
-            self.file_name = QFileDialog.getSaveFileName(self, "Save output file ", self.getNetwork() + "_catchment",
-                                                         '*.shp')
+            self.file_name, _ = QFileDialog.getSaveFileName(self, "Save output file ", self.getNetwork() + "_catchment",
+                                                            '*.shp')
             if self.file_name:
                 self.networkText.setText(self.file_name)
             else:
@@ -208,7 +208,7 @@ class CatchmentAnalyserDialog(QDialog, FORM_CLASS):
         return self.polygonTolSpin.value()
 
     def setNetworkOutput(self):
-        file_name = QFileDialog.getSaveFileName(self, "Save output file ", "catchment_network", '*.shp')
+        file_name, _ = QFileDialog.getSaveFileName(self, "Save output file ", "catchment_network", '*.shp')
         if file_name:
             self.networkText.setText(file_name)
 

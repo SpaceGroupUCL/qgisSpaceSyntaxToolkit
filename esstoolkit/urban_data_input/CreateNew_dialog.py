@@ -74,7 +74,7 @@ class CreatenewDialog(QtWidgets.QDialog, FORM_CLASS):
     def selectSaveLocation(self):
         if self.f_shp_radioButton.isChecked():
             self.lineEditFrontages.clear()
-            filename = QtWidgets.QFileDialog.getSaveFileName(None, "Specify Output Location ", "", '*.shp')
+            filename, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Specify Output Location ", "", '*.shp')
             self.lineEditFrontages.setText(filename)
         elif self.f_postgis_radioButton.isChecked():
             self.lineEditFrontages.clear()

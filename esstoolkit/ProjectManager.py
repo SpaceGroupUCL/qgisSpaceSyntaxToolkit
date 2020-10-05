@@ -437,8 +437,8 @@ class ProjectDialog(QDialog, Ui_ProjectDialog):
                 path = str(path)
                 name = os.path.basename(path)
         elif self.datastore_type == 1:
-            path = QtWidgets.QFileDialog.getSaveFileName(self, "Create Spatialite data base", lastDir,
-                                                         "Spatialite (*.sqlite *.db)")
+            path, _ = QtWidgets.QFileDialog.getSaveFileName(self, "Create Spatialite data base", lastDir,
+                                                            "Spatialite (*.sqlite *.db)")
             if path.strip() != "":
                 path = str(path)
                 name = os.path.basename(path)

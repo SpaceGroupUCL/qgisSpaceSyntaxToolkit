@@ -72,7 +72,7 @@ class CreateNew_LUDialog(QtWidgets.QDialog, FORM_CLASS):
     def selectSaveLocationLU(self):
         if self.lu_shp_radioButton.isChecked():
             self.lineEditLU.clear()
-            filename = QtWidgets.QFileDialog.getSaveFileName(None, "Specify Output Location ", "", '*.shp')
+            filename, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Specify Output Location ", "", '*.shp')
             self.lineEditLU.setText(filename)
         elif self.lu_postgis_radioButton.isChecked():
             self.lineEditLU.clear()

@@ -20,7 +20,7 @@ from __future__ import absolute_import
 
 import os.path
 
-from qgis.PyQt import QtGui, uic
+from qgis.PyQt import QtGui, uic, QtWidgets
 from qgis.PyQt.QtCore import pyqtSignal
 from qgis.PyQt.QtWidgets import QDialog
 
@@ -312,8 +312,8 @@ class RoadNetworkCleanerDialog(QDialog, FORM_CLASS):
 
     def setOutput(self):
         if self.shpRadioButton.isChecked():
-            self.file_name = QtGui.QFileDialog.getSaveFileName(self, "Save output file ", self.getNetwork() + "_cl",
-                                                               '*.shp')
+            self.file_name, _ = QtWidgets.QFileDialog.getSaveFileName(self, "Save output file ", self.getNetwork() + "_cl",
+                                                                      '*.shp')
             if self.file_name:
                 self.outputCleaned.setText(self.file_name)
             else:

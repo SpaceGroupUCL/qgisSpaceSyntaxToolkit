@@ -71,7 +71,7 @@ class CreateNew_EntranceDialog(QtWidgets.QDialog, FORM_CLASS):
     # Open Save file dialogue and set location in text edit
     def selectSaveLocationEntrance(self):
         if self.e_shp_radioButton.isChecked():
-            filename = QtWidgets.QFileDialog.getSaveFileName(None, "Specify Output Location ", "", '*.shp')
+            filename, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Specify Output Location ", "", '*.shp')
             self.lineEditEntrances.clear()
             self.lineEditEntrances.setText(filename)
         elif self.e_postgis_radioButton.isChecked():
