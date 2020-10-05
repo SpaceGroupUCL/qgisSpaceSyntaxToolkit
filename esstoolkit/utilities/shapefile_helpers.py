@@ -122,10 +122,6 @@ def create_shapefile_full_layer_data_provider(path, name, srid, attributes, type
     """
     # create new layer with given attributes
     filename = path + "/" + name + ".shp"
-    # create the required fields
-    fields = QgsFields()
-    for i, attr in enumerate(attributes):
-        fields.append(QgsField(attr, types[i]))
 
     # create an instance of vector file writer, which will create the vector file.
     writer = None
@@ -134,11 +130,11 @@ def create_shapefile_full_layer_data_provider(path, name, srid, attributes, type
     options.fileEncoding = 'utf-8'
     if len(coords) == 2:
         type = 'point'
-        writer = QgsVectorFileWriter.create(filename, fields, QgsWkbTypes.Point, srid,
+        writer = QgsVectorFileWriter.create(filename, QgsFields(), QgsWkbTypes.Point, srid,
                                             QgsCoordinateTransformContext(), options)
     elif len(coords) == 4:
         type = 'line'
-        writer = QgsVectorFileWriter.create(filename, fields, QgsWkbTypes.LineString, srid,
+        writer = QgsVectorFileWriter.create(filename, QgsFields(), QgsWkbTypes.LineString, srid,
                                             QgsCoordinateTransformContext(), options)
     if writer.hasError() != QgsVectorFileWriter.NoError:
         print("Error when creating shapefile: ", writer.hasError())
@@ -148,6 +144,11 @@ def create_shapefile_full_layer_data_provider(path, name, srid, attributes, type
     vl = QgsVectorLayer(filename, name, "ogr")
 
     pr = vl.dataProvider()
+
+    # create the required fields
+    for i, attr in enumerate(attributes):
+        pr.addAttributes([QgsField(attr, types[i])])
+    vl.commitChanges()
     # add features by iterating the values
     feat = QgsFeature()
     for i, val in enumerate(values):
@@ -170,8 +171,10 @@ def create_shapefile_full_layer_data_provider(path, name, srid, attributes, type
             attrs.append(val[j])
         feat.setAttributes(attrs)
         pr.addFeature(feat)
-
     vl.updateExtents()
+
+    vl = QgsVectorLayer(filename, name, "ogr")
+
     if not vl.isValid():
         raise IOError("Layer could not be created")
         return None
