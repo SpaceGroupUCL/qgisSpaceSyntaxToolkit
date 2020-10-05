@@ -92,9 +92,9 @@ def copyLayerToShapeFile(layer, path, name):
     return vlayer
 
 
-def create_shapefile_full_layer_ogr(path, name, srid, attributes, types, values, coords):
+def create_shapefile_full_layer_data_provider(path, name, srid, attributes, types, values, coords):
     """
-    Creates a shapefile using the OGR driver
+    Creates a shapefile using the Shapefile Data Provider
 
     Parameters
     ----------
@@ -127,9 +127,26 @@ def create_shapefile_full_layer_ogr(path, name, srid, attributes, types, values,
     for i, attr in enumerate(attributes):
         fields.append(QgsField(attr, types[i]))
 
-    # create a new layer using the OGR driver which will create the vector file.
+    # create an instance of vector file writer, which will create the vector file.
+    writer = None
+    options = QgsVectorFileWriter.SaveVectorOptions()
+    options.driverName = "ESRI Shapefile"
+    options.fileEncoding = 'utf-8'
+    if len(coords) == 2:
+        type = 'point'
+        writer = QgsVectorFileWriter.create(filename, fields, QgsWkbTypes.Point, srid,
+                                            QgsCoordinateTransformContext(), options)
+    elif len(coords) == 4:
+        type = 'line'
+        writer = QgsVectorFileWriter.create(filename, fields, QgsWkbTypes.LineString, srid,
+                                            QgsCoordinateTransformContext(), options)
+    if writer.hasError() != QgsVectorFileWriter.NoError:
+        print("Error when creating shapefile: ", writer.hasError())
+        return None
+    del writer
+    # open the newly created file
     vl = QgsVectorLayer(filename, name, "ogr")
-    vl.setCrs(srid)
+
     pr = vl.dataProvider()
     # add features by iterating the values
     feat = QgsFeature()
