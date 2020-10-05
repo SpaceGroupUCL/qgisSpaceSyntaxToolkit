@@ -19,16 +19,18 @@ import datetime
 import os.path
 
 # Import the PyQt and QGIS libraries
-from qgis.PyQt.QtCore import QTimer
+from qgis.PyQt.QtCore import (QObject, QTimer, pyqtSignal, QVariant)
 from qgis.PyQt.QtWidgets import QMessageBox
-from qgis.core import (QgsProject, QgsVectorDataProvider, Qgis)
+from qgis.core import (QgsProject, QgsVectorDataProvider, Qgis, QgsWkbTypes)
 
-from esstoolkit.utilities import shapefile_helpers as shph
+from esstoolkit.utilities import shapefile_helpers as shph, layer_field_helpers as lfh, db_helpers as dbh
 # Import required modules
 from .AnalysisDialog import AnalysisDialog
-from .AxialVerification import *
-from .DepthmapNetEngine import *
-from .UnlinksVerification import *
+from .AnalysisEngine import AnalysisEngine
+from .AxialVerification import AxialVerification
+from .DepthmapEngine import DepthmapEngine
+from .DepthmapNetEngine import DepthmapNetEngine
+from .UnlinksVerification import UnlinksVerification, UnlinksIdUpdate
 
 
 class AnalysisTool(QObject):
