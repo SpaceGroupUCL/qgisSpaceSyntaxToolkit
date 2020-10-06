@@ -21,7 +21,7 @@ from qgis.core import (QgsVertexId)
 from esstoolkit.analysis.AnalysisEngine import AnalysisEngine
 from esstoolkit.analysis.DepthmapEngine import DepthmapEngine
 from esstoolkit.analysis.DepthmapNetSocket import DepthmapNetSocket
-from esstoolkit.utilities import layer_field_helpers as lfh
+from esstoolkit.utilities import layer_field_helpers as lfh, utility_functions as uf
 
 
 # Import the PyQt and QGIS libraries
@@ -133,6 +133,20 @@ class DepthmapNetEngine(QObject, DepthmapEngine):
 
     def showMessage(self, msg, type='Info', lev=1, dur=2):
         self.iface.messageBar().pushMessage(type, msg, level=lev, duration=dur)
+
+    def parse_radii(self, txt):
+        radii = txt
+        radii.lower()
+        radii = radii.replace(' ', '')
+        radii = radii.split(',')
+        radii.sort()
+        radii = list(set(radii))
+        radii = ['0' if x == 'n' else x for x in radii]
+        for r in radii:
+            if not uf.isNumeric(r):
+                return ''
+        radii = ','.join(radii)
+        return radii
 
     def setup_analysis(self, layers, settings):
         self.settings = settings

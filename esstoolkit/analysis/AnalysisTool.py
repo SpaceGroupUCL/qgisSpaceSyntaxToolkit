@@ -29,7 +29,7 @@ from .AnalysisDialog import AnalysisDialog
 from .AnalysisEngine import AnalysisEngine
 from .AxialVerification import AxialVerification
 from .DepthmapEngine import DepthmapEngine
-from .DepthmapNetEngine import DepthmapNetEngine
+from .DepthmapCLIEngine import DepthmapCLIEngine
 from .UnlinksVerification import UnlinksVerification, UnlinksIdUpdate
 
 
@@ -43,7 +43,7 @@ class AnalysisTool(QObject):
         self.settings = settings
         self.project = project
         self.legend = QgsProject.instance().mapLayers()
-        self.analysis_engine = DepthmapNetEngine(self.iface)
+        self.analysis_engine = DepthmapCLIEngine(self.iface)
         self.running_analysis = ''
 
     def load(self):
@@ -575,7 +575,7 @@ class AnalysisTool(QObject):
             self.axial_analysis_settings['id'] = lfh.getIdField(analysis_layer)
             self.axial_analysis_settings['weight'] = self.dlg.get_analysis_weighted()
             self.axial_analysis_settings['weightBy'] = self.dlg.get_analysis_weight_attribute()
-            txt = DepthmapEngine.parse_radii(self.dlg.get_analysis_radius_text())
+            txt = self.analysis_engine.parse_radii(self.dlg.get_analysis_radius_text())
             if txt == '':
                 self.dlg.write_analysis_report("Please verify the radius values.")
                 return
