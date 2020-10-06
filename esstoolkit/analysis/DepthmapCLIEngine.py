@@ -180,11 +180,12 @@ class DepthmapCLIEngine(QObject, DepthmapEngine):
         unlink_data_file.write(self.prep_unlink_data)
         self.analysis_graph_file = tempfile.NamedTemporaryFile('w+t', suffix='.graph')
 
-        subprocess.check_output([depthmap_cli,
+        process = subprocess.Popen([depthmap_cli,
                                  "-f", line_data_file.name,
                                  "-o", self.analysis_graph_file.name,
                                  "-m", "IMPORT",
                                  "-it", "data"])
+        process.wait()
         line_data_file.close()
         unlink_data_file.close()
 
@@ -195,7 +196,9 @@ class DepthmapCLIEngine(QObject, DepthmapEngine):
                            "-f", self.analysis_graph_file.name,
                            "-o", self.analysis_graph_file.name]
             cli_command.extend(prep_command)
-            subprocess.check_output(cli_command)
+            process = subprocess.Popen(cli_command)
+            process.wait()
+
         command = DepthmapCLIEngine.get_analysis_command(self.analysis_settings)
         cli_command = [depthmap_cli,
                        "-f", self.analysis_graph_file.name,
@@ -255,7 +258,8 @@ class DepthmapCLIEngine(QObject, DepthmapEngine):
                            "-f", self.analysis_graph_file.name,
                            "-o", export_data_file.name]
             cli_command.extend(export_command)
-            subprocess.check_output(cli_command)
+            process = subprocess.Popen(cli_command)
+            process.wait()
 
             attributes, values = self.parse_result_file(export_data_file.name)
             export_data_file.close()
