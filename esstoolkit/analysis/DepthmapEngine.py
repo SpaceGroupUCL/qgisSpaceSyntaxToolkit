@@ -1,4 +1,3 @@
-import csv
 import math
 
 from qgis.PyQt.QtCore import QVariant
@@ -35,37 +34,36 @@ class DepthmapEngine:
                     for f in features:
                         map_data += str(f.attribute(ref)) + sep
                         map_data += str(f.geometry().vertexAt(0).x()) + sep + \
-                                      str(f.geometry().vertexAt(0).y()) + sep
+                                    str(f.geometry().vertexAt(0).y()) + sep
                         map_data += str(f.geometry().vertexAt(1).x()) + sep + \
-                                      str(f.geometry().vertexAt(1).y()) + sep
+                                    str(f.geometry().vertexAt(1).y()) + sep
                         map_data += str(f.attribute(weight)) + "\n"
                 else:
                     for f in features:
                         map_data += str(f.attribute(ref)) + sep
                         map_data += str(f.geometry().vertexAt(0).x()) + sep + \
-                                      str(f.geometry().vertexAt(0).y()) + sep
+                                    str(f.geometry().vertexAt(0).y()) + sep
                         map_data += str(f.geometry().vertexAt(1).x()) + sep + \
-                                      str(f.geometry().vertexAt(1).y()) + "\n"
+                                    str(f.geometry().vertexAt(1).y()) + "\n"
             else:
                 if weight not in defaults:
                     for f in features:
                         map_data += str(f.id()) + sep
                         map_data += str(f.geometry().vertexAt(0).x()) + sep + \
-                                      str(f.geometry().vertexAt(0).y()) + sep
+                                    str(f.geometry().vertexAt(0).y()) + sep
                         map_data += str(f.geometry().vertexAt(1).x()) + sep + \
-                                      str(f.geometry().vertexAt(1).y()) + sep
+                                    str(f.geometry().vertexAt(1).y()) + sep
                         map_data += str(f.attribute(weight)) + "\n"
                 else:
                     for f in features:
                         map_data += str(f.id()) + sep
                         map_data += str(f.geometry().vertexAt(0).x()) + sep + \
-                                      str(f.geometry().vertexAt(0).y()) + sep
+                                    str(f.geometry().vertexAt(0).y()) + sep
                         map_data += str(f.geometry().vertexAt(1).x()) + sep + \
-                                      str(f.geometry().vertexAt(1).y()) + "\n"
+                                    str(f.geometry().vertexAt(1).y()) + "\n"
             return map_data
         except:
-            self.showMessage("Exporting axial map failed.", 'Error', lev=3, dur=5)
-            return ''
+            raise AnalysisEngine.AnalysisEngineError("Exporting axial map failed.")
 
     def prepare_segment_map(self, axial_layer, map_type, ref='', weight='', sep='\t', include_header=False):
         try:
@@ -91,9 +89,9 @@ class DepthmapEngine:
                         while f.geometry().vertexIdFromVertexNr(nr + 1)[0]:
                             map_data += str(f.attribute(ref)) + sep
                             map_data += str(f.geometry().vertexAt(nr).x()) + sep + \
-                                            str(f.geometry().vertexAt(nr).y()) + sep
+                                        str(f.geometry().vertexAt(nr).y()) + sep
                             map_data += str(f.geometry().vertexAt(nr + 1).x()) + sep + \
-                                            str(f.geometry().vertexAt(nr + 1).y()) + sep
+                                        str(f.geometry().vertexAt(nr + 1).y()) + sep
                             map_data += str(f.attribute(weight)) + "\n"
                             nr += 1
                 else:
@@ -102,9 +100,9 @@ class DepthmapEngine:
                         while f.geometry().vertexIdFromVertexNr(nr + 1)[0]:
                             map_data += str(f.attribute(ref)) + sep
                             map_data += str(f.geometry().vertexAt(nr).x()) + sep + \
-                                            str(f.geometry().vertexAt(nr).y()) + sep
+                                        str(f.geometry().vertexAt(nr).y()) + sep
                             map_data += str(f.geometry().vertexAt(nr + 1).x()) + sep + \
-                                            str(f.geometry().vertexAt(nr + 1).y()) + "\n"
+                                        str(f.geometry().vertexAt(nr + 1).y()) + "\n"
                             nr += 1
             else:
                 if weight not in defaults:
@@ -113,9 +111,9 @@ class DepthmapEngine:
                         while f.geometry().vertexIdFromVertexNr(nr + 1)[0]:
                             map_data += str(f.id()) + sep
                             map_data += str(f.geometry().vertexAt(nr).x()) + sep + \
-                                            str(f.geometry().vertexAt(nr).y()) + sep
+                                        str(f.geometry().vertexAt(nr).y()) + sep
                             map_data += str(f.geometry().vertexAt(nr + 1).x()) + sep + \
-                                            str(f.geometry().vertexAt(nr + 1).y()) + sep
+                                        str(f.geometry().vertexAt(nr + 1).y()) + sep
                             map_data += str(f.attribute(weight)) + "\n"
                             nr += 1
                 else:
@@ -124,36 +122,41 @@ class DepthmapEngine:
                         while f.geometry().vertexIdFromVertexNr(nr + 1)[0]:
                             map_data += str(f.id()) + sep
                             map_data += str(f.geometry().vertexAt(nr).x()) + sep + \
-                                            str(f.geometry().vertexAt(nr).y()) + sep
+                                        str(f.geometry().vertexAt(nr).y()) + sep
                             map_data += str(f.geometry().vertexAt(nr + 1).x()) + sep + \
-                                            str(f.geometry().vertexAt(nr + 1).y()) + "\n"
+                                        str(f.geometry().vertexAt(nr + 1).y()) + "\n"
                             nr += 1
             return map_data
         except Exception as e:
-            self.showMessage("Exporting segment map failed.", 'Error: ' + str(e), lev=3, dur=5)
-            return ''
+            raise AnalysisEngine.AnalysisEngineError("Exporting segment map failed.")
 
-    def prepare_unlinks(self, axial_layer, unlinks_layer, axial_id):
+    def prepare_unlinks(self, axial_layer, unlinks_layer, axial_id, use_coords=False,
+                        sep=",", linesep=";", include_header=False):
         unlinks_data = ''
         # check if unlinks layer is valid
         if not lfh.fieldExists(unlinks_layer, 'line1') or not lfh.fieldExists(unlinks_layer, 'line2'):
-            self.showMessage("Unlinks layer not ready for analysis: update and verify first.", 'Info', lev=1, dur=5)
+            raise AnalysisEngine.AnalysisEngineError("Unlinks layer not ready for analysis: update and verify first.")
             return unlinks_data
         elif lfh.fieldHasNullValues(unlinks_layer, 'line1') or lfh.fieldHasNullValues(unlinks_layer, 'line2'):
-            self.showMessage("Unlinks layer not ready for analysis: update and verify first.", 'Info', lev=1, dur=5)
+            raise AnalysisEngine.AnalysisEngineError("Unlinks layer not ready for analysis: update and verify first.")
             return unlinks_data
         # get axial ids
         axialids, ids = lfh.getFieldValues(axial_layer, axial_id)
+        if include_header:
+            unlinks_data = 'x' + sep + 'y' + linesep
         # assign row number by id
         try:
             features = unlinks_layer.getFeatures()
             for f in features:
-                row1 = axialids.index(f.attribute('line1'))
-                row2 = axialids.index(f.attribute('line2'))
-                unlinks_data += str(row1) + ',' + str(row2) + ';'
-        except:
-            self.showMessage("Exporting unlinks failed.", 'Warning', lev=1, dur=5)
-            return unlinks_data
+                if use_coords:
+                    row1 = f.geometry().asPoint().x()
+                    row2 = f.geometry().asPoint().y()
+                else:
+                    row1 = axialids.index(f.attribute('line1'))
+                    row2 = axialids.index(f.attribute('line2'))
+                unlinks_data += str(row1) + sep + str(row2) + linesep
+        except Exception as e:
+            raise AnalysisEngine.AnalysisEngineError("Exporting unlinks failed: " + str(e))
         if unlinks_data != '':
             unlinks_data = unlinks_data[:-1]
         return unlinks_data

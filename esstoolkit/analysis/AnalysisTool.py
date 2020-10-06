@@ -338,7 +338,8 @@ class AnalysisTool(QObject):
                 self.iface.messageBar().pushMessage("Info",
                                                     "The unlinks layer has invalid values in the ID column. Using feature ids.",
                                                     level=0, duration=3)
-            if unlinks.fieldNameIndex("line1") == -1 or unlinks.fieldNameIndex("line2") == -1:
+            if unlinks.dataProvider().fieldNameIndex("line1") == -1 or \
+                    unlinks.dataProvider().fieldNameIndex("line2") == -1:
                 self.iface.messageBar().pushMessage("Warning",
                                                     "Line ID columns missing in unlinks layer, please 'Update IDs'.",
                                                     level=1, duration=3)

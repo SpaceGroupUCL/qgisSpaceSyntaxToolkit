@@ -634,8 +634,8 @@ class UnlinksIdUpdate(QThread):
 
     def qgisUpdateIDs(self, unlinktype):
         # create spatial index
-        unlinksindex = dbh.createIndex(self.unlinks_layer)
-        axialindex = dbh.createIndex(self.axial_layer)
+        unlinksindex = lfh.createIndex(self.unlinks_layer)
+        axialindex = lfh.createIndex(self.axial_layer)
         # add line id columns if necessary
         lfh.addFields(self.unlinks_layer, ['line1', 'line2'], [QVariant.Int, QVariant.Int])
         line1 = lfh.getFieldIndex(self.unlinks_layer, 'line1')
