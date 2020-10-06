@@ -174,11 +174,11 @@ class DepthmapCLIEngine(QObject, DepthmapEngine):
     def start_analysis(self):
         depthmap_cli = DepthmapCLIEngine.get_depthmap_cli()
 
-        line_data_file = tempfile.NamedTemporaryFile('w+t', suffix='.csv')
+        line_data_file = tempfile.NamedTemporaryFile('w+t', suffix='.csv', delete=False)
         line_data_file.write(self.prep_line_data)
-        unlink_data_file = tempfile.NamedTemporaryFile('w+t', suffix='.csv')
+        unlink_data_file = tempfile.NamedTemporaryFile('w+t', suffix='.csv', delete=False)
         unlink_data_file.write(self.prep_unlink_data)
-        self.analysis_graph_file = tempfile.NamedTemporaryFile('w+t', suffix='.graph')
+        self.analysis_graph_file = tempfile.NamedTemporaryFile('w+t', suffix='.graph', delete=False)
 
         process = subprocess.Popen([depthmap_cli,
                                  "-f", line_data_file.name,
@@ -187,7 +187,9 @@ class DepthmapCLIEngine(QObject, DepthmapEngine):
                                  "-it", "data"])
         process.wait()
         line_data_file.close()
+        os.unlink(line_data_file.name)
         unlink_data_file.close()
+        os.unlink(unlink_data_file.name)
 
         prep_commands = DepthmapCLIEngine.get_prep_commands(self.analysis_settings)
 
@@ -252,7 +254,7 @@ class DepthmapCLIEngine(QObject, DepthmapEngine):
             return prg
         elif rc == 0:
             # process exited normally
-            export_data_file = tempfile.NamedTemporaryFile('w+t', suffix='.csv')
+            export_data_file = tempfile.NamedTemporaryFile('w+t', suffix='.csv', delete=False)
             export_command = DepthmapCLIEngine.get_export_command()
             cli_command = [DepthmapCLIEngine.get_depthmap_cli(),
                            "-f", self.analysis_graph_file.name,
@@ -263,6 +265,7 @@ class DepthmapCLIEngine(QObject, DepthmapEngine):
 
             attributes, values = self.parse_result_file(export_data_file.name)
             export_data_file.close()
+            os.unlink(export_data_file.name)
 
             self.analysis_results = DepthmapEngine.process_analysis_result(settings, datastore,
                                                                            attributes, values)
@@ -272,6 +275,7 @@ class DepthmapCLIEngine(QObject, DepthmapEngine):
     def cleanup(self):
         if os.path.isfile(self.analysis_graph_file.name):
             self.analysis_graph_file.close()
+            os.unlink(self.analysis_graph_file.name)
 
     @staticmethod
     def get_analysis_command(settings):
