@@ -115,7 +115,7 @@ class DepthmapCLIEngine(QObject, DepthmapEngine):
                 self.showMessage("The axial layer is not ready for analysis: verify it first.", 'Info', lev=1, dur=5)
                 return '', ''
             if unlinks_layer:
-                unlinks_data = self.prepare_unlinks()
+                unlinks_data = self.prepare_unlinks(axial_layer, unlinks_layer, axial_id)
             else:
                 unlinks_data = ''
         else:
@@ -181,10 +181,10 @@ class DepthmapCLIEngine(QObject, DepthmapEngine):
         self.analysis_graph_file = tempfile.NamedTemporaryFile('w+t', suffix='.graph', delete=False)
 
         process = subprocess.Popen([depthmap_cli,
-                                 "-f", line_data_file.name,
-                                 "-o", self.analysis_graph_file.name,
-                                 "-m", "IMPORT",
-                                 "-it", "data"])
+                                    "-f", line_data_file.name,
+                                    "-o", self.analysis_graph_file.name,
+                                    "-m", "IMPORT",
+                                    "-it", "data"])
         process.wait()
         line_data_file.close()
         os.unlink(line_data_file.name)
@@ -214,7 +214,6 @@ class DepthmapCLIEngine(QObject, DepthmapEngine):
     def parse_progress(self, msg):
         # calculate percent done
         p = re.compile(".*?step:\\s?([0-9]+)\\s?/\\s?([0-9]+)\\s?record:\\s?([0-9]+)\\s?/\\s?([0-9]+).*?")
-        # p = re.compile(".*?step\\s?([0-9]+)\\s?/\\s?([0-9]+)\\s?record:\\s?([0-9]+)\\s?/\\s?([0-9]+).*?")
         m = p.match(msg)
         # extract number of nodes
         if m:
