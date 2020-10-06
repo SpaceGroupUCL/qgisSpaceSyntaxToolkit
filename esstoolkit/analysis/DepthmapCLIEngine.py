@@ -24,6 +24,7 @@ from builtins import str
 
 from qgis.PyQt.QtCore import (QObject)
 
+from esstoolkit.analysis.AnalysisEngine import AnalysisEngine
 from esstoolkit.analysis.DepthmapEngine import DepthmapEngine
 from esstoolkit.utilities import layer_field_helpers as lfh, utility_functions as uf
 from esstoolkit.utilities.exceptions import BadInputError
@@ -50,9 +51,6 @@ class DepthmapCLIEngine(QObject, DepthmapEngine):
         self.analysis_process = None
         self.analysis_graph_file = None
         self.analysis_results = None
-
-    def showMessage(self, msg, type='Info', lev=1, dur=2):
-        self.iface.messageBar().pushMessage(type, msg, level=lev, duration=dur)
 
     @staticmethod
     def get_depthmap_cli():
@@ -112,10 +110,9 @@ class DepthmapCLIEngine(QObject, DepthmapEngine):
         if settings['type'] in (0, 1):
             axial_data = self.prepare_axial_map(axial_layer, settings['type'], axial_id, weight_by, ',', True)
             if axial_data == '':
-                self.showMessage("The axial layer is not ready for analysis: verify it first.", 'Info', lev=1, dur=5)
-                return '', ''
+                raise AnalysisEngine.AnalysisEngineError("The axial layer is not ready for analysis: verify it first.")
             if unlinks_layer:
-                unlinks_data = self.prepare_unlinks(axial_layer, unlinks_layer, axial_id)
+                unlinks_data = self.prepare_unlinks(axial_layer, unlinks_layer, axial_id, True, '\t', '\n', True)
             else:
                 unlinks_data = ''
         else:
@@ -124,18 +121,30 @@ class DepthmapCLIEngine(QObject, DepthmapEngine):
         return axial_data, unlinks_data
 
     @staticmethod
-    def get_prep_commands(settings):
+    def get_prep_commands(settings, unlinks_file_name):
         commands = []
         if settings['type'] == 0:
             commands.append(["-m", "MAPCONVERT",
                              "-co", "axial",
                              "-con", "Axial Map",
                              "-cir"])
+            if unlinks_file_name:
+                commands.append(["-m", "LINK",
+                                 "-lm", "unlink",
+                                 "-lt", "coords",
+                                 "-lmt", "shapegraphs",
+                                 "-lf", unlinks_file_name])
         elif settings['type'] == 1:
             commands.append(["-m", "MAPCONVERT",
                              "-co", "axial",
                              "-con", "Axial Map",
                              "-coc"])
+            if unlinks_file_name:
+                commands.append(["-m", "LINK",
+                                 "-lm", "unlink",
+                                 "-lt", "coords",
+                                 "-lmt", "shapegraphs",
+                                 "-lf", unlinks_file_name])
             commands.append(["-m", "MAPCONVERT",
                              "-co", "segment",
                              "-con", "Segment Map",
@@ -176,22 +185,22 @@ class DepthmapCLIEngine(QObject, DepthmapEngine):
 
         line_data_file = tempfile.NamedTemporaryFile('w+t', suffix='.csv', delete=False)
         line_data_file.write(self.prep_line_data)
-        unlink_data_file = tempfile.NamedTemporaryFile('w+t', suffix='.csv', delete=False)
-        unlink_data_file.write(self.prep_unlink_data)
-        self.analysis_graph_file = tempfile.NamedTemporaryFile('w+t', suffix='.graph', delete=False)
+        line_data_file.close()
 
+        self.analysis_graph_file = tempfile.NamedTemporaryFile('w+t', suffix='.graph', delete=False)
         process = subprocess.Popen([depthmap_cli,
                                     "-f", line_data_file.name,
                                     "-o", self.analysis_graph_file.name,
                                     "-m", "IMPORT",
                                     "-it", "data"])
         process.wait()
-        line_data_file.close()
         os.unlink(line_data_file.name)
-        unlink_data_file.close()
-        os.unlink(unlink_data_file.name)
 
-        prep_commands = DepthmapCLIEngine.get_prep_commands(self.analysis_settings)
+        unlink_data_file = tempfile.NamedTemporaryFile('w+t', suffix='.tsv', delete=False)
+        unlink_data_file.write(self.prep_unlink_data)
+        unlink_data_file.close()
+
+        prep_commands = DepthmapCLIEngine.get_prep_commands(self.analysis_settings, unlink_data_file.name)
 
         for prep_command in prep_commands:
             cli_command = [depthmap_cli,
@@ -200,6 +209,8 @@ class DepthmapCLIEngine(QObject, DepthmapEngine):
             cli_command.extend(prep_command)
             process = subprocess.Popen(cli_command)
             process.wait()
+
+        os.unlink(unlink_data_file.name)
 
         command = DepthmapCLIEngine.get_analysis_command(self.analysis_settings)
         cli_command = [depthmap_cli,
