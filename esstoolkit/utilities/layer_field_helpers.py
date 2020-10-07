@@ -23,7 +23,7 @@ from builtins import zip
 from qgis.PyQt.QtCore import (QVariant)
 from qgis.PyQt.QtGui import QColor
 from qgis.core import (QgsProject, QgsMapLayer, QgsDataSourceUri, QgsVectorLayer, QgsVectorDataProvider, QgsField,
-                       QgsPoint, QgsGeometry, QgsFeature, QgsFeatureRequest, QgsSpatialIndex, NULL)
+                       QgsPoint, QgsGeometry, QgsFeature, QgsFeatureRequest, QgsSpatialIndex, NULL, QgsWkbTypes)
 
 
 # from pyspatialite import dbapi2 as sqlite
@@ -87,6 +87,27 @@ def getCanvasLayers(iface, geom='all', provider='all'):
                     add_layer = True
         if add_layer:
             layers_list.append(layer)
+    return layers_list
+
+
+def getLineLayers():
+    """Get a list of QgsVectorLayer that are of Line geometry"""
+    layers_list = []
+    for layer in QgsProject.instance().mapLayers().values():
+        if layer.isValid() and layer.type() == QgsMapLayer.VectorLayer:
+            if layer.isSpatial() and (layer.geometryType() == QgsWkbTypes.LineGeometry):
+                layers_list.append(layer.name())
+    return layers_list
+
+
+def getPointPolygonLayers():
+    """Get a list of QgsVectorLayer that are of Point or Polygon geometry"""
+    layers_list = []
+    for layer in QgsProject.instance().mapLayers().values():
+        if layer.isValid() and layer.type() == QgsMapLayer.VectorLayer:
+            if layer.isSpatial() and (layer.geometryType() in [QgsWkbTypes.PointGeometry,
+                                                               QgsWkbTypes.PolygonGeometry]):
+                layers_list.append(layer.name())
     return layers_list
 
 

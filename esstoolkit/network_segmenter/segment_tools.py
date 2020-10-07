@@ -7,7 +7,7 @@ from builtins import range
 from builtins import zip
 
 from qgis.PyQt.QtCore import QObject, pyqtSignal, QVariant
-from qgis.core import QgsSpatialIndex, QgsGeometry, QgsDistanceArea, QgsFeature, QgsField, QgsFields, NULL
+from qgis.core import QgsSpatialIndex, QgsGeometry, QgsDistanceArea, QgsFeature, QgsField, QgsFields, NULL, QgsWkbTypes
 
 try:
     from .utilityFunctions import prototype_feature
@@ -44,6 +44,10 @@ class segmentor(QObject):
         self.break_f = prototype_feature(['break point'], fields)
         self.invalid_unlink_f = prototype_feature(['invalid unlink'], fields)
         self.stub_f = prototype_feature(['stub'], fields)
+
+        self.step = 1
+        self.total_progress = 0
+        self.unlinks_points = None
 
     def load_graph(self):
 
@@ -206,7 +210,6 @@ class segmentor(QObject):
                 stubs_point_feats = [self.copy_feat(self.stub_f, QgsGeometry.fromPointXY(p_fid2[0]), p_fid2[1]) for
                                      p_fid2 in (list(zip(self.stubs_points, ids)))]
 
-
         except Exception as exc:
             print(exc, traceback.format_exc())
             # TODO: self.error.emit(exc, traceback.format_exc())
@@ -248,10 +251,10 @@ class segmentor(QObject):
         filtered_lines = [l for l in lines if self.feats[l].geometry().intersects(point_geom)]
         return len(set(filtered_lines))
 
-    def copy_feat(self, f, geom, id):
+    def copy_feat(self, f, geom, feat_id):
         copy_feat = QgsFeature(f)
         copy_feat.setGeometry(geom)
-        copy_feat.setId(id)
+        copy_feat.setId(feat_id)
         return copy_feat
 
     # only 1 time execution permitted
