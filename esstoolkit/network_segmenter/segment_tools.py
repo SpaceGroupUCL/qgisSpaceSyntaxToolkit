@@ -75,7 +75,6 @@ class segmentor(QObject):
         lines = [i for i in self.spIndex.intersects(unlink_geom.boundingBox()) if
                  unlink_geom.intersects(self.feats[i].geometry())]
         lines = list(set(lines))
-        # if unlink_geom.wkbType() == 3:
         if len(lines) != 2:
             self.invalid_unlinks.append(unlink_geom.centroid().asPoint())
         else:
@@ -99,12 +98,13 @@ class segmentor(QObject):
     def point_iter(self, interlines, ml_geom):
         for line in interlines:
             inter = ml_geom.intersection(self.feats[line].geometry())
-            if inter.wkbType() == 1:
-                yield ml_geom.lineLocatePoint(inter), inter.asPoint()
-            elif inter.wkbType() == 4:
-                for i in inter.asMultiPoint():
-                    yield ml_geom.lineLocatePoint(QgsGeometry.fromPointXY(i)), i
-            else:
+            if inter.type() == QgsWkbTypes.PointGeometry:
+                if not inter.isMultipart():
+                    yield ml_geom.lineLocatePoint(inter), inter.asPoint()
+                else:
+                    for i in inter.asMultiPoint():
+                        yield ml_geom.lineLocatePoint(QgsGeometry.fromPointXY(i)), i
+            elif self.feats[line].geometry().type() == QgsWkbTypes.LineGeometry:
                 inter_line_geom_pl = self.feats[line].geometry().asPolyline()
                 sh_line = (ml_geom.shortestLine(self.feats[line].geometry())).asPolyline()
                 if sh_line[0] in inter_line_geom_pl:

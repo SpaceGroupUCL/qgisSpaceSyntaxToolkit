@@ -23,7 +23,7 @@ from builtins import str
 
 from qgis.PyQt.QtCore import (QObject, pyqtSignal, QVariant)
 from qgis.analysis import (QgsVectorLayerDirector, QgsNetworkDistanceStrategy, QgsGraphBuilder, QgsGraphAnalyzer)
-from qgis.core import (QgsSpatialIndex, QgsGeometry, QgsFeature, QgsFields, QgsField, NULL)
+from qgis.core import (QgsSpatialIndex, QgsGeometry, QgsFeature, QgsFields, QgsField, NULL, QgsWkbTypes)
 
 try:
     from . import analysis_tools as ct
@@ -205,23 +205,12 @@ class CatchmentAnalysis(QObject):
         self.centroids = {}
         i = 0
         for f in network.getFeatures():
-            if f.geometry().wkbType() == 2:
-                self.attributes_dict[f.id()] = f.attributes()
-                polyline = f.geometry().asPolyline()
-                for idx, p in enumerate(polyline[1:]):
-                    ml = QgsGeometry.fromPolylineXY([polyline[idx], p])
-                    new_f = QgsFeature()
-                    new_f.setGeometry(ml.centroid())
-                    new_f.setAttributes([f.id()])
-                    new_f.setId(i)
-                    self.spIndex.addFeature(new_f)
-                    self.centroids[i] = f.id()
-                    i += 1
-            elif f.geometry().wkbType() == 5:
-                self.attributes_dict[f.id()] = f.attributes()
-                for pl in f.geometry().asMultiPolyline():
-                    for idx, p in enumerate(pl[1:]):
-                        ml = QgsGeometry.fromPolylineXY([pl[idx], p])
+            if f.geometry().type() == QgsWkbTypes.LineGeometry:
+                if not f.geometry().isMultipart():
+                    self.attributes_dict[f.id()] = f.attributes()
+                    polyline = f.geometry().asPolyline()
+                    for idx, p in enumerate(polyline[1:]):
+                        ml = QgsGeometry.fromPolylineXY([polyline[idx], p])
                         new_f = QgsFeature()
                         new_f.setGeometry(ml.centroid())
                         new_f.setAttributes([f.id()])
@@ -229,6 +218,18 @@ class CatchmentAnalysis(QObject):
                         self.spIndex.addFeature(new_f)
                         self.centroids[i] = f.id()
                         i += 1
+                else:
+                    self.attributes_dict[f.id()] = f.attributes()
+                    for pl in f.geometry().asMultiPolyline():
+                        for idx, p in enumerate(pl[1:]):
+                            ml = QgsGeometry.fromPolylineXY([pl[idx], p])
+                            new_f = QgsFeature()
+                            new_f.setGeometry(ml.centroid())
+                            new_f.setAttributes([f.id()])
+                            new_f.setId(i)
+                            self.spIndex.addFeature(new_f)
+                            self.centroids[i] = f.id()
+                            i += 1
 
         self.network_fields = network_fields
         return graph, tied_origins
