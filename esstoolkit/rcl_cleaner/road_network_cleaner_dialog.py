@@ -269,39 +269,39 @@ class RoadNetworkCleanerDialog(QDialog, FORM_CLASS):
     def get_progress_ranges(break_at_vertices, merge_type, snap_threshold, getUnlinks, fix_unlinks):
 
         # hard-coded ranges
-        weigths = {'break': 4, 'load': 2, 'snap': 2, 'merge': 1, 'unlinks': 1, 'clean': 1, 'fix': 1}
+        weights = {'break': 4, 'load': 2, 'snap': 2, 'merge': 1, 'unlinks': 1, 'clean': 1, 'fix': 1}
         total_range = 95
-        total_pr_w = weigths['load']
-        total_pr_w += (float(2) * weigths['clean'])  # 2 cleanings are happening by default
+        total_pr_w = weights['load']
+        total_pr_w += (float(2) * weights['clean'])  # 2 cleanings are happening by default
         if break_at_vertices:
-            total_pr_w += weigths['break']
+            total_pr_w += weights['break']
         if merge_type in ('intersections', 'collinear'):
-            total_pr_w += weigths['merge']
+            total_pr_w += weights['merge']
         if snap_threshold != 0:
-            total_pr_w += weigths['snap']
-            total_pr_w += weigths['clean']
+            total_pr_w += weights['snap']
+            total_pr_w += weights['clean']
         if getUnlinks:
-            total_pr_w += weigths['unlinks']
+            total_pr_w += weights['unlinks']
         if fix_unlinks:
-            total_pr_w += weigths['fix']
+            total_pr_w += weights['fix']
 
         factor = total_range / float(total_pr_w)
-        load_range = weigths['load'] * float(factor)
-        cl1_range = weigths['clean'] * float(factor)
+        load_range = weights['load'] * float(factor)
+        cl1_range = weights['clean'] * float(factor)
         cl2_range = 0
         cl3_range = cl1_range
         break_range, merge_range, snap_range, unlinks_range, fix_range = 0, 0, 0, 0, 0
         if break_at_vertices:
-            break_range = weigths['break'] * float(factor)
+            break_range = weights['break'] * float(factor)
         if merge_type in ('intersections', 'collinear'):
-            merge_range = weigths['merge'] * float(factor)
+            merge_range = weights['merge'] * float(factor)
         if snap_threshold != 0:
-            snap_range = weigths['snap'] * float(factor)
+            snap_range = weights['snap'] * float(factor)
             cl2_range = cl1_range
         if fix_unlinks:
-            fix_range = weigths['fix'] * float(factor)
+            fix_range = weights['fix'] * float(factor)
         if getUnlinks:
-            unlinks_range = weigths['unlinks'] * float(factor)
+            unlinks_range = weights['unlinks'] * float(factor)
 
         return [load_range, cl1_range, cl2_range, cl3_range, break_range, merge_range, snap_range, unlinks_range,
                 fix_range]
