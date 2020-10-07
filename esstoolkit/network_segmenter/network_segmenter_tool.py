@@ -220,7 +220,8 @@ class NetworkSegmenterTool(QObject):
                                          errors_path)
                     errors.loadNamedStyle(os.path.dirname(__file__) + '/errors_style.qml')
                     QgsProject.instance().addMapLayer(errors)
-                    QgsProject.instance().mapLayers().refreshLayerLegend(errors)
+                    node = QgsProject.instance().layerTreeRoot().findLayer(errors.id())
+                    self.iface.layerTreeView().layerTreeModel().refreshLayerLegend(node)
 
             self.giveMessage('Process ended successfully!', Qgis.Info)
 
