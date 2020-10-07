@@ -49,6 +49,8 @@ class segmentor(QObject):
 
         # load graph
         res = [self.spIndex.addFeature(feat) for feat in self.feat_iter(self.layer)]
+        if len(res) == 0:
+            raise BaseException("No valid lines found to segment")
         self.step = 80 / float(len(res))
 
         # feats need to be created - after iter
@@ -271,43 +273,20 @@ class segmentor(QObject):
                 pass
             elif f_geom.length() == 0:
                 pass
-            elif f_geom.wkbType() == 2:
-                f.setId(id)
-                self.feats[id] = f
-                id += 1
-                f_pl = f_geom.asPolyline()
-                start_p = (f_pl[0].x(), f_pl[0].y())
-                end_p = (f_pl[-1].x(), f_pl[-1].y())
-                # try:
-                #    self.connectivity[start_p] += 1
-                # except KeyError:
-                #    self.connectivity[start_p] = 1
-                # try:
-                #    self.connectivity[end_p] += 1
-                # except KeyError:
-                #    self.connectivity[end_p] = 1
-                yield f
-            elif f_geom.wkbType() == 5:
-                ml_segms = f_geom.asMultiPolyline()
-                for ml in ml_segms:
-                    ml_geom = QgsGeometry.fromPolylineXY(ml)
-                    ml_feat = self.copy_feat(f, ml_geom, id)
-                    self.feats[id] = ml_feat
+            elif f_geom.type() == QgsWkbTypes.LineGeometry:
+                if f_geom.isMultipart():
+                    ml_segms = f_geom.asMultiPolyline()
+                    for ml in ml_segms:
+                        ml_geom = QgsGeometry.fromPolylineXY(ml)
+                        ml_feat = self.copy_feat(f, ml_geom, id)
+                        self.feats[id] = ml_feat
+                        id += 1
+                        yield ml_feat
+                else:
+                    f.setId(id)
+                    self.feats[id] = f
                     id += 1
-                    f_pl = ml_geom.asPolyline()
-                    start_p = (f_pl[0].x(), f_pl[0].y())
-                    end_p = (f_pl[-1].x(), f_pl[-1].y())
-                    # try:
-                    #    self.connectivity[start_p] += 1
-                    # except KeyError:
-                    #    self.connectivity[start_p] = 1
-                    # try:
-                    #    self.connectivity[end_p] += 1
-                    # except KeyError:
-                    #    self.connectivity[end_p] = 1
-                    yield ml_feat
-            # if f["id_0"] == 163446:
-            #    QgsMessageLog.logMessage('Start: %s %s' % self.connectivity[start_p],  self.connectivity[end_p], level=Qgis.Critical)
+                    yield f
 
     def kill(self):
         self.killed = True
