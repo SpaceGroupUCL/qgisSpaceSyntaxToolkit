@@ -1,7 +1,7 @@
 # INPUT
 from qgis.PyQt.QtCore import QVariant
 from qgis.analysis import QgsGraphBuilder
-from qgis.core import (QgsSpatialIndex, QgsGeometry, QgsFeature, QgsFields, QgsField)
+from qgis.core import (QgsSpatialIndex, QgsGeometry, QgsFeature, QgsFields, QgsField, QgsWkbTypes)
 
 import catchment_analyser.catchment_analysis as catchment
 import catchment_analyser.utility_functions as uf
@@ -74,7 +74,8 @@ attributes_dict = {}
 centroids = {}
 i = 0
 for f in network.getFeatures():
-    if f.geometry().wkbType() == 2:
+    if f.geometry().type() == QgsWkbTypes.LineGeometry:
+    if not f.geometry().isMultipart():
         attributes_dict[f.id()] = f.attributes()
         polyline = f.geometry().asPolyline()
         for idx, p in enumerate(polyline[1:]):
@@ -86,7 +87,7 @@ for f in network.getFeatures():
             i += 1
             spIndex.addFeature(new_f)
             centroids[i] = f.id()
-    elif f.geometry().wkbType() == 5:
+    else:
         attributes_dict[f.id()] = f.attributes()
         for pl in f.geometry().asMultiPolyline():
             for idx, p in enumerate(pl[1:]):

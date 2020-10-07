@@ -750,7 +750,7 @@ class sGraph(QObject):
                 else:
                     merged_points += points[1:]
             merged_geom = QgsGeometry.fromPolylineXY(merged_points)
-            if merged_geom.wkbType() != 2:
+            if merged_geom.wkbType() != QgsWkbTypes.LineString:
                 print('ml', merged_geom.wkbType())
 
         feat.setGeometry(merged_geom)
