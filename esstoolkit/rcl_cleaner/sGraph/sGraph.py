@@ -7,7 +7,8 @@ from builtins import zip
 from collections import defaultdict
 
 from qgis.PyQt.QtCore import (QObject, pyqtSignal, QVariant)
-from qgis.core import (QgsGeometry, QgsSpatialIndex, QgsFields, QgsField, QgsFeature, QgsMessageLog, Qgis, NULL)
+from qgis.core import (QgsGeometry, QgsSpatialIndex, QgsFields, QgsField, QgsFeature, QgsMessageLog, Qgis, NULL,
+                       QgsWkbTypes)
 
 # plugin module imports
 try:
@@ -230,20 +231,21 @@ class sGraph(QObject):
             lines = [line for line in lines if f_geom.crosses(self.sEdges[line].feature.geometry())]
             for line in lines:
                 crossing_points = f_geom.intersection(self.sEdges[line].feature.geometry())
-                if crossing_points.geometry().wkbType() == 1:
-                    if crossing_points.asPoint() in pl[1:-1]:
-                        edge_geometry = self.sEdges[sedge.id].feature.geometry()
-                        edge_geometry.moveVertex(crossing_points.asPoint().x() + 1,
-                                                 crossing_points.asPoint().y() + 1,
-                                                 pl.index(crossing_points.asPoint()))
-                        self.sEdges[sedge.id].feature.setGeometry(edge_geometry)
-                elif crossing_points.geometry().wkbType() == 4:
-                    for p in crossing_points.asMultiPoint():
-                        if p in pl[1:-1]:
+                if crossing_points.type() == QgsWkbTypes.PointGeometry:
+                    if not crossing_points.isMultipart():
+                        if crossing_points.asPoint() in pl[1:-1]:
                             edge_geometry = self.sEdges[sedge.id].feature.geometry()
-                            edge_geometry.moveVertex(p.x() + 1,
-                                                     p.y() + 1,
-                                                     pl.index(p))
+                            edge_geometry.moveVertex(crossing_points.asPoint().x() + 1,
+                                                     crossing_points.asPoint().y() + 1,
+                                                     pl.index(crossing_points.asPoint()))
+                            self.sEdges[sedge.id].feature.setGeometry(edge_geometry)
+                    else:
+                        for p in crossing_points.asMultiPoint():
+                            if p in pl[1:-1]:
+                                edge_geometry = self.sEdges[sedge.id].feature.geometry()
+                                edge_geometry.moveVertex(p.x() + 1,
+                                                         p.y() + 1,
+                                                         pl.index(p))
                             self.sEdges[sedge.id].feature.setGeometry(edge_geometry)
             # TODO: exclude vertices - might be in one of the lines
 
