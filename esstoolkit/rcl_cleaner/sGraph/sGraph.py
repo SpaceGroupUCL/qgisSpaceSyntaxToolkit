@@ -7,7 +7,8 @@ from builtins import zip
 from collections import defaultdict
 
 from qgis.PyQt.QtCore import (QObject, pyqtSignal, QVariant)
-from qgis.core import (QgsGeometry, QgsSpatialIndex, QgsFields, QgsField, QgsFeature, QgsMessageLog, Qgis, NULL)
+from qgis.core import (QgsGeometry, QgsSpatialIndex, QgsFields, QgsField, QgsFeature, QgsMessageLog, Qgis, NULL,
+                       QgsWkbTypes)
 
 # plugin module imports
 try:
@@ -230,20 +231,21 @@ class sGraph(QObject):
             lines = [line for line in lines if f_geom.crosses(self.sEdges[line].feature.geometry())]
             for line in lines:
                 crossing_points = f_geom.intersection(self.sEdges[line].feature.geometry())
-                if crossing_points.geometry().wkbType() == 1:
-                    if crossing_points.asPoint() in pl[1:-1]:
-                        edge_geometry = self.sEdges[sedge.id].feature.geometry()
-                        edge_geometry.moveVertex(crossing_points.asPoint().x() + 1,
-                                                 crossing_points.asPoint().y() + 1,
-                                                 pl.index(crossing_points.asPoint()))
-                        self.sEdges[sedge.id].feature.setGeometry(edge_geometry)
-                elif crossing_points.geometry().wkbType() == 4:
-                    for p in crossing_points.asMultiPoint():
-                        if p in pl[1:-1]:
+                if crossing_points.type() == QgsWkbTypes.PointGeometry:
+                    if not crossing_points.isMultipart():
+                        if crossing_points.asPoint() in pl[1:-1]:
                             edge_geometry = self.sEdges[sedge.id].feature.geometry()
-                            edge_geometry.moveVertex(p.x() + 1,
-                                                     p.y() + 1,
-                                                     pl.index(p))
+                            edge_geometry.moveVertex(crossing_points.asPoint().x() + 1,
+                                                     crossing_points.asPoint().y() + 1,
+                                                     pl.index(crossing_points.asPoint()))
+                            self.sEdges[sedge.id].feature.setGeometry(edge_geometry)
+                    else:
+                        for p in crossing_points.asMultiPoint():
+                            if p in pl[1:-1]:
+                                edge_geometry = self.sEdges[sedge.id].feature.geometry()
+                                edge_geometry.moveVertex(p.x() + 1,
+                                                         p.y() + 1,
+                                                         pl.index(p))
                             self.sEdges[sedge.id].feature.setGeometry(edge_geometry)
             # TODO: exclude vertices - might be in one of the lines
 
@@ -547,7 +549,8 @@ class sGraph(QObject):
                 self.total_progress += self.step
                 self.progress.emit(self.total_progress)
 
-                if e.feature.geometry().wkbType() == 5:
+                if e.feature.geometry().type() == QgsWkbTypes.LineGeometry and \
+                        e.feature.geometry().isMultipart():
                     self.clean_multipart(e)
 
         return
@@ -691,22 +694,23 @@ class sGraph(QObject):
             for line in lines:
                 crossing_points = f_geom.intersection(self.sEdges[line].feature.geometry())
                 # in some cases the startpoint or endpoint is returned - exclude
-                if crossing_points.wkbType() == 1 and crossing_points.asPoint() not in f_geom.asPolyline():
-                    un_f = QgsFeature(unlink_feat)
-                    un_f.setGeometry(crossing_points)
-                    un_f.setId(unlinks_id)
-                    un_f.setAttributes([unlinks_id])
-                    unlinks_id += 1
-                    self.unlinks.append(un_f)
-                elif crossing_points.wkbType() == 4:
-                    for p in crossing_points.asMultiPoint():
-                        if p not in f_geom.asPolyline():
-                            un_f = QgsFeature(unlink_feat)
-                            un_f.setGeometry(QgsGeometry.fromPointXY(p))
-                            un_f.setId(unlinks_id)
-                            un_f.setAttributes([unlinks_id])
-                            unlinks_id += 1
-                            self.unlinks.append(un_f)
+                if crossing_points.type() == QgsWkbTypes.PointGeometry:
+                    if not crossing_points.isMultipart():
+                        un_f = QgsFeature(unlink_feat)
+                        un_f.setGeometry(crossing_points)
+                        un_f.setId(unlinks_id)
+                        un_f.setAttributes([unlinks_id])
+                        unlinks_id += 1
+                        self.unlinks.append(un_f)
+                    else:
+                        for p in crossing_points.asMultiPoint():
+                            if p not in f_geom.asPolyline():
+                                un_f = QgsFeature(unlink_feat)
+                                un_f.setGeometry(QgsGeometry.fromPointXY(p))
+                                un_f.setId(unlinks_id)
+                                un_f.setAttributes([unlinks_id])
+                                unlinks_id += 1
+                                self.unlinks.append(un_f)
         return
 
     # TODO: features added - pass through clean_iterator (can be ml line)
@@ -723,12 +727,13 @@ class sGraph(QObject):
         longest_feat = self.sEdges[group_edges[lengths.index(max_len)]].feature
         feat.setAttributes(longest_feat.attributes())
         merged_geom = uf.merge_geoms(geoms, angle_threshold)
-        if merged_geom.wkbType() == 2:
-            p0 = merged_geom.asPolyline()[0]
-            p1 = merged_geom.asPolyline()[-1]
-        else:
-            p0 = merged_geom.asMultiPolyline()[0][0]
-            p1 = merged_geom.asMultiPolyline()[-1][-1]
+        if merged_geom.type() == QgsWkbTypes.LineGeometry:
+            if not merged_geom.isMultipart():
+                p0 = merged_geom.asPolyline()[0]
+                p1 = merged_geom.asPolyline()[-1]
+            else:
+                p0 = merged_geom.asMultiPolyline()[0][0]
+                p1 = merged_geom.asMultiPolyline()[-1][-1]
 
         # special case - if self loop breaks at intersection of other line & then merged back on old self loop point
         # TODO: include in merged_geoms functions to make indepedent
@@ -745,7 +750,7 @@ class sGraph(QObject):
                 else:
                     merged_points += points[1:]
             merged_geom = QgsGeometry.fromPolylineXY(merged_points)
-            if merged_geom.wkbType() != 2:
+            if merged_geom.wkbType() != QgsWkbTypes.LineString:
                 print('ml', merged_geom.wkbType())
 
         feat.setGeometry(merged_geom)

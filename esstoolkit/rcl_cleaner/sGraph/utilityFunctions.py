@@ -48,10 +48,6 @@ def clean_features_iter(feat_iter):
             ml_error.setGeometry(QgsGeometry.fromPointXY(f_geom.asPolyline()[0]))
             ml_error.setAttributes(['point'])
             points.append(ml_error)
-        elif f_geom.wkbType() == 2:
-            f.setId(id)
-            id += 1
-            yield f
         # empty geometry
         elif f_geom is NULL:
             # self.empty_geometries.append()
@@ -60,24 +56,29 @@ def clean_features_iter(feat_iter):
         elif not f_geom.isGeosValid():
             # self.invalids.append(copy_feature(f, QgsGeometry(), f.id()))
             pass
-        # multilinestring
-        elif f_geom.wkbType() == 5:
-            ml_segms = f_geom.asMultiPolyline()
-            for ml in ml_segms:
-                ml_geom = QgsGeometry(QgsGeometry.fromPolylineXY(ml))
-                ml_feat = QgsFeature(f)
-                ml_feat.setId(id)
+        elif f_geom.type() == QgsWkbTypes.LineGeometry:
+            if not f_geom.isMultipart():
+                f.setId(id)
                 id += 1
-                ml_feat.setGeometry(ml_geom)
-                ml_error = QgsFeature(error_feat)
-                ml_error.setGeometry(QgsGeometry.fromPointXY(ml_geom.asPolyline()[0]))
-                ml_error.setAttributes(['multipart'])
-                multiparts.append(ml_error)
-                ml_error = QgsFeature(error_feat)
-                ml_error.setGeometry(QgsGeometry.fromPointXY(ml_geom.asPolyline()[-1]))
-                ml_error.setAttributes(['multipart'])
-                multiparts.append(ml_error)
-                yield ml_feat
+                yield f
+            else:
+                # multilinestring
+                ml_segms = f_geom.asMultiPolyline()
+                for ml in ml_segms:
+                    ml_geom = QgsGeometry(QgsGeometry.fromPolylineXY(ml))
+                    ml_feat = QgsFeature(f)
+                    ml_feat.setId(id)
+                    id += 1
+                    ml_feat.setGeometry(ml_geom)
+                    ml_error = QgsFeature(error_feat)
+                    ml_error.setGeometry(QgsGeometry.fromPointXY(ml_geom.asPolyline()[0]))
+                    ml_error.setAttributes(['multipart'])
+                    multiparts.append(ml_error)
+                    ml_error = QgsFeature(error_feat)
+                    ml_error.setGeometry(QgsGeometry.fromPointXY(ml_geom.asPolyline()[-1]))
+                    ml_error.setAttributes(['multipart'])
+                    multiparts.append(ml_error)
+                    yield ml_feat
 
 
 # GEOMETRY -----------------------------------------------------------------

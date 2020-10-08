@@ -864,7 +864,7 @@ def testPostgisTableExists(connection, schema, name):
     """
     query = """SELECT table_schema, table_name FROM information_schema.tables WHERE table_schema = '%s' AND table_name = '%s' """ % (
         schema, name)
-    executePostgisQuery(connection, query)
+    header, data, error = executePostgisQuery(connection, query)
     if data:
         return True
     return False

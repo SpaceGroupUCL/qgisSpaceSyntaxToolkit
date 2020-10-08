@@ -22,7 +22,7 @@ standard_library.install_aliases()
 from builtins import str
 import traceback
 from qgis.PyQt.QtCore import (QObject, QThread, pyqtSignal)
-from qgis.core import (QgsProject, QgsMapLayer, QgsMessageLog, Qgis)
+from qgis.core import (QgsProject, QgsMessageLog, Qgis)
 import os
 
 from .road_network_cleaner_dialog import RoadNetworkCleanerDialog
@@ -59,6 +59,8 @@ class NetworkCleanerTool(QObject):
         # some globals
         self.cleaning = None
         self.thread = None
+        self.thread_error = ''
+        self.settings = None
 
     def loadGUI(self):
         # create the dialog objects
@@ -99,17 +101,10 @@ class NetworkCleanerTool(QObject):
 
         self.dlg = None
 
-    def getActiveLayers(self):
-        layers_list = []
-        for layer in QgsProject.instance().mapLayers().values():
-            if layer.isValid() and layer.type() == QgsMapLayer.VectorLayer:
-                if layer.isSpatial() and (layer.geometryType() == 1):
-                    layers_list.append(layer.name())
-        return layers_list
-
     def updateLayers(self):
-        layers = self.getActiveLayers()
-        self.dlg.popActiveLayers(layers)
+        layers = lfh.getLineLayers()
+        if self.dlg:
+            self.dlg.popActiveLayers(layers)
 
     # SOURCE: Network Segmenter https://github.com/OpenDigitalWorks/NetworkSegmenter
     # SOURCE: https://snorfalorpagus.net/blog/2013/12/07/multithreading-in-qgis-python-plugins/
@@ -125,10 +120,10 @@ class NetworkCleanerTool(QObject):
         # Gives warning according to message
         self.iface.messageBar().pushMessage("Road network cleaner: ", "%s" % message, level, duration=5)
 
-    def workerError(self, e, exception_string):
+    def workerError(self, exception, exception_string):
         # Gives error according to message
-        QgsMessageLog.logMessage('Cleaning thread raised an exception: %s' % exception_string, level=Qgis.Critical)
-        self.dlg.close()
+        self.thread_error = exception_string
+        # the thread will however continue "finishing"
 
     def startWorker(self):
         self.dlg.cleaningProgress.reset()
@@ -147,6 +142,7 @@ class NetworkCleanerTool(QObject):
             self.dlg.lockGUI(True)
             self.dlg.lockSettingsGUI(True)
             thread = QThread()
+            self.thread_error = ''
             cleaning.moveToThread(thread)
             cleaning.finished.connect(self.workerFinished)
             cleaning.error.connect(self.workerError)
@@ -167,18 +163,6 @@ class NetworkCleanerTool(QObject):
             return
 
     def workerFinished(self, ret):
-        if is_debug:
-            print('trying to finish')
-        self.dlg.lockGUI(False)
-        # TODO: only if edit default has been pressed before
-        self.dlg.lockSettingsGUI(False)
-        # get cleaning settings
-        layer_name = self.settings['input']
-        path, unlinks_path, errors_path = self.settings['output']  # if postgis: connstring, schema, table_name
-
-        output_type = self.settings['output_type']
-        #  get settings from layer
-        layer = lfh.getLayerByName(layer_name)
 
         if self.cleaning:
             # clean up the worker and thread
@@ -194,10 +178,19 @@ class NetworkCleanerTool(QObject):
         self.thread.deleteLater()
 
         if ret:
+            self.dlg.lockGUI(False)
+            # TODO: only if edit default has been pressed before
+            self.dlg.lockSettingsGUI(False)
+            # get cleaning settings
+            layer_name = self.settings['input']
+            path, unlinks_path, errors_path = self.settings['output']  # if postgis: connstring, schema, table_name
+
+            output_type = self.settings['output_type']
+            #  get settings from layer
+            layer = lfh.getLayerByName(layer_name)
 
             cleaned_features, errors_features, unlinks_features = ret
 
-            print('path', path)
             if self.settings['errors']:
                 if len(errors_features) > 0:
                     errors = utf.to_layer(errors_features, layer.crs(), layer.dataProvider().encoding(), 'Point',
@@ -232,9 +225,10 @@ class NetworkCleanerTool(QObject):
             self.giveMessage('Process ended successfully!', Qgis.Info)
             self.dlg.cleaningProgress.setValue(100)
 
-        else:
+        elif self.thread_error != '':
             # notify the user that sth went wrong
             self.giveMessage('Something went wrong! See the message log for more information', Qgis.Critical)
+            QgsMessageLog.logMessage("Cleaning thread error: %s" % self.thread_error)
 
         self.thread = None
         self.cleaning = None

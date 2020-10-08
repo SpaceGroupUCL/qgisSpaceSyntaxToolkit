@@ -19,23 +19,21 @@
 from __future__ import absolute_import
 from __future__ import print_function
 
-from future import standard_library
-
-standard_library.install_aliases()
-from builtins import str
-from builtins import zip
-from builtins import range
-import traceback
-
-from qgis.PyQt.QtCore import (QThread, QObject, pyqtSignal)
-from qgis.core import (QgsMapLayer, Qgis, QgsProject, QgsGeometry, QgsMessageLog)
-import os
 import itertools
+import os
+import traceback
+from builtins import range, str, zip
 
+from future import standard_library
+from qgis.PyQt.QtCore import (QThread, QObject, pyqtSignal)
+from qgis.core import (Qgis, QgsProject, QgsGeometry, QgsMessageLog)
+
+from esstoolkit.utilities import db_helpers as dbh, layer_field_helpers as lfh
+from . import utilityFunctions as uf
 from .network_segmenter_dialog import NetworkSegmenterDialog
 from .segment_tools import segmentor
-from . import utilityFunctions as uf
-from esstoolkit.utilities import db_helpers as dbh, layer_field_helpers as lfh
+
+standard_library.install_aliases()
 
 # Import the debug library - required for the cleaning class in separate thread
 # set is_debug to False in release version
@@ -44,7 +42,7 @@ try:
     import pydevd
 
     has_pydevd = True
-except ImportError as e:
+except ModuleNotFoundError:
     has_pydevd = False
     is_debug = False
 
@@ -66,6 +64,8 @@ class NetworkSegmenterTool(QObject):
         # some globals
         self.segmenting = None
         self.thread = None
+        self.thread_error = ''
+        self.settings = None
 
     def loadGUI(self):
         # create the dialog objects
@@ -125,16 +125,8 @@ class NetworkSegmenterTool(QObject):
 
         self.dlg = None
 
-    def getActiveLayers(self):
-        layers_list = []
-        for layer in QgsProject.instance().mapLayers().values():
-            if layer.isValid() and layer.type() == QgsMapLayer.VectorLayer:
-                if layer.isSpatial() and (layer.geometryType() == 1):
-                    layers_list.append(layer.name())
-        return layers_list
-
     def updateLayers(self):
-        layers = self.getActiveLayers()
+        layers = lfh.getLineLayers()
         self.dlg.popActiveLayers(layers)
 
     def updateOutputName(self):
@@ -144,32 +136,22 @@ class NetworkSegmenterTool(QObject):
             self.dlg.outputCleaned.clear()
         self.dlg.dbsettings_dlg.nameLineEdit.setText(self.dlg.inputCombo.currentText() + "_seg")
 
-    def getpntplgLayers(self):
-        layers_list = []
-        for layer in QgsProject.instance().mapLayers().values():
-            if layer.isValid() and layer.type() == QgsMapLayer.VectorLayer:
-                if layer.isSpatial() and (layer.geometryType() in [0, 2]):
-                    layers_list.append(layer.name())
-        return layers_list
-
     def updateUnlinksLayers(self):
-        layers = self.getpntplgLayers()
+        layers = lfh.getPointPolygonLayers()
         self.dlg.popUnlinksLayers(layers)
 
     def giveMessage(self, message, level):
         # Gives warning according to message
         self.iface.messageBar().pushMessage("Network segmenter: ", "%s" % message, level, duration=5)
 
-    def workerError(self, e, exception_string):
+    def workerError(self, exception, exception_string):
         # Gives error according to message
-        QgsMessageLog.logMessage('Segmenting thread raised an exception: %s' % exception_string, level=Qgis.Critical)
-        self.dlg.close()
+        self.thread_error = exception_string
+        # the thread will however continue "finishing"
 
     def startWorker(self):
-        print('before started')
         self.dlg.segmentingProgress.reset()
         self.settings = self.dlg.get_settings()
-        print('settings', self.settings)
         if self.settings['output_type'] == 'postgis':
             db_settings = self.dlg.get_dbsettings()
             self.settings.update(db_settings)
@@ -181,6 +163,7 @@ class NetworkSegmenterTool(QObject):
             self.dlg.lockGUI(True)
             # start the segmenting in a new thread
             thread = QThread()
+            self.thread_error = ''
             segmenting.moveToThread(thread)
             segmenting.finished.connect(self.workerFinished)
             segmenting.error.connect(self.workerError)
@@ -193,23 +176,11 @@ class NetworkSegmenterTool(QObject):
 
             self.thread = thread
             self.segmenting = segmenting
-
-            # if is_debug:
-            print('has started')
         else:
             self.giveMessage('Missing user input!', Qgis.Info)
             return
 
     def workerFinished(self, ret):
-        # if is_debug:
-        print('trying to finish')
-        # get segmenting settings
-        self.dlg.lockGUI(False)
-        layer_name = self.settings['input']
-        output_path, errors_path = self.settings['output']
-        output_type = self.settings['output_type']
-        #  get settings from layer
-        layer = lfh.getLayerByName(layer_name)
         # create the segmenting results layers
         if self.segmenting:
             # clean up the worker and thread
@@ -225,9 +196,15 @@ class NetworkSegmenterTool(QObject):
         self.thread.deleteLater()
 
         if ret:
+            self.dlg.lockGUI(False)
+            # get segmenting settings
+            layer_name = self.settings['input']
+            output_path, errors_path = self.settings['output']
+            output_type = self.settings['output_type']
+            #  get settings from layer
+            layer = lfh.getLayerByName(layer_name)
 
             break_lines, break_points = ret
-            print(len(break_lines), 'ret')
 
             segmented = uf.to_layer(break_lines, layer.crs(), layer.dataProvider().encoding(),
                                     'Linestring', output_type, output_path)
@@ -243,18 +220,15 @@ class NetworkSegmenterTool(QObject):
                                          errors_path)
                     errors.loadNamedStyle(os.path.dirname(__file__) + '/errors_style.qml')
                     QgsProject.instance().addMapLayer(errors)
-                    QgsProject.instance().mapLayers().refreshLayerLegend(errors)
+                    node = QgsProject.instance().layerTreeRoot().findLayer(errors.id())
+                    self.iface.layerTreeView().layerTreeModel().refreshLayerLegend(node)
 
             self.giveMessage('Process ended successfully!', Qgis.Info)
 
-        else:
+        elif self.thread_error != '':
             # notify the user that sth went wrong
             self.giveMessage('Something went wrong! See the message log for more information', Qgis.Critical)
-
-        if is_debug:
-            print('thread running ', self.thread.isRunning())
-        if is_debug:
-            print('has finished ', self.thread.isFinished())
+            QgsMessageLog.logMessage("Network segmenter error: %s" % self.thread_error)
 
         self.thread = None
         self.segmenting = None
@@ -264,8 +238,6 @@ class NetworkSegmenterTool(QObject):
             self.dlg.close()
 
     def killWorker(self):
-        # if is_debug:
-        print('trying to cancel')
         # add emit signal to segmenttool or mergeTool only to stop the loop
         if self.segmenting:
             self.segmenting.finished.disconnect(self.workerFinished)
@@ -372,5 +344,4 @@ class NetworkSegmenterTool(QObject):
             self.finished.emit(ret)
 
         def kill(self):
-            print('killed')
             self.segm_killed = True

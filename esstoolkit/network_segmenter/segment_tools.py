@@ -7,7 +7,7 @@ from builtins import range
 from builtins import zip
 
 from qgis.PyQt.QtCore import QObject, pyqtSignal, QVariant
-from qgis.core import QgsSpatialIndex, QgsGeometry, QgsDistanceArea, QgsFeature, QgsField, QgsFields, NULL
+from qgis.core import QgsSpatialIndex, QgsGeometry, QgsDistanceArea, QgsFeature, QgsField, QgsFields, NULL, QgsWkbTypes
 
 try:
     from .utilityFunctions import prototype_feature
@@ -45,10 +45,16 @@ class segmentor(QObject):
         self.invalid_unlink_f = prototype_feature(['invalid unlink'], fields)
         self.stub_f = prototype_feature(['stub'], fields)
 
+        self.step = 1
+        self.total_progress = 0
+        self.unlinks_points = None
+
     def load_graph(self):
 
         # load graph
         res = [self.spIndex.addFeature(feat) for feat in self.feat_iter(self.layer)]
+        if len(res) == 0:
+            raise BaseException("No valid lines found to segment")
         self.step = 80 / float(len(res))
 
         # feats need to be created - after iter
@@ -69,7 +75,6 @@ class segmentor(QObject):
         lines = [i for i in self.spIndex.intersects(unlink_geom.boundingBox()) if
                  unlink_geom.intersects(self.feats[i].geometry())]
         lines = list(set(lines))
-        # if unlink_geom.wkbType() == 3:
         if len(lines) != 2:
             self.invalid_unlinks.append(unlink_geom.centroid().asPoint())
         else:
@@ -93,12 +98,13 @@ class segmentor(QObject):
     def point_iter(self, interlines, ml_geom):
         for line in interlines:
             inter = ml_geom.intersection(self.feats[line].geometry())
-            if inter.wkbType() == 1:
-                yield ml_geom.lineLocatePoint(inter), inter.asPoint()
-            elif inter.wkbType() == 4:
-                for i in inter.asMultiPoint():
-                    yield ml_geom.lineLocatePoint(QgsGeometry.fromPointXY(i)), i
-            else:
+            if inter.type() == QgsWkbTypes.PointGeometry:
+                if not inter.isMultipart():
+                    yield ml_geom.lineLocatePoint(inter), inter.asPoint()
+                else:
+                    for i in inter.asMultiPoint():
+                        yield ml_geom.lineLocatePoint(QgsGeometry.fromPointXY(i)), i
+            elif self.feats[line].geometry().type() == QgsWkbTypes.LineGeometry:
                 inter_line_geom_pl = self.feats[line].geometry().asPolyline()
                 sh_line = (ml_geom.shortestLine(self.feats[line].geometry())).asPolyline()
                 if sh_line[0] in inter_line_geom_pl:
@@ -204,7 +210,6 @@ class segmentor(QObject):
                 stubs_point_feats = [self.copy_feat(self.stub_f, QgsGeometry.fromPointXY(p_fid2[0]), p_fid2[1]) for
                                      p_fid2 in (list(zip(self.stubs_points, ids)))]
 
-
         except Exception as exc:
             print(exc, traceback.format_exc())
             # TODO: self.error.emit(exc, traceback.format_exc())
@@ -246,10 +251,10 @@ class segmentor(QObject):
         filtered_lines = [l for l in lines if self.feats[l].geometry().intersects(point_geom)]
         return len(set(filtered_lines))
 
-    def copy_feat(self, f, geom, id):
+    def copy_feat(self, f, geom, feat_id):
         copy_feat = QgsFeature(f)
         copy_feat.setGeometry(geom)
-        copy_feat.setId(id)
+        copy_feat.setId(feat_id)
         return copy_feat
 
     # only 1 time execution permitted
@@ -271,43 +276,20 @@ class segmentor(QObject):
                 pass
             elif f_geom.length() == 0:
                 pass
-            elif f_geom.wkbType() == 2:
-                f.setId(id)
-                self.feats[id] = f
-                id += 1
-                f_pl = f_geom.asPolyline()
-                start_p = (f_pl[0].x(), f_pl[0].y())
-                end_p = (f_pl[-1].x(), f_pl[-1].y())
-                # try:
-                #    self.connectivity[start_p] += 1
-                # except KeyError:
-                #    self.connectivity[start_p] = 1
-                # try:
-                #    self.connectivity[end_p] += 1
-                # except KeyError:
-                #    self.connectivity[end_p] = 1
-                yield f
-            elif f_geom.wkbType() == 5:
-                ml_segms = f_geom.asMultiPolyline()
-                for ml in ml_segms:
-                    ml_geom = QgsGeometry.fromPolylineXY(ml)
-                    ml_feat = self.copy_feat(f, ml_geom, id)
-                    self.feats[id] = ml_feat
+            elif f_geom.type() == QgsWkbTypes.LineGeometry:
+                if f_geom.isMultipart():
+                    ml_segms = f_geom.asMultiPolyline()
+                    for ml in ml_segms:
+                        ml_geom = QgsGeometry.fromPolylineXY(ml)
+                        ml_feat = self.copy_feat(f, ml_geom, id)
+                        self.feats[id] = ml_feat
+                        id += 1
+                        yield ml_feat
+                else:
+                    f.setId(id)
+                    self.feats[id] = f
                     id += 1
-                    f_pl = ml_geom.asPolyline()
-                    start_p = (f_pl[0].x(), f_pl[0].y())
-                    end_p = (f_pl[-1].x(), f_pl[-1].y())
-                    # try:
-                    #    self.connectivity[start_p] += 1
-                    # except KeyError:
-                    #    self.connectivity[start_p] = 1
-                    # try:
-                    #    self.connectivity[end_p] += 1
-                    # except KeyError:
-                    #    self.connectivity[end_p] = 1
-                    yield ml_feat
-            # if f["id_0"] == 163446:
-            #    QgsMessageLog.logMessage('Start: %s %s' % self.connectivity[start_p],  self.connectivity[end_p], level=Qgis.Critical)
+                    yield f
 
     def kill(self):
         self.killed = True
