@@ -552,12 +552,16 @@ class AxialVerification(QThread):
                 progress += steps
                 continue
             # geometry is valid (generally), skip rest of the checks
-            if not geom.isGeosValid() or geom.isEmpty() or geom.isMultipart():
+            if not geom.isGeosValid() or geom.isEmpty() or (geom.isMultipart() and len(geom.asMultiPolyline()) > 1):
                 has_problem = True
                 self.axial_errors['invalid geometry'].append(fid)
                 continue
+            if geom.isMultipart():
+                poly_geom = geom.asMultiPolyline()[0]
+            else:
+                poly_geom = geom.asPolyline()
             # geometry is polyline
-            if len(geom.asPolyline()) > 2:
+            if len(poly_geom) > 2:
                 has_problem = True
                 self.axial_errors['polyline'].append(fid)
             # has two coinciding points
@@ -570,8 +574,8 @@ class AxialVerification(QThread):
                 self.axial_errors['small line'].append(fid)
             # testing against other lines in the layer
             if threshold > 0:
-                start_buff = QgsGeometry.fromPoint(geom.asPolyline()[0]).buffer(threshold, 4)
-                end_buff = QgsGeometry.fromPoint(geom.asPolyline()[1]).buffer(threshold, 4)
+                start_buff = QgsGeometry.fromPointXY(poly_geom[0]).buffer(threshold, 4)
+                end_buff = QgsGeometry.fromPointXY(poly_geom[1]).buffer(threshold, 4)
                 buff = geom.buffer(threshold, 4)
                 box = buff.boundingBox()
             else:
