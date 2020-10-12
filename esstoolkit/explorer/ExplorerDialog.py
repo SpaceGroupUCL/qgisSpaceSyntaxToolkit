@@ -25,12 +25,12 @@ try:
     import pyqtgraph as pg
 
     has_pyqtgraph = True
-except ImportError as e:
+except ImportError:
     try:
         from ..external import pyqtgraph as pg
 
         has_pyqtgraph = True
-    except ImportError as e:
+    except ImportError:
         has_pyqtgraph = False
 
 from esstoolkit.utilities import utility_functions as uf

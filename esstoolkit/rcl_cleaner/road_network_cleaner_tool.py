@@ -37,7 +37,7 @@ try:
     import pydevd_pycharm
 
     has_pydevd = True
-except ImportError as e:
+except ImportError:
     has_pydevd = False
     is_debug = False
 

@@ -23,12 +23,12 @@ try:
     import pyqtgraph as pg
 
     has_pyqtgraph = True
-except ImportError as e:
+except ImportError:
     try:
         from ..external import pyqtgraph as pg
 
         has_pyqtgraph = True
-    except ImportError as e:
+    except ImportError:
         has_pyqtgraph = False
 
 import numpy as np

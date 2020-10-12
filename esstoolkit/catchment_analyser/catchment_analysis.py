@@ -39,7 +39,7 @@ try:
     import pydevd
 
     has_pydevd = True
-except ImportError as e:
+except ImportError:
     has_pydevd = False
 
 import traceback
