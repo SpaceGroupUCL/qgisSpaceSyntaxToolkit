@@ -381,7 +381,6 @@ class NetworkCleanerTool(QObject):
                     QgsMessageLog.logMessage('clean %s' % cl3_range, level=Qgis.Critical)
 
                 if getUnlinks:
-
                     self.graph.step = unlinks_range / float(len(self.graph.sEdges))
                     self.graph.generate_unlinks()
                     QgsMessageLog.logMessage('unlinks generated %s' % unlinks_range, level=Qgis.Critical)
