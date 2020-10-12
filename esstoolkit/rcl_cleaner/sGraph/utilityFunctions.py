@@ -45,7 +45,10 @@ def clean_features_iter(feat_iter):
             pass
         elif f_geom.length() <= 0:
             ml_error = QgsFeature(error_feat)
-            ml_error.setGeometry(QgsGeometry.fromPointXY(f_geom.asPolyline()[0]))
+            if f_geom.isMultipart():
+                ml_error.setGeometry(QgsGeometry.fromPointXY(f_geom.asMultiPolyline()[0][0]))
+            else:
+                ml_error.setGeometry(QgsGeometry.fromPointXY(f_geom.asPolyline()[0]))
             ml_error.setAttributes(['point'])
             points.append(ml_error)
         # empty geometry
