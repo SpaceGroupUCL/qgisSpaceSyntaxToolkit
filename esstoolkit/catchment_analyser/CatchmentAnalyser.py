@@ -117,6 +117,9 @@ class CatchmentTool(QObject):
     def getOrigins(self):
         return lfh.getLegendLayerByName(self.iface, self.dlg.getOrigins())
 
+    def getOriginCount(self):
+        return lfh.getLegendLayerByName(self.iface, self.dlg.getOrigins()).featureCount()
+
     def tempNetwork(self, epsg):
 
         output_network = uf.createTempLayer(
@@ -162,7 +165,9 @@ class CatchmentTool(QObject):
         elif uf.check_for_NULL_geom(self.getOrigins()):
             self.giveWarningMessage("Input origins layer has NULL geometries! Delete them to run catchment analysis.")
         elif not self.getOrigins():
-            self.giveWarningMessage("Catchment Analyser: No origins selected!")
+            self.giveWarningMessage("Catchment Analyser: No origins layer selected!")
+        elif self.getOriginCount() == 0:
+            self.giveWarningMessage("Catchment Analyser: Selected origins layer has no features")
         elif not self.dlg.getDistances():
             self.giveWarningMessage("No distances defined!")
         elif not uf.has_unique_values(self.dlg.getName(), self.getOrigins()):
