@@ -34,14 +34,14 @@ def clean_features_iter(feat_iter):
         f_geom = f.geometry()  # can be None
 
         # dropZValue if geometry is 3D
-        if f_geom is None:
+        if f_geom is None or f.geometry().constGet() is None:
             pass
         elif f.geometry().constGet().is3D():
             f.geometry().constGet().dropZValue()
             f_geom = f.geometry()
 
-        # point
-        if f_geom is None:
+        if f_geom is None or f_geom is NULL or not f_geom.isGeosValid():
+            # empty or invalid geometry
             pass
         elif f_geom.length() <= 0:
             ml_error = QgsFeature(error_feat)
@@ -51,14 +51,6 @@ def clean_features_iter(feat_iter):
                 ml_error.setGeometry(QgsGeometry.fromPointXY(f_geom.asPolyline()[0]))
             ml_error.setAttributes(['point'])
             points.append(ml_error)
-        # empty geometry
-        elif f_geom is NULL:
-            # self.empty_geometries.append()
-            pass
-        # invalid geometry
-        elif not f_geom.isGeosValid():
-            # self.invalids.append(copy_feature(f, QgsGeometry(), f.id()))
-            pass
         elif f_geom.type() == QgsWkbTypes.LineGeometry:
             if not f_geom.isMultipart():
                 f.setId(id)
