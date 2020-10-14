@@ -27,6 +27,9 @@ about=The “Space Syntax Toolkit” is a QGIS plug-in offering user friendly sp
     Dependencies: For network analysis requires depthmapXnet 0.35. It can be downloaded from: http://archtech.gr/varoudis/depthmapX/?dir=depthmapXnet
 category = Vector
 changelog=
+    0.3.6 -
+    * Proper handling of multi-part geometry in axial verification
+    * Various invalid geomety fixes
     0.3.5 -
     * Fix pushing to postgis after analysis
     0.3.4 -
