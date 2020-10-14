@@ -442,8 +442,9 @@ class sGraph(QObject):
         # only used in the last cleaning iteration - only updates self.sEdges and spIndex (allowed to be used once in the end)
         # nodes are not added to the new edges
 
-        for singlepart in e.feature.geometry().asMultiPolyline():
+        multi_poly = e.feature.geometry().asMultiPolyline()
 
+        for singlepart in multi_poly:
             # create new edge and update spIndex
             single_geom = QgsGeometry.fromPolylineXY(singlepart)
             single_feature = QgsFeature(e.feature)
@@ -453,12 +454,13 @@ class sGraph(QObject):
             self.sEdges[self.edge_id] = sEdge(self.edge_id, single_feature, [])
             self.edgeSpIndex.addFeature(single_feature)
 
-            # add points as multipart errors
-            for p in single_geom.asPolyline():
-                err_f = QgsFeature(error_feat)
-                err_f.setGeometry(QgsGeometry.fromPointXY(p))
-                err_f.setAttributes(['multipart'])
-                self.errors.append(err_f)
+            if len(multi_poly) >= 1:
+                # add points as multipart errors if there was actually more than one line
+                for p in single_geom.asPolyline():
+                    err_f = QgsFeature(error_feat)
+                    err_f.setGeometry(QgsGeometry.fromPointXY(p))
+                    err_f.setAttributes(['multipart'])
+                    self.errors.append(err_f)
 
         # delete old feature - spIndex
 

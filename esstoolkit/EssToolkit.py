@@ -28,7 +28,7 @@ try:
     import pydevd_pycharm as pydevd
 
     has_pydevd = True
-except ImportError as e:
+except ImportError:
     has_pydevd = False
 
 import os.path
@@ -38,7 +38,7 @@ import inspect
 
 try:
     import networkx as nx
-except ImportError as e:
+except ImportError:
     cmd_subfolder = os.path.realpath(
         os.path.abspath(os.path.join(os.path.split(inspect.getfile(inspect.currentframe()))[0], "external")))
     if cmd_subfolder not in sys.path:

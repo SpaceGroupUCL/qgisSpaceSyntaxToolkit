@@ -37,7 +37,7 @@ try:
     import pydevd_pycharm
 
     has_pydevd = True
-except ImportError as e:
+except ImportError:
     has_pydevd = False
     is_debug = False
 
@@ -381,7 +381,6 @@ class NetworkCleanerTool(QObject):
                     QgsMessageLog.logMessage('clean %s' % cl3_range, level=Qgis.Critical)
 
                 if getUnlinks:
-
                     self.graph.step = unlinks_range / float(len(self.graph.sEdges))
                     self.graph.generate_unlinks()
                     QgsMessageLog.logMessage('unlinks generated %s' % unlinks_range, level=Qgis.Critical)
