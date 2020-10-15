@@ -249,7 +249,7 @@ class DepthmapCLIEngine(QObject, DepthmapEngine):
         return None, None
 
     class AnalysisThread(threading.Thread):
-        def __init__(self, cmd, startupinfo):
+        def __init__(self, cmd):
             self.cmd = cmd
             self.p = None
             self.current_line = ''
