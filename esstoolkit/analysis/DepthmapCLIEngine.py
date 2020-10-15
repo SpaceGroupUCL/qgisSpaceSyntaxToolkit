@@ -52,12 +52,15 @@ class DepthmapCLIEngine(QObject, DepthmapEngine):
         self.analysis_graph_file = None
         self.analysis_results = None
 
-        # self.startupinfo is used in windows to suppress the
+    @staticmethod
+    def getStartupInfo():
+        # startupinfo is used in windows to suppress the
         # display of command-line windows when popen is called
-        self.startupinfo = None
+        startupinfo = None
         if platform.system() == "Windows":
-            self.startupinfo = subprocess.STARTUPINFO()
-            self.startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            startupinfo = subprocess.STARTUPINFO()
+            startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        return startupinfo
 
     @staticmethod
     def get_depthmap_cli():
@@ -200,7 +203,7 @@ class DepthmapCLIEngine(QObject, DepthmapEngine):
                                     "-o", self.analysis_graph_file.name,
                                     "-m", "IMPORT",
                                     "-it", "data"],
-                                   self.startupinfo)
+                                   startupinfo=DepthmapCLIEngine.getStartupInfo())
         process.wait()
         os.unlink(line_data_file.name)
 
@@ -215,7 +218,7 @@ class DepthmapCLIEngine(QObject, DepthmapEngine):
                            "-f", self.analysis_graph_file.name,
                            "-o", self.analysis_graph_file.name]
             cli_command.extend(prep_command)
-            process = subprocess.Popen(cli_command, self.startupinfo)
+            process = subprocess.Popen(cli_command, startupinfo=DepthmapCLIEngine.getStartupInfo())
             process.wait()
 
         os.unlink(unlink_data_file.name)
@@ -227,7 +230,7 @@ class DepthmapCLIEngine(QObject, DepthmapEngine):
                        "-p"]
         cli_command.extend(command)
 
-        self.analysis_process = DepthmapCLIEngine.AnalysisThread(cli_command, self.startupinfo)
+        self.analysis_process = DepthmapCLIEngine.AnalysisThread(cli_command)
         self.analysis_process.start()
 
     def parse_progress(self, msg):
@@ -250,14 +253,13 @@ class DepthmapCLIEngine(QObject, DepthmapEngine):
             self.cmd = cmd
             self.p = None
             self.current_line = ''
-            self.startupinfo = startupinfo
             threading.Thread.__init__(self)
 
         def run(self):
             self.p = subprocess.Popen(self.cmd,
                                       stdout=subprocess.PIPE,
                                       stderr=subprocess.PIPE,
-                                      startupinfo=self.startupinfo)
+                                      startupinfo=DepthmapCLIEngine.getStartupInfo())
             while True:
                 self.current_line = self.p.stdout.readline()
                 if not self.current_line:
@@ -276,11 +278,12 @@ class DepthmapCLIEngine(QObject, DepthmapEngine):
             # process exited normally
             export_data_file = tempfile.NamedTemporaryFile('w+t', suffix='.csv', delete=False)
             export_command = DepthmapCLIEngine.get_export_command()
-            cli_command = [DepthmapCLIEngine.get_depthmap_cli(),
+            depthmap_cli = DepthmapCLIEngine.get_depthmap_cli()
+            cli_command = [depthmap_cli,
                            "-f", self.analysis_graph_file.name,
                            "-o", export_data_file.name]
             cli_command.extend(export_command)
-            process = subprocess.Popen(cli_command, startupinfo=self.startupinfo)
+            process = subprocess.Popen(cli_command, startupinfo=DepthmapCLIEngine.getStartupInfo())
             process.wait()
 
             attributes, values = self.parse_result_file(export_data_file.name)
