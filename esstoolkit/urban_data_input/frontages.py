@@ -25,7 +25,7 @@ from qgis.core import (QgsProject, QgsMapLayer, QgsVectorLayer, QgsField, QgsFea
                        QgsDataSourceUri, QgsVectorLayerExporter, QgsMessageLog, QgsFeatureRequest,
                        QgsVectorDataProvider, NULL, QgsWkbTypes, Qgis)
 
-from esstoolkit.utilities import layer_field_helpers as lfh
+from esstoolkit.utilities import layer_field_helpers as lfh, shapefile_helpers as shph
 
 
 class FrontageTool(QObject):
@@ -209,7 +209,7 @@ class FrontageTool(QObject):
                 filename = os.path.basename(path)
                 location = os.path.abspath(path)
 
-                QgsVectorFileWriter.writeAsVectorFormat(vl, location, "ogr", None, "ESRI Shapefile")
+                shph.createShapeFile(vl, path, vl.crs())
                 vl = self.iface.addVectorLayer(location, filename[:-4], "ogr")
             else:
                 vl = 'invalid data source'

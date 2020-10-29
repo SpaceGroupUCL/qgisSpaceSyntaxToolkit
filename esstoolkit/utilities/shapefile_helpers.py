@@ -263,6 +263,16 @@ def create_shapefile_full_layer_writer(path, name, srid, attributes, types, valu
     return vlayer
 
 
+def createShapeFile(layer, path, crs):
+    shapefile = QgsVectorFileWriter.writeAsVectorFormat(
+        layer,
+        r"%s" % path,
+        "utf-8",
+        crs,
+        "ESRI Shapefile"
+    )
+    return shapefile
+
 def createShapeFileLayer(path, name, srid, attributes, types, geometrytype):
     # create new layer with given attributes
     # todo: created table has no attributes. not used

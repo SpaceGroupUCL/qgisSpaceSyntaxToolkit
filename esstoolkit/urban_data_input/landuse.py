@@ -23,7 +23,7 @@ from qgis.PyQt.QtCore import (QObject, QVariant)
 from qgis.core import (Qgis, QgsField, QgsProject, QgsMapLayer, QgsVectorLayer, QgsFeature, QgsVectorFileWriter,
                        QgsDataSourceUri, QgsVectorLayerExporter, QgsMessageLog, QgsFeatureRequest, NULL)
 
-from esstoolkit.utilities import layer_field_helpers as lfh
+from esstoolkit.utilities import layer_field_helpers as lfh, shapefile_helpers as shph
 
 is_debug = False
 
@@ -237,7 +237,7 @@ class LanduseTool(QObject):
                     filename = os.path.basename(path)
                     location = os.path.abspath(path)
 
-                    QgsVectorFileWriter.writeAsVectorFormat(vl, location, "ogr", vl.crs(), "ESRI Shapefile")
+                    shph.createShapeFile(vl, path, vl.crs())
                     print('cri', vl.crs().authid())
                     input2 = self.iface.addVectorLayer(location, filename[:-4], "ogr")
                 else:
