@@ -31,7 +31,6 @@ class EntranceTool(QObject):
     def __init__(self, iface, dockwidget):
         QObject.__init__(self)
         self.iface = iface
-        self.legend = QgsProject.instance().mapLayers()
         self.canvas = self.iface.mapCanvas()
 
         self.dockwidget = dockwidget
@@ -81,7 +80,7 @@ class EntranceTool(QObject):
         self.disconnectEntranceLayer()
         self.dockwidget.useExistingEntrancescomboBox.clear()
         self.dockwidget.useExistingEntrancescomboBox.setEnabled(False)
-        layers = self.legend.values()
+        layers = QgsProject.instance().mapLayers().values()
         type = 0
         for lyr in layers:
             if self.isRequiredEntranceLayer(lyr, type):
