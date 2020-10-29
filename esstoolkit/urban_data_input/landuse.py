@@ -57,7 +57,6 @@ class LanduseTool(QObject):
     def __init__(self, iface, dockwidget):
         QObject.__init__(self)
         self.iface = iface
-        self.legend = QgsProject.instance().mapLayers()
         self.canvas = self.iface.mapCanvas()
 
         self.dockwidget = dockwidget
@@ -147,7 +146,7 @@ class LanduseTool(QObject):
         self.disconnectLULayer()
         self.dockwidget.useExistingLUcomboBox.clear()
         self.dockwidget.useExistingLUcomboBox.setEnabled(False)
-        layers = self.legend.values()
+        layers = QgsProject.instance().mapLayers().values()
         type = 2
         for lyr in layers:
             if self.isRequiredLULayer(lyr, type):
