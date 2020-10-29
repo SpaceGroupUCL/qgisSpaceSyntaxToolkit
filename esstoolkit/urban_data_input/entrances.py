@@ -28,6 +28,11 @@ from esstoolkit.utilities import layer_field_helpers as lfh, shapefile_helpers a
 
 class EntranceTool(QObject):
 
+    id_attribute = 'E_ID'
+    category_attribute = 'E_Category'
+    subcat_attribute = 'E_SubCat'
+    level_attribute = 'E_Level'
+
     def __init__(self, iface, dockwidget):
         QObject.__init__(self)
         self.iface = iface
@@ -59,7 +64,7 @@ class EntranceTool(QObject):
         i = 1
         layer.startEditing()
         for feat in features:
-            feat['e_id'] = i
+            feat[EntranceTool.id_attribute] = i
             i += 1
             layer.updateFeature(feat)
 
@@ -69,7 +74,7 @@ class EntranceTool(QObject):
     def isRequiredEntranceLayer(self, layer, type):
         if layer.type() == QgsMapLayer.VectorLayer \
                 and layer.geometryType() == type:
-            if lfh.layerHasFields(layer, ['e_category', 'e_subcat']):
+            if lfh.layerHasFields(layer, [EntranceTool.category_attribute, EntranceTool.subcat_attribute]):
                 return True
 
         return False
@@ -97,10 +102,10 @@ class EntranceTool(QObject):
         vl = QgsVectorLayer("Point?crs=", "memory:Entrances", "memory")
 
         provider = vl.dataProvider()
-        provider.addAttributes([QgsField("e_id", QVariant.Int),
-                                QgsField("e_category", QVariant.String),
-                                QgsField("e_subcat", QVariant.String),
-                                QgsField("e_level", QVariant.Double)])
+        provider.addAttributes([QgsField(EntranceTool.id_attribute, QVariant.Int),
+                                QgsField(EntranceTool.category_attribute, QVariant.String),
+                                QgsField(EntranceTool.subcat_attribute, QVariant.String),
+                                QgsField(EntranceTool.level_attribute, QVariant.Double)])
 
         vl.updateFields()
         if self.entrancedlg.e_shp_radioButton.isChecked():  # layer_type == 'shapefile':
@@ -195,6 +200,8 @@ class EntranceTool(QObject):
             if str(e) == 'wrapped C/C++ object of type QgsVectorLayer has been deleted':
                 # QT object has already been deleted
                 return
+            else:
+                raise e
 
 
 
@@ -215,10 +222,10 @@ class EntranceTool(QObject):
             inputid = feature_Count
 
         data = v_layer.dataProvider()
-        update1 = data.fieldNameIndex("e_category")
-        update2 = data.fieldNameIndex("e_subcat")
-        update3 = data.fieldNameIndex("e_id")
-        update4 = data.fieldNameIndex("e_level")
+        update1 = data.fieldNameIndex(EntranceTool.category_attribute)
+        update2 = data.fieldNameIndex(EntranceTool.subcat_attribute)
+        update3 = data.fieldNameIndex(EntranceTool.id_attribute)
+        update4 = data.fieldNameIndex(EntranceTool.level_attribute)
 
         categorytext = self.dockwidget.ecategorylistWidget.currentItem().text()
         subcategorytext = self.dockwidget.esubcategorylistWidget.currentItem().text()
@@ -241,8 +248,8 @@ class EntranceTool(QObject):
         accessleveltext = self.dockwidget.eaccesscategorylistWidget.currentItem().text()
 
         for feat in features:
-            feat['e_category'] = categorytext
-            feat['e_subcat'] = subcategorytext
-            feat['e_level'] = accessleveltext
+            feat[EntranceTool.category_attribute] = categorytext
+            feat[EntranceTool.subcat_attribute] = subcategorytext
+            feat[EntranceTool.level_attribute] = accessleveltext
             layer.updateFeature(feat)
         self.dockwidget.addEntranceDataFields()
