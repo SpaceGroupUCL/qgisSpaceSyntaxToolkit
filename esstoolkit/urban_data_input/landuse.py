@@ -27,32 +27,32 @@ from esstoolkit.utilities import layer_field_helpers as lfh, shapefile_helpers a
 
 is_debug = False
 
-ground_floor_attributes = [QgsField("lu_id", QVariant.Int),
-                           QgsField("floors", QVariant.Int),
-                           QgsField("area", QVariant.Double),
-                           QgsField("gf_cat", QVariant.String),
-                           QgsField("gf_subcat", QVariant.String),
-                           QgsField("gf_ssx", QVariant.String),
-                           QgsField("gf_nlud", QVariant.String),
-                           QgsField("gf_tcpa", QVariant.String),
-                           QgsField("gf_descrip", QVariant.String)]
-
-lower_floor_attributes = [QgsField("lf_cat", QVariant.String),
-                          QgsField("lf_subcat", QVariant.String),
-                          QgsField("lf_ssx", QVariant.String),
-                          QgsField("lf_nlud", QVariant.String),
-                          QgsField("lf_tcpa", QVariant.String),
-                          QgsField("lf_descrip", QVariant.String)]
-
-upper_floor_attributes = [QgsField("uf_cat", QVariant.String),
-                          QgsField("uf_subcat", QVariant.String),
-                          QgsField("uf_ssx", QVariant.String),
-                          QgsField("uf_nlud", QVariant.String),
-                          QgsField("uf_ntcpa", QVariant.String),
-                          QgsField("uf_descrip", QVariant.String)]
-
-
 class LanduseTool(QObject):
+
+    lu_id_attribute = 'LU_ID'
+    floors_attribute = 'Floors'
+    area_attribute = 'Area'
+
+    gf_cat_attribute = 'GF_Cat'
+    gf_subcat_attribute = 'GF_SubCat'
+    gf_ssx_attribute = 'GF_SSx'
+    gf_nlud_attribute = 'GF_NLUD'
+    gf_tcpa_attribute = 'GF_TCPA'
+    gf_descrip_attribute = 'GF_Descrip'
+
+    lf_cat_attribute = 'LF_Cat'
+    lf_subcat_attribute = 'LF_SubCat'
+    lf_ssx_attribute = 'LF_SSx'
+    lf_nlud_attribute = 'LF_NLUD'
+    lf_tcpa_attribute = 'LF_TCPA'
+    lf_descrip_attribute = 'LF_Descrip'
+
+    uf_cat_attribute = 'UF_Cat'
+    uf_subcat_attribute = 'UF_SubCat'
+    uf_ssx_attribute = 'UF_SSx'
+    uf_nlud_attribute = 'UF_NLUD'
+    uf_ntcpa_attribute = 'UF_TCPA'
+    uf_descrip_attribute = 'UF_Descrip'
 
     def __init__(self, iface, dockwidget):
         QObject.__init__(self)
@@ -127,7 +127,7 @@ class LanduseTool(QObject):
         i = 1
         layer.startEditing()
         for feat in features:
-            feat['lu_id'] = i
+            feat[LanduseTool.lu_id_attribute] = i
             i += 1
             layer.updateFeature(feat)
         layer.commitChanges()
@@ -136,7 +136,8 @@ class LanduseTool(QObject):
     def isRequiredLULayer(self, layer, type):
         if layer.type() == QgsMapLayer.VectorLayer \
                 and layer.geometryType() == type:
-            if lfh.layerHasFields(layer, ['gf_cat', 'gf_subcat']):
+            if lfh.layerHasFields(layer, [LanduseTool.gf_cat_attribute,
+                                          LanduseTool.gf_subcat_attribute]):
                 return True
 
         return False
@@ -178,6 +179,30 @@ class LanduseTool(QObject):
                 vl = QgsVectorLayer("Polygon?crs=", "memory:landuse", "memory")
             provider = vl.dataProvider()
             # provider.addAttributes([])
+
+            ground_floor_attributes = [QgsField(LanduseTool.lu_id_attribute, QVariant.Int),
+                                       QgsField(LanduseTool.floors_attribute, QVariant.Int),
+                                       QgsField(LanduseTool.area_attribute, QVariant.Double),
+                                       QgsField(LanduseTool.gf_cat_attribute, QVariant.String),
+                                       QgsField(LanduseTool.gf_subcat_attribute, QVariant.String),
+                                       QgsField(LanduseTool.gf_ssx_attribute, QVariant.String),
+                                       QgsField(LanduseTool.gf_nlud_attribute, QVariant.String),
+                                       QgsField(LanduseTool.gf_tcpa_attribute, QVariant.String),
+                                       QgsField(LanduseTool.gf_descrip_attribute, QVariant.String)]
+
+            lower_floor_attributes = [QgsField(LanduseTool.lf_cat_attribute, QVariant.String),
+                                      QgsField(LanduseTool.lf_subcat_attribute, QVariant.String),
+                                      QgsField(LanduseTool.lf_ssx_attribute, QVariant.String),
+                                      QgsField(LanduseTool.lf_nlud_attribute, QVariant.String),
+                                      QgsField(LanduseTool.lf_tcpa_attribute, QVariant.String),
+                                      QgsField(LanduseTool.lf_descrip_attribute, QVariant.String)]
+
+            upper_floor_attributes = [QgsField(LanduseTool.uf_cat_attribute, QVariant.String),
+                                      QgsField(LanduseTool.uf_subcat_attribute, QVariant.String),
+                                      QgsField(LanduseTool.uf_ssx_attribute, QVariant.String),
+                                      QgsField(LanduseTool.uf_nlud_attribute, QVariant.String),
+                                      QgsField(LanduseTool.uf_ntcpa_attribute, QVariant.String),
+                                      QgsField(LanduseTool.uf_descrip_attribute, QVariant.String)]
 
             if self.ludlg.LUincGFcheckBox.checkState() == 2:
                 provider.addAttributes(ground_floor_attributes)
@@ -338,30 +363,30 @@ class LanduseTool(QObject):
         nludcode = self.dockwidget.lineEdit_luNLUD.text()
         tcpacode = self.dockwidget.lineEdit_luTCPA.text()
 
-        updateID = data.fieldNameIndex("lu_id")
-        updatefloors = data.fieldNameIndex("floors")
-        updatearea = data.fieldNameIndex("area")
+        updateID = data.fieldNameIndex[LanduseTool.lu_id_attribute]
+        updatefloors = data.fieldNameIndex[LanduseTool.floors_attribute]
+        updatearea = data.fieldNameIndex[LanduseTool.area_attribute]
 
-        GFupdate1 = data.fieldNameIndex("gf_cat")
-        GFupdate2 = data.fieldNameIndex("gf_subcat")
-        GFupdate3 = data.fieldNameIndex("gf_ssx")
-        GFupdate4 = data.fieldNameIndex("gf_nlud")
-        GFupdate5 = data.fieldNameIndex("gf_tcpa")
-        GFupdate6 = data.fieldNameIndex("gf_descrip")
+        GFupdate1 = data.fieldNameIndex(LanduseTool.gf_cat_attribute)
+        GFupdate2 = data.fieldNameIndex(LanduseTool.gf_subcat_attribute)
+        GFupdate3 = data.fieldNameIndex(LanduseTool.gf_ssx_attribute)
+        GFupdate4 = data.fieldNameIndex(LanduseTool.gf_nlud_attribute)
+        GFupdate5 = data.fieldNameIndex(LanduseTool.gf_tcpa_attribute)
+        GFupdate6 = data.fieldNameIndex(LanduseTool.gf_descrip_attribute)
 
-        LFupdate1 = data.fieldNameIndex("lf_cat")
-        LFupdate2 = data.fieldNameIndex("lf_subcat")
-        LFupdate3 = data.fieldNameIndex("lf_ssx")
-        LFupdate4 = data.fieldNameIndex("lf_nlud")
-        LFupdate5 = data.fieldNameIndex("lf_tcpa")
-        LFupdate6 = data.fieldNameIndex("lf_descrip")
+        LFupdate1 = data.fieldNameIndex(LanduseTool.lf_cat_attribute)
+        LFupdate2 = data.fieldNameIndex(LanduseTool.lf_subcat_attribute)
+        LFupdate3 = data.fieldNameIndex(LanduseTool.lf_ssx_attribute)
+        LFupdate4 = data.fieldNameIndex(LanduseTool.lf_nlud_attribute)
+        LFupdate5 = data.fieldNameIndex(LanduseTool.lf_tcpa_attribute)
+        LFupdate6 = data.fieldNameIndex(LanduseTool.lf_descrip_attribute)
 
-        UFupdate1 = data.fieldNameIndex("uf_cat")
-        UFupdate2 = data.fieldNameIndex("uf_subcat")
-        UFupdate3 = data.fieldNameIndex("uf_ssx")
-        UFupdate4 = data.fieldNameIndex("uf_nlud")
-        UFupdate5 = data.fieldNameIndex("uf_ntcpa")
-        UFupdate6 = data.fieldNameIndex("uf_descrip")
+        UFupdate1 = data.fieldNameIndex(LanduseTool.uf_cat_attribute)
+        UFupdate2 = data.fieldNameIndex(LanduseTool.uf_subcat_attribute)
+        UFupdate3 = data.fieldNameIndex(LanduseTool.uf_ssx_attribute)
+        UFupdate4 = data.fieldNameIndex(LanduseTool.uf_nlud_attribute)
+        UFupdate5 = data.fieldNameIndex(LanduseTool.uf_ntcpa_attribute)
+        UFupdate6 = data.fieldNameIndex(LanduseTool.uf_descrip_attribute)
 
         v_layer.changeAttributeValue(fid, updateID, inputid, True)
         if floortext > 0:
@@ -418,33 +443,33 @@ class LanduseTool(QObject):
 
         for feat in features:
             if floortext > 0:
-                feat["floors"] = floortext
+                feat[LanduseTool.floors_attribute] = floortext
             geom = feat.geometry()
-            feat["area"] = geom.area()
+            feat[LanduseTool.area_attribute] = geom.area()
             layer.updateFeature(feat)
             if self.dockwidget.LUGroundfloorradioButton.isChecked():
-                feat["gf_cat"] = categorytext
-                feat["gf_subcat"] = subcategorytext
-                feat["gf_ssx"] = ssxcode
-                feat["gf_nlud"] = nludcode
-                feat["gf_tcpa"] = tcpacode
-                feat["gf_descrip"] = description
+                feat[LanduseTool.gf_cat_attribute] = categorytext
+                feat[LanduseTool.gf_subcat_attribute] = subcategorytext
+                feat[LanduseTool.gf_ssx_attribute] = ssxcode
+                feat[LanduseTool.gf_nlud_attribute] = nludcode
+                feat[LanduseTool.gf_tcpa_attribute] = tcpacode
+                feat[LanduseTool.gf_descrip_attribute] = description
                 layer.updateFeature(feat)
             if self.dockwidget.LULowerfloorradioButton.isChecked():
-                feat["lf_cat"] = categorytext
-                feat["lf_subcat"] = subcategorytext
-                feat["lf_ssx"] = ssxcode
-                feat["lf_nlud"] = nludcode
-                feat["lf_tcpa"] = tcpacode
-                feat["lf_descrip"] = description
+                feat[LanduseTool.lf_cat_attribute] = categorytext
+                feat[LanduseTool.lf_subcat_attribute] = subcategorytext
+                feat[LanduseTool.lf_ssx_attribute] = ssxcode
+                feat[LanduseTool.lf_nlud_attribute] = nludcode
+                feat[LanduseTool.lf_tcpa_attribute] = tcpacode
+                feat[LanduseTool.lf_descrip_attribute] = description
                 layer.updateFeature(feat)
             if self.dockwidget.LUUpperfloorradioButton.isChecked():
-                feat["uf_cat"] = categorytext
-                feat["uf_subcat"] = subcategorytext
-                feat["uf_ssx"] = ssxcode
-                feat["uf_nlud"] = nludcode
-                feat["uf_ntcpa"] = tcpacode
-                feat["uf_descrip"] = description
+                feat[LanduseTool.uf_cat_attribute] = categorytext
+                feat[LanduseTool.uf_subcat_attribute] = subcategorytext
+                feat[LanduseTool.uf_ssx_attribute] = ssxcode
+                feat[LanduseTool.uf_nlud_attribute] = nludcode
+                feat[LanduseTool.uf_ntcpa_attribute] = tcpacode
+                feat[LanduseTool.uf_descrip_attribute] = description
                 layer.updateFeature(feat)
 
         self.dockwidget.addLUDataFields()
