@@ -34,7 +34,6 @@ class FrontageTool(QObject):
         QObject.__init__(self)
 
         self.iface = iface
-        self.legend = QgsProject.instance().mapLayers()
         self.dockwidget = dockwidget
         self.frontagedlg = self.dockwidget.frontagedlg
         self.canvas = self.iface.mapCanvas()
@@ -85,7 +84,7 @@ class FrontageTool(QObject):
         self.dockwidget.useExistingcomboBox.clear()
         self.dockwidget.useExistingcomboBox.setEnabled(False)
         self.disconnectFrontageLayer()
-        layers = self.legend.values()
+        layers = QgsProject.instance().mapLayers().values()
         type = 1
         for lyr in layers:
             if self.isRequiredLayer(lyr, type):
@@ -99,8 +98,7 @@ class FrontageTool(QObject):
     # Add building layers from the legend to combobox on main widget window
     def updateLayersPushID(self):
         self.dockwidget.pushIDcomboBox.clear()
-        layers = self.legend.values()
-        layer_list = []
+        layers = QgsProject.instance().mapLayers().values()
 
         for layer in layers:
             if layer.type() == QgsMapLayer.VectorLayer:
