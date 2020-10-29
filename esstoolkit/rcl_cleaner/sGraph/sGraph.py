@@ -246,7 +246,7 @@ class sGraph(QObject):
                                 edge_geometry.moveVertex(p.x() + 1,
                                                          p.y() + 1,
                                                          pl.index(p))
-                            self.sEdges[sedge.id].feature.setGeometry(edge_geometry)
+                                self.sEdges[sedge.id].feature.setGeometry(edge_geometry)
             # TODO: exclude vertices - might be in one of the lines
 
         return
