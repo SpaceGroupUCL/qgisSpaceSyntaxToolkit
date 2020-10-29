@@ -154,11 +154,16 @@ class FrontageTool(QObject):
             self.frontage_layer.featureDeleted.connect(self.dockwidget.clearDataFields)
 
     def disconnectFrontageLayer(self):
-        if self.frontage_layer:
-            self.frontage_layer.selectionChanged.disconnect(self.dockwidget.addDataFields)
-            self.frontage_layer.featureAdded.disconnect(self.logFeatureAdded)
-            self.frontage_layer.featureDeleted.disconnect(self.dockwidget.clearDataFields)
-            self.frontage_layer = None
+        try:
+            if self.frontage_layer:
+                self.frontage_layer.selectionChanged.disconnect(self.dockwidget.addDataFields)
+                self.frontage_layer.featureAdded.disconnect(self.logFeatureAdded)
+                self.frontage_layer.featureDeleted.disconnect(self.dockwidget.clearDataFields)
+                self.frontage_layer = None
+        except RuntimeError as e:
+            if str(e) == 'wrapped C/C++ object of type QgsVectorLayer has been deleted':
+                # QT object has already been deleted
+                return
 
     # Create New Layer
     def newFrontageLayer(self):

@@ -185,13 +185,18 @@ class EntranceTool(QObject):
             self.entrance_layer.featureDeleted.connect(self.dockwidget.clearEntranceDataFields)
 
     def disconnectEntranceLayer(self):
-        if self.entrance_layer:
-            self.entrance_layer.selectionChanged.disconnect(self.dockwidget.addEntranceDataFields)
-            self.entrance_layer.featureAdded.disconnect(self.logEntranceFeatureAdded)
-            self.entrance_layer.featureDeleted.disconnect(self.dockwidget.clearEntranceDataFields)
-            self.entrance_layer = None
+        try:
+            if self.entrance_layer:
+                self.entrance_layer.selectionChanged.disconnect(self.dockwidget.addEntranceDataFields)
+                self.entrance_layer.featureAdded.disconnect(self.logEntranceFeatureAdded)
+                self.entrance_layer.featureDeleted.disconnect(self.dockwidget.clearEntranceDataFields)
+                self.entrance_layer = None
+        except RuntimeError as e:
+            if str(e) == 'wrapped C/C++ object of type QgsVectorLayer has been deleted':
+                # QT object has already been deleted
+                return
 
-            # Draw New Feature
+
 
     def logEntranceFeatureAdded(self, fid):
 
