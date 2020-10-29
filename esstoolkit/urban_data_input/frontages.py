@@ -261,7 +261,7 @@ class FrontageTool(QObject):
             msg = msgBar.createMessage(u'Frontages layer created!')
             msgBar.pushWidget(msg, Qgis.Info, 10)
             vl.startEditing()
-            if self.isRequiredLayer(self.iface, vl, type):
+            if self.isRequiredLayer(vl, type):
                 self.dockwidget.useExistingcomboBox.addItem(vl.name(), vl)
 
         # self.updateFrontageLayer() This is creating problems with signals - REMOVE
