@@ -23,7 +23,7 @@ from qgis.PyQt.QtCore import (QObject, QVariant)
 from qgis.core import (QgsProject, QgsVectorLayer, QgsField, QgsCoordinateReferenceSystem, QgsVectorFileWriter,
                        QgsDataSourceUri, QgsVectorLayerExporter, QgsMessageLog, QgsMapLayer, Qgis)
 
-from esstoolkit.utilities import layer_field_helpers as lfh
+from esstoolkit.utilities import layer_field_helpers as lfh, shapefile_helpers as shph
 
 
 class EntranceTool(QObject):
@@ -112,7 +112,7 @@ class EntranceTool(QObject):
                 location = os.path.abspath(path)
                 crs = QgsCoordinateReferenceSystem()
                 crs.createFromSrid(3857)
-                QgsVectorFileWriter.writeAsVectorFormat(vl, location, "ogr", crs, "ESRI Shapefile")
+                shph.createShapeFile(vl, path, crs)
                 vl = self.iface.addVectorLayer(location, filename[:-4], "ogr")
             else:
                 vl = 'invalid data source'

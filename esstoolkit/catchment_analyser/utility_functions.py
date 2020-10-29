@@ -84,18 +84,6 @@ def insertTempFeatures(layer, geometry, attributes):
         provider.addFeatures([fet])
     provider.updateExtents()
 
-
-def createShapeFile(layer, path, crs):
-    shapefile = QgsVectorFileWriter.writeAsVectorFormat(
-        layer,
-        r"%s" % path,
-        "utf-8",
-        crs,
-        "ESRI Shapefile"
-    )
-    return shapefile
-
-
 # WRITE -----------------------------------------------------------------
 
 # geom_type allowed: 'Point', 'Linestring', 'Polygon'
