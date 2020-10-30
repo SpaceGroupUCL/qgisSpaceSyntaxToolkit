@@ -338,11 +338,18 @@ class LanduseTool(QObject):
             self.lu_layer.featureDeleted.connect(self.dockwidget.clearLUDataFields)
 
     def disconnectLULayer(self):
-        if self.lu_layer:
-            self.lu_layer.selectionChanged.disconnect(self.dockwidget.addLUDataFields)
-            self.lu_layer.featureAdded.disconnect(self.logLUFeatureAdded)
-            self.lu_layer.featureDeleted.disconnect(self.dockwidget.clearLUDataFields)
-            self.lu_layer = None
+        try:
+            if self.lu_layer:
+                self.lu_layer.selectionChanged.disconnect(self.dockwidget.addLUDataFields)
+                self.lu_layer.featureAdded.disconnect(self.logLUFeatureAdded)
+                self.lu_layer.featureDeleted.disconnect(self.dockwidget.clearLUDataFields)
+                self.lu_layer = None
+        except RuntimeError as e:
+            if str(e) == 'wrapped C/C++ object of type QgsVectorLayer has been deleted':
+                # QT object has already been deleted
+                return
+            else:
+                raise e
 
     # Draw New Feature
     def logLUFeatureAdded(self, fid):
