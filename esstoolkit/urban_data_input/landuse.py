@@ -284,8 +284,8 @@ class LanduseTool(QObject):
                         print(db_con_info)  # db_con_info['host']
                         uri.setConnection('', db_con_info['port'], db_con_info['dbname'], '', '')
                     uri.setDataSource(schema, table_name, "geom")
-                    error = QgsVectorLayerExporter.importLayer(vl, uri.uri(), "postgres", vl.crs(), False, False)
-                    if error[0] != 0:
+                    error = QgsVectorLayerExporter.exportLayer(vl, uri.uri(), "postgres", vl.crs())
+                    if error[0] != QgsVectorLayerExporter.NoError:
                         print("Error when creating postgis layer: ", error[1])
                         input2 = 'duplicate'
                     else:
