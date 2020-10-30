@@ -27,6 +27,7 @@ from .CreateNew_Entrance_dialog import CreateNew_EntranceDialog
 from .CreateNew_LU_dialog import CreateNew_LUDialog
 from .CreateNew_dialog import CreatenewDialog
 from esstoolkit.utilities import layer_field_helpers as lfh
+from .landuse import LanduseTool
 
 FORM_CLASS, _ = loadUiType(os.path.join(
     os.path.dirname(__file__), 'urban_data_input_dockwidget_base.ui'))
@@ -475,22 +476,21 @@ class UrbanDataInputDockWidget(QDockWidget, FORM_CLASS):
         layer = self.setLULayer()
         if layer:
             dp = layer.dataProvider()
-            fieldlist = lfh.getFieldNames(layer)
             features = layer.selectedFeatures()
             attrs = []
             for feat in features:
                 attr = feat.attributes()
                 attrs.append(attr)
 
-            idfieldindex = dp.fieldNameIndex('LU_ID')
-            floorfieldindex = dp.fieldNameIndex('Floors')
-            areafieldindex = dp.fieldNameIndex('Area')
-            gfcatfieldindex = dp.fieldNameIndex('GF_Cat')
-            gfsubcatfieldindex = dp.fieldNameIndex('GF_SubCat')
-            lfcatfieldindex = dp.fieldNameIndex('LF_Cat')
-            lfsubcatfieldindex = dp.fieldNameIndex('LF_SubCat')
-            ufcatfieldindex = dp.fieldNameIndex('UF_Cat')
-            ufsubcatfieldindex = dp.fieldNameIndex('UF_SubCat')
+            idfieldindex = dp.fieldNameIndex(LanduseTool.lu_id_attribute)
+            floorfieldindex = dp.fieldNameIndex(LanduseTool.floors_attribute)
+            areafieldindex = dp.fieldNameIndex(LanduseTool.area_attribute)
+            gfcatfieldindex = dp.fieldNameIndex(LanduseTool.gf_cat_attribute)
+            gfsubcatfieldindex = dp.fieldNameIndex(LanduseTool.gf_subcat_attribute)
+            lfcatfieldindex = dp.fieldNameIndex(LanduseTool.lf_cat_attribute)
+            lfsubcatfieldindex = dp.fieldNameIndex(LanduseTool.lf_subcat_attribute)
+            ufcatfieldindex = dp.fieldNameIndex(LanduseTool.uf_cat_attribute)
+            ufsubcatfieldindex = dp.fieldNameIndex(LanduseTool.uf_subcat_attribute)
 
             self.tableWidgetlanduse.setColumnCount(5)
             self.tableWidgetlanduse.setRowCount(len(attrs))
@@ -532,11 +532,10 @@ class UrbanDataInputDockWidget(QDockWidget, FORM_CLASS):
 
             self.tableWidgetlanduse.resizeRowsToContents()
             self.tableWidgetlanduse.resizeColumnsToContents()
-            self.tableWidgetlanduse.horizontalHeader().setResizeMode(5, QHeaderView.Stretch)
+            self.tableWidgetlanduse.horizontalHeader().setResizeMode(4, QHeaderView.Stretch)
 
     def LUtableClear(self):
         self.tableWidgetlanduse.clear()
-        self.tableWidgetlanduse.clearContents()
 
     def clearLuTabledel(self):
         layer = self.dockwidget.setLULayer()
