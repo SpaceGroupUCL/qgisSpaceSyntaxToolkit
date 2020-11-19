@@ -130,6 +130,15 @@ class NetworkCleanerTool(QObject):
         self.settings = self.dlg.get_settings()
         if self.settings['output_type'] == 'postgis':
             db_settings = self.dlg.get_dbsettings()
+            if 'dbname' not in db_settings:
+                self.giveMessage('Please make sure a database is set for exporting to PostGIS', Qgis.Info)
+                return
+            if 'schema' not in db_settings:
+                self.giveMessage('Please make sure a schema is set for exporting to PostGIS', Qgis.Info)
+                return
+            if 'table_name' not in db_settings:
+                self.giveMessage('Please make sure a table is set for exporting to PostGIS', Qgis.Info)
+                return
             self.settings.update(db_settings)
 
         if lfh.getLayerByName(self.settings['input']).crs().postgisSrid() == 4326:
