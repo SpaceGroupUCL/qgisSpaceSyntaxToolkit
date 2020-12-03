@@ -27,6 +27,9 @@ about=The “Space Syntax Toolkit” is a QGIS plug-in offering user friendly sp
     Dependencies: For network analysis requires depthmapXnet 0.35. It can be downloaded from: http://archtech.gr/varoudis/depthmapX/?dir=depthmapXnet
 category = Vector
 changelog=
+    0.3.8 -
+    * Make sure the project CRS is used when pushing to PostGIS
+    * Warn user if no database info not filled
     0.3.7 -
     * Minor fix for the RCL cleaner
     * Various fixes for the Urban data input tool
