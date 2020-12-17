@@ -372,9 +372,9 @@ class LanduseTool(QObject):
         nludcode = self.dockwidget.lineEdit_luNLUD.text()
         tcpacode = self.dockwidget.lineEdit_luTCPA.text()
 
-        updateID = data.fieldNameIndex[LanduseTool.lu_id_attribute]
-        updatefloors = data.fieldNameIndex[LanduseTool.floors_attribute]
-        updatearea = data.fieldNameIndex[LanduseTool.area_attribute]
+        updateID = data.fieldNameIndex(LanduseTool.lu_id_attribute)
+        updatefloors = data.fieldNameIndex(LanduseTool.floors_attribute)
+        updatearea = data.fieldNameIndex(LanduseTool.area_attribute)
 
         GFupdate1 = data.fieldNameIndex(LanduseTool.gf_cat_attribute)
         GFupdate2 = data.fieldNameIndex(LanduseTool.gf_subcat_attribute)
