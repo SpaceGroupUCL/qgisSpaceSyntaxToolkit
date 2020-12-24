@@ -28,48 +28,13 @@ from qgis.PyQt.QtCore import QSettings
 from qgis.analysis import QgsNetworkSpeedStrategy
 from qgis.core import (QgsGeometry, QgsPoint)
 
-
-# check: https://gis.stackexchange.com/questions/220116/properter-to-get-travel-time-as-cost-for-network-analysis
-class SpeedFieldProperter(QgsNetworkSpeedStrategy):
-    """
-    (attributeIndex, defaultSpeed=2.71828, speedToDistanceFactor = 1000)
-    SpeedProperter to factor in speed and distance to edge tavel time cost
-    @attributeIndex - find it out through attributeIndex = your_layer.fieldNameIndex('the_name_of_the_layercolumn')
-    @defaultSpeed - not used here
-    @speedToDistanceFactor - factor to adjust speed units (e.g. km/h) to distance units (e.g. meters)
-    if the speed attribute is in km/h and distance in meters, this should equal 1000
-    """
-
-    def __init__(self, attributeIndex, defaultSpeed=50, speedToDistanceFactor=1000):
-        QgsNetworkSpeedStrategy.__init__(self)
-        self.AttributeIndex = attributeIndex
-        self.DefaultSpeed = defaultSpeed
-        self.SpeedToDistanceFactor = speedToDistanceFactor
-
-    def property(self, distance, Feature):
-        """
-        returns the cost of the edge. In this case travel time.
-        """
-        attrs = Feature.attributes()
-        speed = attrs[self.AttributeIndex]
-        travel_time = distance / (speed * self.SpeedToDistanceFactor)
-        return travel_time
-
-    def requiredAttributes(self):
-        """
-        returns list of indices of feature attributes
-        needed for cost calculation in property()
-        """
-        return [self.AttributeIndex]
-
-
 class CustomCost(QgsNetworkSpeedStrategy):
     def __init__(self, costColumIndex, defaultValue):
-        QgsNetworkSpeedStrategy.__init__(self)
+        QgsNetworkSpeedStrategy.__init__(self, costColumIndex, defaultValue, 1)
         self.cost_column_index = costColumIndex
         self.default_value = defaultValue
 
-    def property(self, distance, feature):
+    def cost(self, distance, feature):
         cost = float(feature.attributes()[self.cost_column_index])
         if not cost or cost <= 0.0:
             return self.default_value
