@@ -1,21 +1,13 @@
-# -*- coding: utf-8 -*-
-"""
-Semiconnectedness.
-"""
-
-__author__ = """ysitu <ysitu@users.noreply.github.com>"""
-# Copyright (C) 2014 ysitu <ysitu@users.noreply.github.com>
-# All rights reserved.
-# BSD license.
-
+"""Semiconnectedness."""
 import networkx as nx
-from networkx.utils import not_implemented_for
+from networkx.utils import not_implemented_for, pairwise
 
-__all__ = ['is_semiconnected']
+__all__ = ["is_semiconnected"]
 
-@not_implemented_for('undirected')
-def is_semiconnected(G):
-    """Return True if the graph is semiconnected, False otherwise.
+
+@not_implemented_for("undirected")
+def is_semiconnected(G, topo_order=None):
+    """Returns True if the graph is semiconnected, False otherwise.
 
     A graph is semiconnected if, and only if, for any pair of nodes, either one
     is reachable from the other, or they are mutually reachable.
@@ -25,6 +17,9 @@ def is_semiconnected(G):
     G : NetworkX graph
         A directed graph.
 
+    topo_order: list or tuple, optional
+        A topological order for G (if None, the function will compute one)
+
     Returns
     -------
     semiconnected : bool
@@ -32,10 +27,10 @@ def is_semiconnected(G):
 
     Raises
     ------
-    NetworkXNotImplemented :
-        If the input graph is not directed.
+    NetworkXNotImplemented
+        If the input graph is undirected.
 
-    NetworkXPointlessConcept :
+    NetworkXPointlessConcept
         If the graph is empty.
 
     Examples
@@ -49,16 +44,21 @@ def is_semiconnected(G):
 
     See Also
     --------
-    is_strongly_connected,
+    is_strongly_connected
     is_weakly_connected
+    is_connected
+    is_biconnected
     """
     if len(G) == 0:
         raise nx.NetworkXPointlessConcept(
-            'Connectivity is undefined for the null graph.')
+            "Connectivity is undefined for the null graph."
+        )
 
     if not nx.is_weakly_connected(G):
         return False
 
     G = nx.condensation(G)
-    path = nx.topological_sort(G)
-    return all(G.has_edge(u, v) for u, v in zip(path[:-1], path[1:]))
+    if topo_order is None:
+        topo_order = nx.topological_sort(G)
+
+    return all(G.has_edge(u, v) for u, v in pairwise(topo_order))

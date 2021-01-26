@@ -1,49 +1,37 @@
 # -*- coding: utf-8 -*-
-"""
-/***************************************************************************
- essToolkit
-                            Space Syntax Toolkit
- Set of tools for essential space syntax network analysis and results exploration
-                              -------------------
-        begin                : 2014-04-01
-        copyright            : (C) 2015, UCL
-        author               : Jorge Gil
-        email                : jorge.gil@ucl.ac.uk
- ***************************************************************************/
 
-/***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
-
-"""
-# Import the PyQt and QGIS libraries, essential libraries
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-from qgis.core import *
+# Space Syntax Toolkit
+# Set of tools for essential space syntax network analysis and results exploration
+# -------------------
+# begin                : 2014-04-01
+# copyright            : (C) 2015 by Jorge Gil, UCL
+# author               : Jorge Gil
+# email                : jorge.gil@ucl.ac.uk
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
 
 from math import atan
-import time
+
+# Import the PyQt and QGIS libraries, essential libraries
+from qgis.PyQt.QtCore import (QObject, pyqtSignal)
 
 # try to import installed pyqtgraph, if not available use the one shipped with the esstoolkit
 try:
     import pyqtgraph as pg
+
     has_pyqtgraph = True
-except ImportError, e:
+except ImportError:
     try:
         from ..external import pyqtgraph as pg
+
         has_pyqtgraph = True
-    except ImportError, e:
+    except ImportError:
         has_pyqtgraph = False
 
 import numpy as np
-from operator import itemgetter
-
-from .. import utility_functions as uf
 
 
 class AttributeCharts(QObject):
@@ -67,19 +55,19 @@ class AttributeCharts(QObject):
             self.scatter = pg.ScatterPlotItem()
             self.scatter_points = {}
             self.region = pg.LinearRegionItem()
-            #self.selected_points = []
+            # self.selected_points = []
             self.selected_points = pg.ScatterPlotItem()
             self.regress_line = pg.InfiniteLine()
-            #self.roi = None
+            # self.roi = None
 
-    #----
+    # ----
     # Histogram functions
     def drawHistogram(self, values, xmin, xmax, bins):
         # compute the histogram
         if bins >= 50:
             bin = 51
         else:
-            bin = bins+1
+            bin = bins + 1
         y, x = np.histogram(values, bins=np.linspace(xmin, xmax, num=bin))
         # plot the chart
         if has_pyqtgraph:
@@ -88,7 +76,7 @@ class AttributeCharts(QObject):
             curve.setData(x, y, stepMode=True, fillLevel=0, brush=(230, 230, 230), pen=pg.mkPen(None))
             self.plot.addItem(curve)
             # add the selection tool
-            self.region = pg.LinearRegionItem([xmax,xmax],bounds=[xmin, xmax])
+            self.region = pg.LinearRegionItem([xmax, xmax], bounds=[xmin, xmax])
             self.region.sigRegionChangeFinished.connect(self.changedHistogramSelection)
             if self.show_lines:
                 self.plot.addItem(self.region)
@@ -112,7 +100,7 @@ class AttributeCharts(QObject):
                 if bins >= 50:
                     bin = 51
                 else:
-                    bin = bins+1
+                    bin = bins + 1
                 y, x = np.histogram(values, bins=np.linspace(xmin, xmax, num=bin))
                 # plot the selection chart
                 self.hist_selection = pg.PlotCurveItem()
@@ -144,7 +132,7 @@ class AttributeCharts(QObject):
         else:
             self.plot.removeItem(self.region)
 
-    #----
+    # ----
     # Scatterplot functions
     def drawScatterplot(self, xvalues, xmin, xmax, yvalues, ymin, ymax, slope, intercept, ids, symbols=None):
         # plot the chart
@@ -158,25 +146,26 @@ class AttributeCharts(QObject):
                     x = xvalues[i]
                     y = yvalues[i]
                     symb = symbols[i]
-                    points.append({'pos': (x,y), 'data': id, 'size': 3, 'pen': pg.mkPen(None), 'brush': symb})
+                    points.append({'pos': (x, y), 'data': id, 'size': 3, 'pen': pg.mkPen(None), 'brush': symb})
                 self.scatter.addPoints(points)
             else:
-                self.scatter.addPoints(x=xvalues, y=yvalues, data=ids, size=3, pen=pg.mkPen(None), brush=pg.mkBrush(235, 235, 235, 255))
+                self.scatter.addPoints(x=xvalues, y=yvalues, data=ids, size=3, pen=pg.mkPen(None),
+                                       brush=pg.mkBrush(235, 235, 235, 255))
             # selection by direct click
             self.scatter.sigClicked.connect(self.changedScatterplotSelection)
             self.plot.addItem(self.scatter)
             # add the regression line
             self.regress_line = pg.InfiniteLine()
-            self.regress_line.setAngle(atan(slope/1) * 180 / 3.1459)
-            self.regress_line.setValue((0,intercept))
+            self.regress_line.setAngle(atan(slope / 1) * 180 / 3.1459)
+            self.regress_line.setValue((0, intercept))
             self.regress_line.setPen(color='b', width=1)
             if self.show_lines:
                 self.plot.addItem(self.regress_line)
             # newfeature: add the selection tool
-            #self.roi = pg.PolyLineROI([[xmin, ymin],[xmax, ymin],[xmax, ymax],[xmin, ymax]], closed=True)
-            #self.roi.sigRegionChangeFinished.connect(self.changedScatterPlotSelection)
-            #self.plot.addItem(self.roi)
-            #self.plot.disableAutoRange('xy')
+            # self.roi = pg.PolyLineROI([[xmin, ymin],[xmax, ymin],[xmax, ymax],[xmin, ymax]], closed=True)
+            # self.roi.sigRegionChangeFinished.connect(self.changedScatterPlotSelection)
+            # self.plot.addItem(self.roi)
+            # self.plot.disableAutoRange('xy')
 
     # allow selection of items in chart and selecting them on the map
     def addToScatterplotSelection(self, onoff):
@@ -200,12 +189,13 @@ class AttributeCharts(QObject):
 
     def setScatterplotSelection(self, xvalues, yvalues, ids):
         if has_pyqtgraph:
-            #if not self.just_selected:
+            # if not self.just_selected:
             self.clearScatterplotSelection()
             if len(ids) > 0:
                 self.scatter_selection = [fid for fid in ids]
                 self.selected_points = pg.ScatterPlotItem()
-                self.selected_points.addPoints(x=xvalues, y=yvalues, data=ids, size=3, pen=pg.mkPen('r', width=1), brush=pg.mkBrush(235, 0, 0, 255))
+                self.selected_points.addPoints(x=xvalues, y=yvalues, data=ids, size=3, pen=pg.mkPen('r', width=1),
+                                               brush=pg.mkBrush(235, 0, 0, 255))
                 self.plot.addItem(self.selected_points)
             self.just_selected = False
 

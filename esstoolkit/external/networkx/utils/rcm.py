@@ -1,16 +1,13 @@
 """
 Cuthill-McKee ordering of graph nodes to produce sparse matrices
 """
-#    Copyright (C) 2011-2014 by
-#    Aric Hagberg <aric.hagberg@gmail.com>
-#    All rights reserved.
-#    BSD license.
 from collections import deque
 from operator import itemgetter
+
 import networkx as nx
-__author__ = """\n""".join(['Aric Hagberg <aric.hagberg@gmail.com>'])
-__all__ = ['cuthill_mckee_ordering',
-           'reverse_cuthill_mckee_ordering']
+from ..utils import arbitrary_element
+
+__all__ = ["cuthill_mckee_ordering", "reverse_cuthill_mckee_ordering"]
 
 
 def cuthill_mckee_ordering(G, heuristic=None):
@@ -26,7 +23,7 @@ def cuthill_mckee_ordering(G, heuristic=None):
 
     heuristic : function, optional
       Function to choose starting node for RCM algorithm.  If None
-      a node from a psuedo-peripheral pair is used.  A user-defined function
+      a node from a pseudo-peripheral pair is used.  A user-defined function
       can be supplied that takes a graph object and returns a single node.
 
     Returns
@@ -39,7 +36,7 @@ def cuthill_mckee_ordering(G, heuristic=None):
     >>> from networkx.utils import cuthill_mckee_ordering
     >>> G = nx.path_graph(4)
     >>> rcm = list(cuthill_mckee_ordering(G))
-    >>> A = nx.adjacency_matrix(G, nodelist=rcm) # doctest: +SKIP
+    >>> A = nx.adjacency_matrix(G, nodelist=rcm)
 
     Smallest degree node as heuristic function:
 
@@ -67,8 +64,7 @@ def cuthill_mckee_ordering(G, heuristic=None):
        Springer-Verlag New York, Inc., New York, NY, USA.
     """
     for c in nx.connected_components(G):
-        for n in connected_cuthill_mckee_ordering(G.subgraph(c), heuristic):
-            yield n
+        yield from connected_cuthill_mckee_ordering(G.subgraph(c), heuristic)
 
 
 def reverse_cuthill_mckee_ordering(G, heuristic=None):
@@ -85,7 +81,7 @@ def reverse_cuthill_mckee_ordering(G, heuristic=None):
 
     heuristic : function, optional
       Function to choose starting node for RCM algorithm.  If None
-      a node from a psuedo-peripheral pair is used.  A user-defined function
+      a node from a pseudo-peripheral pair is used.  A user-defined function
       can be supplied that takes a graph object and returns a single node.
 
     Returns
@@ -98,7 +94,7 @@ def reverse_cuthill_mckee_ordering(G, heuristic=None):
     >>> from networkx.utils import reverse_cuthill_mckee_ordering
     >>> G = nx.path_graph(4)
     >>> rcm = list(reverse_cuthill_mckee_ordering(G))
-    >>> A = nx.adjacency_matrix(G, nodelist=rcm) # doctest: +SKIP
+    >>> A = nx.adjacency_matrix(G, nodelist=rcm)
 
     Smallest degree node as heuristic function:
 
@@ -138,8 +134,7 @@ def connected_cuthill_mckee_ordering(G, heuristic=None):
     while queue:
         parent = queue.popleft()
         yield parent
-        nd = sorted(G.degree(set(G[parent]) - visited).items(),
-                    key=itemgetter(1))
+        nd = sorted(list(G.degree(set(G[parent]) - visited)), key=itemgetter(1))
         children = [n for n, d in nd]
         visited.update(children)
         queue.extend(children)
@@ -148,15 +143,15 @@ def connected_cuthill_mckee_ordering(G, heuristic=None):
 def pseudo_peripheral_node(G):
     # helper for cuthill-mckee to find a node in a "pseudo peripheral pair"
     # to use as good starting node
-    u = next(G.nodes_iter())
+    u = arbitrary_element(G)
     lp = 0
     v = u
     while True:
-        spl = nx.shortest_path_length(G, v)
+        spl = dict(nx.shortest_path_length(G, v))
         l = max(spl.values())
         if l <= lp:
             break
         lp = l
         farthest = (n for n, dist in spl.items() if dist == l)
-        v, deg = min(G.degree(farthest).items(), key=itemgetter(1))
+        v, deg = min(G.degree(farthest), key=itemgetter(1))
     return v

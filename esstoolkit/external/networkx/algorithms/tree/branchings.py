@@ -1,4 +1,3 @@
-# encoding: utf-8
 """
 Algorithms for finding optimum branchings and spanning arborescences.
 
@@ -10,7 +9,7 @@ This implementation is based on:
 """
 # TODO: Implement method from Gabow, Galil, Spence and Tarjan:
 #
-#@article{
+# @article{
 #    year={1986},
 #    issn={0209-9683},
 #    journal={Combinatorica},
@@ -19,127 +18,69 @@ This implementation is based on:
 #    doi={10.1007/BF02579168},
 #    title={Efficient algorithms for finding minimum spanning trees in
 #        undirected and directed graphs},
-#    url={http://dx.doi.org/10.1007/BF02579168},
+#    url={https://doi.org/10.1007/BF02579168},
 #    publisher={Springer-Verlag},
 #    keywords={68 B 15; 68 C 05},
 #    author={Gabow, Harold N. and Galil, Zvi and Spencer, Thomas and Tarjan,
 #        Robert E.},
 #    pages={109-122},
 #    language={English}
-#}
+# }
 
-from __future__ import division
-from __future__ import print_function
 
 import string
-import random
 from operator import itemgetter
 
 import networkx as nx
+from networkx.utils import py_random_state
 
-from .recognition import *
+from .recognition import is_arborescence, is_branching
+
 
 __all__ = [
-    'branching_weight', 'greedy_branching',
-    'maximum_branching', 'minimum_branching',
-    'maximum_spanning_arborescence', 'minimum_spanning_arborescence',
-    'Edmonds'
+    "branching_weight",
+    "greedy_branching",
+    "maximum_branching",
+    "minimum_branching",
+    "maximum_spanning_arborescence",
+    "minimum_spanning_arborescence",
+    "Edmonds",
 ]
 
-KINDS = set(['max', 'min'])
+KINDS = {"max", "min"}
 
 STYLES = {
-    'branching': 'branching',
-    'arborescence': 'arborescence',
-    'spanning arborescence': 'arborescence'
+    "branching": "branching",
+    "arborescence": "arborescence",
+    "spanning arborescence": "arborescence",
 }
 
-INF = float('inf')
+INF = float("inf")
 
-def edge_subgraph(G, ebunch):
-    """Return the subgraph induced on edges in `ebunch`.
 
-    The induced subgraph of the graph contains the edges appearing in `ebunch`
-    and only the nodes that appear in some edge in `ebunch`.
-
-    Parameters
-    ----------
-    ebunch : list, iterable
-        A container of edges as 3-tuples (u, v, key), which will be iterated
-        through exactly once.
-
-    Returns
-    -------
-    H : MultiDiGraph
-        A subgraph of the graph with the same graph, node, and edge attributes.
-
-    Notes
-    -----
-    The graph, edge or node attributes just point to the original graph.
-    So changes to the node or edge structure will not be reflected in
-    the original graph while changes to the attributes will.
-
-    To create a subgraph with its own copy of the edge/node attributes use:
-    nx.Graph(G.subgraph(nbunch))
-
-    If edge attributes are containers, a deep copy can be obtained using:
-    G.subgraph(nbunch).copy()
-
-    For an inplace reduction of a graph to a subgraph you can remove nodes:
-    G.remove_nodes_from([ n in G if n not in set(nbunch)])
-
-    Examples
-    --------
-    >>> G = nx.Graph()   # or DiGraph, MultiGraph, MultiDiGraph, etc
-    >>> G.add_path([0,1,2,3])
-    >>> H = G.subgraph([0,1,2])
-    >>> H.edges()
-    [(0, 1), (1, 2)]
-
-    """
-    # TODO: Add all the bells and whistles that G.subgraph has.
-    # Note: MultiDiGraph seems to point to node/graph and copy edge attributes.
-    # Seems inconsistent.
-
-    # create new graph and copy subgraph into it
-    H = G.__class__()
-
-    # add edges
-    G_succ = G.succ
-    for u, v, key in ebunch:
-        try:
-            attrs = G_succ[u][v][key]
-        except KeyError:
-            raise KeyError('Invalid edge: ({0}, {1}, {2})'.format(u, v, key))
-
-        H.add_edge(u, v, key=key, **attrs)
-
-    # copy node and graph attributes
-    for u in H:
-        H.node[u] = G.node[u].copy()
-
-    H.graph = G.graph.copy()
-
-    return H
-
+@py_random_state(1)
 def random_string(L=15, seed=None):
-    random.seed(seed)
-    return ''.join([random.choice(string.ascii_letters) for n in range(L)])
+    return "".join([seed.choice(string.ascii_letters) for n in range(L)])
+
 
 def _min_weight(weight):
     return -weight
 
+
 def _max_weight(weight):
     return weight
 
-def branching_weight(G, attr='weight', default=1):
+
+def branching_weight(G, attr="weight", default=1):
     """
     Returns the total weight of a branching.
 
     """
     return sum(edge[2].get(attr, default) for edge in G.edges(data=True))
 
-def greedy_branching(G, attr='weight', default=1, kind='max'):
+
+@py_random_state(4)
+def greedy_branching(G, attr="weight", default=1, kind="max", seed=None):
     """
     Returns a branching obtained through a greedy algorithm.
 
@@ -162,6 +103,9 @@ def greedy_branching(G, attr='weight', default=1, kind='max'):
         `default` specifies what value it should take.
     kind : str
         The type of optimum to search for: 'min' or 'max' greedy branching.
+    seed : integer, random_state, or None (default)
+        Indicator of random number generation state.
+        See :ref:`Randomness<randomness>`.
 
     Returns
     -------
@@ -172,17 +116,16 @@ def greedy_branching(G, attr='weight', default=1, kind='max'):
     if kind not in KINDS:
         raise nx.NetworkXException("Unknown value for `kind`.")
 
-    if kind == 'min':
+    if kind == "min":
         reverse = False
     else:
         reverse = True
 
     if attr is None:
         # Generate a random string the graph probably won't have.
-        attr = random_string()
+        attr = random_string(seed=seed)
 
-    edges = [(u, v, data.get(attr, default))
-             for (u, v, data) in G.edges(data=True)]
+    edges = [(u, v, data.get(attr, default)) for (u, v, data) in G.edges(data=True)]
 
     # We sort by weight, but also by nodes to normalize behavior across runs.
     try:
@@ -215,6 +158,7 @@ def greedy_branching(G, attr='weight', default=1, kind='max'):
 
     return B
 
+
 class MultiDiGraph_EdgeKey(nx.MultiDiGraph):
     """
     MultiDiGraph which assigns unique keys to every edge.
@@ -231,15 +175,16 @@ class MultiDiGraph_EdgeKey(nx.MultiDiGraph):
     of edges. We must reliably track edges across graph mutations.
 
     """
-    def __init__(self, data=None, **attr):
-        cls = super(MultiDiGraph_EdgeKey, self)
-        cls.__init__(data=data, **attr)
+
+    def __init__(self, incoming_graph_data=None, **attr):
+        cls = super()
+        cls.__init__(incoming_graph_data=incoming_graph_data, **attr)
 
         self._cls = cls
         self.edge_index = {}
 
     def remove_node(self, n):
-        keys = set([])
+        keys = set()
         for keydict in self.pred[n].values():
             keys.update(keydict)
         for keydict in self.succ[n].values():
@@ -254,27 +199,29 @@ class MultiDiGraph_EdgeKey(nx.MultiDiGraph):
         for n in nbunch:
             self.remove_node(n)
 
-    def add_edge(self, u, v, key, attr_dict=None, **attr):
+    def add_edge(self, u_for_edge, v_for_edge, key_for_edge, **attr):
         """
         Key is now required.
 
         """
+        u, v, key = u_for_edge, v_for_edge, key_for_edge
         if key in self.edge_index:
             uu, vv, _ = self.edge_index[key]
             if (u != uu) or (v != vv):
-                raise Exception("Key {0!r} is already in use.".format(key))
+                raise Exception(f"Key {key!r} is already in use.")
 
-        self._cls.add_edge(u, v, key=key, attr_dict=attr_dict, **attr)
+        self._cls.add_edge(u, v, key, **attr)
         self.edge_index[key] = (u, v, self.succ[u][v][key])
 
-    def add_edges_from(self, ebunch, attr_dict=None, **attr):
-        raise NotImplementedError
+    def add_edges_from(self, ebunch_to_add, **attr):
+        for u, v, k, d in ebunch_to_add:
+            self.add_edge(u, v, k, **d)
 
     def remove_edge_with_key(self, key):
         try:
-            u, v, _  = self.edge_index[key]
-        except KeyError:
-            raise KeyError('Invalid edge key {0!r}'.format(key))
+            u, v, _ = self.edge_index[key]
+        except KeyError as e:
+            raise KeyError(f"Invalid edge key {key!r}") from e
         else:
             del self.edge_index[key]
             self._cls.remove_edge(u, v, key)
@@ -305,11 +252,13 @@ def get_path(G, u, v):
     edges = [first_key(i, vv) for i, vv in enumerate(nodes[1:])]
     return nodes, edges
 
-class Edmonds(object):
+
+class Edmonds:
     """
     Edmonds algorithm for finding optimal branchings and spanning arborescences.
 
     """
+
     def __init__(self, G, seed=None):
         self.G_original = G
 
@@ -321,9 +270,9 @@ class Edmonds(object):
 
         # Since we will be creating graphs with new nodes, we need to make
         # sure that our node names do not conflict with the real node names.
-        self.template = random_string(seed=seed) + '_{0}'
+        self.template = random_string(seed=seed) + "_{0}"
 
-    def _init(self, attr, default, kind, style):
+    def _init(self, attr, default, kind, style, preserve_attrs, seed):
         if kind not in KINDS:
             raise nx.NetworkXException("Unknown value for `kind`.")
 
@@ -334,22 +283,33 @@ class Edmonds(object):
         self.style = style
 
         # Determine how we are going to transform the weights.
-        if kind == 'min':
+        if kind == "min":
             self.trans = trans = _min_weight
         else:
             self.trans = trans = _max_weight
 
         if attr is None:
             # Generate a random attr the graph probably won't have.
-            attr = random_string()
+            attr = random_string(seed=seed)
 
         # This is the actual attribute used by the algorithm.
         self._attr = attr
+
+        # This attribute is used to store whether a particular edge is still
+        # a candidate. We generate a random attr to remove clashes with
+        # preserved edges
+        self.candidate_attr = "candidate_" + random_string(seed=seed)
 
         # The object we manipulate at each step is a multidigraph.
         self.G = G = MultiDiGraph_EdgeKey()
         for key, (u, v, data) in enumerate(self.G_original.edges(data=True)):
             d = {attr: trans(data.get(attr, default))}
+
+            if preserve_attrs:
+                for (d_k, d_v) in data.items():
+                    if d_k != attr:
+                        d[d_k] = d_v
+
             G.add_edge(u, v, key, **d)
 
         self.level = 0
@@ -363,8 +323,8 @@ class Edmonds(object):
         # graph B^i. So we will have strictly more B^i than the paper does.
         self.B = MultiDiGraph_EdgeKey()
         self.B.edge_index = {}
-        self.graphs = []        # G^i
-        self.branchings = []    # B^i
+        self.graphs = []  # G^i
+        self.branchings = []  # B^i
         self.uf = nx.utils.UnionFind()
 
         # A list of lists of edge indexes. Each list is a circuit for graph G^i.
@@ -377,7 +337,15 @@ class Edmonds(object):
         # in circuit G^0 (depsite their weights being different).
         self.minedge_circuit = []
 
-    def find_optimum(self, attr='weight', default=1, kind='max', style='branching'):
+    def find_optimum(
+        self,
+        attr="weight",
+        default=1,
+        kind="max",
+        style="branching",
+        preserve_attrs=False,
+        seed=None,
+    ):
         """
         Returns a branching from G.
 
@@ -396,6 +364,12 @@ class Edmonds(object):
             branching is also an arborescence, then the branching is an
             optimal spanning arborescences. A given graph G need not have
             an optimal spanning arborescence.
+        preserve_attrs : bool
+            If True, preserve the other edge attributes of the original
+            graph (that are not the one passed to `attr`)
+        seed : integer, random_state, or None (default)
+            Indicator of random number generation state.
+            See :ref:`Randomness<randomness>`.
 
         Returns
         -------
@@ -403,13 +377,13 @@ class Edmonds(object):
             The branching.
 
         """
-        self._init(attr, default, kind, style)
+        self._init(attr, default, kind, style, preserve_attrs, seed)
         uf = self.uf
 
         # This enormous while loop could use some refactoring...
 
         G, B = self.G, self.B
-        D = set([])
+        D = set()
         nodes = iter(list(G.nodes()))
         attr = self._attr
         G_pred = G.pred
@@ -432,15 +406,15 @@ class Edmonds(object):
         while True:
             # (I1): Choose a node v in G^i not in D^i.
             try:
-               v = next(nodes)
+                v = next(nodes)
             except StopIteration:
                 # If there are no more new nodes to consider, then we *should*
                 # meet the break condition (b) from the paper:
                 #   (b) every node of G^i is in D^i and E^i is a branching
                 # Construction guarantees that it's a branching.
-                assert( len(G) == len(B) )
+                assert len(G) == len(B)
                 if len(B):
-                    assert( is_branching(B) )
+                    assert is_branching(B)
 
                 if self.store:
                     self.graphs.append(G.copy())
@@ -454,16 +428,16 @@ class Edmonds(object):
                 break
             else:
                 if v in D:
-                    #print("v in D", v)
+                    # print("v in D", v)
                     continue
 
             # Put v into bucket D^i.
-            #print("Adding node {0}".format(v))
+            # print(f"Adding node {v}")
             D.add(v)
             B.add_node(v)
 
             edge, weight = desired_edge(v)
-            #print("Max edge is {0!r}".format(edge))
+            # print(f"Max edge is {edge!r}")
             if edge is None:
                 # If there is no edge, continue with a new node at (I1).
                 continue
@@ -486,20 +460,20 @@ class Edmonds(object):
 
                 # Conditions for adding the edge.
                 # If weight < 0, then it cannot help in finding a maximum branching.
-                if self.style == 'branching' and weight <= 0:
+                if self.style == "branching" and weight <= 0:
                     acceptable = False
                 else:
                     acceptable = True
 
-                #print("Edge is acceptable: {0}".format(acceptable))
+                # print(f"Edge is acceptable: {acceptable}")
                 if acceptable:
                     dd = {attr: weight}
-                    B.add_edge(u, v, key=edge[2], **dd)
-                    G[u][v][edge[2]]['candidate'] = True
+                    B.add_edge(u, v, edge[2], **dd)
+                    G[u][v][edge[2]][self.candidate_attr] = True
                     uf.union(u, v)
                     if Q_edges is not None:
-                        #print("Edge introduced a simple cycle:")
-                        #print(Q_nodes, Q_edges)
+                        # print("Edge introduced a simple cycle:")
+                        # print(Q_nodes, Q_edges)
 
                         # Move to method
                         # Previous meaning of u and v is no longer important.
@@ -514,7 +488,7 @@ class Edmonds(object):
                             u, v, data = B.edge_index[edge_key]
                             w = data[attr]
                             Q_incoming_weight[v] = w
-                            if  w < minweight:
+                            if w < minweight:
                                 minweight = w
                                 minedge = edge_key
 
@@ -529,7 +503,7 @@ class Edmonds(object):
                         # Now we mutate it.
                         new_node = self.template.format(self.level)
 
-                        #print(minweight, minedge, Q_incoming_weight)
+                        # print(minweight, minedge, Q_incoming_weight)
 
                         G.add_node(new_node)
                         new_edges = []
@@ -561,18 +535,16 @@ class Edmonds(object):
 
                         for u, v, key, data in new_edges:
                             G.add_edge(u, v, key, **data)
-                            if 'candidate' in data:
-                                del data['candidate']
+                            if self.candidate_attr in data:
+                                del data[self.candidate_attr]
                                 B.add_edge(u, v, key, **data)
                                 uf.union(u, v)
 
                         nodes = iter(list(G.nodes()))
                         self.level += 1
 
-
-
         # (I3) Branch construction.
-        #print(self.level)
+        # print(self.level)
         H = self.G_original.__class__()
 
         def is_root(G, u, edgekeys):
@@ -584,8 +556,8 @@ class Edmonds(object):
 
             """
             if u not in G:
-                #print(G.nodes(), u)
-                raise Exception('{0!r} not in G'.format(u))
+                # print(G.nodes(), u)
+                raise Exception(f"{u!r} not in G")
             for v in G.pred[u]:
                 for edgekey in G.pred[u][v]:
                     if edgekey in edgekeys:
@@ -609,14 +581,13 @@ class Edmonds(object):
             # The circuit at level i that was merged as a node the graph
             # at level i+1.
             circuit = self.circuits[self.level]
-            #print
-            #print(merged_node, self.level, circuit)
-            #print("before", edges)
+            # print
+            # print(merged_node, self.level, circuit)
+            # print("before", edges)
             # Note, we ask if it is a root in the full graph, not the branching.
             # The branching alone doesn't have all the edges.
 
-            isroot, edgekey = is_root(self.graphs[self.level + 1],
-                                      merged_node, edges)
+            isroot, edgekey = is_root(self.graphs[self.level + 1], merged_node, edges)
             edges.update(circuit)
             if isroot:
                 minedge = self.minedge_circuit[self.level]
@@ -631,11 +602,11 @@ class Edmonds(object):
                 # transitions to some corresponding node at the current level.
                 # We want to remove an edge from the cycle that transitions
                 # into the corresponding node.
-                #print("edgekey is: ", edgekey)
-                #print("circuit is: ", circuit)
+                # print("edgekey is: ", edgekey)
+                # print("circuit is: ", circuit)
                 # The branching at level i
                 G = self.graphs[self.level]
-                #print(G.edge_index)
+                # print(G.edge_index)
                 target = G.edge_index[edgekey][1]
                 for edgekey in circuit:
                     u, v, data = G.edge_index[edgekey]
@@ -643,7 +614,7 @@ class Edmonds(object):
                         break
                 else:
                     raise Exception("Couldn't find edge incoming to merged node.")
-                #print("not a root. removing {0}".format(edgekey))
+                # print(f"not a root. removing {edgekey}")
 
                 edges.remove(edgekey)
 
@@ -653,37 +624,57 @@ class Edmonds(object):
         for edgekey in edges:
             u, v, d = self.graphs[0].edge_index[edgekey]
             dd = {self.attr: self.trans(d[self.attr])}
-            # TODO: make this preserve the key. In fact, make this use the
-            # same edge attributes as the original graph.
+
+            # Optionally, preserve the other edge attributes of the original
+            # graph
+            if preserve_attrs:
+                for (key, value) in d.items():
+                    if key not in [self.attr, self.candidate_attr]:
+                        dd[key] = value
+
+            # TODO: make this preserve the key.
             H.add_edge(u, v, **dd)
 
         return H
 
-def maximum_branching(G, attr='weight', default=1):
+
+def maximum_branching(G, attr="weight", default=1, preserve_attrs=False):
     ed = Edmonds(G)
-    B = ed.find_optimum(attr, default, kind='max', style='branching')
+    B = ed.find_optimum(
+        attr, default, kind="max", style="branching", preserve_attrs=preserve_attrs
+    )
     return B
 
-def minimum_branching(G, attr='weight', default=1):
+
+def minimum_branching(G, attr="weight", default=1, preserve_attrs=False):
     ed = Edmonds(G)
-    B = ed.find_optimum(attr, default, kind='min', style='branching')
+    B = ed.find_optimum(
+        attr, default, kind="min", style="branching", preserve_attrs=preserve_attrs
+    )
     return B
 
-def maximum_spanning_arborescence(G, attr='weight', default=1):
+
+def maximum_spanning_arborescence(G, attr="weight", default=1, preserve_attrs=False):
     ed = Edmonds(G)
-    B = ed.find_optimum(attr, default, kind='max', style='arborescence')
+    B = ed.find_optimum(
+        attr, default, kind="max", style="arborescence", preserve_attrs=preserve_attrs
+    )
     if not is_arborescence(B):
-        msg = 'No maximum spanning arborescence in G.'
+        msg = "No maximum spanning arborescence in G."
         raise nx.exception.NetworkXException(msg)
     return B
 
-def minimum_spanning_arborescence(G, attr='weight', default=1):
+
+def minimum_spanning_arborescence(G, attr="weight", default=1, preserve_attrs=False):
     ed = Edmonds(G)
-    B = ed.find_optimum(attr, default, kind='min', style='arborescence')
+    B = ed.find_optimum(
+        attr, default, kind="min", style="arborescence", preserve_attrs=preserve_attrs
+    )
     if not is_arborescence(B):
-        msg = 'No maximum spanning arborescence in G.'
+        msg = "No minimum spanning arborescence in G."
         raise nx.exception.NetworkXException(msg)
     return B
+
 
 docstring_branching = """
 Returns a {kind} {style} from G.
@@ -697,6 +688,9 @@ attr : str
 default : float
     The value of the edge attribute used if an edge does not have
     the attribute `attr`.
+preserve_attrs : bool
+    If True, preserve the other attributes of the original graph (that are not
+    passed to `attr`)
 
 Returns
 -------
@@ -704,22 +698,29 @@ B : (multi)digraph-like
     A {kind} {style}.
 """
 
-docstring_arborescence = docstring_branching + """
+docstring_arborescence = (
+    docstring_branching
+    + """
 Raises
 ------
 NetworkXException
     If the graph does not contain a {kind} {style}.
 
 """
+)
 
-maximum_branching.__doc__ = \
-    docstring_branching.format(kind='maximum', style='branching')
+maximum_branching.__doc__ = docstring_branching.format(
+    kind="maximum", style="branching"
+)
 
-minimum_branching.__doc__ = \
-    docstring_branching.format(kind='minimum', style='branching')
+minimum_branching.__doc__ = docstring_branching.format(
+    kind="minimum", style="branching"
+)
 
-maximum_spanning_arborescence.__doc__ = \
-    docstring_arborescence.format(kind='maximum', style='spanning arborescence')
+maximum_spanning_arborescence.__doc__ = docstring_arborescence.format(
+    kind="maximum", style="spanning arborescence"
+)
 
-minimum_spanning_arborescence.__doc__ = \
-    docstring_arborescence.format(kind='minimum', style='spanning arborescence')
+minimum_spanning_arborescence.__doc__ = docstring_arborescence.format(
+    kind="minimum", style="spanning arborescence"
+)

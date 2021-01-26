@@ -1,43 +1,39 @@
 # -*- coding: utf-8 -*-
-"""
-/***************************************************************************
- CatchmentAnalyser
-                             Catchment Analyser
- Network based catchment analysis
-                              -------------------
-        begin                : 2016-05-19
-        author               : Laurens Versluis
-        copyright            : (C) 2016 by Space Syntax Limited
-        email                : l.versluis@spacesyntax.com
- ***************************************************************************/
 
-/***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
-"""
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+# Space Syntax Toolkit
+# Set of tools for essential space syntax network analysis and results exploration
+# -------------------
+# begin                : 2016-05-19
+# copyright            : (C) 2016 by Space Syntax Limited
+# author               : Laurens Versluis
+# email                : l.versluis@spacesyntax.com
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
 
+""" Network based catchment analysis
+"""
+
+from __future__ import absolute_import
+from __future__ import print_function
+
+from builtins import str
+
+from qgis.PyQt.QtCore import (QObject, QVariant, QThread)
+from qgis.PyQt.QtGui import QColor
 # Import QGIS classes
-from qgis.core import *
-from qgis.gui import *
-from qgis.utils import *
+from qgis.core import (QgsSymbol, QgsRendererRange, QgsGraduatedSymbolRenderer, QgsProject, QgsFillSymbol,
+                       QgsMessageLog, Qgis)
 
-# Initialize Qt resources from file resources.py
-#import resources
-
-# Import the code for the dialog
-from catchment_analyser_dialog import CatchmentAnalyserDialog
 # import the main analysis module
-import catchment_analysis as ca
-
+from . import catchment_analysis as ca
 # Import utility tools
-import utility_functions as uf
+from . import utility_functions as uf
+# Import the code for the dialog
+from .catchment_analyser_dialog import CatchmentAnalyserDialog
+from esstoolkit.utilities import db_helpers as dbh, layer_field_helpers as lfh
 
 
 class CatchmentTool(QObject):
@@ -47,13 +43,18 @@ class CatchmentTool(QObject):
 
         self.iface = iface
 
-        self.dlg = CatchmentAnalyserDialog()
+        self.dlg = CatchmentAnalyserDialog(dbh.getQGISDbs())
         self.analysis = None
         # Setup GUI signals
         self.dlg.networkCombo.activated.connect(self.updateCost)
         self.dlg.originsCombo.activated.connect(self.updateName)
         self.dlg.analysisButton.clicked.connect(self.runAnalysis)
         self.dlg.cancelButton.clicked.connect(self.killAnalysis)
+
+        if self.dlg.getNetwork():
+            self.dlg.networkText.setText(self.dlg.networkCombo.currentText() + "_catchment")
+            self.dlg.dbsettings_dlg.nameLineEdit.setText(self.dlg.networkCombo.currentText() + "_catchment")
+        self.dlg.networkCombo.currentIndexChanged.connect(self.updateOutputName)
 
     def load_gui(self):
         # Update layers
@@ -62,13 +63,17 @@ class CatchmentTool(QObject):
         self.dlg.show()
 
     def unload_gui(self):
-        try:
-            self.dlg.networkCombo.activated.disconnect(self.updateCost)
-            self.dlg.originsCombo.activated.disconnect(self.updateName)
-            self.dlg.analysisButton.clicked.disconnect(self.runAnalysis)
-            self.dlg.cancelButton.clicked.disconnect(self.killAnalysis)
-        except:
-            pass
+        self.dlg.networkCombo.activated.disconnect(self.updateCost)
+        self.dlg.originsCombo.activated.disconnect(self.updateName)
+        self.dlg.analysisButton.clicked.disconnect(self.runAnalysis)
+        self.dlg.cancelButton.clicked.disconnect(self.killAnalysis)
+
+    def run(self):
+        # Show the dialog
+        self.dlg.show()
+
+        # Update layers
+        self.updateLayers()
 
     def updateLayers(self):
         self.updateNetwork()
@@ -88,29 +93,43 @@ class CatchmentTool(QObject):
 
     def updateCost(self):
         network = self.getNetwork()
-        self.dlg.setCostFields(uf.getNumericFieldNames(network))
+        txt, idxs = lfh.getNumericFieldNames(network)
+        self.dlg.setCostFields(txt)
 
     def updateName(self):
         origins = self.getOrigins()
-        self.dlg.setNameFields(uf.getFieldNames(origins))
+        self.dlg.setNameFields(lfh.getFieldNames(origins))
+        if self.dlg.nameCheck.isChecked():
+            self.dlg.nameCombo.setDisabled(False)
+        else:
+            self.dlg.nameCombo.setDisabled(True)
+
+    def updateOutputName(self):
+        if self.dlg.memoryRadioButton.isChecked():
+            self.dlg.networkText.setText(self.dlg.networkCombo.currentText() + "_catchment")
+        else:
+            self.dlg.networkText.clear()
+        self.dlg.dbsettings_dlg.nameLineEdit.setText(self.dlg.networkCombo.currentText() + "_catchment")
 
     def getNetwork(self):
-        return uf.getLegendLayerByName(self.iface, self.dlg.getNetwork())
+        return lfh.getLegendLayerByName(self.iface, self.dlg.getNetwork())
 
     def getOrigins(self):
-        return uf.getLegendLayerByName(self.iface, self.dlg.getOrigins())
+        return lfh.getLegendLayerByName(self.iface, self.dlg.getOrigins())
+
+    def getOriginCount(self):
+        return lfh.getLegendLayerByName(self.iface, self.dlg.getOrigins()).featureCount()
 
     def tempNetwork(self, epsg):
-        if self.dlg.networkCheck.isChecked():
-            output_network = uf.createTempLayer(
-                'catchment_network',
-                'LINESTRING',
-                epsg,
-                ['id',],
-                [QVariant.Int,]
-            )
-            return output_network
 
+        output_network = uf.createTempLayer(
+            'catchment_network',
+            'LINESTRING',
+            epsg,
+            ['id', ],
+            [QVariant.Int, ]
+        )
+        return output_network
 
     def tempPolygon(self, epsg):
         if self.dlg.polygonCheck.isChecked():
@@ -119,7 +138,7 @@ class CatchmentTool(QObject):
                 'MULTIPOLYGON',
                 epsg,
                 ['id', 'origin', 'distance'],
-                [QVariant.Int, QVariant.Int, QVariant.Int]
+                [QVariant.Int, QVariant.String, QVariant.Int]
             )
             return output_polygon
 
@@ -127,8 +146,8 @@ class CatchmentTool(QObject):
         # Gives warning according to message
         self.iface.messageBar().pushMessage(
             "Catchment Analyser: ",
-            "%s" % (message),
-            level=QgsMessageBar.WARNING,
+            "%s" % message,
+            level=Qgis.Warning,
             duration=5)
 
     def getAnalysisSettings(self):
@@ -139,12 +158,20 @@ class CatchmentTool(QObject):
         # Raise warnings
         if not self.getNetwork():
             self.giveWarningMessage("No network selected!")
-        elif self.getNetwork().crs().geographicFlag() or self.getOrigins().crs().geographicFlag():
+        elif self.getNetwork().crs().isGeographic() or self.getOrigins().crs().isGeographic():
             self.giveWarningMessage("Input layer(s) without a projected CRS!")
+        elif uf.check_for_NULL_geom(self.getNetwork()):
+            self.giveWarningMessage("Input network layer has NULL geometries! Delete them to run catchment analysis.")
+        elif uf.check_for_NULL_geom(self.getOrigins()):
+            self.giveWarningMessage("Input origins layer has NULL geometries! Delete them to run catchment analysis.")
         elif not self.getOrigins():
-            self.giveWarningMessage("Catchment Analyser: No origins selected!")
+            self.giveWarningMessage("Catchment Analyser: No origins layer selected!")
+        elif self.getOriginCount() == 0:
+            self.giveWarningMessage("Catchment Analyser: Selected origins layer has no features")
         elif not self.dlg.getDistances():
             self.giveWarningMessage("No distances defined!")
+        elif not uf.has_unique_values(self.dlg.getName(), self.getOrigins()):
+            self.giveWarningMessage("Origin names column should not have empty values!")
         else:
             try:
                 distances = [int(i) for i in self.dlg.getDistances()]
@@ -164,39 +191,61 @@ class CatchmentTool(QObject):
             settings['epsg'] = self.getNetwork().crs().authid()[5:]  # removing EPSG:
             settings['temp network'] = self.tempNetwork(settings['epsg'])
             settings['temp polygon'] = self.tempPolygon(settings['epsg'])
-            settings['output network check'] = self.dlg.networkCheck.isChecked()
             settings['output network'] = self.dlg.getNetworkOutput()
             settings['output polygon check'] = self.dlg.polygonCheck.isChecked()
-            settings['output polygon'] = self.dlg.getPolygonOutput()
+            settings['layer_type'] = self.dlg.get_output_type()
+            settings['output path'] = self.dlg.getOutput()
 
             return settings
 
     def runAnalysis(self):
         self.dlg.analysisProgress.reset()
         # Create an analysis instance
-        settings = self.getAnalysisSettings()
-        analysis = ca.CatchmentAnalysis(self.iface, settings)
-        # Create new thread and move the analysis class to it
-        analysis_thread = QThread()
-        analysis.moveToThread(analysis_thread)
-        # Setup signals
+        self.settings = self.getAnalysisSettings()
+        if self.settings != {} and self.settings is not None:
+            analysis = ca.CatchmentAnalysis(self.iface, self.settings)
+            # Create new thread and move the analysis class to it
+            self.dlg.lockGUI(True)
+            analysis_thread = QThread()
+            analysis.moveToThread(analysis_thread)
+            # Setup signals
 
-        analysis.finished.connect(self.analysisFinish)
-        analysis.error.connect(self.analysisError)
-        analysis.warning.connect(self.giveWarningMessage)
-        analysis.progress.connect(self.dlg.analysisProgress.setValue)
+            analysis.finished.connect(self.analysisFinish)
+            analysis.error.connect(self.analysisError)
+            analysis.warning.connect(self.giveWarningMessage)
+            analysis.progress.connect(self.dlg.analysisProgress.setValue)
 
-        # Start analysis
-        analysis_thread.started.connect(analysis.analysis)
-        analysis_thread.start()
-        self.analysis_thread = analysis_thread
-        self.analysis = analysis
+            # Start analysis
+            analysis_thread.started.connect(analysis.analysis)
+            analysis_thread.start()
+            self.analysis_thread = analysis_thread
+            self.analysis = analysis
 
     def analysisFinish(self, output):
         # Render output
+        self.dlg.lockGUI(False)
         if output:
-            output_network = output['output network']
-            output_polygon = output['output polygon']
+            output_network_features = output['output network features']
+            # create layer
+            new_fields = output_network_features[0].fields()
+            print(new_fields, self.settings['network'].crs(), self.settings['network'].dataProvider().encoding(),
+                  'Linestring', self.settings['layer_type'], self.settings['output path'][0])
+            output_network = uf.to_layer(new_fields, self.settings['network'].crs(),
+                                         self.settings['network'].dataProvider().encoding(), 'Linestring',
+                                         self.settings['layer_type'], self.settings['output path'][0])
+
+            output_network.dataProvider().addFeatures(output_network_features)
+            output_polygon_features = output['output polygon features']
+            if output_polygon_features and len(output_polygon_features) > 0:
+                new_fields = output_polygon_features[0].fields()
+                output_polygon = uf.to_layer(new_fields, self.settings['network'].crs(),
+                                             self.settings['network'].dataProvider().encoding(),
+                                             'Polygon', self.settings['layer_type'],
+                                             self.settings['output path'][1])
+
+                output_polygon.dataProvider().addFeatures(output_polygon_features)
+            else:
+                output_polygon = None
             distances = output['distances']
             if output_network:
                 self.renderNetwork(output_network, distances)
@@ -230,35 +279,35 @@ class CatchmentTool(QObject):
 
         # for each range create a symbol with its respective color
         for lower, upper, color in color_ranges:
-            symbol = QgsSymbolV2.defaultSymbol(output_network.geometryType())
+            symbol = QgsSymbol.defaultSymbol(output_network.geometryType())
             symbol.setColor(QColor(color))
             symbol.setWidth(0.5)
-            range = QgsRendererRangeV2(lower, upper, symbol, '')
+            range = QgsRendererRange(lower, upper, symbol, str(lower) + ' - ' + str(upper))
             ranges.append(range)
 
         # create renderer based on ranges and apply to network
-        renderer = QgsGraduatedSymbolRendererV2('min_dist', ranges)
-        output_network.setRendererV2(renderer)
+        renderer = QgsGraduatedSymbolRenderer('min_dist', ranges)
+        output_network.setRenderer(renderer)
 
         # add network to the canvas
-        QgsMapLayerRegistry.instance().addMapLayer(output_network)
+        QgsProject.instance().addMapLayer(output_network)
 
     def renderPolygon(self, output_polygon):
 
         # create a black dotted outline symbol layer
-        symbol = QgsFillSymbolV2().createSimple({'color': 'grey', 'outline_width': '0'})
-        symbol.setAlpha(0.2)
+        symbol = QgsFillSymbol().createSimple({'color': 'grey', 'outline_width': '0'})
+        symbol.setOpacity(0.2)
 
         # create renderer and change the symbol layer in its symbol
-        output_polygon.rendererV2().setSymbol(symbol)
+        output_polygon.renderer().setSymbol(symbol)
 
         # add catchment to the canvas
-        QgsMapLayerRegistry.instance().addMapLayer(output_polygon)
+        QgsProject.instance().addMapLayer(output_polygon)
 
     def analysisError(self, e, exception_string):
         QgsMessageLog.logMessage(
             'Catchment Analyser raised an exception: %s' % exception_string,
-            level=QgsMessageLog.CRITICAL)
+            level=Qgis.Critical)
 
         # Closing the dialog
         self.dlg.closeDialog()

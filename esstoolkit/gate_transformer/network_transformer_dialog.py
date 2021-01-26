@@ -1,39 +1,33 @@
 # -*- coding: utf-8 -*-
+
+# Space Syntax Toolkit
+# Set of tools for essential space syntax network analysis and results exploration
+# -------------------
+# begin                : 2016-02-29
+# copyright            : (C) 2016 by Space Syntax Limited
+# author               : Stephen Law
+# email                : s.law@spacesyntax.com
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+
+""" This plugin performs basic transformation on a line in qgis.
 """
-/***************************************************************************
- GateTransformer
-                                 A QGIS plugin
- This plugin performs basic transformation on a line in qgis.
-                              -------------------
-        begin                : 2016-02-29
-        author               : Stephen Law
-        copyright            : (C) 2016 by Space Syntax Limited
-        email                : s.law@spacesyntax.com
- ***************************************************************************/
-
-/***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 3 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
-"""
-
-# Initialize Qt resources from file resources.py
-
-from PyQt4 import QtGui, uic
 
 import os.path
-from .. import resources
+
+from qgis.PyQt import uic
+from qgis.PyQt.QtWidgets import QDialog
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'network_transformer_dialog_base.ui'))
 
-class NetworkTransformerDialog(QtGui.QDialog, FORM_CLASS):
 
-############################ initialisation ############################
+class NetworkTransformerDialog(QDialog, FORM_CLASS):
+
+    ############################ initialisation ############################
 
     def __init__(self, parent=None):
         """Constructor."""
@@ -53,15 +47,14 @@ class NetworkTransformerDialog(QtGui.QDialog, FORM_CLASS):
         # rotate_button is checked for default
         self.rotate_radio.click()
 
-
     # define a series of get/set/update/disable function
 
     # update layer - fill combo with layer lists
-    def update_layer(self,layer_objects):
+    def update_layer(self, layer_objects):
         self.comboBox.clear()
         if layer_objects:
             for layer in layer_objects:
-                self.comboBox.addItem(layer[0],layer[1])
+                self.comboBox.addItem(layer[0], layer[1])
             self.disable_all(False)
             self.disable_button()
         else:

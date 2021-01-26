@@ -1,42 +1,39 @@
 # -*- coding: utf-8 -*-
-"""
-/***************************************************************************
- essToolkit
-                            Space Syntax Toolkit
- Set of tools for essential space syntax network analysis and results exploration
-                              -------------------
-        begin                : 2014-04-01
-        copyright            : (C) 2015, UCL
-        author               : Jorge Gil
-        email                : jorge.gil@ucl.ac.uk
- ***************************************************************************/
 
-/***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
+# Space Syntax Toolkit
+# Set of tools for essential space syntax network analysis and results exploration
+# -------------------
+# begin                : 2014-04-01
+# copyright            : (C) 2015 by Jorge Gil, UCL
+# author               : Jorge Gil
+# email                : jorge.gil@ucl.ac.uk
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
 
-"""
-# Import the PyQt and QGIS libraries
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-from qgis.core import *
-
-from .. import utility_functions as uf
+from __future__ import print_function
 
 import time
+# Import the PyQt and QGIS libraries
+from builtins import str
+from builtins import zip
+
+from qgis.PyQt.QtCore import (QThread, QVariant, pyqtSignal)
+from qgis.core import (QgsFeatureRequest, NULL, QgsWkbTypes)
+
+from esstoolkit.utilities import db_helpers as dbh, layer_field_helpers as lfh
 
 # Import the debug library
 is_debug = False
 try:
     import pydevd_pycharm as pydevd
+
     has_pydevd = True
-except ImportError, e:
+except ImportError:
     has_pydevd = False
+
 
 class UnlinksVerification(QThread):
     verificationFinished = pyqtSignal(dict, list)
@@ -44,7 +41,7 @@ class UnlinksVerification(QThread):
     verificationError = pyqtSignal(str)
 
     def __init__(self, parentThread, parentObject, settings, axial, axial_id, unlinks, id):
-        QThread.__init__( self, parentThread)
+        QThread.__init__(self, parentThread)
         self.parent = parentObject
         self.running = False
         self.verification_settings = settings
@@ -57,9 +54,9 @@ class UnlinksVerification(QThread):
         # verification globals
         self.problem_nodes = []
         # error types to identify:
-        self.unlink_errors = {'duplicate geometry':[],'invalid geometry':[],'multiple lines':[],'single line':[],'no lines':[],
-                              'no line id':[],'unmatched line id':[],'same line id':[]}
-
+        self.unlink_errors = {'duplicate geometry': [], 'invalid geometry': [], 'multiple lines': [], 'single line': [],
+                              'no lines': [],
+                              'no line id': [], 'unmatched line id': [], 'same line id': []}
 
     def run(self):
         if has_pydevd and is_debug:
@@ -67,55 +64,58 @@ class UnlinksVerification(QThread):
         self.running = True
         # reset all the errors
         self.problem_nodes = []
-        for k, v in self.unlink_errors.iteritems():
-            self.unlink_errors[k]=[]
+        for k, v in self.unlink_errors.items():
+            self.unlink_errors[k] = []
         datastore = self.unlinks_layer.storageType().lower()
         if 'spatialite' in datastore or 'postgresql' in datastore:
             # get the relevant layers names
             start_time = time.time()
-            unlinkname = uf.getDBLayerTableName(self.unlinks_layer)
-            axialname = uf.getDBLayerTableName(self.axial_layer)
-            if not uf.testSameDatabase([self.unlinks_layer, self.axial_layer]):
+            unlinkname = dbh.getDBLayerTableName(self.unlinks_layer)
+            axialname = dbh.getDBLayerTableName(self.axial_layer)
+            if not dbh.testSameDatabase([self.unlinks_layer, self.axial_layer]):
                 self.verificationError.emit("The map layer must be in the same database as the unlinks layer.")
                 return
-            connection = uf.getDBLayerConnection(self.unlinks_layer)
+            connection = dbh.getDBLayerConnection(self.unlinks_layer)
             # get the geometry column name and other properties
             if 'spatialite' in datastore:
-                unlinkgeom = uf.getSpatialiteGeometryColumn(connection, unlinkname)
-                axialgeom = uf.getSpatialiteGeometryColumn(connection, axialname)
+                unlinkgeom = dbh.getSpatialiteGeometryColumn(connection, unlinkname)
+                axialgeom = dbh.getSpatialiteGeometryColumn(connection, axialname)
             else:
-                unlinkinfo = uf.getPostgisLayerInfo(self.unlinks_layer)
-                unlinkgeom = uf.getPostgisGeometryColumn(connection, unlinkinfo['schema'], unlinkname)
-                axialinfo = uf.getPostgisLayerInfo(self.axial_layer)
-                axialgeom = uf.getPostgisGeometryColumn(connection, axialinfo['schema'], axialname)
+                unlinkinfo = dbh.getPostgisLayerInfo(self.unlinks_layer)
+                unlinkgeom = dbh.getPostgisGeometryColumn(connection, unlinkinfo['schema'], unlinkname)
+                axialinfo = dbh.getPostgisLayerInfo(self.axial_layer)
+                axialgeom = dbh.getPostgisGeometryColumn(connection, axialinfo['schema'], axialname)
                 # todo: ensure that it has a spatial index
-                #uf.createPostgisSpatialIndex(self.connection, unlinkinfo['schema'], unlinkname, unlinkgeom)
-            print "Preparing the map: %s" % str(time.time()-start_time)
+                # dbh.createPostgisSpatialIndex(self.connection, unlinkinfo['schema'], unlinkname, unlinkgeom)
+            print("Preparing the map: %s" % str(time.time() - start_time))
             self.verificationProgress.emit(5)
             # update the unlinks
             start_time = time.time()
             if 'spatialite' in datastore:
-                added = uf.addSpatialiteColumns(connection, unlinkname, ['line1','line2'], [QVariant.Int,QVariant.Int])
+                added = dbh.addSpatialiteColumns(connection, unlinkname, ['line1', 'line2'],
+                                                [QVariant.Int, QVariant.Int])
             else:
-                added = uf.addPostgisColumns(connection, unlinkinfo['schema'], unlinkname, ['line1','line2'], [QVariant.Int,QVariant.Int])
-            print "Updating unlinks: %s" % str(time.time()-start_time)
+                added = dbh.addPostgisColumns(connection, unlinkinfo['schema'], unlinkname, ['line1', 'line2'],
+                                             [QVariant.Int, QVariant.Int])
+            print("Updating unlinks: %s" % str(time.time() - start_time))
             self.verificationProgress.emit(10)
             # analyse the unlinks
             start_time = time.time()
             if 'spatialite' in datastore:
                 self.spatialiteTestUnlinks(connection, unlinkname, unlinkgeom, axialname, axialgeom)
             else:
-                self.postgisTestUnlinks(connection, unlinkinfo['schema'], unlinkname, unlinkgeom, axialinfo['schema'], axialname, axialgeom)
-            print "Analysing unlinks: %s" % str(time.time()-start_time)
+                self.postgisTestUnlinks(connection, unlinkinfo['schema'], unlinkname, unlinkgeom, axialinfo['schema'],
+                                        axialname, axialgeom)
+            print("Analysing unlinks: %s" % str(time.time() - start_time))
             self.verificationProgress.emit(100)
             connection.close()
         else:
             # add attributes if necessary
-            uf.addFields(self.unlinks_layer,['line1','line2'], [QVariant.Int,QVariant.Int])
+            lfh.addFields(self.unlinks_layer, ['line1', 'line2'], [QVariant.Int, QVariant.Int])
             # analyse the unlinks
             start_time = time.time()
             self.qgisTestUnlinks()
-            print "Analysing unlinks: %s" % str(time.time()-start_time)
+            print("Analysing unlinks: %s" % str(time.time() - start_time))
         self.verificationProgress.emit(100)
         # return the results
         self.problem_nodes = list(set(self.problem_nodes))
@@ -137,116 +137,117 @@ class UnlinksVerification(QThread):
             axialid = 'ROWID'
         else:
             axialid = self.axial_id
-        steps = 90.0/9.0
+        steps = 90.0 / 9.0
         progress = 10.0
         # geometry is valid (generally)
         start_time = time.time()
-        query = """SELECT "%s", line1, line2 FROM "%s" WHERE NOT ST_IsSimple(%s) OR NOT ST_IsValid(%s)""" % (unlinkid, unlinkname, unlinkgeom, unlinkgeom)
-        header, data, error = uf.executeSpatialiteQuery(connection, query)
+        query = """SELECT "%s", line1, line2 FROM "%s" WHERE NOT ST_IsSimple(%s) OR NOT ST_IsValid(%s)""" % (
+            unlinkid, unlinkname, unlinkgeom, unlinkgeom)
+        header, data, error = dbh.executeSpatialiteQuery(connection, query)
         if data:
             nodes = list(zip(*data)[0])
             self.problem_nodes.extend(data)
             self.unlink_errors['invalid geometry'] = nodes
         progress += steps
         self.verificationProgress.emit(progress)
-        print "analyse valid: %s" % str(time.time()-start_time)
+        print("analyse valid: %s" % str(time.time() - start_time))
         # duplicate geometry
         start_time = time.time()
-        query = 'SELECT a."%s", a.line1, a.line2 FROM "%s" a, "%s" b WHERE a."%s" <> b."%s" AND ST_Equals(a."%s",b."%s") '\
-                'AND a.ROWID IN (SELECT ROWID FROM SpatialIndex WHERE f_table_name="%s" AND search_frame=b."%s")'\
+        query = 'SELECT a."%s", a.line1, a.line2 FROM "%s" a, "%s" b WHERE a."%s" <> b."%s" AND ST_Equals(a."%s",b."%s") ' \
+                'AND a.ROWID IN (SELECT ROWID FROM SpatialIndex WHERE f_table_name="%s" AND search_frame=b."%s")' \
                 % (unlinkid, unlinkname, unlinkname, unlinkid, unlinkid, unlinkgeom, unlinkgeom, unlinkname, unlinkgeom)
-        header, data, error = uf.executeSpatialiteQuery(connection, query)
+        header, data, error = dbh.executeSpatialiteQuery(connection, query)
         if data:
             nodes = list(zip(*data)[0])
             self.problem_nodes.extend(data)
             self.unlink_errors['duplicate geometry'] = nodes
         progress += steps
         self.verificationProgress.emit(progress)
-        print "analyse duplicate: %s" % str(time.time()-start_time)
+        print("analyse duplicate: %s" % str(time.time() - start_time))
         # no line id
         start_time = time.time()
         query = """SELECT "%s", line1, line2 FROM "%s" WHERE line1 IS NULL OR line2 IS NULL""" % (unlinkid, unlinkname)
-        header, data, error = uf.executeSpatialiteQuery(connection, query)
+        header, data, error = dbh.executeSpatialiteQuery(connection, query)
         if data:
             nodes = list(zip(*data)[0])
             self.problem_nodes.extend(data)
             self.unlink_errors['no line id'] = nodes
         progress += steps
         self.verificationProgress.emit(progress)
-        print "analyse no id: %s" % str(time.time()-start_time)
+        print("analyse no id: %s" % str(time.time() - start_time))
         # same line id
         start_time = time.time()
         query = """SELECT "%s", line1, line2 FROM "%s" WHERE line1 = line2""" % (unlinkid, unlinkname)
-        header, data, error = uf.executeSpatialiteQuery(connection, query)
+        header, data, error = dbh.executeSpatialiteQuery(connection, query)
         if data:
             nodes = list(zip(*data)[0])
             self.problem_nodes.extend(data)
             self.unlink_errors['same line id'] = nodes
         progress += steps
         self.verificationProgress.emit(progress)
-        print "analyse no id: %s" % str(time.time()-start_time)
+        print("analyse no id: %s" % str(time.time() - start_time))
         # create temp table for intersection results
-        if self.unlink_type in (QGis.Polygon, QGis.Line):
+        if self.unlink_type in (QgsWkbTypes.PolygonGeometry, QgsWkbTypes.LineGeometry):
             operat_a = 'ST_Intersects'
             operat_b = ''
         else:
             operat_a = 'PtDistWithin'
             operat_b = ',%s' % threshold
         start_time = time.time()
-        query = """CREATE TEMP TABLE "temp_unlinks_result" AS SELECT a."%s" unlinkid, b."%s" lineid FROM "%s" a, "%s" b WHERE %s(a."%s",b."%s"%s)"""\
+        query = """CREATE TEMP TABLE "temp_unlinks_result" AS SELECT a."%s" unlinkid, b."%s" lineid FROM "%s" a, "%s" b WHERE %s(a."%s",b."%s"%s)""" \
                 % (unlinkid, axialid, unlinkname, axialname, operat_a, unlinkgeom, axialgeom, operat_b)
-        header, data, error = uf.executeSpatialiteQuery(connection, query, commit=True)
+        header, data, error = dbh.executeSpatialiteQuery(connection, query, commit=True)
         progress += steps
         self.verificationProgress.emit(progress)
-        print "temp unlinks result: %s" % str(time.time()-start_time)
-        #'multiple lines'
+        print("temp unlinks result: %s" % str(time.time() - start_time))
+        # 'multiple lines'
         start_time = time.time()
         query = 'SELECT "%s", line1, line2 FROM "%s" WHERE "%s" IN (SELECT unlinkid FROM (SELECT unlinkid, count(unlinkid) freq ' \
                 'FROM temp_unlinks_result GROUP BY unlinkid) WHERE freq > 2)' % (unlinkid, unlinkname, unlinkid)
-        header, data, error = uf.executeSpatialiteQuery(connection, query)
+        header, data, error = dbh.executeSpatialiteQuery(connection, query)
         if data:
             nodes = list(zip(*data)[0])
             self.problem_nodes.extend(data)
             self.unlink_errors['multiple lines'] = nodes
         progress += steps
         self.verificationProgress.emit(progress)
-        print "analyse multiple lines: %s" % str(time.time()-start_time)
-        #'single line'
+        print("analyse multiple lines: %s" % str(time.time() - start_time))
+        # 'single line'
         start_time = time.time()
         query = 'SELECT "%s", line1, line2 FROM "%s" WHERE "%s" IN (SELECT unlinkid FROM (SELECT unlinkid, count(unlinkid) freq ' \
                 'FROM temp_unlinks_result GROUP BY unlinkid) WHERE freq = 1)' % (unlinkid, unlinkname, unlinkid)
-        header, data, error = uf.executeSpatialiteQuery(connection, query)
+        header, data, error = dbh.executeSpatialiteQuery(connection, query)
         if data:
             nodes = list(zip(*data)[0])
             self.problem_nodes.extend(data)
             self.unlink_errors['single line'] = nodes
         progress += steps
         self.verificationProgress.emit(progress)
-        print "analyse single lines: %s" % str(time.time()-start_time)
-        #'no lines'
+        print("analyse single lines: %s" % str(time.time() - start_time))
+        # 'no lines'
         start_time = time.time()
-        query = """SELECT "%s", line1, line2 FROM "%s" WHERE "%s" NOT IN (SELECT unlinkid FROM temp_unlinks_result GROUP BY unlinkid)"""\
+        query = """SELECT "%s", line1, line2 FROM "%s" WHERE "%s" NOT IN (SELECT unlinkid FROM temp_unlinks_result GROUP BY unlinkid)""" \
                 % (unlinkid, unlinkname, unlinkid)
-        header, data, error = uf.executeSpatialiteQuery(connection, query)
+        header, data, error = dbh.executeSpatialiteQuery(connection, query)
         if data:
             nodes = list(zip(*data)[0])
             self.problem_nodes.extend(data)
             self.unlink_errors['no lines'] = nodes
         progress += steps
         self.verificationProgress.emit(progress)
-        print "analyse no lines: %s" % str(time.time()-start_time)
-        #'unmatched line id'
+        print("analyse no lines: %s" % str(time.time() - start_time))
+        # 'unmatched line id'
         start_time = time.time()
-        query = """SELECT b."%s", b.line1, b.line2 FROM temp_unlinks_result a, "%s" b WHERE a.unlinkid = b."%s" AND (a.lineid <> b.line1 AND a.lineid <> b.line2)"""\
+        query = """SELECT b."%s", b.line1, b.line2 FROM temp_unlinks_result a, "%s" b WHERE a.unlinkid = b."%s" AND (a.lineid <> b.line1 AND a.lineid <> b.line2)""" \
                 % (unlinkid, unlinkname, unlinkid)
-        header, data, error = uf.executeSpatialiteQuery(connection, query)
+        header, data, error = dbh.executeSpatialiteQuery(connection, query)
         if data:
             nodes = list(zip(*data)[0])
             self.problem_nodes.extend(data)
             self.unlink_errors['unmatched line id'] = nodes
         progress += steps
         self.verificationProgress.emit(progress)
-        print "analyse unmatched id: %s" % str(time.time()-start_time)
+        print("analyse unmatched id: %s" % str(time.time() - start_time))
 
     def postgisTestUnlinks(self, connection, unlinkschema, unlinkname, unlinkgeom, axialschema, axialname, axialgeom):
         # this function checks the geometric validity of geometry using spatialite
@@ -257,137 +258,143 @@ class UnlinksVerification(QThread):
         else:
             unlinkid = self.user_id
             axialid = self.axial_id
-        steps = 90.0/9.0
+        steps = 90.0 / 9.0
         progress = 10.0
         # geometry is valid (generally)
         start_time = time.time()
-        query = """SELECT "%s", line1, line2 FROM "%s"."%s" WHERE NOT ST_IsSimple("%s") OR NOT ST_IsValid("%s")"""\
+        query = """SELECT "%s", line1, line2 FROM "%s"."%s" WHERE NOT ST_IsSimple("%s") OR NOT ST_IsValid("%s")""" \
                 % (unlinkid, unlinkschema, unlinkname, unlinkgeom, unlinkgeom)
-        header, data, error = uf.executePostgisQuery(connection, query)
+        header, data, error = dbh.executePostgisQuery(connection, query)
         if data:
             nodes = list(zip(*data)[0])
             self.problem_nodes.extend(data)
             self.unlink_errors['invalid geometry'] = nodes
         progress += steps
         self.verificationProgress.emit(progress)
-        print "analyse valid: %s" % str(time.time()-start_time)
+        print("analyse valid: %s" % str(time.time() - start_time))
         # duplicate geometry
         start_time = time.time()
-        query = """SELECT a."%s", a.line1, a.line2 FROM "%s"."%s" a, "%s".""%s" b WHERE a."%s" <> b."%s" AND ST_Equals(a."%s",b."%s")"""\
-                % (unlinkid, unlinkschema, unlinkname, unlinkschema, unlinkname, unlinkid, unlinkid, unlinkgeom, unlinkgeom)
-        header, data, error = uf.executePostgisQuery(connection, query)
+        query = """SELECT a."%s", a.line1, a.line2 FROM "%s"."%s" a, "%s".""%s" b WHERE a."%s" <> b."%s" AND ST_Equals(a."%s",b."%s")""" \
+                % (unlinkid, unlinkschema, unlinkname, unlinkschema, unlinkname, unlinkid, unlinkid, unlinkgeom,
+                   unlinkgeom)
+        header, data, error = dbh.executePostgisQuery(connection, query)
         if data:
             nodes = list(zip(*data)[0])
             self.problem_nodes.extend(data)
             self.unlink_errors['duplicate geometry'] = nodes
         progress += steps
         self.verificationProgress.emit(progress)
-        print "analyse duplicate: %s" % str(time.time()-start_time)
+        print("analyse duplicate: %s" % str(time.time() - start_time))
         # no line id
         start_time = time.time()
-        query = """SELECT "%s", line1, line2 FROM "%s"."%s" WHERE line1 IS NULL OR line2 IS NULL""" % (unlinkid, unlinkschema, unlinkname)
-        header, data, error = uf.executePostgisQuery(connection, query)
+        query = """SELECT "%s", line1, line2 FROM "%s"."%s" WHERE line1 IS NULL OR line2 IS NULL""" % (
+            unlinkid, unlinkschema, unlinkname)
+        header, data, error = dbh.executePostgisQuery(connection, query)
         if data:
             nodes = list(zip(*data)[0])
             self.problem_nodes.extend(data)
             self.unlink_errors['no line id'] = nodes
         progress += steps
         self.verificationProgress.emit(progress)
-        print "analyse no id: %s" % str(time.time()-start_time)
+        print("analyse no id: %s" % str(time.time() - start_time))
         # same line id
         start_time = time.time()
-        query = """SELECT "%s", line1, line2 FROM "%s"."%s" WHERE line1 = line2""" % (unlinkid, unlinkschema, unlinkname)
-        header, data, error = uf.executePostgisQuery(connection, query)
+        query = """SELECT "%s", line1, line2 FROM "%s"."%s" WHERE line1 = line2""" % (
+            unlinkid, unlinkschema, unlinkname)
+        header, data, error = dbh.executePostgisQuery(connection, query)
         if data:
             nodes = list(zip(*data)[0])
             self.problem_nodes.extend(data)
             self.unlink_errors['same line id'] = nodes
         progress += steps
         self.verificationProgress.emit(progress)
-        print "analyse same id: %s" % str(time.time()-start_time)
+        print("analyse same id: %s" % str(time.time() - start_time))
         # create temp table for intersection results
-        if self.unlink_type in (QGis.Polygon, QGis.Line):
+        if self.unlink_type in (QgsWkbTypes.PolygonGeometry, QgsWkbTypes.LineGeometry):
             operat_a = 'ST_Intersects'
             operat_b = ''
         else:
             operat_a = 'ST_DWithin'
             operat_b = ',%s' % threshold
         start_time = time.time()
-        query = """CREATE TEMP TABLE "temp_unlinks_result" AS SELECT a."%s" unlinkid, b."%s" lineid FROM "%s"."%s" a, "%s"."%s" b WHERE %s(a."%s",b."%s"%s)"""\
-                % (unlinkid, axialid, unlinkschema, unlinkname, axialschema, axialname, operat_a, unlinkgeom, axialgeom, operat_b)
-        header, data, error = uf.executePostgisQuery(connection, query, commit=True)
+        query = """CREATE TEMP TABLE "temp_unlinks_result" AS SELECT a."%s" unlinkid, b."%s" lineid FROM "%s"."%s" a, "%s"."%s" b WHERE %s(a."%s",b."%s"%s)""" \
+                % (unlinkid, axialid, unlinkschema, unlinkname, axialschema, axialname, operat_a, unlinkgeom, axialgeom,
+                   operat_b)
+        header, data, error = dbh.executePostgisQuery(connection, query, commit=True)
         progress += steps
         self.verificationProgress.emit(progress)
-        print "temp unlinks result: %s" % str(time.time()-start_time)
-        #'multiple lines'
+        print("temp unlinks result: %s" % str(time.time() - start_time))
+        # 'multiple lines'
         start_time = time.time()
-        query = 'SELECT "%s", line1, line2 FROM "%s"."%s" WHERE "%s" IN (SELECT unlinkid FROM (SELECT unlinkid, count(*) freq '\
-                'FROM temp_unlinks_result GROUP BY unlinkid) a WHERE freq > 2)' % (unlinkid, unlinkschema,  unlinkname, unlinkid)
-        header, data, error = uf.executePostgisQuery(connection, query)
+        query = 'SELECT "%s", line1, line2 FROM "%s"."%s" WHERE "%s" IN (SELECT unlinkid FROM (SELECT unlinkid, count(*) freq ' \
+                'FROM temp_unlinks_result GROUP BY unlinkid) a WHERE freq > 2)' % (
+                    unlinkid, unlinkschema, unlinkname, unlinkid)
+        header, data, error = dbh.executePostgisQuery(connection, query)
         if data:
             nodes = list(zip(*data)[0])
             self.problem_nodes.extend(data)
             self.unlink_errors['multiple lines'] = nodes
         progress += steps
         self.verificationProgress.emit(progress)
-        print "analyse multiple lines: %s" % str(time.time()-start_time)
-        #'single line'
+        print("analyse multiple lines: %s" % str(time.time() - start_time))
+        # 'single line'
         start_time = time.time()
         query = 'SELECT "%s", line1, line2 FROM "%s"."%s" WHERE "%s" IN (SELECT unlinkid FROM (SELECT unlinkid, count(*) freq ' \
-                'FROM temp_unlinks_result GROUP BY unlinkid) a WHERE freq = 1)' % (unlinkid, unlinkschema, unlinkname, unlinkid)
-        header, data, error = uf.executePostgisQuery(connection, query)
+                'FROM temp_unlinks_result GROUP BY unlinkid) a WHERE freq = 1)' % (
+                    unlinkid, unlinkschema, unlinkname, unlinkid)
+        header, data, error = dbh.executePostgisQuery(connection, query)
         if data:
             nodes = list(zip(*data)[0])
             self.problem_nodes.extend(data)
             self.unlink_errors['single line'] = nodes
         progress += steps
         self.verificationProgress.emit(progress)
-        print "analyse single lines: %s" % str(time.time()-start_time)
-        #'no lines'
+        print("analyse single lines: %s" % str(time.time() - start_time))
+        # 'no lines'
         start_time = time.time()
-        query = """SELECT "%s", line1, line2 FROM "%s"."%s" WHERE "%s" NOT IN (SELECT unlinkid FROM temp_unlinks_result GROUP BY unlinkid)"""\
+        query = """SELECT "%s", line1, line2 FROM "%s"."%s" WHERE "%s" NOT IN (SELECT unlinkid FROM temp_unlinks_result GROUP BY unlinkid)""" \
                 % (unlinkid, unlinkschema, unlinkname, unlinkid)
-        header, data, error = uf.executePostgisQuery(connection, query)
+        header, data, error = dbh.executePostgisQuery(connection, query)
         if data:
             nodes = list(zip(*data)[0])
             self.problem_nodes.extend(data)
             self.unlink_errors['no lines'] = nodes
         progress += steps
         self.verificationProgress.emit(progress)
-        print "analyse no lines: %s" % str(time.time()-start_time)
-        #'unmatched line id'
+        print("analyse no lines: %s" % str(time.time() - start_time))
+        # 'unmatched line id'
         start_time = time.time()
-        query = """SELECT b."%s", b.line1, b.line2 FROM temp_unlinks_result a, "%s"."%s" b WHERE a.unlinkid = b."%s" AND (a.lineid <> b.line1 AND a.lineid <> b.line2)"""\
+        query = """SELECT b."%s", b.line1, b.line2 FROM temp_unlinks_result a, "%s"."%s" b WHERE a.unlinkid = b."%s" AND (a.lineid <> b.line1 AND a.lineid <> b.line2)""" \
                 % (unlinkid, unlinkschema, unlinkname, unlinkid)
-        header, data, error = uf.executePostgisQuery(connection, query)
+        header, data, error = dbh.executePostgisQuery(connection, query)
         if data:
             nodes = list(zip(*data)[0])
             self.problem_nodes.extend(data)
             self.unlink_errors['unmatched line id'] = nodes
         progress += steps
         self.verificationProgress.emit(progress)
-        print "analyse unmatched id: %s" % str(time.time()-start_time)
+        print("analyse unmatched id: %s" % str(time.time() - start_time))
 
     def qgisTestUnlinks(self):
         # this function checks the validity of unlinks using QGIS
         start_time = time.time()
-        uf.addFields(self.unlinks_layer,['line1','line2'],[QVariant.LongLong,QVariant.LongLong])
-        line1 = uf.getFieldIndex(self.unlinks_layer, 'line1')
-        line2 = uf.getFieldIndex(self.unlinks_layer, 'line2')
-        #unlinksindex = createIndex(self.unlinks_layer)
-        axialindex = uf.createIndex(self.axial_layer)
-        print "Preparing the map: %s" % str(time.time()-start_time)
+        lfh.addFields(self.unlinks_layer, ['line1', 'line2'], [QVariant.LongLong, QVariant.LongLong])
+        line1 = lfh.getFieldIndex(self.unlinks_layer, 'line1')
+        line2 = lfh.getFieldIndex(self.unlinks_layer, 'line2')
+        # unlinksindex = createIndex(self.unlinks_layer)
+        axialindex = lfh.createIndex(self.axial_layer)
+        print("Preparing the map: %s" % str(time.time() - start_time))
         # prepare unlinks to test
         self.verificationProgress.emit(5)
         threshold = self.verification_settings['unlink_dist']
-        chunk = 100.0/float(self.unlinks_layer.featureCount())
-        steps = chunk/6.0
+        chunk = 100.0 / float(self.unlinks_layer.featureCount())
+        steps = chunk / 6.0
         progress = 0.0
         if self.user_id == '':
-            features = self.unlinks_layer.getFeatures(QgsFeatureRequest().setSubsetOfAttributes([line1,line2]))
+            features = self.unlinks_layer.getFeatures(QgsFeatureRequest().setSubsetOfAttributes([line1, line2]))
         else:
-            field = uf.getFieldIndex(self.unlinks_layer, self.user_id)
-            features = self.unlinks_layer.getFeatures(QgsFeatureRequest().setSubsetOfAttributes([field,line1,line2]))
+            field = lfh.getFieldIndex(self.unlinks_layer, self.user_id)
+            features = self.unlinks_layer.getFeatures(QgsFeatureRequest().setSubsetOfAttributes([field, line1, line2]))
         # run unlinks tests
         for feature in features:
             has_problem = False
@@ -399,7 +406,7 @@ class UnlinksVerification(QThread):
             else:
                 id = feature.attribute(self.user_id)
             # geometry is valid (generally)
-            if not geom.isGeosValid() or geom.isGeosEmpty():
+            if not geom.isGeosValid() or geom.isEmpty():
                 has_problem = True
                 self.axial_errors['invalid geometry'].append(id)
             progress += steps
@@ -420,7 +427,7 @@ class UnlinksVerification(QThread):
             if self.user_id == '':
                 request = QgsFeatureRequest().setSubsetOfAttributes([])
             else:
-                field = uf.getFieldIndex(self.unlinks_layer, self.user_id)
+                field = lfh.getFieldIndex(self.unlinks_layer, self.user_id)
                 request = QgsFeatureRequest().setSubsetOfAttributes([field])
             targets = self.unlinks_layer.getFeatures(request)
             for target in targets:
@@ -434,8 +441,8 @@ class UnlinksVerification(QThread):
             progress += steps
             self.verificationProgress.emit(progress)
             # get intersection results
-            if self.unlink_type == QGis.Point and threshold > 0:
-                buff = geom.buffer(threshold,4)
+            if self.unlink_type == QgsWkbTypes.PointGeometry and threshold > 0:
+                buff = geom.buffer(threshold, 4)
             else:
                 buff = geom
             box = buff.boundingBox()
@@ -450,7 +457,7 @@ class UnlinksVerification(QThread):
             if self.axial_id == '':
                 request.setSubsetOfAttributes([])
             else:
-                field = uf.getFieldIndex(self.axial_layer, self.axial_id)
+                field = lfh.getFieldIndex(self.axial_layer, self.axial_id)
                 request.setSubsetOfAttributes([field])
             axiallines = self.axial_layer.getFeatures(request)
             intersects = []
@@ -461,28 +468,28 @@ class UnlinksVerification(QThread):
                     id_b = line.attribute(self.axial_id)
                 if line.geometry().intersects(buff):
                     intersects.append(id_b)
-                    #'unmatched line id'
+                    # 'unmatched line id'
                     if id_b != id1 and id_b != id2:
                         has_problem = True
                         self.unlink_errors['unmatched line id'].append(id)
             progress += steps
             self.verificationProgress.emit(progress)
-            #'multiple lines'
+            # 'multiple lines'
             if len(intersects) > 2:
                 has_problem = True
                 self.unlink_errors['multiple lines'].append(id)
-            #'single line'
+            # 'single line'
             elif len(intersects) == 1:
                 has_problem = True
                 self.unlink_errors['single line'].append(id)
-            #'no lines'
+            # 'no lines'
             elif len(intersects) == 0:
                 has_problem = True
                 self.unlink_errors['no lines'].append(id)
             progress += steps
             self.verificationProgress.emit(progress)
             if has_problem:
-                self.problem_nodes.append((id,id1,id2))
+                self.problem_nodes.append((id, id1, id2))
 
 
 class UnlinksIdUpdate(QThread):
@@ -491,7 +498,7 @@ class UnlinksIdUpdate(QThread):
     verificationError = pyqtSignal(str)
 
     def __init__(self, parentThread, parentObject, unlinks, id, axial, axial_id, threshold):
-        QThread.__init__( self, parentThread)
+        QThread.__init__(self, parentThread)
         self.parent = parentObject
         self.running = False
         self.threshold = threshold
@@ -510,10 +517,10 @@ class UnlinksIdUpdate(QThread):
         datastore = self.unlinks_layer.storageType().lower()
         if 'spatialite' in datastore or 'postgresql' in datastore:
             # test the relevant layers
-            if not uf.testSameDatabase([self.unlinks_layer, self.axial_layer]):
+            if not dbh.testSameDatabase([self.unlinks_layer, self.axial_layer]):
                 self.verificationError.emit("The map layer must be in the same database as the unlinks layer.")
                 return
-            connection = uf.getDBLayerConnection(self.unlinks_layer)
+            connection = dbh.getDBLayerConnection(self.unlinks_layer)
             if 'spatialite' in datastore:
                 self.spatialiteUpdateIDs(connection, unlinktype)
             else:
@@ -531,32 +538,32 @@ class UnlinksIdUpdate(QThread):
 
     def stop(self):
         self.running = False
-        #self.terminate()
+        # self.terminate()
 
     def spatialiteUpdateIDs(self, connection, unlinktype):
         # get the relevant layers names
-        unlinkname = uf.getDBLayerTableName(self.unlinks_layer)
-        axialname = uf.getDBLayerTableName(self.axial_layer)
+        unlinkname = dbh.getDBLayerTableName(self.unlinks_layer)
+        axialname = dbh.getDBLayerTableName(self.axial_layer)
         # get the geometry column name and other properties
-        unlinkgeom = uf.getSpatialiteGeometryColumn(connection, unlinkname)
-        axialgeom = uf.getSpatialiteGeometryColumn(connection, axialname)
+        unlinkgeom = dbh.getSpatialiteGeometryColumn(connection, unlinkname)
+        axialgeom = dbh.getSpatialiteGeometryColumn(connection, axialname)
         # add line id columns
-        added = uf.addSpatialiteColumns(connection, unlinkname, ['line1','line2'], [QVariant.Int,QVariant.Int])
+        added = dbh.addSpatialiteColumns(connection, unlinkname, ['line1', 'line2'], [QVariant.Int, QVariant.Int])
         self.verificationProgress.emit(22)
         # prepare variables for update query
         if self.user_id == '':
             unlinkid = 'ROWID'
         else:
             unlinkid = self.user_id
-            if not uf.isValidIdField(self.unlinks_layer, unlinkid):
+            if not lfh.isValidIdField(self.unlinks_layer, unlinkid):
                 # update unlink id column
                 query = 'UPDATE %s SET %s = ROWID' % (unlinkname, unlinkid)
-                header, data, error = uf.executeSpatialiteQuery(connection, query, commit=True)
+                header, data, error = dbh.executeSpatialiteQuery(connection, query, commit=True)
         if self.axial_id == '':
             axialid = 'ROWID'
         else:
             axialid = self.axial_id
-        if unlinktype in (QGis.Polygon, QGis.Line):
+        if unlinktype in (QgsWkbTypes.PolygonGeometry, QgsWkbTypes.LineGeometry):
             operat_a = 'ST_Intersects'
             operat_b = ''
         else:
@@ -566,40 +573,43 @@ class UnlinksIdUpdate(QThread):
         # update line id columns
         query = 'UPDATE %s SET line1 = (SELECT c.line FROM (SELECT b.%s unlink, a.%s line FROM ' \
                 '%s a, %s b WHERE %s(a.%s,b.%s%s) ORDER BY b.%s, a.%s ASC)' \
-                ' c WHERE c.unlink = %s.%s)'\
-                % (unlinkname, unlinkid, axialid, axialname, unlinkname, operat_a, axialgeom, unlinkgeom, operat_b, unlinkid, axialid, unlinkname, unlinkid)
-        header, data, error = uf.executeSpatialiteQuery(connection, query, commit=True)
+                ' c WHERE c.unlink = %s.%s)' \
+                % (unlinkname, unlinkid, axialid, axialname, unlinkname, operat_a, axialgeom, unlinkgeom, operat_b,
+                   unlinkid, axialid, unlinkname, unlinkid)
+        header, data, error = dbh.executeSpatialiteQuery(connection, query, commit=True)
         self.verificationProgress.emit(66)
         query = 'UPDATE %s SET line2 = (SELECT c.line FROM (SELECT b.%s unlink, a.%s line FROM ' \
                 '%s a, %s b WHERE %s(a.%s,b.%s%s) ORDER BY b.%s, a.%s DESC)' \
-                ' c WHERE c.unlink = %s.%s)'\
-                % (unlinkname, unlinkid, axialid, axialname, unlinkname, operat_a, axialgeom, unlinkgeom, operat_b, unlinkid, axialid, unlinkname, unlinkid)
-        header, data, error = uf.executeSpatialiteQuery(connection, query, commit=True)
+                ' c WHERE c.unlink = %s.%s)' \
+                % (unlinkname, unlinkid, axialid, axialname, unlinkname, operat_a, axialgeom, unlinkgeom, operat_b,
+                   unlinkid, axialid, unlinkname, unlinkid)
+        header, data, error = dbh.executeSpatialiteQuery(connection, query, commit=True)
         query = """SELECT UpdateLayerStatistics("%s")""" % unlinkname
-        header, data, error = uf.executeSpatialiteQuery(connection,query)
+        header, data, error = dbh.executeSpatialiteQuery(connection, query)
         self.verificationProgress.emit(99)
 
     def postgisUpdateIDs(self, connection, unlinktype):
         unlinkid = self.user_id
         axialid = self.axial_id
         # get the geometry column name and other properties
-        unlinkinfo = uf.getPostgisLayerInfo(self.unlinks_layer)
+        unlinkinfo = dbh.getPostgisLayerInfo(self.unlinks_layer)
         unlinkname = unlinkinfo['table']
         unlinkschema = unlinkinfo['schema']
-        unlinkgeom = uf.getPostgisGeometryColumn(connection, unlinkschema, unlinkname)
+        unlinkgeom = dbh.getPostgisGeometryColumn(connection, unlinkschema, unlinkname)
         # todo: ensure that it has a spatial index
-        #uf.createPostgisSpatialIndex(connection, unlinkschema, unlinkname, unlinkgeom)
-        axialinfo = uf.getPostgisLayerInfo(self.axial_layer)
+        # dbh.createPostgisSpatialIndex(connection, unlinkschema, unlinkname, unlinkgeom)
+        axialinfo = dbh.getPostgisLayerInfo(self.axial_layer)
         axialname = axialinfo['table']
         axialschema = axialinfo['schema']
-        axialgeom = uf.getPostgisGeometryColumn(connection, axialschema, axialname)
+        axialgeom = dbh.getPostgisGeometryColumn(connection, axialschema, axialname)
         # todo: ensure that it has a spatial index
-        #uf.createPostgisSpatialIndex(connection, axialschema, axialname, axialgeom)
+        # dbh.createPostgisSpatialIndex(connection, axialschema, axialname, axialgeom)
         # add line id columns
-        added = uf.addPostgisColumns(connection, unlinkschema, unlinkname, ['line1','line2'], [QVariant.Int,QVariant.Int])
+        added = dbh.addPostgisColumns(connection, unlinkschema, unlinkname, ['line1', 'line2'],
+                                     [QVariant.Int, QVariant.Int])
         self.verificationProgress.emit(33)
         # prepare variables for update query
-        if unlinktype in (QGis.Polygon, QGis.Line):
+        if unlinktype in (QgsWkbTypes.PolygonGeometry, QgsWkbTypes.LineGeometry):
             operat_a = 'ST_Intersects'
             operat_b = ''
         else:
@@ -608,44 +618,44 @@ class UnlinksIdUpdate(QThread):
         # update line id columns
         query = 'UPDATE "%s"."%s" ul SET line1 = ax.line FROM (SELECT b."%s" unlink, a."%s" line FROM ' \
                 '"%s"."%s" a, "%s"."%s" b WHERE %s(a."%s",b."%s"%s) ORDER BY b."%s", a."%s" ASC) ax ' \
-                'WHERE ax.unlink = ul."%s"'\
+                'WHERE ax.unlink = ul."%s"' \
                 % (unlinkschema, unlinkname, unlinkid, axialid, axialschema, axialname, unlinkschema, unlinkname,
                    operat_a, axialgeom, unlinkgeom, operat_b, unlinkid, axialid, unlinkid)
-        header, data, error = uf.executePostgisQuery(connection, query, commit=True)
+        header, data, error = dbh.executePostgisQuery(connection, query, commit=True)
         self.verificationProgress.emit(66)
         query = 'UPDATE "%s"."%s" ul SET line2 = ax.line FROM (SELECT b."%s" unlink, a."%s" line FROM ' \
                 '"%s"."%s" a, "%s"."%s" b WHERE %s(a."%s",b."%s"%s) ORDER BY b."%s", a."%s" DESC) ax ' \
-                'WHERE ax.unlink = ul."%s"'\
+                'WHERE ax.unlink = ul."%s"' \
                 % (unlinkschema, unlinkname, unlinkid, axialid, axialschema, axialname, unlinkschema, unlinkname,
                    operat_a, axialgeom, unlinkgeom, operat_b, unlinkid, axialid, unlinkid)
-        header, data, error = uf.executePostgisQuery(connection, query, commit=True)
+        header, data, error = dbh.executePostgisQuery(connection, query, commit=True)
         connection.close()
         self.verificationProgress.emit(99)
 
     def qgisUpdateIDs(self, unlinktype):
         # create spatial index
-        unlinksindex = uf.createIndex(self.unlinks_layer)
-        axialindex = uf.createIndex(self.axial_layer)
+        unlinksindex = lfh.createIndex(self.unlinks_layer)
+        axialindex = lfh.createIndex(self.axial_layer)
         # add line id columns if necessary
-        uf.addFields(self.unlinks_layer,['line1','line2'],[QVariant.Int,QVariant.Int])
-        line1 = uf.getFieldIndex(self.unlinks_layer, 'line1')
-        line2 = uf.getFieldIndex(self.unlinks_layer, 'line2')
+        lfh.addFields(self.unlinks_layer, ['line1', 'line2'], [QVariant.Int, QVariant.Int])
+        line1 = lfh.getFieldIndex(self.unlinks_layer, 'line1')
+        line2 = lfh.getFieldIndex(self.unlinks_layer, 'line2')
         update_id = False
         if self.user_id == '':
-            features = self.unlinks_layer.getFeatures(QgsFeatureRequest().setSubsetOfAttributes([line1,line2]))
+            features = self.unlinks_layer.getFeatures(QgsFeatureRequest().setSubsetOfAttributes([line1, line2]))
         else:
-            update_id = not uf.isValidIdField(self.unlinks_layer, self.user_id)
-            field = uf.getFieldIndex(self.unlinks_layer, self.user_id)
-            features = self.unlinks_layer.getFeatures(QgsFeatureRequest().setSubsetOfAttributes([field,line1,line2]))
+            update_id = not lfh.isValidIdField(self.unlinks_layer, self.user_id)
+            field = lfh.getFieldIndex(self.unlinks_layer, self.user_id)
+            features = self.unlinks_layer.getFeatures(QgsFeatureRequest().setSubsetOfAttributes([field, line1, line2]))
         # run unlinks tests
-        chunk = 100.0/float(self.unlinks_layer.featureCount())
-        steps = chunk/3.0
+        chunk = 100.0 / float(self.unlinks_layer.featureCount())
+        steps = chunk / 3.0
         progress = 0.0
         for feature in features:
             geom = feature.geometry()
             # get intersection results
-            if unlinktype == QGis.Point and self.threshold > 0.0:
-                buff = geom.buffer(self.threshold,4)
+            if unlinktype == QgsWkbTypes.PointGeometry and self.threshold > 0.0:
+                buff = geom.buffer(self.threshold, 4)
             else:
                 buff = geom
             box = buff.boundingBox()
@@ -660,7 +670,7 @@ class UnlinksIdUpdate(QThread):
             if self.axial_id == '':
                 request.setSubsetOfAttributes([])
             else:
-                ax_field = uf.getFieldIndex(self.axial_layer, self.axial_id)
+                ax_field = lfh.getFieldIndex(self.axial_layer, self.axial_id)
                 request.setSubsetOfAttributes([ax_field])
             axiallines = self.axial_layer.getFeatures(request)
             progress += steps

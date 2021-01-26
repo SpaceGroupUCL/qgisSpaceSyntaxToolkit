@@ -1,41 +1,39 @@
 # -*- coding: utf-8 -*-
-"""
-/***************************************************************************
- UrbanDataInputDockWidget
-                                 A QGIS plugin
- Urban Data Input Tool for QGIS
-                             -------------------
-        begin                : 2016-06-03
-        git sha              : $Format:%H$
-        copyright            : (C) 2016 by Abhimanyu Acharya/(C) 2016 by Space Syntax Limited’.
-        email                : a.acharya@spacesyntax.com
- ***************************************************************************/
 
-/***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
-"""
+# Space Syntax Toolkit
+# Set of tools for essential space syntax network analysis and results exploration
+# -------------------
+# begin                : 2016-06-03
+# copyright            : (C) 2016 by Abhimanyu Acharya/(C) 2016 by Space Syntax Limited’.
+# author               : Abhimanyu Acharya
+# email                : a.acharya@spacesyntax.com
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+
+from __future__ import absolute_import
 
 import os
-from PyQt4 import QtGui, uic
-from PyQt4.QtCore import *
+from builtins import str
 
-from . import utility_functions as uf
+from qgis.PyQt.QtCore import pyqtSignal
+from qgis.PyQt.QtWidgets import (QDockWidget, QTableWidgetItem, QHeaderView)
+from qgis.PyQt.uic import loadUiType
+from qgis.core import QgsProject
 
-from CreateNew_Entrance_dialog import CreateNew_EntranceDialog
-from CreateNew_LU_dialog import CreateNew_LUDialog
-from CreateNew_dialog import CreatenewDialog
+from .CreateNew_Entrance_dialog import CreateNew_EntranceDialog
+from .CreateNew_LU_dialog import CreateNew_LUDialog
+from .CreateNew_dialog import CreatenewDialog
+from esstoolkit.utilities import layer_field_helpers as lfh
+from .landuse import LanduseTool
 
-FORM_CLASS, _ = uic.loadUiType(os.path.join(
+FORM_CLASS, _ = loadUiType(os.path.join(
     os.path.dirname(__file__), 'urban_data_input_dockwidget_base.ui'))
 
 
-class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
+class UrbanDataInputDockWidget(QDockWidget, FORM_CLASS):
     closingPlugin = pyqtSignal()
     loadFrontageLayer = pyqtSignal()
 
@@ -51,7 +49,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
         self.iface = iface
         self.canvas = self.iface.mapCanvas()
-        self.legend = self.iface.legendInterface()
+        self.legend = QgsProject.instance().mapLayers()
 
         # create sub dialogs for new layers
         self.frontagedlg = CreatenewDialog()
@@ -75,7 +73,6 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.updateIDPushButton.hide()
         self.frontagescatlistWidget.setCurrentRow(0)
         self.updateFrontageSubTypes()
-
 
         self.updateEntranceTypes()
         self.ecategorylistWidget.setCurrentRow(0)
@@ -162,7 +159,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
     def updateFrontageSubTypes(self):
         frontage_sub_category_list_Building = ['Transparent', 'Semi Transparent', 'Blank']
-        frontage_sub_category_list_Fences = ['High Opaque Fence', 'High See Through Fence','Low Fence']
+        frontage_sub_category_list_Fences = ['High Opaque Fence', 'High See Through Fence', 'Low Fence']
         self.frontagessubcatlistWidget.clear()
         self.frontagessubcatlistWidget.addItems(frontage_sub_category_list_Building)
         self.frontagessubcatlistWidget.setCurrentRow(0)
@@ -187,7 +184,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
     # Get building layer based on name
     def getSelectedLayerPushID(self):
         layer_name = self.pushIDcomboBox.currentText()
-        layer = uf.getLegendLayerByName(self.iface, layer_name)
+        layer = lfh.getLegendLayerByName(self.iface, layer_name)
         return layer
 
     def clearDataFields(self):
@@ -206,7 +203,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 attr = feat.attributes()
                 attrs.append(attr)
 
-            fields = layer.pendingFields()
+            fields = layer.fields()
             field_names = [field.name() for field in fields]
 
             field_length = len(field_names)
@@ -221,19 +218,17 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
             self.tableWidgetFrontage.setRowCount(len(attrs))
 
             for i, item in enumerate(attrs):
-                self.tableWidgetFrontage.setItem(i, 0, QtGui.QTableWidgetItem(str(item[A1])))
-                self.tableWidgetFrontage.setItem(i, 1, QtGui.QTableWidgetItem(str(item[A2])))
-                self.tableWidgetFrontage.setItem(i, 2, QtGui.QTableWidgetItem(str(item[A3])))
-                self.tableWidgetFrontage.setItem(i, 3, QtGui.QTableWidgetItem(str(item[A4])))
+                self.tableWidgetFrontage.setItem(i, 0, QTableWidgetItem(str(item[A1])))
+                self.tableWidgetFrontage.setItem(i, 1, QTableWidgetItem(str(item[A2])))
+                self.tableWidgetFrontage.setItem(i, 2, QTableWidgetItem(str(item[A3])))
+                self.tableWidgetFrontage.setItem(i, 3, QTableWidgetItem(str(item[A4])))
 
             self.tableWidgetFrontage.resizeRowsToContents()
             self.tableWidgetFrontage.resizeColumnsToContents()
-            #self.tableWidgetFrontage.horizontalHeader().setResizeMode(1, QtGui.QHeaderView.ResizeToContents)
-            self.tableWidgetFrontage.horizontalHeader().setResizeMode(3, QtGui.QHeaderView.Stretch)
+            self.tableWidgetFrontage.horizontalHeader().setResizeMode(3, QHeaderView.Stretch)
 
     def tableClear(self):
         self.tableWidgetFrontage.clear()
-
 
     #######
     #   Entrances
@@ -243,7 +238,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.ecategorylistWidget.clear()
         entrance_category_list = ['Controlled', 'Uncontrolled']
 
-        entrance_access_level_list = ["Lower Floor","Ground Floor","Upper Floor"]
+        entrance_access_level_list = ["Lower Floor", "Ground Floor", "Upper Floor"]
 
         self.ecategorylistWidget.addItems(entrance_category_list)
         self.eaccesscategorylistWidget.addItems(entrance_access_level_list)
@@ -286,7 +281,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 attr = feat.attributes()
                 attrs.append(attr)
 
-            fields = layer.pendingFields()
+            fields = layer.fields()
             field_names = [field.name() for field in fields]
 
             field_length = len(field_names)
@@ -301,19 +296,17 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
             self.tableWidgetEntrance.setRowCount(len(attrs))
 
             for i, item in enumerate(attrs):
-                self.tableWidgetEntrance.setItem(i, 0, QtGui.QTableWidgetItem(str(item[A1])))
-                self.tableWidgetEntrance.setItem(i, 1, QtGui.QTableWidgetItem(str(item[A2])))
-                self.tableWidgetEntrance.setItem(i, 2, QtGui.QTableWidgetItem(str(item[A3])))
-                self.tableWidgetEntrance.setItem(i, 3, QtGui.QTableWidgetItem(str(item[A4])))
+                self.tableWidgetEntrance.setItem(i, 0, QTableWidgetItem(str(item[A1])))
+                self.tableWidgetEntrance.setItem(i, 1, QTableWidgetItem(str(item[A2])))
+                self.tableWidgetEntrance.setItem(i, 2, QTableWidgetItem(str(item[A3])))
+                self.tableWidgetEntrance.setItem(i, 3, QTableWidgetItem(str(item[A4])))
 
             self.tableWidgetEntrance.resizeRowsToContents()
             self.tableWidgetEntrance.resizeColumnsToContents()
-            #self.tableWidgetEntrance.horizontalHeader().setResizeMode(1, QtGui.QHeaderView.ResizeToContents)
-            self.tableWidgetEntrance.horizontalHeader().setResizeMode(3, QtGui.QHeaderView.Stretch)
+            self.tableWidgetEntrance.horizontalHeader().setResizeMode(3, QHeaderView.Stretch)
 
     def entrancetableClear(self):
         self.tableWidgetEntrance.clear()
-
 
         #######
         #   Land Use
@@ -321,13 +314,13 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
     def updateLUTypes(self):
         self.lucategorylistWidget.clear()
-        lu_category_list = ["Agriculture","Community","Catering",
-                            "Education","Government","Hotels",
-                            "Industry","Leisure","Medical",
-                            "Offices","Parking","Retail",
-                            "Residential","Services","Storage",
-                            "Transport","Utilities", "Under Construction",
-                            "Under Developed", "Unknown/Undefined","Vacant Building"]
+        lu_category_list = ["Agriculture", "Community", "Catering",
+                            "Education", "Government", "Hotels",
+                            "Industry", "Leisure", "Medical",
+                            "Offices", "Parking", "Retail",
+                            "Residential", "Services", "Storage",
+                            "Transport", "Utilities", "Under Construction",
+                            "Under Developed", "Unknown/Undefined", "Vacant Building"]
         lu_sub_category_list_empty = ["-"]
 
         self.lucategorylistWidget.addItems(lu_category_list)
@@ -335,14 +328,14 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
     def updateLUsubcat(self):
 
-        lu_sub_category_list_catering = ["Restaurant and Cafes","Drinking Establishments",
+        lu_sub_category_list_catering = ["Restaurant and Cafes", "Drinking Establishments",
                                          "Hot Food Takeaways"]
-        lu_sub_category_list_leisure = ["Art and Culture","Amusement or Sports"]
-        lu_sub_category_list_medical = ["Hospitals","Health centres"]
-        lu_sub_category_list_parking = ["Car Parks","Other Vehicles"]
-        lu_sub_category_list_residential = ["Institutions","Dwellings"]
-        lu_sub_category_list_services = ["Commercial","Financial"]
-        lu_sub_category_list_transport = ["Transport Terminals","Goods Terminals"]
+        lu_sub_category_list_leisure = ["Art and Culture", "Amusement or Sports"]
+        lu_sub_category_list_medical = ["Hospitals", "Health centres"]
+        lu_sub_category_list_parking = ["Car Parks", "Other Vehicles"]
+        lu_sub_category_list_residential = ["Institutions", "Dwellings"]
+        lu_sub_category_list_services = ["Commercial", "Financial"]
+        lu_sub_category_list_transport = ["Transport Terminals", "Goods Terminals"]
         lu_sub_category_list_empty = ["-"]
 
         if self.lucategorylistWidget.currentRow() == 0:
@@ -450,7 +443,6 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
             self.lusubcategorylistWidget.addItems(lu_sub_category_list_empty)
         self.lusubcategorylistWidget.setCurrentRow(0)
 
-
     # Set universal Entrance layer if conditions are satisfied
 
     def setLULayer(self):
@@ -484,22 +476,21 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         layer = self.setLULayer()
         if layer:
             dp = layer.dataProvider()
-            fieldlist = uf.getFieldNames(layer)
             features = layer.selectedFeatures()
             attrs = []
             for feat in features:
                 attr = feat.attributes()
                 attrs.append(attr)
 
-            idfieldindex = dp.fieldNameIndex('LU_ID')
-            floorfieldindex = dp.fieldNameIndex('Floors')
-            areafieldindex = dp.fieldNameIndex('Area')
-            gfcatfieldindex = dp.fieldNameIndex('GF_Cat')
-            gfsubcatfieldindex = dp.fieldNameIndex('GF_SubCat')
-            lfcatfieldindex = dp.fieldNameIndex('LF_Cat')
-            lfsubcatfieldindex = dp.fieldNameIndex('LF_SubCat')
-            ufcatfieldindex = dp.fieldNameIndex('UF_Cat')
-            ufsubcatfieldindex = dp.fieldNameIndex('UF_SubCat')
+            idfieldindex = dp.fieldNameIndex(LanduseTool.lu_id_attribute)
+            floorfieldindex = dp.fieldNameIndex(LanduseTool.floors_attribute)
+            areafieldindex = dp.fieldNameIndex(LanduseTool.area_attribute)
+            gfcatfieldindex = dp.fieldNameIndex(LanduseTool.gf_cat_attribute)
+            gfsubcatfieldindex = dp.fieldNameIndex(LanduseTool.gf_subcat_attribute)
+            lfcatfieldindex = dp.fieldNameIndex(LanduseTool.lf_cat_attribute)
+            lfsubcatfieldindex = dp.fieldNameIndex(LanduseTool.lf_subcat_attribute)
+            ufcatfieldindex = dp.fieldNameIndex(LanduseTool.uf_cat_attribute)
+            ufsubcatfieldindex = dp.fieldNameIndex(LanduseTool.uf_subcat_attribute)
 
             self.tableWidgetlanduse.setColumnCount(5)
             self.tableWidgetlanduse.setRowCount(len(attrs))
@@ -509,11 +500,11 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 self.tableWidgetlanduse.setHorizontalHeaderLabels(headers)
 
                 for i, item in enumerate(attrs):
-                    self.tableWidgetlanduse.setItem(i, 0, QtGui.QTableWidgetItem(str(item[idfieldindex])))
-                    self.tableWidgetlanduse.setItem(i, 1, QtGui.QTableWidgetItem(str(item[floorfieldindex])))
-                    self.tableWidgetlanduse.setItem(i, 2, QtGui.QTableWidgetItem(str(item[areafieldindex])))
-                    self.tableWidgetlanduse.setItem(i, 3, QtGui.QTableWidgetItem(str(item[gfcatfieldindex])))
-                    self.tableWidgetlanduse.setItem(i, 4, QtGui.QTableWidgetItem(str(item[gfsubcatfieldindex])))
+                    self.tableWidgetlanduse.setItem(i, 0, QTableWidgetItem(str(item[idfieldindex])))
+                    self.tableWidgetlanduse.setItem(i, 1, QTableWidgetItem(str(item[floorfieldindex])))
+                    self.tableWidgetlanduse.setItem(i, 2, QTableWidgetItem(str(item[areafieldindex])))
+                    self.tableWidgetlanduse.setItem(i, 3, QTableWidgetItem(str(item[gfcatfieldindex])))
+                    self.tableWidgetlanduse.setItem(i, 4, QTableWidgetItem(str(item[gfsubcatfieldindex])))
 
             elif self.LULowerfloorradioButton.isChecked():
 
@@ -521,11 +512,11 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 self.tableWidgetlanduse.setHorizontalHeaderLabels(headers)
 
                 for i, item in enumerate(attrs):
-                    self.tableWidgetlanduse.setItem(i, 0, QtGui.QTableWidgetItem(str(item[idfieldindex])))
-                    self.tableWidgetlanduse.setItem(i, 1, QtGui.QTableWidgetItem(str(item[floorfieldindex])))
-                    self.tableWidgetlanduse.setItem(i, 2, QtGui.QTableWidgetItem(str(item[areafieldindex])))
-                    self.tableWidgetlanduse.setItem(i, 3, QtGui.QTableWidgetItem(str(item[lfcatfieldindex])))
-                    self.tableWidgetlanduse.setItem(i, 4, QtGui.QTableWidgetItem(str(item[lfsubcatfieldindex])))
+                    self.tableWidgetlanduse.setItem(i, 0, QTableWidgetItem(str(item[idfieldindex])))
+                    self.tableWidgetlanduse.setItem(i, 1, QTableWidgetItem(str(item[floorfieldindex])))
+                    self.tableWidgetlanduse.setItem(i, 2, QTableWidgetItem(str(item[areafieldindex])))
+                    self.tableWidgetlanduse.setItem(i, 3, QTableWidgetItem(str(item[lfcatfieldindex])))
+                    self.tableWidgetlanduse.setItem(i, 4, QTableWidgetItem(str(item[lfsubcatfieldindex])))
 
             elif self.LUUpperfloorradioButton.isChecked():
 
@@ -533,24 +524,22 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 self.tableWidgetlanduse.setHorizontalHeaderLabels(headers)
 
                 for i, item in enumerate(attrs):
-                    self.tableWidgetlanduse.setItem(i, 0, QtGui.QTableWidgetItem(str(item[idfieldindex])))
-                    self.tableWidgetlanduse.setItem(i, 1, QtGui.QTableWidgetItem(str(item[floorfieldindex])))
-                    self.tableWidgetlanduse.setItem(i, 2, QtGui.QTableWidgetItem(str(item[areafieldindex])))
-                    self.tableWidgetlanduse.setItem(i, 3, QtGui.QTableWidgetItem(str(item[ufcatfieldindex])))
-                    self.tableWidgetlanduse.setItem(i, 4, QtGui.QTableWidgetItem(str(item[ufsubcatfieldindex])))
+                    self.tableWidgetlanduse.setItem(i, 0, QTableWidgetItem(str(item[idfieldindex])))
+                    self.tableWidgetlanduse.setItem(i, 1, QTableWidgetItem(str(item[floorfieldindex])))
+                    self.tableWidgetlanduse.setItem(i, 2, QTableWidgetItem(str(item[areafieldindex])))
+                    self.tableWidgetlanduse.setItem(i, 3, QTableWidgetItem(str(item[ufcatfieldindex])))
+                    self.tableWidgetlanduse.setItem(i, 4, QTableWidgetItem(str(item[ufsubcatfieldindex])))
 
             self.tableWidgetlanduse.resizeRowsToContents()
             self.tableWidgetlanduse.resizeColumnsToContents()
-            # self.tableWidgetlanduse.horizontalHeader().setResizeMode(1, QtGui.QHeaderView.ResizeToContents)
-            self.tableWidgetlanduse.horizontalHeader().setResizeMode(5, QtGui.QHeaderView.Stretch)
+            self.tableWidgetlanduse.horizontalHeader().setResizeMode(4, QHeaderView.Stretch)
 
     def LUtableClear(self):
         self.tableWidgetlanduse.clear()
-        self.tableWidgetlanduse.clearContents()
 
     def clearLuTabledel(self):
         layer = self.dockwidget.setLULayer()
-        #layer.featureDeleted.connect(self.dockwidget.clearLUDataFields)
+        # layer.featureDeleted.connect(self.dockwidget.clearLUDataFields)
 
     def setLuFloors(self, value):
         self.spinBoxlufloors.setValue(int(value))

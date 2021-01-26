@@ -2,19 +2,14 @@
 Dominance algorithms.
 """
 
-__author__ = 'ysitu <ysitu@users.noreply.github.com>'
-# Copyright (C) 2014 ysitu <ysitu@users.noreply.github.com>
-# All rights reserved.
-# BSD license.
-
 from functools import reduce
 import networkx as nx
 from networkx.utils import not_implemented_for
 
-__all__ = ['immediate_dominators', 'dominance_frontiers']
+__all__ = ["immediate_dominators", "dominance_frontiers"]
 
 
-@not_implemented_for('undirected')
+@not_implemented_for("undirected")
 def immediate_dominators(G, start):
     """Returns the immediate dominators of all nodes of a directed graph.
 
@@ -30,19 +25,19 @@ def immediate_dominators(G, start):
     -------
     idom : dict keyed by nodes
         A dict containing the immediate dominators of each node reachable from
-        ``start``.
+        `start`.
 
     Raises
     ------
     NetworkXNotImplemented
-        If ``G`` is undirected.
+        If `G` is undirected.
 
     NetworkXError
-        If ``start`` is not in ``G``.
+        If `start` is not in `G`.
 
     Notes
     -----
-    Except for ``start``, the immediate dominators are the parents of their
+    Except for `start`, the immediate dominators are the parents of their
     corresponding nodes in the dominator tree.
 
     Examples
@@ -58,7 +53,7 @@ def immediate_dominators(G, start):
            Software Practice & Experience, 4:110, 2001.
     """
     if start not in G:
-        raise nx.NetworkXError('start is not in G')
+        raise nx.NetworkXError("start is not in G")
 
     idom = {start: start}
 
@@ -102,15 +97,15 @@ def dominance_frontiers(G, start):
     -------
     df : dict keyed by nodes
         A dict containing the dominance frontiers of each node reachable from
-        ``start`` as lists.
+        `start` as lists.
 
     Raises
     ------
     NetworkXNotImplemented
-        If ``G`` is undirected.
+        If `G` is undirected.
 
     NetworkXError
-        If ``start`` is not in ``G``.
+        If `start` is not in `G`.
 
     Examples
     --------
@@ -126,17 +121,12 @@ def dominance_frontiers(G, start):
     """
     idom = nx.immediate_dominators(G, start)
 
-    df = {u: [] for u in idom}
-
+    df = {u: set() for u in idom}
     for u in idom:
-        if len(G.pred[u]) - int(u in G.pred[u]) >= 2:
-            p = set()
+        if len(G.pred[u]) >= 2:
             for v in G.pred[u]:
-                while v != idom[u] and v not in p:
-                    p.add(v)
-                    v = idom[v]
-            p.discard(u)
-            for v in p:
-                df[v].append(u)
-
+                if v in idom:
+                    while v != idom[u]:
+                        df[v].add(u)
+                        v = idom[v]
     return df

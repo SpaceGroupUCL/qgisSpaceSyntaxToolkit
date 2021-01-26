@@ -1,13 +1,9 @@
-# -*- coding: utf-8 -*-
 """
 Utilities for connectivity package
 """
 import networkx as nx
 
-__author__ = '\n'.join(['Jordi Torrents <jtorrents@milnou.net>'])
-
-__all__ = ['build_auxiliary_node_connectivity',
-           'build_auxiliary_edge_connectivity']
+__all__ = ["build_auxiliary_node_connectivity", "build_auxiliary_edge_connectivity"]
 
 
 def build_auxiliary_node_connectivity(G):
@@ -24,7 +20,7 @@ def build_auxiliary_node_connectivity(G):
     For a directed graph having `n` nodes and `m` arcs we derive a
     directed graph D with `2n` nodes and `m+n` arcs by replacing each
     original node `v` with two nodes `vA`, `vB` linked by an (internal)
-    arc (`vA`, `vB`) in D. Then for each arc (`u`, `v`) in G we add one 
+    arc (`vA`, `vB`) in D. Then for each arc (`u`, `v`) in G we add one
     arc (`uB`, `vA`) in D. Finally we set the attribute capacity = 1 for
     each arc in D.
 
@@ -43,22 +39,22 @@ def build_auxiliary_node_connectivity(G):
 
     mapping = {}
     H = nx.DiGraph()
-    
+
     for i, node in enumerate(G):
         mapping[node] = i
-        H.add_node('%dA' % i, id=node)
-        H.add_node('%dB' % i, id=node)
-        H.add_edge('%dA' % i, '%dB' % i, capacity=1)
+        H.add_node(f"{i}A", id=node)
+        H.add_node(f"{i}B", id=node)
+        H.add_edge(f"{i}A", f"{i}B", capacity=1)
 
     edges = []
-    for (source, target) in G.edges_iter():
-        edges.append(('%sB' % mapping[source], '%sA' % mapping[target]))
+    for (source, target) in G.edges():
+        edges.append((f"{mapping[source]}B", f"{mapping[target]}A"))
         if not directed:
-            edges.append(('%sB' % mapping[target], '%sA' % mapping[source]))
+            edges.append((f"{mapping[target]}B", f"{mapping[source]}A"))
     H.add_edges_from(edges, capacity=1)
 
     # Store mapping as graph attribute
-    H.graph['mapping'] = mapping
+    H.graph["mapping"] = mapping
     return H
 
 
@@ -78,12 +74,12 @@ def build_auxiliary_edge_connectivity(G):
     """
     if G.is_directed():
         H = nx.DiGraph()
-        H.add_nodes_from(G.nodes_iter())
-        H.add_edges_from(G.edges_iter(), capacity=1)
+        H.add_nodes_from(G.nodes())
+        H.add_edges_from(G.edges(), capacity=1)
         return H
     else:
         H = nx.DiGraph()
-        H.add_nodes_from(G.nodes_iter())
-        for (source, target) in G.edges_iter():
+        H.add_nodes_from(G.nodes())
+        for (source, target) in G.edges():
             H.add_edges_from([(source, target), (target, source)], capacity=1)
         return H

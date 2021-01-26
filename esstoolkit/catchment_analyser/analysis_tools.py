@@ -1,44 +1,40 @@
 # -*- coding: utf-8 -*-
-"""
-/***************************************************************************
- CatchmentAnalyser
-                             Catchment Analyser
- Network based catchment analysis
-                              -------------------
-        begin                : 2016-05-19
-        author               : Laurens Versluis
-        copyright            : (C) 2016 by Space Syntax Limited
-        email                : l.versluis@spacesyntax.com
- ***************************************************************************/
 
-/***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
+# Space Syntax Toolkit
+# Set of tools for essential space syntax network analysis and results exploration
+# -------------------
+# begin                : 2016-05-19
+# copyright            : (C) 2016 by Space Syntax Limited
+# author               : Laurens Versluis
+# email                : l.versluis@spacesyntax.com
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+
+""" Network based catchment analysis
 """
 
-from PyQt4.QtCore import *
-
-from qgis.core import *
-from qgis.gui import *
-from qgis.networkanalysis import *
-from qgis.utils import *
+from __future__ import print_function
 
 import math
 import os.path
+from builtins import object
+from builtins import range
+from builtins import str
 
+from qgis.PyQt.QtCore import QSettings
+from qgis.analysis import QgsNetworkSpeedStrategy
+from qgis.core import (QgsGeometry, QgsPoint)
 
-class CustomCost(QgsArcProperter):
+class CustomCost(QgsNetworkSpeedStrategy):
     def __init__(self, costColumIndex, defaultValue):
-        QgsArcProperter.__init__(self)
+        QgsNetworkSpeedStrategy.__init__(self, costColumIndex, defaultValue, 1)
         self.cost_column_index = costColumIndex
         self.default_value = defaultValue
 
-    def property(self, distance, feature):
+    def cost(self, distance, feature):
         cost = float(feature.attributes()[self.cost_column_index])
         if not cost or cost <= 0.0:
             return self.default_value
@@ -49,7 +45,7 @@ class CustomCost(QgsArcProperter):
         return [self.cost_column_index]
 
 
-class ConcaveHull():
+class ConcaveHull(object):
     def clean_list(self, list_of_points):
         """
         Deletes duplicate points in list_of_points
@@ -147,7 +143,7 @@ class ConcaveHull():
             else:
                 return 0
         except:
-            print ('fail %s, %s', angle1, angle2)
+            print(('fail %s, %s', angle1, angle2))
             return 0
 
     def intersect(self, line1, line2):
@@ -207,6 +203,7 @@ class ConcaveHull():
         """
         Writes the geometry described by *point_list* in Well Known Text format to file
         :param point_list: list of tuples (x, y)
+        :param file_name: file name to write to
         :return: None
         """
         if file_name is None:
@@ -227,11 +224,22 @@ class ConcaveHull():
     def as_wkt(self, point_list):
         """
         Returns the geometry described by *point_list* in Well Known Text format
+
         Example: hull = self.as_wkt(the_hull)
                  feature.setGeometry(QgsGeometry.fromWkt(hull))
-        :param point_list: list of tuples (x, y)
-        :return: polygon geometry as WTK
+
+        Parameters
+        ----------
+        point_list : array_like
+            list of tuples (x, y)
+
+        Returns
+        -------
+        vl : `str`
+            polygon geometry as WTK
+
         """
+
         wkt = 'POLYGON((' + str(point_list[0][0]) + ' ' + str(point_list[0][1])
         for p in point_list[1:]:
             wkt += ', ' + str(p[0]) + ' ' + str(p[1])
@@ -241,8 +249,20 @@ class ConcaveHull():
     def as_polygon(self, point_list):
         """
         Returns the geometry described by *point_list* in as QgsGeometry
-        :param point_list: list of tuples (x, y)
-        :return: QgsGeometry
+
+        Example: hull = self.as_wkt(the_hull)
+                 feature.setGeometry(QgsGeometry.fromWkt(hull))
+
+        Parameters
+        ----------
+        point_list : array_like
+            list of tuples (x, y)
+
+        Returns
+        -------
+        vl : `QgsGeometry`
+            polygon geometry as QgsGeometry
+
         """
         # create a list of QgsPoint() from list of point coordinate strings in *point_list*
         points = [QgsPoint(point[0], point[1]) for point in point_list]
@@ -280,7 +300,6 @@ class ConcaveHull():
         :param geom: an arbitrary geometry feature
         :return: list of points
         """
-        multi_geom = QgsGeometry()
         temp_geom = []
         # point geometry
         if geom.type() == 0:
@@ -407,8 +426,8 @@ class ConcaveHull():
             # for the next candidate fails. The algorithm starts again with an increased number of neighbors
             if its is True:
                 # this tries to remove the potentially problematic recursion. might give less optimal results
-                #point_set = self.remove_point(point_set, current_point)
-                #continue
+                # point_set = self.remove_point(point_set, current_point)
+                # continue
                 return self.concave_hull(points_list, kk + 1)
 
             # the first point which complies with the requirements is added to the hull and gets the current point

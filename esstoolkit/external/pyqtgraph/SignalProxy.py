@@ -3,6 +3,7 @@ from .Qt import QtCore
 from .ptime import time
 from . import ThreadsafeTimer
 import weakref
+from .functions import SignalBlock
 
 __all__ = ['SignalProxy']
 
@@ -34,7 +35,7 @@ class SignalProxy(QtCore.QObject):
         self.args = None
         self.timer = ThreadsafeTimer.ThreadsafeTimer()
         self.timer.timeout.connect(self.flush)
-        self.block = False
+        self.blockSignal = False
         self.slot = weakref.ref(slot)
         self.lastFlushTime = None
         if slot is not None:
@@ -45,7 +46,7 @@ class SignalProxy(QtCore.QObject):
         
     def signalReceived(self, *args):
         """Received signal. Cancel previous timer and store args to be forwarded later."""
-        if self.block:
+        if self.blockSignal:
             return
         self.args = args
         if self.rateLimit == 0:
@@ -61,42 +62,33 @@ class SignalProxy(QtCore.QObject):
                 
             self.timer.stop()
             self.timer.start((min(leakTime, self.delay)*1000)+1)
-            
         
     def flush(self):
         """If there is a signal queued up, send it now."""
-        if self.args is None or self.block:
+        if self.args is None or self.blockSignal:
             return False
-        #self.emit(self.signal, *self.args)
-        self.sigDelayed.emit(self.args)
-        self.args = None
+        args, self.args = self.args, None
         self.timer.stop()
         self.lastFlushTime = time()
+        #self.emit(self.signal, *self.args)
+        self.sigDelayed.emit(args)
         return True
         
     def disconnect(self):
-        self.block = True
+        self.blockSignal = True
         try:
             self.signal.disconnect(self.signalReceived)
         except:
             pass
         try:
-            self.sigDelayed.disconnect(self.slot())
+            self.sigDelayed.disconnect(self.slot)
         except:
             pass
    
-   
-
-#def proxyConnect(source, signal, slot, delay=0.3):
-    #"""Connect a signal to a slot with delay. Returns the SignalProxy
-    #object that was created. Be sure to store this object so it is not
-    #garbage-collected immediately."""
-    #sp = SignalProxy(source, signal, delay)
-    #if source is None:
-        #sp.connect(sp, QtCore.SIGNAL('signal'), slot)
-    #else:
-        #sp.connect(sp, signal, slot)
-    #return sp
+    def block(self):
+        """Return a SignalBlocker that temporarily blocks input signals to this proxy.
+        """
+        return SignalBlock(self.signal, self.signalReceived)
     
     
 if __name__ == '__main__':
