@@ -371,17 +371,20 @@ class CatchmentAnalysis(QObject):
                 original_feature_id = self.centroids[centroid_match]
                 f_attrs = self.attributes_dict[original_feature_id]
                 arc_cost_list = []
+                non_null_arc_cost_list = []
                 for name in self.names:
                     try:
-                        arc_cost_list.append(arc_cost_dict[str(name)])
+                        dist = arc_cost_dict[str(name)]
+                        arc_cost_list.append(dist)
+                        non_null_arc_cost_list.append(dist)
                     except KeyError:
                         arc_cost_list.append(NULL)
 
                 f.setFields(new_fields)
                 if use_name:
-                    f.setAttributes(f_attrs + arc_cost_list + [min(arc_cost_list)])
+                    f.setAttributes(f_attrs + arc_cost_list + [min(non_null_arc_cost_list)])
                 else:
-                    f.setAttributes(f_attrs + [min(arc_cost_list)])
+                    f.setAttributes(f_attrs + [min(non_null_arc_cost_list)])
 
                 f.setGeometry(arc_geom)
 

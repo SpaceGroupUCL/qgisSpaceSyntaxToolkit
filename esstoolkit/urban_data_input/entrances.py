@@ -106,7 +106,8 @@ class EntranceTool(QObject):
                                 QgsField(EntranceTool.category_attribute, QVariant.String),
                                 QgsField(EntranceTool.subcat_attribute, QVariant.String),
                                 QgsField(EntranceTool.level_attribute, QVariant.Double)])
-
+        if vl.crs().toWkt() == "":
+            vl.setCrs(QgsProject.instance().crs())
         vl.updateFields()
         if self.entrancedlg.e_shp_radioButton.isChecked():  # layer_type == 'shapefile':
 

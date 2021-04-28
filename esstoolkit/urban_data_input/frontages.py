@@ -184,6 +184,8 @@ class FrontageTool(QObject):
 
         else:
             vl = QgsVectorLayer("LineString?crs=", "memory:frontages", "memory")
+        if vl.crs().toWkt() == "":
+            vl.setCrs(QgsProject.instance().crs())
         provider = vl.dataProvider()
         provider.addAttributes([QgsField(FrontageTool.id_attribute, QVariant.Int),
                                 QgsField(FrontageTool.group_attribute, QVariant.String),
@@ -245,7 +247,7 @@ class FrontageTool(QObject):
                     uri.setConnection('', db_con_info['port'], db_con_info['dbname'], '',
                                       '')  # , db_con_info['user'], '')
                 uri.setDataSource(schema, table_name, "geom")
-                error = QgsVectorLayerExporter.exportLayer(vl, uri.uri(), "postgres", vl.crs())
+                error = QgsVectorLayerExporter.exportLayer(vl, uri.uri(), "postgres", QgsProject.instance().crs())
                 if error[0] != QgsVectorLayerExporter.NoError:
                     print("Error when creating postgis layer: ", error[1])
                     vl = 'duplicate'
