@@ -48,8 +48,8 @@ def getVectorLayers(geom='all', provider='all'):
     for layer in list(QgsProject.instance().mapLayers().values()):
         add_layer = False
         if layer.isValid() and layer.type() == QgsMapLayer.VectorLayer:
-            if layer.isSpatial() and (geom is 'all' or layer.geometryType() in geom):
-                if provider is 'all' or layer.dataProvider().name() in provider:
+            if layer.isSpatial() and (geom == 'all' or layer.geometryType() in geom):
+                if provider == 'all' or layer.dataProvider().name() in provider:
                     add_layer = True
         if add_layer:
             layers_list.append(layer)
@@ -68,8 +68,8 @@ def getLegendLayers(iface, geom='all', provider='all'):
     for layer in QgsProject.instance().mapLayers().values():
         add_layer = False
         if layer.isValid() and layer.type() == QgsMapLayer.VectorLayer:
-            if layer.isSpatial() and (geom is 'all' or layer.geometryType() in geom):
-                if provider is 'all' or layer.dataProvider().name() in provider:
+            if layer.isSpatial() and (geom == 'all' or layer.geometryType() in geom):
+                if provider == 'all' or layer.dataProvider().name() in provider:
                     add_layer = True
         if add_layer:
             layers_list.append(layer)
@@ -82,8 +82,8 @@ def getCanvasLayers(iface, geom='all', provider='all'):
     for layer in iface.mapCanvas().layers():
         add_layer = False
         if layer.isValid() and layer.type() == QgsMapLayer.VectorLayer:
-            if layer.isSpatial() and (geom is 'all' or layer.geometryType() in geom):
-                if provider is 'all' or layer.dataProvider().name() in provider:
+            if layer.isSpatial() and (geom == 'all' or layer.geometryType() in geom):
+                if provider == 'all' or layer.dataProvider().name() in provider:
                     add_layer = True
         if add_layer:
             layers_list.append(layer)
