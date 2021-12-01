@@ -213,21 +213,6 @@ class DepthmapEngine:
         return new_names
 
     @staticmethod
-    def parse_radii(txt):
-        radii = txt
-        radii.lower()
-        radii = radii.replace(' ', '')
-        radii = radii.split(',')
-        radii.sort()
-        radii = list(set(radii))
-        radii = ['0' if x == 'n' else x for x in radii]
-        for r in radii:
-            if not uf.isNumeric(r):
-                return ''
-        radii = ','.join(radii)
-        return radii
-
-    @staticmethod
     def process_analysis_result(settings, datastore, attributes, values):
         if not attributes:
             return AnalysisEngine.AnalysisResults(None, None, None, None)
