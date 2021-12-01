@@ -74,7 +74,6 @@ class AnalysisTool(QObject):
         self.running_analysis = ""
         self.start_time = None
         self.end_time = None
-        self.analysis_nodes = 0
         self.axial_id = ""
         self.all_ids = []
         self.current_layer = None

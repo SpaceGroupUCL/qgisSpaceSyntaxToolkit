@@ -39,6 +39,7 @@ class DepthmapNetEngine(QObject, DepthmapEngine):
         self.axial_id = ''
         self.socket = None
         self.command = ''
+        self.analysis_nodes = 0
         self.analysis_results = None
 
     def ready(self):
