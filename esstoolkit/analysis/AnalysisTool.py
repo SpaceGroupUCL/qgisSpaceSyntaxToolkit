@@ -19,18 +19,17 @@ import datetime
 import os.path
 
 # Import the PyQt and QGIS libraries
+
 from qgis.PyQt.QtCore import (QObject, QTimer, pyqtSignal, QVariant)
-from qgis.PyQt.QtWidgets import QMessageBox
 from qgis.core import (QgsProject, QgsVectorDataProvider, Qgis, QgsWkbTypes)
 
 from esstoolkit.utilities import shapefile_helpers as shph, layer_field_helpers as lfh, db_helpers as dbh
 # Import required modules
 from .AnalysisDialog import AnalysisDialog
-from .AnalysisEngine import AnalysisEngine
+from esstoolkit.analysis.engines.AnalysisEngine import AnalysisEngine
 from .AxialVerification import AxialVerification
-from .DepthmapEngine import DepthmapEngine
-from .DepthmapNetEngine import DepthmapNetEngine
 from .UnlinksVerification import UnlinksVerification, UnlinksIdUpdate
+from esstoolkit.analysis.engines.EngineRegistry import EngineRegistry
 
 
 class AnalysisTool(QObject):
@@ -43,12 +42,16 @@ class AnalysisTool(QObject):
         self.settings = settings
         self.project = project
         self.legend = QgsProject.instance().mapLayers()
-        self.analysis_engine = DepthmapNetEngine(self.iface)
-        self.running_analysis = ''
+        self.engine_registry = EngineRegistry()
+        self.analysis_running = False
 
     def load(self):
         # initialise UI
         self.dlg = AnalysisDialog(self.iface.mainWindow())
+        available_engines = self.engine_registry.get_available_engines()
+        self.analysis_engine = self.engine_registry.get_engine(next(iter(available_engines)), self.iface)
+        self.dlg.set_analysis_settings_widget(self.analysis_engine.create_settings_widget(self.dlg))
+        self.dlg.set_available_engines(available_engines)
 
         # initialise axial analysis classes
         self.verificationThread = None
@@ -65,13 +68,13 @@ class AnalysisTool(QObject):
         self.dlg.axialUpdateButton.clicked.connect(self.runAxialUpdate)
         self.dlg.axialVerifyCancelButton.clicked.connect(self.cancelAxialVerification)
         self.dlg.axialReportList.itemSelectionChanged.connect(self.zoomAxialProblem)
-        self.dlg.axialDepthmapCalculateButton.clicked.connect(self.run_analysis)
-        self.dlg.axialDepthmapCancelButton.clicked.connect(self.cancel_analysis)
+        self.dlg.runAnalysisButton.clicked.connect(self.run_analysis)
+        self.dlg.cancelAnalysisButton.clicked.connect(self.cancel_analysis)
 
         # initialise internal globals
         self.isVisible = False
         self.datastore = dict()
-        self.running_analysis = ""
+        self.analysis_running = False
         self.start_time = None
         self.end_time = None
         self.axial_id = ""
@@ -84,9 +87,7 @@ class AnalysisTool(QObject):
 
         # define analysis data structures
         self.analysis_layers = {'map': "", 'unlinks': "", 'map_type': 0}
-        self.axial_analysis_settings = {'type': 0, 'distance': 0, 'radius': 0, 'rvalues': "n", 'output': "",
-                                        'fullset': 0, 'betweenness': 1, 'newnorm': 1, 'weight': 0, 'weightBy': "",
-                                        'stubs': 40, 'id': ""}
+
         self.user_ids = {'map': "", 'unlinks': ""}
         self.analysis_output = ""
         self.getProjectSettings()
@@ -128,16 +129,16 @@ class AnalysisTool(QObject):
     def getProjectSettings(self):
         # pull relevant settings from project manager
         self.project.readSettings(self.analysis_layers, "analysis")
-        self.project.readSettings(self.axial_analysis_settings, "depthmap")
         # update UI
         self.dlg.clearAxialProblems(0)
         self.dlg.clearAxialProblems(1)
-        # update graph analysis
-        self.dlg.set_axial_depthmap_tab(self.axial_analysis_settings)
+
+        self.dlg.getProjectSettings(self.project)
 
     def updateProjectSettings(self):
         self.project.writeSettings(self.analysis_layers, "analysis")
-        self.project.writeSettings(self.axial_analysis_settings, "depthmap")
+
+        self.dlg.updateProjectSettings(self.project)
 
     def changeDatastore(self):
         # signal from UI if data store button is clicked
@@ -562,62 +563,15 @@ class AnalysisTool(QObject):
             self.dlg.clear_analysis_report()
             # get selected layers
             self.analysis_layers = self.dlg.getAnalysisLayers()
-            # get analysis type based on map and axial/segment choice
-            if self.dlg.get_analysis_type() == 0:
-                self.axial_analysis_settings['type'] = 0
-            else:
-                if self.dlg.getSegmentedMode() == 0:
-                    self.axial_analysis_settings['type'] = 1
-                else:
-                    self.axial_analysis_settings['type'] = 2
-            # get the basic analysis settings
             analysis_layer = lfh.getLegendLayerByName(self.iface, self.analysis_layers['map'])
-            self.axial_analysis_settings['id'] = lfh.getIdField(analysis_layer)
-            self.axial_analysis_settings['weight'] = self.dlg.get_analysis_weighted()
-            self.axial_analysis_settings['weightBy'] = self.dlg.get_analysis_weight_attribute()
-            txt = self.analysis_engine.parse_radii(self.dlg.get_analysis_radius_text())
-            if txt == '':
-                self.dlg.write_analysis_report("Please verify the radius values.")
-                return
-            else:
-                self.axial_analysis_settings['rvalues'] = txt
-            self.axial_analysis_settings['output'] = self.dlg.get_analysis_output_table()
-            self.analysis_output = self.axial_analysis_settings['output']
-            # get the advanced analysis settings
-            self.axial_analysis_settings['distance'] = self.dlg.get_analysis_distance_type()
-            self.axial_analysis_settings['radius'] = self.dlg.get_analysis_radius_type()
-            self.axial_analysis_settings['fullset'] = self.dlg.get_analysis_fullset()
-            self.axial_analysis_settings['betweenness'] = self.dlg.get_analysis_choice()
-            self.axial_analysis_settings['newnorm'] = self.dlg.get_analysis_normalised()
-            self.axial_analysis_settings['stubs'] = self.dlg.get_analysis_stubs()
+            self.dlg.prepare_analysis_settings(analysis_layer, self.datastore)
+            analysis_settings = self.dlg.get_analysis_settings()
+            if not analysis_settings['valid']:
+                raise AnalysisEngine.AnalysisEngineError("Analysis settings invalid")
 
-            # check if output file/table already exists
-            table_exists = False
-            if self.datastore['type'] == 0:
-                table_exists = shph.testShapeFileExists(self.datastore['path'], self.axial_analysis_settings['output'])
-            elif self.datastore['type'] == 1:
-                connection = dbh.getSpatialiteConnection(self.datastore['path'])
-                if connection:
-                    table_exists = dbh.testSpatialiteTableExists(connection, self.axial_analysis_settings['output'])
-                connection.close()
-            elif self.datastore['type'] == 2:
-                connection = dbh.getPostgisConnection(self.datastore['name'])
-                if connection:
-                    table_exists = dbh.testPostgisTableExists(connection, self.datastore['schema'],
-                                                              self.axial_analysis_settings['output'])
-                connection.close()
-            if table_exists:
-                action = QMessageBox.question(None, "Overwrite table",
-                                              "The output table already exists in:\n %s.\nOverwrite?" % self.datastore[
-                                                  'path'], QMessageBox.Ok | QMessageBox.Cancel)
-                if action == QMessageBox.Ok:  # Yes
-                    pass
-                elif action == QMessageBox.Cancel:  # No
-                    return
-                else:
-                    return
-            # run the analysis
-            analysis_ready = self.analysis_engine.setup_analysis(self.analysis_layers, self.axial_analysis_settings)
+            self.analysis_output = analysis_settings['output']
+
+            analysis_ready = self.analysis_engine.setup_analysis(self.analysis_layers, analysis_settings)
             if analysis_ready:
                 self.updateProjectSettings()
                 self.start_time = datetime.datetime.now()
@@ -632,7 +586,7 @@ class AnalysisTool(QObject):
                 self.analysis_engine.start_analysis()
                 # timer to check if results are ready, in milliseconds
                 self.timer.start(1000)
-                self.running_analysis = 'axial'
+                self.analysis_running = True
             else:
                 self.dlg.write_analysis_report(
                     "Unable to run this analysis. Please check the input layer and analysis settings.")
@@ -641,52 +595,25 @@ class AnalysisTool(QObject):
         message = u"Running analysis for map layer '%s':" % self.analysis_layers['map']
         if self.analysis_layers['unlinks']:
             message += u"\n   unlinks layer - '%s'" % self.analysis_layers['unlinks']
-        if self.axial_analysis_settings['type'] == 0:
-            txt = "axial"
-        elif self.axial_analysis_settings['type'] == 1:
-            txt = "segment"
-        elif self.axial_analysis_settings['type'] == 2:
-            txt = "segment input"
-        message += u"\n   analysis type - %s" % txt
-        if self.axial_analysis_settings['type'] == 1:
-            message += u"\n   stubs removal - %s" % self.axial_analysis_settings['stubs']
-        if self.axial_analysis_settings['distance'] == 0:
-            txt = "topological"
-        elif self.axial_analysis_settings['distance'] == 1:
-            txt = "angular"
-        elif self.axial_analysis_settings['distance'] == 2:
-            txt = "metric"
-        message += u"\n   distance - %s" % txt
-        if self.axial_analysis_settings['weight'] == 1:
-            message += u"\n   weighted by - %s" % self.axial_analysis_settings['weightBy']
-        if self.axial_analysis_settings['radius'] == 0:
-            txt = "topological"
-        elif self.axial_analysis_settings['radius'] == 1:
-            txt = "angular"
-        elif self.axial_analysis_settings['radius'] == 2:
-            txt = "metric"
-        message += u"\n   %s radius - %s" % (txt, self.axial_analysis_settings['rvalues'])
-        if self.axial_analysis_settings['betweenness'] == 1:
-            message += u"\n   calculate choice"
-        if self.axial_analysis_settings['fullset'] == 1:
-            message += u"\n   include advanced measures"
-        if self.axial_analysis_settings['type'] in (1, 2) and self.axial_analysis_settings['newnorm'] == 1:
-            message += u"\n   calculate NACH and NAIN"
+
+        message += self.dlg.get_analysis_summary()
+
         message += u"\n\nStart: %s\n..." % self.start_time.strftime("%d/%m/%Y %H:%M:%S")
         return message
 
     def cancel_analysis(self):
-        if self.running_analysis == 'axial':
+        if self.analysis_running:
             self.dlg.set_analysis_progressbar(0, 100)
             self.dlg.lock_analysis_tab(False)
             self.dlg.write_analysis_report("Analysis canceled by user.")
         self.timer.stop()
         self.analysis_engine.cleanup()
-        self.running_analysis = ''
+        self.analysis_running = False
 
     def check_analysis_progress(self):
+        analysis_settings = self.dlg.get_analysis_settings()
         try:
-            step, progress = self.analysis_engine.get_progress(self.axial_analysis_settings, self.datastore)
+            step, progress = self.analysis_engine.get_progress(analysis_settings, self.datastore)
             if not progress:
                 # no progress, just wait...
                 return
@@ -698,24 +625,24 @@ class AnalysisTool(QObject):
                 self.dlg.write_analysis_report(feedback)
                 # process the output in the analysis
                 self.process_analysis_results(self.analysis_engine.analysis_results)
-                self.running_analysis = ''
+                self.analysis_running = False
             else:
-                if self.running_analysis == 'axial':
+                if self.analysis_running:
                     self.dlg.update_analysis_progressbar(progress)
                     if step > 0:
                         self.timer.start(step)
         except AnalysisEngine.AnalysisEngineError as engine_error:
-            if self.running_analysis == 'axial':
+            if self.analysis_running:
                 self.dlg.set_analysis_progressbar(0, 100)
                 self.dlg.lock_analysis_tab(False)
                 self.dlg.write_analysis_report("Analysis error: " + str(engine_error))
             self.timer.stop()
             self.analysis_engine.cleanup()
-            self.running_analysis = ''
+            self.analysis_running = False
 
     def process_analysis_results(self, analysis_results: AnalysisEngine.AnalysisResults):
         new_layer = None
-        if self.running_analysis == 'axial':
+        if self.analysis_running:
             self.dlg.set_analysis_progressbar(100, 100)
             if analysis_results.attributes:
                 dt = datetime.datetime.now()
@@ -753,7 +680,8 @@ class AnalysisTool(QObject):
         srid = analysis_layer.crs()
         path = self.datastore['path']
         table = self.analysis_output
-        id = self.axial_analysis_settings['id']
+        analysis_settings = self.dlg.get_analysis_settings()
+        id = analysis_settings['id']
         # if it's an axial analysis try to update the existing layer
         new_layer = None
         # must check if data store is still there
@@ -766,7 +694,7 @@ class AnalysisTool(QObject):
         # if it's a segment analysis always create a new layer
         # also if one of these is different: output table name, file type, data store location, number of records
         # this last one is a weak check for changes to the table. making a match of results by id would take ages.
-        if analysis_layer.name() != table or self.axial_analysis_settings['type'] == 1 or len(
+        if analysis_layer.name() != table or analysis_settings['type'] == 1 or len(
                 values) != analysis_layer.featureCount():
             create_table = True
         # shapefile data store
@@ -819,7 +747,7 @@ class AnalysisTool(QObject):
         # spatialite data store
         elif self.datastore['type'] == 1:
             connection = dbh.getSpatialiteConnection(path)
-            if not dbh.testSpatialiteTableExists(connection, self.axial_analysis_settings['output']):
+            if not dbh.testSpatialiteTableExists(connection, analysis_settings['output']):
                 create_table = True
             if 'spatialite' not in provider.lower() or create_table:
                 res = dbh.createSpatialiteTable(connection, path, table, srid.postgisSrid(), attributes, types,
@@ -848,7 +776,7 @@ class AnalysisTool(QObject):
             schema = self.datastore['schema']
             connection = dbh.getPostgisConnection(self.datastore['name'])
             if not dbh.testPostgisTableExists(connection, self.datastore['schema'],
-                                              self.axial_analysis_settings['output']):
+                                              analysis_settings['output']):
                 create_table = True
             if 'postgresql' not in provider.lower() or create_table:
                 res = dbh.createPostgisTable(connection, schema, table, srid.postgisSrid(), attributes, types,

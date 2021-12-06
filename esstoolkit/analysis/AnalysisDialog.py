@@ -19,10 +19,8 @@ from builtins import str
 
 from qgis.PyQt import QtCore, QtWidgets
 
-from .DepthmapAdvancedDialog import DepthmapAdvancedDialog
 from .VerificationSettingsDialog import VerificationSettingsDialog
 from .ui_Analysis import Ui_AnalysisDialog
-from esstoolkit.utilities import layer_field_helpers as lfh
 
 
 class AnalysisDialog(QtWidgets.QDockWidget, Ui_AnalysisDialog):
@@ -40,7 +38,7 @@ class AnalysisDialog(QtWidgets.QDockWidget, Ui_AnalysisDialog):
         self.axial_verify_report = [{'progress': 0, 'summary': [], 'filter': -1, 'report': dict(), 'nodes': []},
                                     {'progress': 0, 'summary': [], 'filter': -1, 'report': dict(), 'nodes': []}]
         self.axial_verification_settings = {'ax_dist': 1.0, 'ax_min': 1.0, 'unlink_dist': 1.0, 'link_dist': 1.0}
-        self.dlg_depthmap = DepthmapAdvancedDialog()
+
         self.dlg_verify = VerificationSettingsDialog(self.axial_verification_settings)
 
         # set up internal GUI signals
@@ -50,20 +48,20 @@ class AnalysisDialog(QtWidgets.QDockWidget, Ui_AnalysisDialog):
         self.analysisUnlinksCombo.activated.connect(self.selectUnlinksLayer)
         self.axialVerifySettingsButton.clicked.connect(self.showAxialEditSettings)
         self.axialReportFilterCombo.activated.connect(self.selectAxialProblemsFilter)
-        self.axialDepthmapWeightCheck.toggled.connect(self.setDepthmapWeighted)
-        self.axialDepthmapAxialRadio.clicked.connect(self.setDepthmapAxialAnalysis)
-        self.axialDepthmapSegmentRadio.clicked.connect(self.setDepthmapSegmentAnalysis)
-        self.axialDepthmapSettingsButton.clicked.connect(self.showAxialDepthmapAdvancedSettings)
-        self.axialDepthmapRadiusText.editingFinished.connect(self.checkDepthmapInputText)
-        self.axialDepthmapOutputText.editingFinished.connect(self.checkDepthmapInputText)
 
         # initialise
-        self.axial_analysis_type = 0
         self.__selectLayerTab(0)
         self.lockAxialEditTab(True)
-        self.lock_analysis_tab(True)
         self.setDatastore('', '')
         self.updateAxialVerifyReport()
+
+    def set_available_engines(self, engineNames):
+        self.engineSelectionCombo.addItems(engineNames)
+
+    def set_analysis_settings_widget(self, settings_widget):
+        self.analysis_settings = settings_widget
+        self.engineSettings.layout().addWidget(self.analysis_settings)
+        self.lock_analysis_tab(True)
         self.clear_analysis_tab()
 
     #####
@@ -75,6 +73,12 @@ class AnalysisDialog(QtWidgets.QDockWidget, Ui_AnalysisDialog):
     def setDatastore(self, txt, path):
         self.analysisDataEdit.setText(txt)
         self.analysisDataEdit.setToolTip(path)
+
+    def getProjectSettings(self, project):
+        self.analysis_settings.get_project_settings(project)
+
+    def updateProjectSettings(self, project):
+        self.analysis_settings.update_project_settings(project)
 
     def __selectLayerTab(self, tab):
         self.layers_tab = tab
@@ -114,9 +118,7 @@ class AnalysisDialog(QtWidgets.QDockWidget, Ui_AnalysisDialog):
         self.layers[0]['map_type'] = mode
         # update relevant tabs
         self.update_analysis_tabs()
-        if self.layers[0]['map_type'] == 2:
-            self.axialDepthmapSegmentRadio.setChecked(True)
-        self.setDepthmapSegmentAnalysis()
+        self.analysis_settings.dock_widget_settings_changed()
 
     def setSegmentedMode(self, mode):
         if mode == 2:
@@ -382,236 +384,39 @@ class AnalysisDialog(QtWidgets.QDockWidget, Ui_AnalysisDialog):
     def showAxialEditSettings(self):
         self.dlg_verify.show()
 
-    #####
-    # Functions of the depthmapX remote tab
-    #####
-    def set_axial_depthmap_tab(self, settings):
-        if settings is not None:
-            # set the type of analysis
-            if 'type' in settings:
-                self.axial_analysis_type = settings['type']
-                if settings['type'] == 0:
-                    self.axialDepthmapAxialRadio.setChecked(True)
-                    self.axialDepthmapAxialRadio.setDisabled(False)
-                elif settings['type'] == 1:
-                    self.axialDepthmapSegmentRadio.setChecked(True)
-                    self.axialDepthmapAxialRadio.setDisabled(False)
-                elif settings['type'] == 2:
-                    self.axialDepthmapSegmentRadio.setChecked(True)
-                    self.axialDepthmapAxialRadio.setDisabled(True)
-            # if project specifies radii set them, for same type of analysis
-            if 'rvalues' in settings:
-                self.setDepthmapRadiusText(settings['rvalues'])
-            else:
-                self.setDepthmapRadiusText("n")
-            # project use of weights
-            if 'weight' in settings:
-                self.axialDepthmapWeightCheck.setChecked(settings['weight'])
-                # self.setDepthmapWeighted(settings['weight'])
-            else:
-                self.axialDepthmapWeightCheck.setChecked(False)
-                # self.setDepthmapWeighted(0)
-            # project output name
-            if 'output' in settings:
-                self.setAxialDepthmapOutputTable(settings['output'])
-            # project calculate full set of advanced measures
-            if 'fullset' in settings:
-                self.dlg_depthmap.setCalculateFull(settings['fullset'])
-            else:
-                self.dlg_depthmap.setCalculateFull(False)
-            # project calculate betweenness
-            if 'betweenness' in settings:
-                self.dlg_depthmap.setCalculateChoice(settings['betweenness'])
-            else:
-                self.dlg_depthmap.setCalculateChoice(True)
-            # project list of radii
-            if 'radius' in settings:
-                self.dlg_depthmap.setRadiusType(settings['radius'])
-            else:
-                self.dlg_depthmap.setRadiusType(2)
-            # project calculate new normalised segment measures
-            if 'newnorm' in settings:
-                self.dlg_depthmap.setCalculateNorm(settings['newnorm'])
-            else:
-                self.dlg_depthmap.setCalculateNorm(True)
-            # project remove stubs setting for segment map creation
-            if 'stubs' in settings:
-                self.dlg_depthmap.setRemoveStubs(settings['stubs'])
-            else:
-                self.dlg_depthmap.setRemoveStubs(40)
-
     def update_analysis_tab(self):
         if self.layers[0]['idx'] > 0:
             self.lock_analysis_tab(False)
-            # update weights combo box and output name
-            layer = lfh.getLayerByName(self.layers[0]['name'])
-            txt, idxs = lfh.getNumericFieldNames(layer)
-            if self.axial_analysis_type == 0:
-                self.setAxialDepthmapOutputTable(self.layers[0]['name'])
-                # self.axialDepthmapAxialRadio.setDisabled(False)
-                txt.insert(0, "Line Length")
-            elif self.axial_analysis_type == 1:
-                self.setAxialDepthmapOutputTable(self.layers[0]['name'] + '_segment')
-                # self.axialDepthmapAxialRadio.setDisabled(False)
-                txt.insert(0, "Segment Length")
-            elif self.axial_analysis_type == 2:
-                self.setAxialDepthmapOutputTable(self.layers[0]['name'] + '_analysis')
-                # self.axialDepthmapSegmentRadio.setChecked(True)
-                self.axialDepthmapAxialRadio.setDisabled(True)
-                # txt.insert(0, "Segment Length")
-            self.setDepthmapWeightAttributes(txt)
-            self.updateAxialDepthmapAdvancedSettings()
-            # self.clearAxialDepthmapReport()
+            self.analysis_settings.update_settings()
         else:
             self.lock_analysis_tab(True)
 
     def lock_analysis_tab(self, onoff):
-        self.axialDepthmapAxialRadio.setDisabled(onoff)
-        self.axialDepthmapSegmentRadio.setDisabled(onoff)
-        self.axialDepthmapRadiusText.setDisabled(onoff)
-        self.axialDepthmapOutputText.setDisabled(onoff)
-        self.axialDepthmapCalculateButton.setDisabled(onoff)
-        self.axialDepthmapSettingsButton.setDisabled(onoff)
-        self.axialDepthmapCancelButton.setDisabled(not onoff)
-        self.axialDepthmapWeightCheck.setDisabled(onoff)
-        if onoff:
-            self.axialDepthmapWeightCheck.setDisabled(onoff)
-        else:
-            self.setDepthmapWeighted(self.get_analysis_weighted())
+        self.analysis_settings.lock_widgets(onoff)
+        self.runAnalysisButton.setDisabled(onoff)
+        self.cancelAnalysisButton.setDisabled(not onoff)
 
     def clear_analysis_tab(self):
-        self.axialDepthmapAxialRadio.setChecked(True)
-        self.setDepthmapRadiusText('n')
-        self.axialDepthmapWeightCheck.setChecked(False)
-        self.axialDepthmapOutputText.clear()
-        self.axialDepthmapProgressBar.setValue(0)
-        self.axialDepthmapReportList.clear()
-
-    def setDepthmapAxialAnalysis(self):
-        self.axial_analysis_type = 0
-        self.setDepthmapRadiusText('n')
-        self.update_analysis_tab()
-
-    def setDepthmapSegmentAnalysis(self):
-        if self.getSegmentedMode() == 0:
-            self.axial_analysis_type = 1
-        else:
-            self.axial_analysis_type = 2
-        self.setDepthmapRadiusText('n')
-        self.update_analysis_tab()
-
-    def get_analysis_type(self):
-        return self.axial_analysis_type
-
-    def setDepthmapRadiusText(self, txt):
-        self.axialDepthmapRadiusText.setText(txt)
-
-    def checkDepthmapInputText(self):
-        if self.axialDepthmapRadiusText.text() != '' and self.axialDepthmapOutputText.text() != '':
-            self.axialDepthmapCalculateButton.setDisabled(False)
-            self.setAxialDepthmapCalculateTooltip('')
-        else:
-            self.axialDepthmapCalculateButton.setDisabled(True)
-            self.setAxialDepthmapCalculateTooltip('Check if the radius values and output table name are correct.')
-
-    def get_analysis_radius_text(self):
-        return self.axialDepthmapRadiusText.text()
-
-    def setDepthmapWeighted(self, state):
-        if state == 1:
-            self.axialDepthmapWeightCombo.setDisabled(False)
-        else:
-            self.axialDepthmapWeightCombo.setDisabled(True)
-
-    def setDepthmapWeightAttributes(self, txt):
-        self.axialDepthmapWeightCombo.clear()
-        self.axialDepthmapWeightCombo.addItems(txt)
-        self.axialDepthmapWeightCombo.setCurrentIndex(0)
-
-    def get_analysis_weighted(self):
-        if self.axialDepthmapWeightCheck.isChecked():
-            return 1
-        else:
-            return 0
-
-    def get_analysis_weight_attribute(self):
-        return self.axialDepthmapWeightCombo.currentText()
-
-    def setAxialDepthmapOutputTable(self, txt):
-        self.axialDepthmapOutputText.setText(txt)
-
-    def get_analysis_output_table(self):
-        return self.axialDepthmapOutputText.text()
-
-    def updateAxialDepthmapAdvancedSettings(self):
-        # these settings are only available in segment analysis
-        if self.axial_analysis_type == 1:  # segment analysis
-            self.dlg_depthmap.setDistanceType(1)
-            self.dlg_depthmap.disableDistanceType(True)
-            self.dlg_depthmap.setRadiusType(2)
-            self.dlg_depthmap.disableRadiusType(False)
-            self.dlg_depthmap.disableCalculateFull(True)
-            self.dlg_depthmap.disableCalculateNorm(False)
-            self.dlg_depthmap.disableRemoveStubs(False)
-        elif self.axial_analysis_type == 2:  # rcl and segment map analysis
-            self.dlg_depthmap.setDistanceType(1)
-            self.dlg_depthmap.disableDistanceType(True)
-            self.dlg_depthmap.setRadiusType(2)
-            self.dlg_depthmap.disableRadiusType(False)
-            self.dlg_depthmap.disableCalculateFull(True)
-            self.dlg_depthmap.disableCalculateNorm(False)
-            self.dlg_depthmap.disableRemoveStubs(True)
-        elif self.axial_analysis_type == 0:  # and axial analysis alternative
-            self.dlg_depthmap.setDistanceType(0)
-            self.dlg_depthmap.disableDistanceType(True)
-            self.dlg_depthmap.setRadiusType(0)
-            self.dlg_depthmap.disableRadiusType(True)
-            self.dlg_depthmap.disableCalculateFull(False)
-            self.dlg_depthmap.disableCalculateNorm(True)
-            self.dlg_depthmap.disableRemoveStubs(True)
-
-    def showAxialDepthmapAdvancedSettings(self):
-        self.dlg_depthmap.show()
-
-    def get_analysis_distance_type(self):
-        return self.dlg_depthmap.axialDistanceCombo.currentIndex()
-
-    def get_analysis_radius_type(self):
-        return self.dlg_depthmap.axialRadiusCombo.currentIndex()
-
-    def get_analysis_fullset(self):
-        if self.dlg_depthmap.axialCalculateFullCheck.isChecked():
-            return 1
-        else:
-            return 0
-
-    def get_analysis_choice(self):
-        if self.dlg_depthmap.axialCalculateChoiceCheck.isChecked():
-            return 1
-        else:
-            return 0
-
-    def get_analysis_normalised(self):
-        if self.dlg_depthmap.axialCalculateNormCheck.isChecked():
-            return 1
-        else:
-            return 0
-
-    def get_analysis_stubs(self):
-        return self.dlg_depthmap.axialStubsEdit.text()
-
-    def setAxialDepthmapCalculateTooltip(self, txt):
-        self.axialDepthmapCalculateButton.setToolTip(txt)
+        self.analysis_settings.set_defaults()
 
     def set_analysis_progressbar(self, value, maximum=100):
-        self.axialDepthmapProgressBar.setMaximum(maximum)
-        self.axialDepthmapProgressBar.setValue(value)
+        self.analysisProgressBar.setMaximum(maximum)
+        self.analysisProgressBar.setValue(value)
 
     def update_analysis_progressbar(self, value):
-        self.axialDepthmapProgressBar.setValue(value)
+        self.analysisProgressBar.setValue(value)
 
     def write_analysis_report(self, txt):
-        self.axialDepthmapReportList.appendPlainText(txt)
+        self.analysisProgressOutput.appendPlainText(txt)
 
     def clear_analysis_report(self):
-        self.axialDepthmapReportList.clear()
+        self.analysisProgressOutput.clear()
+
+    def prepare_analysis_settings(self, analysis_layer, datastore):
+        return self.analysis_settings.prepare_analysis_settings(analysis_layer, datastore)
+
+    def get_analysis_settings(self):
+        return self.analysis_settings.get_analysis_settings()
+
+    def get_analysis_summary(self):
+        return self.analysis_settings.get_analysis_summary()

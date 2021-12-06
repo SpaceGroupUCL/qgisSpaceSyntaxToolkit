@@ -5,8 +5,10 @@
 # -------------------
 # begin                : 2014-04-01
 # copyright            : (C) 2015 by Jorge Gil, UCL
+# copyright            : (C) 2021 by Space Syntax Ltd.
 # author               : Jorge Gil
 # email                : jorge.gil@ucl.ac.uk
+# contributor          : Petros Koutsolampros
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,17 +20,16 @@ from builtins import str
 from qgis.PyQt.QtCore import (QObject, QThread, pyqtSignal)
 from qgis.core import (QgsVertexId)
 
-from esstoolkit.analysis.AnalysisEngine import AnalysisEngine
-from esstoolkit.analysis.DepthmapEngine import DepthmapEngine
-from esstoolkit.analysis.DepthmapNetSocket import DepthmapNetSocket
-from esstoolkit.utilities import layer_field_helpers as lfh, utility_functions as uf
-
-
-# Import the PyQt and QGIS libraries
+from esstoolkit.analysis.engines.AnalysisEngine import AnalysisEngine
+from esstoolkit.analysis.engines.Depthmap.DepthmapEngine import DepthmapEngine
+from esstoolkit.analysis.engines.DepthmapNet.DepthmapNetSocket import DepthmapNetSocket
+from esstoolkit.utilities import layer_field_helpers as lfh
+from esstoolkit.utilities.utility_functions import overrides
+from esstoolkit.analysis.engines.DepthmapNet.DepthmapNetSettingsWidget import DepthmapNetSettingsWidget
 
 
 class DepthmapNetEngine(QObject, DepthmapEngine):
-
+    @overrides(DepthmapEngine)
     def __init__(self, iface):
         QObject.__init__(self)
 
@@ -41,6 +42,13 @@ class DepthmapNetEngine(QObject, DepthmapEngine):
         self.command = ''
         self.analysis_nodes = 0
         self.analysis_results = None
+
+    @staticmethod
+    def get_engine_name() -> str:
+        return "depthmapXnet35"
+
+    def create_settings_widget(self, dock_widget):
+        return DepthmapNetSettingsWidget(dock_widget)
 
     def ready(self):
         return self.connect_depthmap_net()
@@ -120,7 +128,8 @@ class DepthmapNetEngine(QObject, DepthmapEngine):
                     msg += result
             self.socket.closeSocket()
             attributes, values = self.parse_results(msg)
-            self.analysis_results = DepthmapEngine.process_analysis_result(analysis_settings, datastore, attributes, values)
+            self.analysis_results = DepthmapEngine.process_analysis_result(analysis_settings, datastore, attributes,
+                                                                           values)
             return 0, 100
         elif "--comm: 3," in msg:
             return self.parse_progress(msg)
@@ -134,20 +143,6 @@ class DepthmapNetEngine(QObject, DepthmapEngine):
 
     def showMessage(self, msg, type='Info', lev=1, dur=2):
         self.iface.messageBar().pushMessage(type, msg, level=lev, duration=dur)
-
-    def parse_radii(self, txt):
-        radii = txt
-        radii.lower()
-        radii = radii.replace(' ', '')
-        radii = radii.split(',')
-        radii.sort()
-        radii = list(set(radii))
-        radii = ['0' if x == 'n' else x for x in radii]
-        for r in radii:
-            if not uf.isNumeric(r):
-                return ''
-        radii = ','.join(radii)
-        return radii
 
     def setup_analysis(self, layers, settings):
         self.settings = settings

@@ -1,13 +1,32 @@
+# -*- coding: utf-8 -*-
+
+# Space Syntax Toolkit
+# Set of tools for essential space syntax network analysis and results exploration
+# -------------------
+# begin                : 2014-04-01
+# copyright            : (C) 2015 by Jorge Gil, UCL
+# copyright            : (C) 2021 by Space Syntax Ltd.
+# author               : Jorge Gil
+# email                : jorge.gil@ucl.ac.uk
+# contributor          : Petros Koutsolampros
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+
 import math
 
 from qgis.PyQt.QtCore import QVariant
 from qgis.core import (NULL)
 
-from esstoolkit.analysis.AnalysisEngine import AnalysisEngine
+from esstoolkit.analysis.engines.AnalysisEngine import AnalysisEngine
 from esstoolkit.utilities import layer_field_helpers as lfh, utility_functions as uf
+from esstoolkit.utilities.utility_functions import overrides
 
 
-class DepthmapEngine:
+class DepthmapEngine(AnalysisEngine):
+    @overrides(AnalysisEngine)
     def __init__(self):
         self.axial_default = ('Connectivity', 'Id', 'Line Length')
         self.segment_default = ('Angular Connectivity', 'Axial Connectivity', 'Axial Id',

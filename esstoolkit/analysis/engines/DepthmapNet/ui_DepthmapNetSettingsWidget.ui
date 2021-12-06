@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+    <class>DepthmapNetSettingsWidget</class>
+    <widget class="QWidget" name="axialDepthmapTab">
+        <attribute name="title">
+            <string>depthmapX remote</string>
+        </attribute>
+        <layout class="QVBoxLayout" name="verticalLayout">
+            <property name="margin">
+                <number>0</number>
+            </property>
+            <item>
+                <layout class="QHBoxLayout" name="axialDepthmapAnalysisLayout">
+                </layout>
+            </item>
+            <item>
+                <layout class="QGridLayout" name="axialDepthmapSettingsLayout">
+                    <item row="0" column="0">
+                        <widget class="QRadioButton" name="axialDepthmapAxialRadio">
+                            <property name="text">
+                                <string>Axial</string>
+                            </property>
+                            <property name="checked">
+                                <bool>true</bool>
+                            </property>
+                        </widget>
+                    </item>
+                    <item row="0" column="1" colspan="2">
+                        <widget class="QRadioButton" name="axialDepthmapSegmentRadio">
+                            <property name="text">
+                                <string>Segment</string>
+                            </property>
+                        </widget>
+                    </item>
+                    <item row="0" column="3">
+                        <widget class="QPushButton" name="axialDepthmapSettingsButton">
+                            <property name="text">
+                                <string>Settings</string>
+                            </property>
+                        </widget>
+                    </item>
+                    <item row="1" column="0" colspan="4">
+                        <widget class="Line" name="line">
+                            <property name="orientation">
+                                <enum>Qt::Horizontal</enum>
+                            </property>
+                        </widget>
+                    </item>
+                    <item row="2" column="0">
+                        <layout class="QHBoxLayout" name="axialDepthmapAnalysisLayout">
+                            <property name="spacing">
+                                <number>0</number>
+                            </property>
+                            <item>
+                                <spacer>
+                                    <property name="orientation">
+                                        <enum>Qt::Horizontal</enum>
+                                    </property>
+                                    <property name="sizeType">
+                                        <enum>QSizePolicy::Fixed</enum>
+                                    </property>
+                                    <property name="sizeHint" stdset="0">
+                                        <size>
+                                            <width>20</width>
+                                            <height>0</height>
+                                        </size>
+                                    </property>
+                                </spacer>
+                            </item>
+                            <item>
+                                <widget class="QLabel" name="axialDepthmapRadiusLabel">
+                                    <property name="text">
+                                        <string>Radius:</string>
+                                    </property>
+                                    <property name="alignment">
+                                        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                                    </property>
+                                </widget>
+                            </item>
+                        </layout>
+                    </item>
+                    <item row="2" column="1" colspan="3">
+                        <widget class="QLineEdit" name="axialDepthmapRadiusText">
+                            <property name="text">
+                                <string>2,4,n</string>
+                            </property>
+                        </widget>
+                    </item>
+                    <item row="3" column="0">
+                        <widget class="QCheckBox" name="axialDepthmapWeightCheck">
+                            <property name="layoutDirection">
+                                <enum>Qt::LeftToRight</enum>
+                            </property>
+                            <property name="text">
+                                <string>Weight:</string>
+                            </property>
+                        </widget>
+                    </item>
+                    <item row="3" column="1" colspan="3">
+                        <widget class="QComboBox" name="axialDepthmapWeightCombo"/>
+                    </item>
+                    <item row="4" column="0">
+                        <layout class="QHBoxLayout" name="axialDepthmapAnalysisLayout">
+                            <property name="spacing">
+                                <number>0</number>
+                            </property>
+                            <item>
+                                <spacer>
+                                    <property name="orientation">
+                                        <enum>Qt::Horizontal</enum>
+                                    </property>
+                                    <property name="sizeType">
+                                        <enum>QSizePolicy::Fixed</enum>
+                                    </property>
+                                    <property name="sizeHint" stdset="0">
+                                        <size>
+                                            <width>20</width>
+                                            <height>0</height>
+                                        </size>
+                                    </property>
+                                </spacer>
+                            </item>
+                            <item>
+                                <widget class="QLabel" name="axialDepthmapRadiusLabel">
+                                    <property name="text">
+                                        <string>Output table:</string>
+                                    </property>
+                                    <property name="alignment">
+                                        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                                    </property>
+                                </widget>
+                            </item>
+                        </layout>
+                    </item>
+                    <item row="4" column="1" colspan="3">
+                        <widget class="QLineEdit" name="axialDepthmapOutputText">
+                            <property name="sizePolicy">
+                                <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                                    <horstretch>0</horstretch>
+                                    <verstretch>0</verstretch>
+                                </sizepolicy>
+                            </property>
+                        </widget>
+                    </item>
+                </layout>
+            </item>
+            <item>
+                <widget class="QLabel" name="axialDepthmapDownload">
+                    <property name="toolTip">
+                        <string>https://varoudis.github.io/depthmapX/</string>
+                    </property>
+                    <property name="text">
+                        <string>&lt;qt&gt;&lt;a href=&quot;http://archtech.gr/varoudis/depthmapX/?dir=depthmapXnet&quot;&gt;&lt;span
+                            style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Download depthmapXnet...&lt;/a&gt;&lt;/qt&gt;
+                        </string>
+                    </property>
+                    <property name="alignment">
+                        <set>Qt::AlignRight</set>
+                    </property>
+                    <property name="openExternalLinks">
+                        <bool>true</bool>
+                    </property>
+                </widget>
+            </item>
+        </layout>
+    </widget>
+</ui>
