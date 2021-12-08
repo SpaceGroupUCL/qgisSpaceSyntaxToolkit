@@ -50,16 +50,20 @@ class AnalysisDialog(QtWidgets.QDockWidget, Ui_AnalysisDialog):
         self.axialReportFilterCombo.activated.connect(self.selectAxialProblemsFilter)
 
         # initialise
+        self.analysis_settings = None
         self.__selectLayerTab(0)
-        self.lockAxialEditTab(True)
+        self.lock_verification_tab(True)
         self.setDatastore('', '')
-        self.updateAxialVerifyReport()
+        self.update_verification_report()
 
     def set_available_engines(self, engineNames):
         self.engineSelectionCombo.addItems(engineNames)
 
     def set_analysis_settings_widget(self, settings_widget):
         self.analysis_settings = settings_widget
+        layout = self.engineSettings.layout()
+        for i in reversed(range(layout.count())):
+            layout.itemAt(i).widget().setParent(None)
         self.engineSettings.layout().addWidget(self.analysis_settings)
         self.lock_analysis_tab(True)
         self.clear_analysis_tab()
@@ -112,7 +116,6 @@ class AnalysisDialog(QtWidgets.QDockWidget, Ui_AnalysisDialog):
         self.setSegmentedMode(self.layers[0]['map_type'])
         self.clearAxialProblems()
         self.update_analysis_tabs()
-        self.update_analysis_tab()
 
     def __selectSegmentedMode(self, mode):
         self.layers[0]['map_type'] = mode
@@ -170,7 +173,7 @@ class AnalysisDialog(QtWidgets.QDockWidget, Ui_AnalysisDialog):
         if index < 1 or axindex < 1:
             self.axialAnalysisTabs.setTabEnabled(0, False)
             self.clearAxialProblems()
-            self.clearAxialVerifyReport()
+            self.clear_verification_report()
         else:
             if self.getLayerTab() == 0 and self.layers[0]['map_type'] == 2:
                 self.axialAnalysisTabs.setTabEnabled(0, False)
@@ -180,16 +183,23 @@ class AnalysisDialog(QtWidgets.QDockWidget, Ui_AnalysisDialog):
                 # self.analysisLayersTabs.setTabEnabled(1, True)
             self.axialAnalysisTabs.setTabEnabled(1, True)
             self.analysisMapSegmentCheck.setDisabled(False)
-            self.lockAxialEditTab(False)
-            self.updateAxialVerifyReport()
+            self.lock_verification_tab(False)
+            self.update_verification_report()
             # if the data store field is empty, use the same as the selected map layer
             if self.analysisDataEdit.text() in ("", "specify for storing analysis results"):
                 self.updateDatastore.emit(self.layers[0]['name'])
 
+        if self.analysis_settings is not None:
+            if self.layers[0]['idx'] > 0:
+                self.lock_analysis_tab(False)
+                self.analysis_settings.update_settings()
+            else:
+                self.lock_analysis_tab(True)
+
     #####
     # Functions of the verify layer tab
     #####
-    def lockAxialEditTab(self, onoff):
+    def lock_verification_tab(self, onoff):
         self.axialVerifyButton.setDisabled(onoff)
         if self.layers_tab > 0:
             self.axialUpdateButton.setDisabled(onoff)
@@ -198,7 +208,7 @@ class AnalysisDialog(QtWidgets.QDockWidget, Ui_AnalysisDialog):
         self.axialVerifyCancelButton.setDisabled(not onoff)
         self.axialVerifySettingsButton.setDisabled(onoff)
 
-    def updateAxialVerifyReport(self):
+    def update_verification_report(self):
         d = self.axial_verify_report[self.layers_tab]
         self.axialVerifyProgressBar.setValue(d['progress'])
         self.setAxialProblems(d['report'], d['nodes'])
@@ -209,9 +219,9 @@ class AnalysisDialog(QtWidgets.QDockWidget, Ui_AnalysisDialog):
         else:
             self.axialReportFilterCombo.setDisabled(True)
             self.axialReportList.setDisabled(True)
-            self.clearAxialVerifyReport()
+            self.clear_verification_report()
 
-    def clearAxialVerifyReport(self):
+    def clear_verification_report(self):
         self.axialVerifyProgressBar.setValue(0)
         self.axialReportFilterCombo.clear()
         self.axialReportList.clear()
@@ -383,13 +393,6 @@ class AnalysisDialog(QtWidgets.QDockWidget, Ui_AnalysisDialog):
 
     def showAxialEditSettings(self):
         self.dlg_verify.show()
-
-    def update_analysis_tab(self):
-        if self.layers[0]['idx'] > 0:
-            self.lock_analysis_tab(False)
-            self.analysis_settings.update_settings()
-        else:
-            self.lock_analysis_tab(True)
 
     def lock_analysis_tab(self, onoff):
         self.analysis_settings.lock_widgets(onoff)

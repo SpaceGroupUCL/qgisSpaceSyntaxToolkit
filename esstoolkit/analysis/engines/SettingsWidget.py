@@ -1,4 +1,5 @@
 from qgis.PyQt.QtWidgets import QWidget
+from esstoolkit.utilities.utility_functions import isNumeric
 
 
 class SettingsWidget(QWidget):
@@ -12,3 +13,22 @@ class SettingsWidget(QWidget):
         widget to synchronise its settings accordingly
         """
         pass
+
+    @staticmethod
+    def parse_radii(txt, nAs0):
+        radii = txt
+        radii.lower()
+        radii = radii.replace(' ', '')
+        radii = radii.split(',')
+        radii.sort()
+        radii = list(set(radii))
+        if nAs0:
+            radii = ['0' if x == 'n' else x for x in radii]
+        for r in radii:
+            if r == 'n':
+                if nAs0:
+                    return ''
+            elif not isNumeric(r):
+                return ''
+        radii = ','.join(radii)
+        return radii

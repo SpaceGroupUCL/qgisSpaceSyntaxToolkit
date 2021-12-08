@@ -13,6 +13,7 @@
 # (at your option) any later version.
 
 from qgis.PyQt.QtWidgets import (QWidget, QDockWidget)
+from esstoolkit.utilities import layer_field_helpers as lfh
 
 
 class AnalysisEngine:
@@ -24,7 +25,14 @@ class AnalysisEngine:
 
     def create_settings_widget(self, dock_widget: QDockWidget) -> QWidget:
         pass
-    
+
+    @staticmethod
+    def is_valid_unlinks_layer(self, unlinks_layer):
+        return lfh.fieldExists(unlinks_layer, 'line1') and \
+               lfh.fieldExists(unlinks_layer, 'line2') and \
+               not lfh.fieldHasNullValues(unlinks_layer, 'line1') and \
+               not lfh.fieldHasNullValues(unlinks_layer, 'line2')
+
     class AnalysisEngineError(Exception):
         """ Generic Exception raised when the engine errors"""
         pass

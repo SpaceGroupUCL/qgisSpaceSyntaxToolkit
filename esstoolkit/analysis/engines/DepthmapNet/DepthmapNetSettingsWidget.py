@@ -279,20 +279,6 @@ class DepthmapNetSettingsWidget(SettingsWidget, Ui_DepthmapNetSettingsWidget):
             else:
                 self.dlg_depthmap.setRemoveStubs(40)
 
-    def parse_radii(self, txt):
-        radii = txt
-        radii.lower()
-        radii = radii.replace(' ', '')
-        radii = radii.split(',')
-        radii.sort()
-        radii = list(set(radii))
-        radii = ['0' if x == 'n' else x for x in radii]
-        for r in radii:
-            if not uf.isNumeric(r):
-                return ''
-        radii = ','.join(radii)
-        return radii
-
     def prepare_analysis_settings(self, analysis_layer, datastore):
         self.axial_analysis_settings['valid'] = False
         # get analysis type based on map and axial/segment choice
@@ -307,7 +293,7 @@ class DepthmapNetSettingsWidget(SettingsWidget, Ui_DepthmapNetSettingsWidget):
         self.axial_analysis_settings['id'] = lfh.getIdField(analysis_layer)
         self.axial_analysis_settings['weight'] = self.get_analysis_weighted()
         self.axial_analysis_settings['weightBy'] = self.get_analysis_weight_attribute()
-        txt = self.parse_radii(self.get_analysis_radius_text())
+        txt = SettingsWidget.parse_radii(self.get_analysis_radius_text(), True)
         if txt == '':
             self.dockWidget.write_analysis_report("Please verify the radius values.")
             return

@@ -45,13 +45,20 @@ class AnalysisTool(QObject):
         self.engine_registry = EngineRegistry()
         self.analysis_running = False
 
+    def engineChanged(self, index):
+        new_engine = self.dlg.engineSelectionCombo.currentText()
+        self.analysis_engine = self.engine_registry.get_engine(new_engine, self.iface)
+        self.dlg.set_analysis_settings_widget(self.analysis_engine.create_settings_widget(self.dlg))
+        self.dlg.update_analysis_tabs()
+
     def load(self):
         # initialise UI
         self.dlg = AnalysisDialog(self.iface.mainWindow())
         available_engines = self.engine_registry.get_available_engines()
+        self.dlg.set_available_engines(available_engines)
         self.analysis_engine = self.engine_registry.get_engine(next(iter(available_engines)), self.iface)
         self.dlg.set_analysis_settings_widget(self.analysis_engine.create_settings_widget(self.dlg))
-        self.dlg.set_available_engines(available_engines)
+        self.dlg.engineSelectionCombo.currentIndexChanged.connect(self.engineChanged)
 
         # initialise axial analysis classes
         self.verificationThread = None
@@ -298,7 +305,6 @@ class AnalysisTool(QObject):
         self.dlg.set_map_layers(map_list, analysis_map, map_type)
         self.dlg.set_unlinks_layers(unlinks_list, analysis_unlinks)
         self.dlg.update_analysis_tabs()
-        self.dlg.update_analysis_tab()
 
     ##
     ## Layer verification functions
@@ -353,8 +359,8 @@ class AnalysisTool(QObject):
         # prepare dialog
         self.dlg.lockLayerTab(True)
         self.dlg.setAxialVerifyProgressbar(0, 100)
-        self.dlg.lockAxialEditTab(True)
-        self.dlg.clearAxialVerifyReport()
+        self.dlg.lock_verification_tab(True)
+        self.dlg.clear_verification_report()
         self.dlg.clearAxialProblems()
         if self.verificationThread:
             self.verificationThread.verificationFinished.connect(self.processAxialVerificationResults)
@@ -386,7 +392,7 @@ class AnalysisTool(QObject):
                 return False
             caps = unlinks.dataProvider().capabilities()
             if caps & QgsVectorDataProvider.ChangeAttributeValues:
-                self.dlg.lockAxialEditTab(True)
+                self.dlg.lock_verification_tab(True)
                 self.dlg.clearAxialProblems()
                 ids = lfh.getIdFieldNames(unlinks)
                 if ids:
@@ -397,8 +403,8 @@ class AnalysisTool(QObject):
         # prepare dialog
         self.dlg.lockLayerTab(True)
         self.dlg.setAxialVerifyProgressbar(0, 100)
-        self.dlg.lockAxialEditTab(True)
-        self.dlg.clearAxialVerifyReport()
+        self.dlg.lock_verification_tab(True)
+        self.dlg.clear_verification_report()
         self.dlg.clearAxialProblems()
         if self.verificationThread:
             self.verificationThread.verificationFinished.connect(self.processAxialIdUpdateResults)
@@ -420,7 +426,7 @@ class AnalysisTool(QObject):
         # self.verificationThread = None
         self.dlg.updateAxialVerifyProgressbar(0)
         self.dlg.lockLayerTab(False)
-        self.dlg.lockAxialEditTab(False)
+        self.dlg.lock_verification_tab(False)
 
     def processAxialIdUpdateResults(self):
         # stop thread
@@ -453,7 +459,7 @@ class AnalysisTool(QObject):
                 lfh.reloadLayer(layer)
         self.dlg.setAxialProblemsFilter(["Layer IDs updated"])
         self.dlg.lockLayerTab(False)
-        self.dlg.lockAxialEditTab(False)
+        self.dlg.lock_verification_tab(False)
         return True
 
     def cancelAxialVerification(self, txt=""):
@@ -469,7 +475,7 @@ class AnalysisTool(QObject):
         # self.verificationThread = None
         self.dlg.updateAxialVerifyProgressbar(0)
         self.dlg.lockLayerTab(False)
-        self.dlg.lockAxialEditTab(False)
+        self.dlg.lock_verification_tab(False)
 
     def processAxialVerificationResults(self, results, nodes):
         # stop thread
@@ -482,7 +488,7 @@ class AnalysisTool(QObject):
         self.verificationThread = None
         self.dlg.setAxialProblems(results, nodes)
         # build summary for filter Combo
-        self.dlg.lockAxialEditTab(False)
+        self.dlg.lock_verification_tab(False)
         if len(nodes) > 0:
             # nodes_list = sorted(set(nodes))
             summary = ["All problems (%s)" % len(nodes)]
@@ -590,6 +596,8 @@ class AnalysisTool(QObject):
             else:
                 self.dlg.write_analysis_report(
                     "Unable to run this analysis. Please check the input layer and analysis settings.")
+        else:
+            self.dlg.write_analysis_report("Analysis engine not ready")
 
     def compile_analysis_summary(self):
         message = u"Running analysis for map layer '%s':" % self.analysis_layers['map']
@@ -613,7 +621,7 @@ class AnalysisTool(QObject):
     def check_analysis_progress(self):
         analysis_settings = self.dlg.get_analysis_settings()
         try:
-            step, progress = self.analysis_engine.get_progress(analysis_settings, self.datastore)
+            step, progress, logmsg = self.analysis_engine.get_progress(analysis_settings, self.datastore)
             if not progress:
                 # no progress, just wait...
                 return

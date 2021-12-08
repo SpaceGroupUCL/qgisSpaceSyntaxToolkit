@@ -113,7 +113,7 @@ class DepthmapNetEngine(QObject, DepthmapEngine):
             pos2 = progress[-2].find(",0 ")
             prog = progress[-2][(pos1 + 4):pos2]
             relprog = (float(prog) / float(self.analysis_nodes)) * 100
-        return step, relprog
+        return step, relprog, ''
 
     def get_progress(self, analysis_settings, datastore):
         if not self.socket.isReady():

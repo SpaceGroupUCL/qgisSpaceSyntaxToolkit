@@ -304,7 +304,9 @@ class DepthmapEngine(AnalysisEngine):
         coords = [attributes.index('x1'), attributes.index('y1'), attributes.index('x2'), attributes.index('y2')]
         # calculate new normalised variables
         if settings['type'] in (1, 2) and settings['newnorm'] == 1:
-            new_attributes, values = DepthmapEngine.calculate_normalised_segment(attributes, values)
+            new_attributes, values = DepthmapEngine.calculate_normalised_segment(attributes, values, 'Choice',
+                                                                                 'Node_Count', 'Total_Depth', 'NACH',
+                                                                                 'NAIN')
             attributes.extend(new_attributes)
             new_types = [QVariant.Double] * len(new_attributes)
             types.extend(new_types)
@@ -336,7 +338,8 @@ class DepthmapEngine(AnalysisEngine):
         return attributes_to_remove
 
     @staticmethod
-    def calculate_normalised_segment(attributes, values):
+    def calculate_normalised_segment(attributes, values, choice_col, node_count_col, total_depth_col, nach_col,
+                                     nain_col):
         choice = []
         nc = []
         td = []
@@ -344,14 +347,14 @@ class DepthmapEngine(AnalysisEngine):
         nain = []
         # identify new attributes that need to be calculated
         for i, attr in enumerate(attributes):
-            if 'Choice' in attr:
+            if choice_col in attr:
                 choice.append(i)
-                nach.append(attr.replace('Choice', 'NACH'))
-            if 'Node_Count' in attr:
+                nach.append(attr.replace(choice_col, nach_col))
+            if node_count_col in attr:
                 nc.append(i)
-            if 'Total_Depth' in attr:
+            if total_depth_col in attr:
                 td.append(i)
-                nain.append(attr.replace('Total_Depth', 'NAIN'))
+                nain.append(attr.replace(total_depth_col, nain_col))
         new_attributes = []
         new_attributes.extend(nach)
         new_attributes.extend(nain)
