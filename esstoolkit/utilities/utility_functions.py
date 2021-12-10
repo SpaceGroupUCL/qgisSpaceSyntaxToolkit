@@ -188,3 +188,12 @@ def calcPvalue(x, y):
             ydiff2 += ydiff * ydiff
         pearson = diffprod / math.sqrt(xdiff2 * ydiff2)
     return pearson
+
+
+# https://stackoverflow.com/questions/1167617/in-python-how-do-i-indicate-im-overriding-a-method
+def overrides(interface_class):
+    def overrider(method):
+        assert (method.__name__ in dir(interface_class))
+        return method
+
+    return overrider

@@ -176,7 +176,7 @@ def create_shapefile_full_layer_data_provider(path, name, srid, attributes, type
     vl = QgsVectorLayer(filename, name, "ogr")
 
     if not vl.isValid():
-        raise IOError("Layer could not be created")
+        raise IOError("Layer (" + filename + ") could not be created")
         return None
     return vl
 
@@ -272,6 +272,7 @@ def createShapeFile(layer, path, crs):
         "ESRI Shapefile"
     )
     return shapefile
+
 
 def createShapeFileLayer(path, name, srid, attributes, types, geometrytype):
     # create new layer with given attributes

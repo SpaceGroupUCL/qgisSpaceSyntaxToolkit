@@ -17,7 +17,7 @@ from builtins import str
 
 from qgis.PyQt import QtWidgets
 
-from .ui_DepthmapAdvanced import Ui_DepthmapAdvancedDialog
+from esstoolkit.analysis.engines.DepthmapNet.ui_DepthmapAdvanced import Ui_DepthmapAdvancedDialog
 
 
 class DepthmapAdvancedDialog(QtWidgets.QDialog, Ui_DepthmapAdvancedDialog):

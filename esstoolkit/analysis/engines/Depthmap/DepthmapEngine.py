@@ -1,13 +1,32 @@
+# -*- coding: utf-8 -*-
+
+# Space Syntax Toolkit
+# Set of tools for essential space syntax network analysis and results exploration
+# -------------------
+# begin                : 2014-04-01
+# copyright            : (C) 2015 by Jorge Gil, UCL
+# copyright            : (C) 2021 by Space Syntax Ltd.
+# author               : Jorge Gil
+# email                : jorge.gil@ucl.ac.uk
+# contributor          : Petros Koutsolampros
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+
 import math
 
 from qgis.PyQt.QtCore import QVariant
 from qgis.core import (NULL)
 
-from esstoolkit.analysis.AnalysisEngine import AnalysisEngine
+from esstoolkit.analysis.engines.AnalysisEngine import AnalysisEngine
 from esstoolkit.utilities import layer_field_helpers as lfh, utility_functions as uf
+from esstoolkit.utilities.utility_functions import overrides
 
 
-class DepthmapEngine:
+class DepthmapEngine(AnalysisEngine):
+    @overrides(AnalysisEngine)
     def __init__(self):
         self.axial_default = ('Connectivity', 'Id', 'Line Length')
         self.segment_default = ('Angular Connectivity', 'Axial Connectivity', 'Axial Id',
@@ -285,7 +304,9 @@ class DepthmapEngine:
         coords = [attributes.index('x1'), attributes.index('y1'), attributes.index('x2'), attributes.index('y2')]
         # calculate new normalised variables
         if settings['type'] in (1, 2) and settings['newnorm'] == 1:
-            new_attributes, values = DepthmapEngine.calculate_normalised_segment(attributes, values)
+            new_attributes, values = DepthmapEngine.calculate_normalised_segment(attributes, values, 'Choice',
+                                                                                 'Node_Count', 'Total_Depth', 'NACH',
+                                                                                 'NAIN')
             attributes.extend(new_attributes)
             new_types = [QVariant.Double] * len(new_attributes)
             types.extend(new_types)
@@ -317,7 +338,8 @@ class DepthmapEngine:
         return attributes_to_remove
 
     @staticmethod
-    def calculate_normalised_segment(attributes, values):
+    def calculate_normalised_segment(attributes, values, choice_col, node_count_col, total_depth_col, nach_col,
+                                     nain_col):
         choice = []
         nc = []
         td = []
@@ -325,14 +347,14 @@ class DepthmapEngine:
         nain = []
         # identify new attributes that need to be calculated
         for i, attr in enumerate(attributes):
-            if 'Choice' in attr:
+            if choice_col in attr:
                 choice.append(i)
-                nach.append(attr.replace('Choice', 'NACH'))
-            if 'Node_Count' in attr:
+                nach.append(attr.replace(choice_col, nach_col))
+            if node_count_col in attr:
                 nc.append(i)
-            if 'Total_Depth' in attr:
+            if total_depth_col in attr:
                 td.append(i)
-                nain.append(attr.replace('Total_Depth', 'NAIN'))
+                nain.append(attr.replace(total_depth_col, nain_col))
         new_attributes = []
         new_attributes.extend(nach)
         new_attributes.extend(nain)

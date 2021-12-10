@@ -236,46 +236,15 @@
       </widget>
       <widget class="QWidget" name="axialDepthmapTab">
        <attribute name="title">
-        <string>depthmapX remote</string>
+        <string>Analysis</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,1">
-        <property name="bottomMargin">
-         <number>10</number>
-        </property>
         <item>
-         <layout class="QHBoxLayout" name="axialDepthmapAnalysisLayout">
-          <item>
-           <widget class="QRadioButton" name="axialDepthmapAxialRadio">
-            <property name="text">
-             <string>Axial</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QRadioButton" name="axialDepthmapSegmentRadio">
-            <property name="text">
-             <string>Segment</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="axialDepthmapSettingsButton">
-            <property name="text">
-             <string>Settings</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <layout class="QGridLayout" name="axialDepthmapSettingsLayout">
+         <layout class="QGridLayout">
           <item row="0" column="0">
-           <widget class="QLabel" name="axialDepthmapRadiusLabel">
+           <widget class="QLabel">
             <property name="text">
-             <string>Radius:</string>
+             <string>Engine</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -283,90 +252,45 @@
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="QLineEdit" name="axialDepthmapRadiusText">
-            <property name="text">
-             <string>2,4,n</string>
-            </property>
+           <widget class="QComboBox" name="engineSelectionCombo" />
+          </item>
+          <item row="1" column="0" colspan="2">
+           <widget class="QWidget" name="engineSettings">
+            <layout class="QVBoxLayout" name="verticalLayout" >
+             <property name="margin">
+              <number>0</number>
+             </property>
+            </layout>
            </widget>
           </item>
-          <item row="1" column="0">
-           <widget class="QCheckBox" name="axialDepthmapWeightCheck">
-            <property name="layoutDirection">
-             <enum>Qt::LeftToRight</enum>
-            </property>
-            <property name="text">
-             <string>Weight:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QComboBox" name="axialDepthmapWeightCombo"/>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <layout class="QGridLayout" name="axialDepthmapOuputLayout" columnstretch="0,1,0" columnminimumwidth="0,1,0">
-          <item row="0" column="0">
-           <widget class="QLabel" name="axialDepthmapOutputLabel">
-            <property name="text">
-             <string>Output table:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1" colspan="2">
-           <widget class="QLineEdit" name="axialDepthmapOutputText">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QPushButton" name="axialDepthmapCalculateButton">
+          <item row="2" column="0">
+           <widget class="QPushButton" name="runAnalysisButton">
             <property name="text">
              <string>Calculate</string>
             </property>
            </widget>
           </item>
-          <item row="1" column="1">
-           <widget class="QProgressBar" name="axialDepthmapProgressBar">
-            <property name="value">
-             <number>24</number>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="2">
-           <widget class="QPushButton" name="axialDepthmapCancelButton">
+          <item row="2" column="1">
+           <widget class="QPushButton" name="cancelAnalysisButton">
             <property name="text">
              <string>Cancel</string>
             </property>
            </widget>
           </item>
+          <item row="3" column="0" colspan="2">
+           <widget class="QProgressBar" name="analysisProgressBar">
+            <property name="value">
+             <number>24</number>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0" colspan="2">
+           <widget class="QPlainTextEdit" name="analysisProgressOutput"/>
+          </item>
          </layout>
-        </item>
-        <item>
-         <widget class="QPlainTextEdit" name="axialDepthmapReportList"/>
         </item>
        </layout>
       </widget>
-     </widget>
-    </item>
-    <item>
-     <widget class="QLabel" name="axialDepthmapDownload">
-      <property name="toolTip">
-       <string>https://varoudis.github.io/depthmapX/</string>
-      </property>
-      <property name="text">
-       <string>&lt;qt&gt;&lt;a href=&quot;http://archtech.gr/varoudis/depthmapX/?dir=depthmapXnet&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Download depthmapXnet...&lt;/a&gt;&lt;/qt&gt;</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-      <property name="openExternalLinks">
-       <bool>true</bool>
-      </property>
      </widget>
     </item>
    </layout>
