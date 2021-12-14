@@ -578,7 +578,7 @@ class AnalysisTool(QObject):
             self.analysis_output = analysis_settings['output']
 
             analysis_ready = self.analysis_engine.setup_analysis(self.analysis_layers, analysis_settings)
-            if analysis_ready:
+            if analysis_ready[0]:
                 self.updateProjectSettings()
                 self.start_time = datetime.datetime.now()
                 # write a short analysis summary
@@ -596,6 +596,8 @@ class AnalysisTool(QObject):
             else:
                 self.dlg.write_analysis_report(
                     "Unable to run this analysis. Please check the input layer and analysis settings.")
+                if analysis_ready[1] != '':
+                    self.showMessage(analysis_ready[1], 'Info', lev=1, dur=5)
         else:
             self.dlg.write_analysis_report("Analysis engine not ready")
 
