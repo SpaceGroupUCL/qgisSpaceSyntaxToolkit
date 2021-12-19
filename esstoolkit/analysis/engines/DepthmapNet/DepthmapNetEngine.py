@@ -130,13 +130,13 @@ class DepthmapNetEngine(QObject, DepthmapEngine):
             attributes, values = self.parse_results(msg)
             self.analysis_results = DepthmapEngine.process_analysis_result(analysis_settings, datastore, attributes,
                                                                            values)
-            return 0, 100
+            return 0, 100, None
         elif "--comm: 3," in msg:
             return self.parse_progress(msg)
         elif not connected:
             raise AnalysisEngine.AnalysisEngineError("Socket connection failed, make sure"
                                                      "depthmapXNet is running")
-        return None, None
+        return None, None, None
 
     def cleanup(self):
         self.socket.closeSocket()
@@ -151,7 +151,7 @@ class DepthmapNetEngine(QObject, DepthmapEngine):
         if axial != '':
             self.axial_layer = lfh.getLegendLayerByName(self.iface, axial)
         else:
-            return False
+            return False, 'No layer selected'
         if layers['unlinks'] != '':
             self.unlinks_layer = lfh.getLegendLayerByName(self.iface, layers['unlinks'])
         else:
@@ -172,8 +172,7 @@ class DepthmapNetEngine(QObject, DepthmapEngine):
             axial_data = self.prepare_axial_map(self.axial_layer, self.settings['type'],
                                                 self.axial_id, weight_by, '\t', False)
             if axial_data == '':
-                self.showMessage("The axial layer is not ready for analysis: verify it first.", 'Info', lev=1, dur=5)
-                return False
+                return False, "The axial layer is not ready for analysis: verify it first."
             if self.unlinks_layer:
                 unlinks_data = self.prepare_unlinks(self.axial_layer, self.unlinks_layer, self.axial_id)
             else:
@@ -265,7 +264,7 @@ class DepthmapNetEngine(QObject, DepthmapEngine):
             footer += "--end--\n"
             command = header + axial_data + footer
         self.command = command
-        return command and command != ''
+        return command and command != '', ''
 
     def getWeightPosition(self, name):
         pos = -1
