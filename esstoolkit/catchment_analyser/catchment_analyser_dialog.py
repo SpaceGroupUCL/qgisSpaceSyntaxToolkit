@@ -146,7 +146,7 @@ class CatchmentAnalyserDialog(QDialog, FORM_CLASS):
             self.costCombo.addItems(['length'] + names)
         else:
             fields = ['-----']
-            self.costCombo.addItems('length')
+            self.costCombo.addItem('length')
             self.costCombo.addItems(fields)
 
     def getCostField(self):
