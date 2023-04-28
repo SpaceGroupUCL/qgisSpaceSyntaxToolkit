@@ -127,7 +127,10 @@ class NetworkSegmenterTool(QObject):
 
     def updateLayers(self):
         layers = lfh.getLineLayers()
-        self.dlg.popActiveLayers(layers)
+        if self.dlg is not None:
+            self.dlg.popActiveLayers(layers)
+        else: 
+            print("Warning: 'self.dlg' is not initialized.")
 
     def updateOutputName(self):
         if self.dlg.memoryRadioButton.isChecked():
