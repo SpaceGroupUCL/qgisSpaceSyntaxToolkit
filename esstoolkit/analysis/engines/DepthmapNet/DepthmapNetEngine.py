@@ -99,20 +99,21 @@ class DepthmapNetEngine(QObject, DepthmapEngine):
         # calculate percent done and adjust timer
         relprog = 0
         step = 0
+        # extract progress info from string
+        progress = msg.split("\n")
         # extract number of nodes
         if "--comm: 2," in msg:
             pos1 = msg.find(": 2,")
             pos2 = msg.find(",0 --", pos1)
             self.analysis_nodes = int(msg[(pos1 + 4):pos2])
             step = int(self.analysis_nodes) * 0.2
-        # extract progress info from string
-        progress = msg.split("\n")
         # calculate progress
-        if self.analysis_nodes > 0:
-            pos1 = progress[-2].find(": 3,")
-            pos2 = progress[-2].find(",0 ")
-            prog = progress[-2][(pos1 + 4):pos2]
-            relprog = (float(prog) / float(self.analysis_nodes)) * 100
+        elif "--comm: 3," in msg:
+            if self.analysis_nodes > 0:
+                pos1 = progress[-2].find(": 3,")
+                pos2 = progress[-2].find(",0 ")
+                prog = progress[-2][(pos1 + 4):pos2]
+                relprog = int((float(prog) / float(self.analysis_nodes)) * 100)
         return step, relprog, ''
 
     def get_progress(self, analysis_settings, datastore):
@@ -131,6 +132,8 @@ class DepthmapNetEngine(QObject, DepthmapEngine):
             self.analysis_results = DepthmapEngine.process_analysis_result(analysis_settings, datastore, attributes,
                                                                            values)
             return 0, 100, None
+        elif "--comm: 2," in msg:
+            return self.parse_progress(msg)
         elif "--comm: 3," in msg:
             return self.parse_progress(msg)
         elif not connected:
