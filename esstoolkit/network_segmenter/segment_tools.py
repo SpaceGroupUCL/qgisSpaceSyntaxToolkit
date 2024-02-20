@@ -82,16 +82,20 @@ class segmentor(QObject):
             line1_geom = self.feats[lines[0]].geometry()
             line2_geom = self.feats[lines[1]].geometry()
             unlink_geom = line1_geom.intersection(line2_geom)
-            unlink_geom_p = unlink_geom.centroid().asPoint()
-            if unlink_geom_p in line1_geom.asPolyline():
-                # what if unlink on polyline vertices
-                self.invalid_unlinks.append(unlink_geom_p)
-            elif unlink_geom_p in line2_geom.asPolyline():
-                self.invalid_unlinks.append(unlink_geom_p)
+            # fix cases where lines might be disconnected and the intersection of the lines is NULL
+            if unlink_geom:
+                unlink_geom_p = unlink_geom.centroid().asPoint()
+                if unlink_geom_p in line1_geom.asPolyline():
+                    # what if unlink on polyline vertices
+                    self.invalid_unlinks.append(unlink_geom_p)
+                elif unlink_geom_p in line2_geom.asPolyline():
+                    self.invalid_unlinks.append(unlink_geom_p)
+                else:
+                    # save point and not line - if line unlinked by one line in two points
+                    self.unlinks_points[lines[0]].append(unlink_geom.centroid().asPoint())
+                    self.unlinks_points[lines[1]].append(unlink_geom.centroid().asPoint())
             else:
-                # save point and not line - if line unlinked by one line in two points
-                self.unlinks_points[lines[0]].append(unlink_geom.centroid().asPoint())
-                self.unlinks_points[lines[1]].append(unlink_geom.centroid().asPoint())
+                self.invalid_unlinks.append(unlink.geometry().asPoint())
         return True
 
     # for every line explode and crossings
